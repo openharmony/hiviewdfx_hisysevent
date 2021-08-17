@@ -62,6 +62,12 @@ const std::string HiSysEvent::Domain::WEARABLE_HARDWARE = "WEARABLEHW";
 const std::string HiSysEvent::Domain::WEARABLE = "WEARABLE";
 const std::string HiSysEvent::Domain::OTHERS = "OTHERS";
 
+#ifdef USE_MUSL
+static constexpr char SOCKET_FILE_DIR[] = "/dev/unix/socket/hisysevent";
+#else
+static constexpr char SOCKET_FILE_DIR[] = "/dev/socket/hisysevent";
+#endif
+
 static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
 
 static inline uint64_t GetMilliseconds()
@@ -104,7 +110,7 @@ void HiSysEvent::SendSysEvent(std::stringstream &jsonStr)
 {
     struct sockaddr_un serverAddr;
     serverAddr.sun_family = AF_UNIX;
-    if (strcpy_s(serverAddr.sun_path, sizeof(serverAddr.sun_path), "/dev/socket/hisysevent") != EOK) {
+    if (strcpy_s(serverAddr.sun_path, sizeof(serverAddr.sun_path), SOCKET_FILE_DIR) != EOK) {
         HiLog::Error(LABEL, "can not assign server path");
         return;
     }
@@ -118,7 +124,8 @@ void HiSysEvent::SendSysEvent(std::stringstream &jsonStr)
     if (sendto(socketId, jsonStr.str().c_str(), jsonStr.str().length(), 0, reinterpret_cast<sockaddr*>(&serverAddr),
         sizeof(serverAddr)) < 0) {
         close(socketId);
-        HiLog::Error(LABEL, "send data to hisysevent server fail");
+        HiLog::Error(LABEL, "send data to hisysevent server fail, error=%{public}d, msg=%{public}s",
+            errno, strerror(errno));
         return;
     }
     close(socketId);
