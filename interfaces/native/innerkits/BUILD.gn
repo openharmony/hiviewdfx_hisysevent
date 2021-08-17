@@ -16,6 +16,10 @@ import("//build/ohos.gni")
 config("hisysevent_config") {
   visibility = [ "*:*" ]
 
+  if (use_musl) {
+    cflags_cc = [ "-DUSE_MUSL" ]
+  }
+
   include_dirs =
       [ "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/include" ]
 }
