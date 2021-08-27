@@ -4,7 +4,9 @@
     "hisysevent_native": {
       "variants": [
         "phone",
-        "wearable"
+        "ivi",
+        "wearable",
+        "intellitv"
       ],
       "module_list": [
         "//base/hiviewdfx/hisysevent/interfaces/native/innerkits:libhisysevent"
