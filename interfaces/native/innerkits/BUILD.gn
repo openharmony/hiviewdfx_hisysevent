@@ -20,8 +20,10 @@ config("hisysevent_config") {
     cflags_cc = [ "-DUSE_MUSL" ]
   }
 
-  include_dirs =
-      [ "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/include" ]
+  include_dirs = [
+    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/include",
+    "//utils/native/base/include",
+  ]
 }
 
 ohos_shared_library("libhisysevent") {
