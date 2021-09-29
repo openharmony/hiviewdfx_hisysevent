@@ -26,6 +26,7 @@
 
 #include <securec.h>
 #include "hilog/log.h"
+#include "singleton.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -236,28 +237,28 @@ static int SendToHiSysEventDataSource(const std::string &jsonStr)
     return SUCCESS;
 }
 
-class FailDataQueue {
+class FailDataQueue : public DelayedSingleton<FailDataQueue> {
 public:
-    FailDataQueue(): max_(10) // the max size of list
-    {}
-    ~FailDataQueue()
-    {}
     void AddData(const std::string &jsonStr);
     void RetrySendFailedData();
-    static FailDataQueue& GetInstance();
 
+    DECLARE_DELAYED_SINGLETON(FailDataQueue);
+    DISALLOW_COPY_AND_MOVE(FailDataQueue);
 private:
-    static FailDataQueue instance_;
     std::size_t max_;
-    std::mutex mutex_;
+    std::mutex qmutex_;
     std::list<std::string> jsonStrs_;
 };
 
-FailDataQueue FailDataQueue::instance_;
+FailDataQueue::FailDataQueue(): max_(10) // 10 the max size of list
+{}
+
+FailDataQueue::~FailDataQueue()
+{}
 
 void FailDataQueue::AddData(const std::string &jsonStr)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(qmutex_);
     if (jsonStrs_.size() >= max_) {
         HiLog::Info(LABEL, "dispatch retry sysevent data as reach max size");
         jsonStrs_.pop_front();
@@ -267,7 +268,7 @@ void FailDataQueue::AddData(const std::string &jsonStr)
 
 void FailDataQueue::RetrySendFailedData()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(qmutex_);
     while (!jsonStrs_.empty()) {
         std::string jsonStr = jsonStrs_.front();
         HiLog::Debug(LABEL, "resend data size=%{public}lu, sysevent=%{public}s",
@@ -277,11 +278,6 @@ void FailDataQueue::RetrySendFailedData()
         }
         jsonStrs_.pop_front();
     }
-}
-
-FailDataQueue& FailDataQueue::GetInstance()
-{
-    return instance_;
 }
 
 int HiSysEvent::CheckDomain(HiSysEvent::EventBase &eventBase)
@@ -542,7 +538,7 @@ int HiSysEvent::SendSysEvent(HiSysEvent::EventBase &eventBase)
     HiLog::Debug(LABEL, "size=%{public}lu, sysevent=%{public}s",
         static_cast<unsigned long>(jsonStr.size()), jsonStr.c_str());
 
-    FailDataQueue::GetInstance().RetrySendFailedData();
+    FailDataQueue::GetInstance()->RetrySendFailedData();
     int tryTimes = 3;
     int retCode = SUCCESS;
     while (tryTimes > 0) {
@@ -553,7 +549,7 @@ int HiSysEvent::SendSysEvent(HiSysEvent::EventBase &eventBase)
         }
     }
 
-    FailDataQueue::GetInstance().AddData(jsonStr);
+    FailDataQueue::GetInstance()->AddData(jsonStr);
     return retCode;
 }
 } // HiviewDFX
