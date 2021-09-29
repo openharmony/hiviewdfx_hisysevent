@@ -27,42 +27,42 @@ public:
     // system event domain list
     class Domain {
     public:
-        static const std::string AAFWK;
-        static const std::string APPEXECFWK;
-        static const std::string ACCOUNT;
-        static const std::string ACE;
-        static const std::string AI;
-        static const std::string BARRIER_FREE;
-        static const std::string BIOMETRICS;
-        static const std::string CCRUNTIME;
-        static const std::string COMMUNICATION;
-        static const std::string DEVELOPTOOLS;
-        static const std::string DISTRIBUTED_DATAMGR;
-        static const std::string DISTRIBUTED_SCHEDULE;
-        static const std::string GLOBAL;
-        static const std::string GRAPHIC;
-        static const std::string HIVIEWDFX;
-        static const std::string IAWARE;
-        static const std::string INTELLI_ACCESSORIES;
-        static const std::string INTELLI_TV;
-        static const std::string IVI_HARDWARE;
-        static const std::string LOCATION;
-        static const std::string MSDP;
-        static const std::string MULTI_MEDIA;
-        static const std::string MULTI_MODAL_INPUT;
-        static const std::string NOTIFICATION;
-        static const std::string POWERMGR;
-        static const std::string ROUTER;
-        static const std::string SECURITY;
-        static const std::string SENSORS;
-        static const std::string SOURCE_CODE_TRANSFORMER;
-        static const std::string STARTUP;
-        static const std::string TELEPHONY;
-        static const std::string UPDATE;
-        static const std::string USB;
-        static const std::string WEARABLE_HARDWARE;
-        static const std::string WEARABLE;
-        static const std::string OTHERS;
+        static constexpr char AAFWK[] = "AAFWK";
+        static constexpr char APPEXECFWK[] = "APPEXECFWK";
+        static constexpr char ACCOUNT[] = "ACCOUNT";
+        static constexpr char ACE[] = "ACE";
+        static constexpr char AI[] = "AI";
+        static constexpr char BARRIER_FREE[] = "BARRIERFREE";
+        static constexpr char BIOMETRICS[] = "BIOMETRICS";
+        static constexpr char CCRUNTIME[] = "CCRUNTIME";
+        static constexpr char COMMUNICATION[] = "COMMUNICATION";
+        static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
+        static constexpr char DISTRIBUTED_DATAMGR[] = "DISTDATAMGR";
+        static constexpr char DISTRIBUTED_SCHEDULE[] = "DISTSCHEDULE";
+        static constexpr char GLOBAL[] = "GLOBAL";
+        static constexpr char GRAPHIC[] = "GRAPHIC";
+        static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
+        static constexpr char IAWARE[] = "IAWARE";
+        static constexpr char INTELLI_ACCESSORIES[] = "INTELLIACC";
+        static constexpr char INTELLI_TV[] = "INTELLITV";
+        static constexpr char IVI_HARDWARE[] = "IVIHARDWARE";
+        static constexpr char LOCATION[] = "LOCATION";
+        static constexpr char MSDP[] = "MSDP";
+        static constexpr char MULTI_MEDIA[] = "MULTIMEDIA";
+        static constexpr char MULTI_MODAL_INPUT[] = "MULTIMODALINPUT";
+        static constexpr char NOTIFICATION[] = "NOTIFICATION";
+        static constexpr char POWERMGR[] = "POWERMGR";
+        static constexpr char ROUTER[] = "ROUTER";
+        static constexpr char SECURITY[] = "SECURITY";
+        static constexpr char SENSORS[] = "SENSORS";
+        static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
+        static constexpr char STARTUP[] = "STARTUP";
+        static constexpr char TELEPHONY[] = "TELEPHONY";
+        static constexpr char UPDATE[] = "UPDATE";
+        static constexpr char USB[] = "USB";
+        static constexpr char WEARABLE_HARDWARE[] = "WEARABLEHW";
+        static constexpr char WEARABLE[] = "WEARABLE";
+        static constexpr char OTHERS[] = "OTHERS";
     };
 
 public:
@@ -84,322 +84,333 @@ public:
     template<typename... Types> static int Write(const std::string &domain, const std::string &eventName,
         EventType type, Types... keyValues)
     {
-        std::stringstream jsonStr;
-        jsonStr << "{";
-        WritebaseInfo(jsonStr, domain, eventName, type);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
-        jsonStr << "}";
-        SendSysEvent(jsonStr);
-        return 0;
+        EventBase eventBase(domain, eventName, type);
+        eventBase.jsonStr_ << "{";
+        WritebaseInfo(eventBase);
+        if (IsError(eventBase)) {
+            ExplainRetCode(eventBase);
+            return eventBase.retCode_;
+        }
+
+        InnerWrite(eventBase, keyValues...);
+        if (IsError(eventBase)) {
+            ExplainRetCode(eventBase);
+            return eventBase.retCode_;
+        }
+        eventBase.jsonStr_ << "}";
+
+        if (IsWarnAndUpdate(SendSysEvent(eventBase), eventBase)) {
+            ExplainRetCode(eventBase);
+            return eventBase.retCode_;
+        }
+        ExplainRetCode(eventBase);
+        return eventBase.retCode_;
     }
 
 private:
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, bool value, Types... keyValues)
+    class EventBase {
+    public:
+        EventBase(const std::string &domain, const std::string &eventName, const EventType &type)
+            : retCode_(0), keyCnt_(0), domain_(domain), eventName_(eventName), type_(type)
+            {};
+        ~EventBase() {}
+    public:
+        int retCode_;
+        unsigned int keyCnt_;
+        std::stringstream jsonStr_;
+        const std::string &domain_;
+        const std::string &eventName_;
+        const EventType &type_;
+    };
+private:
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, bool value, Types... keyValues)
     {
-        AppendData<bool>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<bool>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const char value, Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const char value, Types... keyValues)
     {
-        AppendData<short>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<short>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const unsigned char value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const unsigned char value, Types... keyValues)
     {
-        AppendData<unsigned short>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<unsigned short>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const short value, Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const short value, Types... keyValues)
     {
-        AppendData<short>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<short>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const unsigned short value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const unsigned short value, Types... keyValues)
     {
-        AppendData<unsigned short>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<unsigned short>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const int value, Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const int value, Types... keyValues)
     {
-        AppendData<int>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<int>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const unsigned int value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const unsigned int value, Types... keyValues)
     {
-        AppendData<unsigned int>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<unsigned int>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const long value, Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const long value, Types... keyValues)
     {
-        AppendData<long>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<long>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const unsigned long value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const unsigned long value, Types... keyValues)
     {
-        AppendData<unsigned long>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<unsigned long>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const long long value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const long long value, Types... keyValues)
     {
-        AppendData<long long>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<long long>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const unsigned long long value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const unsigned long long value, Types... keyValues)
     {
-        AppendData<unsigned long long>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<unsigned long long>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const float value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const float value, Types... keyValues)
     {
-        AppendData<float>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<float>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const double value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const double value, Types... keyValues)
     {
-        AppendData<double>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData<double>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::string &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const std::string &value, Types... keyValues)
     {
-        AppendData(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const char *value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase, const std::string &key, const char *value, Types... keyValues)
     {
-        AppendData(jsonStr, key, std::string(value));
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendData(eventBase, key, std::string(value));
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<bool> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<bool> &value, Types... keyValues)
     {
-        AppendArrayData<bool>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData<bool>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<char> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<char> &value, Types... keyValues)
     {
-        AppendArrayData(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<unsigned char> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<unsigned char> &value, Types... keyValues)
     {
-        AppendArrayData(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<short> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<short> &value, Types... keyValues)
     {
-        AppendArrayData<short>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData<short>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<unsigned short> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<unsigned short> &value, Types... keyValues)
     {
-        AppendArrayData<unsigned short>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData<unsigned short>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<int> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<int> &value, Types... keyValues)
     {
-        AppendArrayData<int>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData<int>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<unsigned int> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<unsigned int> &value, Types... keyValues)
     {
-        AppendArrayData<unsigned int>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData<unsigned int>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<long> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<long> &value, Types... keyValues)
     {
-        AppendArrayData<long>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData<long>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<unsigned long> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<unsigned long> &value, Types... keyValues)
     {
-        AppendArrayData<unsigned long>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData<unsigned long>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<long long> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<long long> &value, Types... keyValues)
     {
-        AppendArrayData<long long>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData<long long>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type,
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
         const std::string &key, const std::vector<unsigned long long> &value, Types... keyValues)
     {
-        AppendArrayData<unsigned long long>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData<unsigned long long>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<float> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<float> &value, Types... keyValues)
     {
-        AppendArrayData<float>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData<float>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<double> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<double> &value, Types... keyValues)
     {
-        AppendArrayData<double>(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData<double>(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename... Types> static void InnerWrite(std::stringstream &jsonStr, const std::string &domain,
-        const std::string &eventName, EventType type, const std::string &key, const std::vector<std::string> &value,
-        Types... keyValues)
+    template<typename... Types>
+    static void InnerWrite(EventBase &eventBase,
+        const std::string &key, const std::vector<std::string> &value, Types... keyValues)
     {
-        AppendArrayData(jsonStr, key, value);
-        InnerWrite(jsonStr, domain, eventName, type, keyValues...);
+        AppendArrayData(eventBase, key, value);
+        InnerWrite(eventBase, keyValues...);
     }
 
-    template<typename T> static void AppendData(std::stringstream &jsonStr, const std::string &key, T value)
+    template<typename T>
+    static void AppendData(EventBase &eventBase, const std::string &key, T value, bool isDefKey = true)
     {
-        jsonStr << "\"" << key << "\":" << value << ",";
-    }
-
-    static void AppendArrayData(std::stringstream &jsonStr,
-        const std::string &key, const std::vector<std::string> &value)
-    {
-        if (value.empty()) {
-            jsonStr << "\"" << key << "\":[]";
+        if (IsWarnAndUpdate(CheckKey(key), eventBase)) {
             return;
         }
-        jsonStr << "\"" << key << "\":[";
-        for (auto item = value.begin(); item != value.end(); item++) {
-            jsonStr << "\"" << (*item) << "\",";
-        }
-        if (jsonStr.tellp() != 0) {
-            jsonStr.seekp(-1, std::ios_base::end);
-        }
-        jsonStr << "],";
-    }
-
-    static void AppendArrayData(std::stringstream &jsonStr, const std::string &key, const std::vector<char> &value)
-    {
-        if (value.empty()) {
-            jsonStr << "\"" << key << "\":[]";
+        if (UpdateAndCheckKeyNumIsOver(eventBase, isDefKey)) {
             return;
         }
-        jsonStr << "\"" << key << "\":[";
-        for (auto item = value.begin(); item != value.end(); item++) {
-            jsonStr << static_cast<short>(*item) << ",";
-        }
-        if (jsonStr.tellp() != 0) {
-            jsonStr.seekp(-1, std::ios_base::end);
-        }
-        jsonStr << "],";
+        eventBase.jsonStr_ << "\"" << key << "\":" << value << ",";
     }
 
-    static void AppendArrayData(std::stringstream &jsonStr,
-        const std::string &key, const std::vector<unsigned char> &value)
+    template<typename T>
+    static void AppendArrayData(EventBase &eventBase, const std::string &key, const std::vector<T> &value,
+        bool isDefKey = true)
     {
-        if (value.empty()) {
-            jsonStr << "\"" << key << "\":[]";
+        if (IsWarnAndUpdate(CheckKey(key), eventBase)) {
             return;
         }
-        jsonStr << "\"" << key << "\":[";
-        for (auto item = value.begin(); item != value.end(); item++) {
-            jsonStr << static_cast<short>(*item) << ",";
-        }
-        if (jsonStr.tellp() != 0) {
-            jsonStr.seekp(-1, std::ios_base::end);
-        }
-        jsonStr << "],";
-    }
 
-    template<typename T> static void AppendArrayData(std::stringstream &jsonStr,
-        const std::string &key, const std::vector<T> &value)
-    {
-        if (value.empty()) {
-            jsonStr << "\"" << key << "\":[]";
+        if (UpdateAndCheckKeyNumIsOver(eventBase, isDefKey)) {
             return;
         }
-        jsonStr << "\"" << key << "\":[";
+
+        if (value.empty()) {
+            eventBase.jsonStr_ << "\"" << key << "\":[]";
+            return;
+        }
+
+        IsWarnAndUpdate(CheckArraySize(value.size()), eventBase);
+
+        unsigned int index = 0;
+        unsigned int arrayMax = GetArrayMax();
+        eventBase.jsonStr_ << "\"" << key << "\":[";
         for (auto item = value.begin(); item != value.end(); item++) {
-            jsonStr << (*item) << ",";
+            index++;
+            if (index > arrayMax) {
+                break;
+            }
+            eventBase.jsonStr_ << (*item) << ",";
         }
-        if (jsonStr.tellp() != 0) {
-            jsonStr.seekp(-1, std::ios_base::end);
+        if (eventBase.jsonStr_.tellp() != 0) {
+            eventBase.jsonStr_.seekp(-1, std::ios_base::end);
         }
-        jsonStr << "],";
+        eventBase.jsonStr_ << "],";
     }
 
-    static void AppendHexData(std::stringstream &jsonStr, const std::string &key, uint64_t value);
-    static void AppendData(std::stringstream &jsonStr, const std::string &key, const std::string &value);
-    static void WritebaseInfo(std::stringstream &jsonStr, const std::string &domain, const std::string &eventName,
-        EventType type);
-    static void InnerWrite(std::stringstream &jsonStr, const std::string &domain, const std::string &eventName,
-        EventType type);
-    static void SendSysEvent(std::stringstream &jsonStr);
+    static void AppendArrayData(EventBase &eventBase,
+        const std::string &key, const std::vector<char> &value, bool isDefKey = true);
+    static void AppendArrayData(EventBase &eventBase,
+        const std::string &key, const std::vector<unsigned char> &value, bool isDefKey = true);
+    static void AppendArrayData(EventBase &eventBase,
+        const std::string &key, const std::vector<std::string> &value, bool isDefKey = true);
+    static void AppendData(EventBase &eventBase,
+        const std::string &key, const std::string &value, bool isDefKey = true);
+    static void AppendHexData(EventBase &eventBase, const std::string &key, uint64_t value);
+    static int CheckArraySize(unsigned long size);
+    static int CheckDomain(EventBase &eventBase);
+    static int CheckEventName(EventBase &eventBase);
+    static int CheckKey(const std::string &key);
+    static int CheckValue(const std::string &value);
+    static void ExplainRetCode(EventBase &eventBase);
+    static void InnerWrite(EventBase &eventBase);
+    static bool IsError(EventBase &eventBase);
+    static bool IsErrorAndUpdate(int retCode, EventBase &eventBase);
+    static bool IsWarnAndUpdate(int retCode, EventBase &eventBase);
+    static int SendSysEvent(EventBase &eventBase);
+    static int WritebaseInfo(EventBase &eventBase);
+    static bool UpdateAndCheckKeyNumIsOver(EventBase &eventBase, bool isDefKey);
+    static unsigned int GetArrayMax();
 }; // HiSysEvent
 } // HiviewDFX
 } // OHOS

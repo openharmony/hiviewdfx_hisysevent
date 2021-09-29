@@ -15,18 +15,18 @@ import("//build/test.gni")
 
 module_output_path = "hisysevent_native/hisysevent_native"
 
-config("hisysevent_test_config") {
+config("hisysevent_native_test_config") {
   visibility = [ ":*" ]
 
   include_dirs = [ "." ]
 }
 
-ohos_moduletest("HiSysEventTest") {
+ohos_moduletest("HiSysEventNativeTest") {
   module_out_path = module_output_path
 
-  sources = [ "hisysevent_test.cpp" ]
+  sources = [ "hisysevent_native_test.cpp" ]
 
-  configs = [ ":hisysevent_test_config" ]
+  configs = [ ":hisysevent_native_test_config" ]
 
   deps = [
     "//third_party/googletest:gtest_main",
@@ -42,7 +42,6 @@ ohos_moduletest("HiSysEventTest") {
     external_deps = [
       "hilog:libhilog",
       "hisysevent_native:libhisysevent",
-      "hitrace:libhitrace",
     ]
     cflags_cc = [ "-D__HIVIEW_HAVE_HITRACE__" ]
   }
@@ -52,5 +51,5 @@ group("moduletest") {
   testonly = true
   deps = []
 
-  deps += [ ":HiSysEventTest" ]
+  deps += [ ":HiSysEventNativeTest" ]
 }
