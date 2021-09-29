@@ -24,7 +24,9 @@
 #include "hisysevent.h"
 
 #ifndef SYS_EVENT_PARAMS
-#define SYS_EVENT_PARAMS(A) "key"#A, 0 + A, "keyA"#A, 1 + A, "keyB"#A, 2 + A, "keyC"#A, 3 + A, "keyD"#A, 4 + A, "keyE"#A, 5 + A, "keyF"#A, 6 + A, "keyG"#A, 7 + A, "keyH"#A, 8 + A, "keyI"#A, 9 + A
+#define SYS_EVENT_PARAMS(A) "key"#A, 0 + (A), "keyA"#A, 1 + (A), "keyB"#A, 2 + (A), "keyC"#A, 3 + (A), \
+    "keyD"#A, 4 + (A), "keyE"#A, 5 + (A), "keyF"#A, 6 + (A), "keyG"#A, 7 + (A), "keyH"#A, 8 + (A), \
+    "keyI"#A, 9 + (A)
 #endif
 using namespace testing::ext;
 using OHOS::HiviewDFX::HiLogLabel;
