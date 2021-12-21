@@ -27,7 +27,7 @@ class HiSysEventSubscribeCallBackNative : public OHOS::HiviewDFX::HiSysEventSubs
 public:
     explicit HiSysEventSubscribeCallBackNative() : HiSysEventSubscribeCallBackBase(static_cast<void *>(0)) {}
     void OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
-        const std::string& eventDetail){}
+        const std::string& eventDetail) {}
     bool Compare(const std::shared_ptr<OHOS::HiviewDFX::HiSysEventSubscribeCallBackBase> cbHandle,
         const void* env) const;
     const void* GetHandle()
