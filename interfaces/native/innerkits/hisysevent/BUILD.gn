@@ -11,17 +11,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/hiviewdfx/hiview/hiview.gni")
 import("//build/ohos.gni")
 
 config("hisysevent_config") {
   visibility = [ "*:*" ]
 
-  if (use_musl) {
-    cflags_cc = [ "-DUSE_MUSL" ]
-  }
-
   include_dirs = [
-    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/include",
+    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/include",
     "//utils/native/base/include",
   ]
 }
@@ -31,7 +28,11 @@ ohos_shared_library("libhisysevent") {
 
   public_configs = [ ":hisysevent_config" ]
 
-  sources = [ "hisysevent.cpp" ]
+  sources = [
+    "hisysevent.cpp",
+    "stringfilter.cpp",
+    "transport.cpp",
+  ]
 
   output_name = "libhisysevent"
   install_enable = true
@@ -39,11 +40,10 @@ ohos_shared_library("libhisysevent") {
   part_name = "hisysevent_native"
   subsystem_name = "hiviewdfx"
 
-  if (is_standard_system) {
-    external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
-  } else {
-    external_deps = [ "hilog:libhilog" ]
-  }
+  external_deps = [
+    "hilog_native:libhilog",
+    "hitrace_native:libhitrace",
+  ]
 
   deps = [ "//utils/native/base:utilsecurec_shared" ]
 }

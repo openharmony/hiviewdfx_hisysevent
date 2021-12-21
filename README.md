@@ -21,6 +21,10 @@ HiSysEvent provides event logging APIs for OpenHarmony to record important infor
 
 ```
 /base/hiviewdfx/hisysevent   # HiSysEvent source code
+├── adapter                  # Platform adaptation code
+│  └── native               # native adaptation code
+├── frameworks               # Framework code
+│  └── native               # C/C++ APIs
 ├── interfaces               # External APIs
     └── native               # C++ APIs
         └── innerkits        # C++ APIs opened to internal subsystems

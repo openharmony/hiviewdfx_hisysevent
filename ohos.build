@@ -9,16 +9,26 @@
         "intellitv"
       ],
       "module_list": [
-        "//base/hiviewdfx/hisysevent/interfaces/native/innerkits:libhisysevent"
+        "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent:libhisysevent",
+        "//base/hiviewdfx/hisysevent/frameworks/native:hisysevent"
       ],
       "inner_kits": [
         {
-          "name": "//base/hiviewdfx/hisysevent/interfaces/native/innerkits:libhisysevent",
+          "name": "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent:libhisysevent",
           "header": {
             "header_files": [
               "hisysevent.h"
             ],
-            "header_base": "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/include"
+            "header_base": "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/include"
+          }
+        },
+        {
+          "name": "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
+          "header": {
+            "header_files": [
+              "hisysevent_manager.h"
+            ],
+            "header_base": "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager/include"
           }
         }
       ],
