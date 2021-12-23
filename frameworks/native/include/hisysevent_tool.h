@@ -19,8 +19,6 @@
 #include <string>
 #include <thread>
 
-#include "hisysevent_manager.h"
-
 namespace OHOS {
 namespace HiviewDFX {
 struct ArgStuct {

@@ -12,10 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include "hisysevent_manager.h"
-
-#include "hisysevent_delegate.h"
+#include "hisysevent_subscribe_callback_native.h"
 
 using namespace std;
 namespace OHOS {

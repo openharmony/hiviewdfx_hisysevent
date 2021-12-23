@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <unistd.h>
 
 #include "hisysevent_tool.h"
 #include "hisysevent_delegate.h"
@@ -24,15 +25,15 @@ int main(int argc, char* argv[])
     auto client = make_unique<HiSysEventTool>();
     if (!client->ParseCmdLine(argc, argv)) {
         client->DoCmdHelp();
-        return -1;
+        _exit(-1);
     }
     if (!client->DoAction()) {
         client->DoCmdHelp();
-        return -1;
+        _exit(-1);
     }
     thread binderThread(HiSysEventDelegate::BinderFunc);
     binderThread.detach();
 
     client->WaitClient();
-    return 0;
+    _exit(0);
 }

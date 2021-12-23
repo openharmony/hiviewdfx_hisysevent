@@ -28,7 +28,6 @@ ohos_source_set("sys_event_impl_client") {
     "include",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
-    "$hiview_base/event_store/include",
   ]
 
   sources = [
@@ -39,11 +38,7 @@ ohos_source_set("sys_event_impl_client") {
 
   public_configs = [ "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_config" ]
 
-  deps = [
-    "$hiview_base:hiviewbase",
-    "$hiview_base/event_store:event_store_source",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//utils/native/base:utils" ]
 
   external_deps = [
     "hilog_native:libhilog",
@@ -58,7 +53,6 @@ ohos_source_set("sys_event_service_gen_src_client") {
     "include",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
-    "$hiview_base/event_store/include",
   ]
 
   sources = [
@@ -72,11 +66,7 @@ ohos_source_set("sys_event_service_gen_src_client") {
     "src/sys_event_service_stub.cpp",
   ]
 
-  deps = [
-    "$hiview_base:hiviewbase",
-    "$hiview_base/event_store:event_store_source",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//utils/native/base:utils" ]
 
   external_deps = [
     "hilog_native:libhilog",
