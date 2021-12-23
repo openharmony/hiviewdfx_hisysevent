@@ -17,6 +17,7 @@
 
 #include <getopt.h>
 #include <iostream>
+#include <unistd.h>
 
 #include "hisysevent_manager.h"
 #include "hisysevent_tool_listener.h"
@@ -54,7 +55,7 @@ bool HiSysEventTool::ParseCmdLine(int argc, char** argv)
                     break;
                 case 'h':
                     DoCmdHelp();
-                    exit(0);
+                    _exit(0);
                     break;
                 default:
                     break;

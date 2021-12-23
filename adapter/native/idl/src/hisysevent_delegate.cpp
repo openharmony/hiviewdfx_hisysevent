@@ -15,12 +15,12 @@
 
 #include "hisysevent_delegate.h"
 
+#include "hilog/log.h"
 #include "hisysevent_listener_proxy.h"
 #include "hisysevent_query_proxy.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "logger.h"
 #include "sys_event_service_proxy.h"
 #include "system_ability_definition.h"
 
@@ -28,7 +28,7 @@ using namespace std;
 
 namespace OHOS {
 namespace HiviewDFX {
-DEFINE_LOG_TAG("HiView-HiSysEventDelegate");
+static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-HiSysEventDelegate" };
 
 void HiSysEventDelegate::ConvertListenerRule(const std::vector<struct ListenerRule>& rules,
     std::vector<SysEventRule>& sysRules) const
@@ -56,7 +56,7 @@ int HiSysEventDelegate::AddEventListener(const std::shared_ptr<HiSysEventSubscri
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
-        HIVIEW_LOGE("Fail to get service.");
+        HiLog::Error(LABEL, "Fail to get service.");
         return 0;
     }
     std::vector<SysEventRule> eventRules;
@@ -70,14 +70,14 @@ int HiSysEventDelegate::AddEventListener(const std::shared_ptr<HiSysEventSubscri
     });
     if (iter == listenerList.end()) {
         spListenerCallBack = new HiSysEventListenerProxy(listener);
-        HIVIEW_LOGD("AddEventListener new handle");
+        HiLog::Debug(LABEL, "AddEventListener new handle");
         needAddListener = true;
     } else {
         spListenerCallBack = *iter;
-        HIVIEW_LOGD("AddEventListener old handle");
+        HiLog::Debug(LABEL, "AddEventListener old handle");
     }
 
-    HIVIEW_LOGD("AddEventListener subscribe %{public}d", static_cast<int>(listenerList.size()));
+    HiLog::Debug(LABEL, "AddEventListener subscribe %{public}d", static_cast<int>(listenerList.size()));
     SysEventServiceProxy sysEventService(service);
     service->RemoveDeathRecipient(spListenerCallBack->GetCallbackDeathRecipient());
     int result = sysEventService.AddListener(eventRules, spListenerCallBack);
@@ -100,7 +100,7 @@ void HiSysEventDelegate::RemoveListener(const std::shared_ptr<HiSysEventSubscrib
 
     auto service = GetSysEventService();
     if (service == nullptr) {
-        HIVIEW_LOGE("Fail to get service.");
+        HiLog::Error(LABEL, "Fail to get service.");
         return;
     }
     SysEventServiceProxy sysEventService(service);
@@ -121,7 +121,7 @@ bool HiSysEventDelegate::SetDebugMode(const std::shared_ptr<HiSysEventSubscribeC
 
     auto service = GetSysEventService();
     if (service == nullptr) {
-        HIVIEW_LOGE("Fail to get service.");
+        HiLog::Error(LABEL, "Fail to get service.");
         return false;
     }
     SysEventServiceProxy sysEventService(service);
@@ -134,7 +134,7 @@ bool HiSysEventDelegate::QueryHiSysEvent(const struct QueryArg& queryArg,
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
-        HIVIEW_LOGE("Fail to get service.");
+        HiLog::Error(LABEL, "Fail to get service.");
         return false;
     }
 
