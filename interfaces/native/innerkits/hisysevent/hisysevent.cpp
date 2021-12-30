@@ -16,6 +16,8 @@
 #include "hisysevent.h"
 
 #include <chrono>
+#include <iomanip>
+#include <sstream>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -30,6 +32,7 @@ namespace OHOS {
 namespace HiviewDFX {
 static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
 static constexpr int SECS_IN_MINUTE = 60;
+static constexpr int SECS_IN_HOUR = 3600;
 
 static inline uint64_t GetMilliseconds()
 {
@@ -41,26 +44,33 @@ static inline uint64_t GetMilliseconds()
 static std::string GetTimeZone()
 {
     struct timeval tv;
-    struct timezone tz;
-    if (gettimeofday(&tv, &tz) != 0) {
+    if (gettimeofday(&tv, NULL) != 0) {
         HiLog::Error(LABEL, "can not get tz");
         return "";
     }
-    int tzHour = (-tz.tz_minuteswest) / SECS_IN_MINUTE;
-    std::string timeZone = (tzHour >= 0) ? "+" : "-";
-    int absTzHour = std::abs(tzHour);
-    if (absTzHour < 10) { // less than 10 hour
-        timeZone.append("0");
+    time_t sysSec = tv.tv_sec;
+    struct tm tmLocal;
+    if (localtime_r(&sysSec, &tmLocal) == nullptr) {
+        HiLog::Error(LABEL, "failed to get local time.");
+        return "";
     }
-    timeZone.append(std::to_string(absTzHour));
-
-    int tzMin = (-tz.tz_minuteswest) % SECS_IN_MINUTE;
-    int absTzMin = std::abs(tzMin);
-    if (absTzMin < 10) { // less than 10 minute
-        timeZone.append("0");
+    struct tm tmUtc;
+    if (gmtime_r(&sysSec, &tmUtc) == nullptr) {
+        HiLog::Error(LABEL, "failed to get GMT time.");
+        return "";
     }
-    timeZone.append(std::to_string(absTzMin));
-    return timeZone;
+    time_t diffSec = mktime(&tmLocal) - mktime(&tmUtc);
+    int tzHour = std::abs(diffSec) / SECS_IN_HOUR;
+    if (tzHour > 12) { // max time zone is 12
+        HiLog::Error(LABEL, "failed to get hours for time zone, set to 0.");
+        tzHour = 0;
+    }
+    int tzMin = (std::abs(diffSec) % SECS_IN_HOUR) / SECS_IN_MINUTE;
+    std::stringstream ss;
+    ss << ((diffSec < 0) ? "-" : "+");
+    ss << std::setw(2) << std::setfill('0') << tzHour; // the number of digits in the hour is 2
+    ss << std::setw(2) << std::setfill('0') << tzMin; // the number of digits in the min is 2
+    return ss.str();
 }
 
 int HiSysEvent::CheckKey(const std::string &key)
