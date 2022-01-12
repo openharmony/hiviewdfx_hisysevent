@@ -27,7 +27,6 @@ ohos_source_set("sys_event_impl_client") {
   include_dirs = [
     "include",
     "//utils/native/base/include",
-    "//utils/system/safwk/native/include",
   ]
 
   sources = [
