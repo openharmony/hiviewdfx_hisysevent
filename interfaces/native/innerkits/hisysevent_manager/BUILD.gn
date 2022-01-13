@@ -53,5 +53,6 @@ ohos_shared_library("libhisyseventmanager") {
     "hitrace_native:libhitrace",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
   ]
 }
