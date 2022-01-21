@@ -17,6 +17,7 @@
 
 #include <getopt.h>
 #include <iostream>
+#include <map>
 #include <unistd.h>
 
 #include "hisysevent_tool_listener.h"
@@ -24,24 +25,22 @@
 
 using namespace std;
 
-#define RULETYPE_TO_STR(ruleType) #ruleType
-#define COMPARE_RULETYPE_WITH_ARG(ruleType, arg) \
-    if (RULETYPE_TO_STR(ruleType) ==             \
-        string("RuleType::").append(arg)) {      \
-        return ruleType;                         \
-    }
-
 namespace OHOS {
 namespace HiviewDFX {
 HiSysEventTool::HiSysEventTool() : clientCmdArg {
     false, "", "", "", RuleType::WHOLE_WORD,
     false, false, -1, -1, 10000 } {}
 
-RuleType GetRuleTypeFromArg(const string& arg)
+RuleType GetRuleTypeFromArg(const string& fromArgs)
 {
-    COMPARE_RULETYPE_WITH_ARG(RuleType::WHOLE_WORD, arg)
-    COMPARE_RULETYPE_WITH_ARG(RuleType::PREFIX, arg)
-    COMPARE_RULETYPE_WITH_ARG(RuleType::REGULAR, arg)
+    static std::map<const string, RuleType> ruleTypeMap{
+        {"WHOLE_WORD", RuleType::WHOLE_WORD},
+        {"PREFIX", RuleType::PREFIX},
+        {"REGULAR", RuleType::REGULAR}
+    };
+    if (ruleTypeMap.find(fromArgs) != ruleTypeMap.end()) {
+        return ruleTypeMap[fromArgs];
+    }
     return RuleType::WHOLE_WORD;
 }
 
@@ -111,7 +110,9 @@ bool HiSysEventTool::CheckCmdLine()
     }
 
     if (clientCmdArg.history) {
-        if (clientCmdArg.endTime > 0 && clientCmdArg.beginTime > clientCmdArg.endTime) {
+        auto timestampValidCheck = clientCmdArg.endTime > 0
+            && clientCmdArg.beginTime > clientCmdArg.endTime;
+        if (timestampValidCheck) {
             cout << "invalid time startTime must less than endTime(";
             cout << clientCmdArg.beginTime << " > " << clientCmdArg.endTime << ")." << endl;
             return false;
@@ -122,14 +123,17 @@ bool HiSysEventTool::CheckCmdLine()
 
 void HiSysEventTool::DoCmdHelp()
 {
-    cout << "hisysevent [-a [-d | -r [1|2|3] -t <tag> | -r [1|2|3] -o <domain> -n <eventName> ] |"
-        "       -l [-s <time> -e <time> -m <count>]]" << endl;
+    cout << "hisysevent [-a [-d | -r [WHOLE_WORD|PREFIX|REGULAR] -t <tag> "
+        << "| -r [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName> ] "
+        << "| -l [-s <time> -e <time> -m <count>]]" << endl;
     cout << "-a    subscribe a listener" << endl;
-    cout << "-a -r [1|2|3] -t <tag>, subscribe by tag" << endl;
-    cout << "-a -r [1|2|3] -o <domain> -n <eventName>, subscribe by domain and event name" << endl;
+    cout << "-a -r [WHOLE_WORD|PREFIX|REGULAR] -t <tag>, subscribe by tag" << endl;
+    cout << "-a -r [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName>, "
+        << "subscribe by domain and event name" << endl;
     cout << "-a -d set debug mode, both options must appear at the same time." << endl;
     cout << "-l -s <begin time> -e <end time> -m <max hisysevent count>" << endl;
-    cout << "      get history hisysevent log, begin time should not be earlier than end time." << endl;
+    cout << "      get history hisysevent log, begin time should not be "
+        << "earlier than end time." << endl;
 }
 
 bool HiSysEventTool::DoAction()
@@ -140,9 +144,11 @@ bool HiSysEventTool::DoAction()
         struct ListenerRule listenerRule(clientCmdArg.domain, clientCmdArg.eventName,
             clientCmdArg.tag, clientCmdArg.ruleType);
         sysRules.emplace_back(listenerRule);
-        if (HiSysEventManager::AddEventListener(toolListener, sysRules)) {
+        auto listenerAddResult = HiSysEventManager::AddEventListener(toolListener, sysRules);
+        if (listenerAddResult) {
             if (clientCmdArg.isDebug) {
-                if (HiSysEventManager::SetDebugMode(toolListener, true)) {
+                auto debugModeSetResult = HiSysEventManager::SetDebugMode(toolListener, true);
+                if (debugModeSetResult) {
                     return true;
                 }
             } else {
