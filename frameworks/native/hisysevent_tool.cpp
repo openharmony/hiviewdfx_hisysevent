@@ -126,10 +126,10 @@ void HiSysEventTool::DoCmdHelp()
     cout << "hisysevent [-r [-d | -c [WHOLE_WORD|PREFIX|REGULAR] -t <tag> "
         << "| -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName> ] "
         << "| -l [-s <time> -e <time> -m <count>]]" << endl;
-    cout << "-r    subscribe a listener" << endl;
-    cout << "-r -c [WHOLE_WORD|PREFIX|REGULAR] -t <tag>, subscribe by tag" << endl;
+    cout << "-r    subscribe on empty domain, eventname and tag" << endl;
+    cout << "-r -c [WHOLE_WORD|PREFIX|REGULAR] -t <tag>, subscribe on tag" << endl;
     cout << "-r -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName>, "
-        << "subscribe by domain and event name" << endl;
+        << "subscribe on domain and event name" << endl;
     cout << "-r -d set debug mode, both options must appear at the same time." << endl;
     cout << "-l -s <begin time> -e <end time> -m <max hisysevent count>" << endl;
     cout << "      get history hisysevent log, begin time should not be "
