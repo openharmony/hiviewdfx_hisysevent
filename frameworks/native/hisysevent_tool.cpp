@@ -47,14 +47,14 @@ RuleType GetRuleTypeFromArg(const string& fromArgs)
 bool HiSysEventTool::ParseCmdLine(int argc, char** argv)
 {
     int opt;
-    char string[] = "ar:o:n:t:ls:e:m:dh";
+    char string[] = "rc:o:n:t:ls:e:m:dh";
     if (argc > 1) {
         while ((opt = getopt(argc, argv, string)) != -1) {
             switch (opt) {
-                case 'a':
+                case 'r':
                     clientCmdArg.real = true;
                     break;
-                case 'r':
+                case 'c':
                     clientCmdArg.ruleType = GetRuleTypeFromArg(optarg);
                     break;
                 case 'o':
@@ -123,14 +123,14 @@ bool HiSysEventTool::CheckCmdLine()
 
 void HiSysEventTool::DoCmdHelp()
 {
-    cout << "hisysevent [-a [-d | -r [WHOLE_WORD|PREFIX|REGULAR] -t <tag> "
-        << "| -r [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName> ] "
+    cout << "hisysevent [-r [-d | -c [WHOLE_WORD|PREFIX|REGULAR] -t <tag> "
+        << "| -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName> ] "
         << "| -l [-s <time> -e <time> -m <count>]]" << endl;
-    cout << "-a    subscribe a listener" << endl;
-    cout << "-a -r [WHOLE_WORD|PREFIX|REGULAR] -t <tag>, subscribe by tag" << endl;
-    cout << "-a -r [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName>, "
+    cout << "-r    subscribe a listener" << endl;
+    cout << "-r -c [WHOLE_WORD|PREFIX|REGULAR] -t <tag>, subscribe by tag" << endl;
+    cout << "-r -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName>, "
         << "subscribe by domain and event name" << endl;
-    cout << "-a -d set debug mode, both options must appear at the same time." << endl;
+    cout << "-r -d set debug mode, both options must appear at the same time." << endl;
     cout << "-l -s <begin time> -e <end time> -m <max hisysevent count>" << endl;
     cout << "      get history hisysevent log, begin time should not be "
         << "earlier than end time." << endl;
