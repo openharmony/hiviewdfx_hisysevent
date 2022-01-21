@@ -17,15 +17,10 @@
 #define OHOS_HIVIEWDFX_SYS_EVENT_RULE_H
 
 #include "parcel.h"
+#include "rule_type.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-enum RuleType {
-    INVALID = 0,
-    WHOLE_WORD,
-    PREFIX,
-    REGULAR,
-};
 class SysEventRule : public Parcelable {
 public:
     SysEventRule() {};

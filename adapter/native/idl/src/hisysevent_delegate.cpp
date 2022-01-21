@@ -52,7 +52,7 @@ void HiSysEventDelegate::ConvertQueryRule(const std::vector<QueryRule>& rules,
             events.push_back(event);
         });
 
-        sysRules.emplace_back(rule.GetRuleType(), rule.GetDomain(), events);
+        sysRules.emplace_back(rule.GetDomain(), events, rule.GetRuleType());
     });
 }
 
