@@ -4,13 +4,24 @@
 #  You may obtain a copy of the License at
 #
 #      http://www.apache.org/licenses/LICENSE-2.0
-#  
+#
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS,
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+
+#####################################################
+#     below is the format of defining event         #
+#####################################################
+#domain: domain name.  [Only one domain name can be defined at the top]
 #
+#author: the author name who defined this event.
+#date: the date when this event was defined, format is YYYY-MM-DD.
+#logged: source file which refer to this event.
+#usage: the usage of this event.
+#//Define event name and event properties.
+#@EVENT_NAME: the event definition part begin.
 #  // __BASE is used for defining the basic info of the event.
 #  // "type" optional values are: FAULT, STATISTICS, SECURITY, BEHAVIOR.
 #  // "level" optional values are: CRITICAL, MINOR.
@@ -23,7 +34,7 @@
 #  // "desc" full description of this parameter.
 
 #####################################################
-# the example of two hiviewdfx's events definition #
+#   Example of some hiviewdfx events definition     #
 #####################################################
 
 domain: HIVIEWDFX
@@ -43,7 +54,7 @@ RUNNING_TIME_OF_SYSTEM:
   END_TIME: {type: UINT32, desc: end time}
 
 APP_USAGE:
-  __BASE: {type: FAULT, level: MINOR, tag: dfx, desc: App usage statistics}
+  __BASE: {type: FAULT, level: MINOR, desc: App usage statistics}
   APP_NAME: {type: STRING, desc: package name}
   APP_VER: {type: STRING, desc: package version}
   APP_TYPE: {type: STRING, desc: type of app_js or native}
