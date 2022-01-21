@@ -21,6 +21,7 @@
 
 #include "hisysevent_query_callback_base.h"
 #include "hisysevent_subscribe_callback_native.h"
+#include "sys_event_rule.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -34,12 +35,17 @@ struct QueryArg {
 };
 
 struct ListenerRule {
-    uint32_t ruleType {0};
     std::string domain;
     std::string eventName;
-    ListenerRule(const uint32_t type, const std::string& domainIn, const std::string& event)
-        : ruleType(type), domain(domainIn), eventName(event) {}
-    ListenerRule() {}
+    std::string tag;
+    RuleType ruleType;
+    ListenerRule(const std::string& domain, const std::string& eventName,
+        const std::string& tag, RuleType ruleType = RuleType::WHOLE_WORD) : domain(domain),
+        eventName(eventName), tag(tag), ruleType(ruleType) {}
+    ListenerRule(const std::string& domain, const std::string& eventName,
+        RuleType ruleType = RuleType::WHOLE_WORD) : ListenerRule(domain, eventName, "", ruleType) {}
+    ListenerRule(const std::string& tag, RuleType ruleType = RuleType::WHOLE_WORD)
+        : ListenerRule("", "", tag, ruleType) {}
 };
 
 struct QueryRule {

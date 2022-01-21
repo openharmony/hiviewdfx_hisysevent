@@ -1,0 +1,41 @@
+#  // __BASE is used for defining the basic info of the event.
+#  // "type" optional values are: FAULT, STATISTICS, SECURITY, BEHAVIOR.
+#  // "level" optional values are: CRITICAL, MINOR.
+#  // "tag" set tags with may used by subscriber of this event, multiple tags devided by space.
+#  // "desc" full description of this event.
+#  @PARAMETER: {type: parameter type, arrsize: array length(optional), desc: parameter description}.
+#  // follow the __BASE block, each line defines a parameter of this event.
+#  // "type" optional values are: INT8, UINT8, INT16, UINT16, INT32, UINT32, INT64, UINT64, FLOAT, DOUBLE, STRING.
+#  // "arrsize" of the parameter is an array, set a non-zero value.
+#  // "desc" full description of this parameter.
+
+#####################################################
+# the example of two hiviewdfx's events definition #
+#####################################################
+
+domain: HIVIEWDFX
+
+APP_ACTIVATION_DATA:
+  __BASE: {type: FAULT, level: MINOR, desc: App activation data}
+  PNAMEID: {type: STRING, desc: package name}
+  PVERSIONID: {type: STRING, desc: application version}
+  PKG: {type: STRING, desc: Activate app name}
+  TIMESTAMP: {type: UINT16, desc: time stamp}
+
+RUNNING_TIME_OF_SYSTEM:
+  __BASE: {type: FAULT, level: MINOR, desc: Running Time of System}
+  TEST_TYPE: {type: STRING, desc: Test Type}
+  APR_TIME: {type: UINT32, desc: Running time}
+  START_TIME: {type: UINT32, desc: start time}
+  END_TIME: {type: UINT32, desc: end time}
+
+APP_USAGE:
+  __BASE: {type: FAULT, level: MINOR, tag: dfx, desc: App usage statistics}
+  APP_NAME: {type: STRING, desc: package name}
+  APP_VER: {type: STRING, desc: package version}
+  APP_TYPE: {type: STRING, desc: type of app_js or native}
+  DATE: {type: UINT32, desc: Statistics date}
+  TOTAL_DURATION: {type: UINT32, desc: Application duration}
+  FG_DURATION: {type: UINT32, desc: frontground duration}
+  BG_DURATION: {type: UINT32, desc: Background duration}
+  COUNT: {type: UINT32, desc: Application startup times}

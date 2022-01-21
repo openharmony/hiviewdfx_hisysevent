@@ -33,8 +33,12 @@ static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-HiSysEventDel
 void HiSysEventDelegate::ConvertListenerRule(const std::vector<struct ListenerRule>& rules,
     std::vector<SysEventRule>& sysRules) const
 {
-    for_each(rules.cbegin(), rules.cend(), [&](const struct ListenerRule &tmp) {
-        sysRules.emplace_back(tmp.ruleType, tmp.domain, tmp.eventName);
+    for_each(rules.cbegin(), rules.cend(), [&sysRules](const struct ListenerRule& rule) {
+        if (rule.tag.empty()) {
+            sysRules.emplace_back(rule.domain, rule.eventName, rule.ruleType);
+        } else {
+            sysRules.emplace_back(rule.tag, rule.ruleType);
+        }
     });
 }
 
