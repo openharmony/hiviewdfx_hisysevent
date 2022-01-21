@@ -35,12 +35,12 @@ class HiSysEventDelegate : public Singleton<HiSysEventDelegate> {
 public:
     HiSysEventDelegate() {}
     int AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBackBase> listener,
-        const std::vector<struct ListenerRule>& rules, const void* compFactor);
+        const std::vector<ListenerRule>& rules, const void* compFactor);
 
     void RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBackBase> listener, void* compFactor);
 
     bool QueryHiSysEvent(const struct QueryArg& queryArg,
-        const std::vector<struct QueryRule>& queryRules,
+        const std::vector<QueryRule>& queryRules,
         const std::shared_ptr<HiSysEventQueryCallBackBase> queryCallBack) const;
 
     bool SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBackBase> listener,
@@ -50,9 +50,9 @@ public:
     static void BinderFunc();
 
 private:
-    void ConvertListenerRule(const std::vector<struct ListenerRule>& rules,
+    void ConvertListenerRule(const std::vector<ListenerRule>& rules,
         std::vector<SysEventRule>& sysRules) const;
-    void ConvertQueryRule(const std::vector<struct QueryRule>& rules,
+    void ConvertQueryRule(const std::vector<QueryRule>& rules,
         std::vector<SysEventQueryRule>& sysRules) const;
     std::vector<sptr<HiSysEventListenerProxy>> listenerList;
     sptr<IRemoteObject> GetSysEventService() const;

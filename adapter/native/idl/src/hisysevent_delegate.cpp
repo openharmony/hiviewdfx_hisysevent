@@ -30,33 +30,34 @@ namespace OHOS {
 namespace HiviewDFX {
 static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-HiSysEventDelegate" };
 
-void HiSysEventDelegate::ConvertListenerRule(const std::vector<struct ListenerRule>& rules,
+void HiSysEventDelegate::ConvertListenerRule(const std::vector<ListenerRule>& rules,
     std::vector<SysEventRule>& sysRules) const
 {
-    for_each(rules.cbegin(), rules.cend(), [&sysRules](const struct ListenerRule& rule) {
-        if (rule.tag.empty()) {
-            sysRules.emplace_back(rule.domain, rule.eventName, rule.ruleType);
+    for_each(rules.cbegin(), rules.cend(), [&sysRules](const ListenerRule& rule) {
+        if (rule.GetTag().empty()) {
+            sysRules.emplace_back(rule.GetDomain(), rule.GetEventName(), rule.GetRuleType());
         } else {
-            sysRules.emplace_back(rule.tag, rule.ruleType);
+            sysRules.emplace_back(rule.GetTag(), rule.GetRuleType());
         }
     });
 }
 
-void HiSysEventDelegate::ConvertQueryRule(const std::vector<struct QueryRule>& rules,
+void HiSysEventDelegate::ConvertQueryRule(const std::vector<QueryRule>& rules,
     std::vector<SysEventQueryRule>& sysRules) const
 {
-    for_each(rules.cbegin(), rules.cend(), [&](const struct QueryRule &tmp) {
+    for_each(rules.cbegin(), rules.cend(), [&sysRules](const QueryRule &rule) {
         std::vector<std::string> events;
-        for_each(tmp.eventList.cbegin(), tmp.eventList.cend(), [&](const std::string &event) {
+        auto eventList = rule.GetEventList();
+        for_each(eventList.cbegin(), eventList.cend(), [&](const std::string &event) {
             events.push_back(event);
         });
 
-        sysRules.emplace_back(tmp.ruleType, tmp.domain, events);
+        sysRules.emplace_back(rule.GetRuleType(), rule.GetDomain(), events);
     });
 }
 
 int HiSysEventDelegate::AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBackBase> listener,
-    const std::vector<struct ListenerRule>& rules, const void* compFactor)
+    const std::vector<ListenerRule>& rules, const void* compFactor)
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
@@ -133,7 +134,7 @@ bool HiSysEventDelegate::SetDebugMode(const std::shared_ptr<HiSysEventSubscribeC
 }
 
 bool HiSysEventDelegate::QueryHiSysEvent(const struct QueryArg& queryArg,
-    const std::vector<struct QueryRule>& queryRules,
+    const std::vector<QueryRule>& queryRules,
     const std::shared_ptr<HiSysEventQueryCallBackBase> queryCallBack) const
 {
     auto service = GetSysEventService();

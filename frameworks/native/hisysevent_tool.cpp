@@ -140,8 +140,8 @@ bool HiSysEventTool::DoAction()
 {
     if (clientCmdArg.real) {
         auto toolListener = std::make_shared<HiSysEventToolListener>();
-        std::vector<struct ListenerRule> sysRules;
-        struct ListenerRule listenerRule(clientCmdArg.domain, clientCmdArg.eventName,
+        std::vector<ListenerRule> sysRules;
+        ListenerRule listenerRule(clientCmdArg.domain, clientCmdArg.eventName,
             clientCmdArg.tag, clientCmdArg.ruleType);
         sysRules.emplace_back(listenerRule);
         auto listenerAddResult = HiSysEventManager::AddEventListener(toolListener, sysRules);
@@ -156,8 +156,8 @@ bool HiSysEventTool::DoAction()
     if (clientCmdArg.history) {
         auto queryCallBack = std::make_shared<HiSysEventToolQuery>();
         struct QueryArg args(clientCmdArg.beginTime, clientCmdArg.endTime, clientCmdArg.maxEvents);
-        std::vector<struct QueryRule> mRules;
-        if (HiSysEventManager::QueryHiSysEvent(args, mRules, queryCallBack)) {
+        std::vector<QueryRule> queryRules;
+        if (HiSysEventManager::QueryHiSysEvent(args, queryRules, queryCallBack)) {
             return true;
         }
     }

@@ -34,11 +34,8 @@ struct QueryArg {
     QueryArg() {}
 };
 
-struct ListenerRule {
-    std::string domain;
-    std::string eventName;
-    std::string tag;
-    RuleType ruleType;
+class ListenerRule {
+public:
     ListenerRule(const std::string& domain, const std::string& eventName,
         const std::string& tag, RuleType ruleType = RuleType::WHOLE_WORD) : domain(domain),
         eventName(eventName), tag(tag), ruleType(ruleType) {}
@@ -46,25 +43,66 @@ struct ListenerRule {
         RuleType ruleType = RuleType::WHOLE_WORD) : ListenerRule(domain, eventName, "", ruleType) {}
     ListenerRule(const std::string& tag, RuleType ruleType = RuleType::WHOLE_WORD)
         : ListenerRule("", "", tag, ruleType) {}
+
+public:
+    std::string GetDomain() const
+    {
+        return domain;
+    }
+    std::string GetEventName() const
+    {
+        return eventName;
+    }
+    std::string GetTag() const
+    {
+        return tag;
+    }
+    RuleType GetRuleType() const
+    {
+        return ruleType;
+    }
+
+private:
+    std::string domain;
+    std::string eventName;
+    std::string tag;
+    RuleType ruleType;
 };
 
-struct QueryRule {
-    uint32_t ruleType {0};
+class QueryRule {
+public:
+    QueryRule(const std::string& domain, const std::vector<std::string>& eventList,
+         RuleType ruleType = RuleType::WHOLE_WORD)
+        : domain(domain), eventList(eventList), ruleType(ruleType) {}
+
+public:
+    std::string GetDomain() const
+    {
+        return domain;
+    }
+    std::vector<std::string> GetEventList() const
+    {
+        return eventList;
+    }
+    RuleType GetRuleType() const
+    {
+        return ruleType;
+    }
+
+private:
     std::string domain;
     std::vector<std::string> eventList;
-    QueryRule(const uint32_t type, const std::string& domainIn, const std::vector<std::string>& events)
-        : ruleType(type), domain(domainIn), eventList(events) {}
-    QueryRule() {}
+    RuleType ruleType;
 };
 
 class HiSysEventManager {
 public:
     HiSysEventManager() = default;
     static int AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBackBase> listener,
-        std::vector<struct ListenerRule>& rules);
+        std::vector<ListenerRule>& rules);
     static void RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBackBase> listener);
     static bool QueryHiSysEvent(struct QueryArg& queryArg,
-        std::vector<struct QueryRule>& queryRules,
+        std::vector<QueryRule>& queryRules,
         std::shared_ptr<HiSysEventQueryCallBackBase> queryCallBack);
     static bool SetDebugMode(std::shared_ptr<HiSysEventSubscribeCallBackBase> listener, bool mode);
     ~HiSysEventManager() {}
