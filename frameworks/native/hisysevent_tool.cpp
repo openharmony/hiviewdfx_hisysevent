@@ -33,7 +33,7 @@ HiSysEventTool::HiSysEventTool() : clientCmdArg {
 
 RuleType GetRuleTypeFromArg(const string& fromArgs)
 {
-    static std::map<const string, RuleType> ruleTypeMap{
+    static std::map<const string, RuleType> ruleTypeMap {
         {"WHOLE_WORD", RuleType::WHOLE_WORD},
         {"PREFIX", RuleType::PREFIX},
         {"REGULAR", RuleType::REGULAR}
@@ -146,14 +146,10 @@ bool HiSysEventTool::DoAction()
         sysRules.emplace_back(listenerRule);
         auto listenerAddResult = HiSysEventManager::AddEventListener(toolListener, sysRules);
         if (listenerAddResult) {
-            if (clientCmdArg.isDebug) {
-                auto debugModeSetResult = HiSysEventManager::SetDebugMode(toolListener, true);
-                if (debugModeSetResult) {
-                    return true;
-                }
-            } else {
-                return true;
-            }
+            if (!clientCmdArg.isDebug ||
+                (clientCmdArg.isDebug &&
+                    HiSysEventManager::SetDebugMode(toolListener, true)))
+            return true;
         }
     }
 
