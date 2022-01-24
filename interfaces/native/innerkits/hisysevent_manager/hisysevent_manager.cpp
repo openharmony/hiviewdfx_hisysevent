@@ -22,7 +22,7 @@ using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
 int HiSysEventManager::AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBackBase> listener,
-    std::vector<struct ListenerRule>& rules)
+    std::vector<ListenerRule>& rules)
 {
     return HiSysEventDelegate::GetInstance().AddEventListener(listener, rules, nullptr);
 }
@@ -33,7 +33,7 @@ void HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBa
 }
 
 bool HiSysEventManager::QueryHiSysEvent(struct QueryArg& queryArg,
-    std::vector<struct QueryRule>& queryRules,
+    std::vector<QueryRule>& queryRules,
     std::shared_ptr<HiSysEventQueryCallBackBase> queryCallBack)
 {
     return HiSysEventDelegate::GetInstance().QueryHiSysEvent(queryArg, queryRules, queryCallBack);

@@ -17,9 +17,9 @@
 
 #include <getopt.h>
 #include <iostream>
+#include <map>
 #include <unistd.h>
 
-#include "hisysevent_manager.h"
 #include "hisysevent_tool_listener.h"
 #include "hisysevent_tool_query.h"
 
@@ -27,16 +27,44 @@ using namespace std;
 
 namespace OHOS {
 namespace HiviewDFX {
-HiSysEventTool::HiSysEventTool() : clientCmdArg {false, false, false, -1, -1, 10000} {}
+HiSysEventTool::HiSysEventTool() : clientCmdArg {
+    false, "", "", "", RuleType::WHOLE_WORD,
+    false, false, -1, -1, 10000 } {}
+
+RuleType GetRuleTypeFromArg(const string& fromArgs)
+{
+    static std::map<const string, RuleType> ruleTypeMap {
+        {"WHOLE_WORD", RuleType::WHOLE_WORD},
+        {"PREFIX", RuleType::PREFIX},
+        {"REGULAR", RuleType::REGULAR}
+    };
+    if (ruleTypeMap.find(fromArgs) != ruleTypeMap.end()) {
+        return ruleTypeMap[fromArgs];
+    }
+    return RuleType::WHOLE_WORD;
+}
+
 bool HiSysEventTool::ParseCmdLine(int argc, char** argv)
 {
     int opt;
-    char string[] = "rlhds:e:m:";
+    char string[] = "rc:o:n:t:ls:e:m:dh";
     if (argc > 1) {
         while ((opt = getopt(argc, argv, string)) != -1) {
             switch (opt) {
                 case 'r':
                     clientCmdArg.real = true;
+                    break;
+                case 'c':
+                    clientCmdArg.ruleType = GetRuleTypeFromArg(optarg);
+                    break;
+                case 'o':
+                    clientCmdArg.domain = optarg;
+                    break;
+                case 'n':
+                    clientCmdArg.eventName = optarg;
+                    break;
+                case 't':
+                    clientCmdArg.tag = optarg;
                     break;
                 case 'l':
                     clientCmdArg.history = true;
@@ -82,7 +110,9 @@ bool HiSysEventTool::CheckCmdLine()
     }
 
     if (clientCmdArg.history) {
-        if (clientCmdArg.endTime > 0 && clientCmdArg.beginTime > clientCmdArg.endTime) {
+        auto timestampValidCheck = clientCmdArg.endTime > 0
+            && clientCmdArg.beginTime > clientCmdArg.endTime;
+        if (timestampValidCheck) {
             cout << "invalid time startTime must less than endTime(";
             cout << clientCmdArg.beginTime << " > " << clientCmdArg.endTime << ")." << endl;
             return false;
@@ -93,38 +123,41 @@ bool HiSysEventTool::CheckCmdLine()
 
 void HiSysEventTool::DoCmdHelp()
 {
-    cout << "hisysevent [-r [-d] | -l [-s <time> -e <time> -m <count>]]" << endl;
-    cout << "-r    get real hisysevent log." << endl;
+    cout << "hisysevent [-r [-d | -c [WHOLE_WORD|PREFIX|REGULAR] -t <tag> "
+        << "| -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName> ] "
+        << "| -l [-s <time> -e <time> -m <count>]]" << endl;
+    cout << "-r    subscribe on empty domain, eventname and tag" << endl;
+    cout << "-r -c [WHOLE_WORD|PREFIX|REGULAR] -t <tag>, subscribe on tag" << endl;
+    cout << "-r -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName>, "
+        << "subscribe on domain and event name" << endl;
     cout << "-r -d set debug mode, both options must appear at the same time." << endl;
     cout << "-l -s <begin time> -e <end time> -m <max hisysevent count>" << endl;
-    cout << "      get history hisysevent log, begin time should not be earlier than end time." << endl;
+    cout << "      get history hisysevent log, begin time should not be "
+        << "earlier than end time." << endl;
 }
 
 bool HiSysEventTool::DoAction()
 {
     if (clientCmdArg.real) {
         auto toolListener = std::make_shared<HiSysEventToolListener>();
-        struct ListenerRule emptyRule;
-        emptyRule.ruleType = 1; // 1: default type
-        std::vector<struct ListenerRule> sysRules;
-        sysRules.push_back(emptyRule);
-
-        if (HiSysEventManager::AddEventListener(toolListener, sysRules)) {
-            if (clientCmdArg.isDebug) {
-                if (HiSysEventManager::SetDebugMode(toolListener, true)) {
-                    return true;
-                }
-            } else {
-                return true;
-            }
+        std::vector<ListenerRule> sysRules;
+        ListenerRule listenerRule(clientCmdArg.domain, clientCmdArg.eventName,
+            clientCmdArg.tag, clientCmdArg.ruleType);
+        sysRules.emplace_back(listenerRule);
+        auto listenerAddResult = HiSysEventManager::AddEventListener(toolListener, sysRules);
+        if (listenerAddResult) {
+            if (!clientCmdArg.isDebug ||
+                (clientCmdArg.isDebug &&
+                    HiSysEventManager::SetDebugMode(toolListener, true)))
+            return true;
         }
     }
 
     if (clientCmdArg.history) {
         auto queryCallBack = std::make_shared<HiSysEventToolQuery>();
         struct QueryArg args(clientCmdArg.beginTime, clientCmdArg.endTime, clientCmdArg.maxEvents);
-        std::vector<struct QueryRule> mRules;
-        if (HiSysEventManager::QueryHiSysEvent(args, mRules, queryCallBack)) {
+        std::vector<QueryRule> queryRules;
+        if (HiSysEventManager::QueryHiSysEvent(args, queryRules, queryCallBack)) {
             return true;
         }
     }

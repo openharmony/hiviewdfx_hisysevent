@@ -19,10 +19,16 @@
 #include <string>
 #include <thread>
 
+#include "hisysevent_manager.h"
+
 namespace OHOS {
 namespace HiviewDFX {
 struct ArgStuct {
     bool real;
+    std::string domain;
+    std::string eventName;
+    std::string tag;
+    RuleType ruleType;
     bool history;
     bool isDebug;
     long long beginTime;

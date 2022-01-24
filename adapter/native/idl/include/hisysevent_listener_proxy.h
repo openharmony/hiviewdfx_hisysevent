@@ -15,6 +15,7 @@
 
 #ifndef HISYSEVENT_LISTENER_PROXY_H
 #define HISYSEVENT_LISTENER_PROXY_H
+
 #include <string>
 #include <vector>
 
