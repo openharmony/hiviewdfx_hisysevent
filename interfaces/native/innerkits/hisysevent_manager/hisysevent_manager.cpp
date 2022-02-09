@@ -21,27 +21,37 @@ using namespace std;
 
 namespace OHOS {
 namespace HiviewDFX {
-int HiSysEventManager::AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBackBase> listener,
+bool HiSysEventManager::AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener,
     std::vector<ListenerRule>& rules)
 {
-    return HiSysEventDelegate::GetInstance().AddEventListener(listener, rules, nullptr);
+    if (!listener->listenerProxy) {
+        listener->listenerProxy = new HiSysEventDelegate();
+    }
+    return listener->listenerProxy->AddEventListener(listener, rules);
 }
 
-void HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBackBase> listener)
+bool HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener)
 {
-    HiSysEventDelegate::GetInstance().RemoveListener(listener, nullptr);
+    if (!listener->listenerProxy) {
+        return false;
+    }
+    auto listenerRemoveResult = listener->listenerProxy->RemoveListener(listener);
+    delete listener->listenerProxy;
+    listener->listenerProxy = nullptr;
+    return listenerRemoveResult;
 }
 
 bool HiSysEventManager::QueryHiSysEvent(struct QueryArg& queryArg,
     std::vector<QueryRule>& queryRules,
-    std::shared_ptr<HiSysEventQueryCallBackBase> queryCallBack)
+    std::shared_ptr<HiSysEventQueryCallBack> queryCallBack)
 {
-    return HiSysEventDelegate::GetInstance().QueryHiSysEvent(queryArg, queryRules, queryCallBack);
+    auto proxy = std::make_unique<HiSysEventDelegate>();
+    return proxy->QueryHiSysEvent(queryArg, queryRules, queryCallBack);
 }
 
-bool HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventSubscribeCallBackBase> listener, bool mode)
+bool HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventSubscribeCallBack> listener, bool mode)
 {
-    return HiSysEventDelegate::GetInstance().SetDebugMode(listener, mode, nullptr);
+    return listener->listenerProxy ? listener->listenerProxy->SetDebugMode(listener, mode) : false;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

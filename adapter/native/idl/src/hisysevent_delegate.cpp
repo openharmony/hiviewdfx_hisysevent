@@ -56,8 +56,8 @@ void HiSysEventDelegate::ConvertQueryRule(const std::vector<QueryRule>& rules,
     });
 }
 
-int HiSysEventDelegate::AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBackBase> listener,
-    const std::vector<ListenerRule>& rules, const void* compFactor)
+bool HiSysEventDelegate::AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
+    const std::vector<ListenerRule>& rules)
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
@@ -67,75 +67,49 @@ int HiSysEventDelegate::AddEventListener(const std::shared_ptr<HiSysEventSubscri
     std::vector<SysEventRule> eventRules;
     ConvertListenerRule(rules, eventRules);
 
-    lock_guard<mutex> lock(mutexLock);
-    bool needAddListener = false;
-    sptr<HiSysEventListenerProxy> spListenerCallBack;
-    auto iter = find_if(listenerList.begin(), listenerList.end(), [&](auto &ele) {
-        return ele->Compare(listener, compFactor);
-    });
-    if (iter == listenerList.end()) {
-        spListenerCallBack = new HiSysEventListenerProxy(listener);
-        HiLog::Debug(LABEL, "AddEventListener new handle");
-        needAddListener = true;
-    } else {
-        spListenerCallBack = *iter;
-        HiLog::Debug(LABEL, "AddEventListener old handle");
+    if (!spListenerCallBack) {
+        spListenerCallBack = new OHOS::HiviewDFX::HiSysEventListenerProxy(listener);
     }
 
-    HiLog::Debug(LABEL, "AddEventListener subscribe %{public}d", static_cast<int>(listenerList.size()));
     SysEventServiceProxy sysEventService(service);
     service->RemoveDeathRecipient(spListenerCallBack->GetCallbackDeathRecipient());
     int result = sysEventService.AddListener(eventRules, spListenerCallBack);
-    if (needAddListener) {
-        listenerList.push_back(spListenerCallBack);
-    }
-    return result;
+    return result >= 0;
 }
 
-void HiSysEventDelegate::RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBackBase> listener,
-    void* compFactor)
+bool HiSysEventDelegate::RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener)
 {
-    lock_guard<mutex> lock(mutexLock);
-    auto iter = find_if(listenerList.begin(), listenerList.end(), [&](auto &ele) {
-        return ele->Compare(listener, compFactor);
-    });
-    if (iter == listenerList.end()) {
-        return;
-    }
-
-    auto service = GetSysEventService();
-    if (service == nullptr) {
-        HiLog::Error(LABEL, "Fail to get service.");
-        return;
-    }
-    SysEventServiceProxy sysEventService(service);
-    sysEventService.RemoveListener(*iter);
-    listenerList.erase(iter);
-}
-
-bool HiSysEventDelegate::SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBackBase> listener,
-    const bool mode, void* compFactor)
-{
-    lock_guard<mutex> lock(mutexLock);
-    auto iter = find_if(listenerList.begin(), listenerList.end(), [&](auto &ele) {
-        return ele->Compare(listener, compFactor);
-    });
-    if (iter == listenerList.end()) {
+    if (!spListenerCallBack) {
         return false;
     }
-
     auto service = GetSysEventService();
     if (service == nullptr) {
         HiLog::Error(LABEL, "Fail to get service.");
         return false;
     }
     SysEventServiceProxy sysEventService(service);
-    return sysEventService.SetDebugMode(*iter, mode);
+    sysEventService.RemoveListener(spListenerCallBack);
+    return true;
+}
+
+bool HiSysEventDelegate::SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
+    const bool mode)
+{
+    if (!spListenerCallBack) {
+        return false;
+    }
+    auto service = GetSysEventService();
+    if (service == nullptr) {
+        HiLog::Error(LABEL, "Fail to get service.");
+        return false;
+    }
+    SysEventServiceProxy sysEventService(service);
+    return sysEventService.SetDebugMode(spListenerCallBack, mode);
 }
 
 bool HiSysEventDelegate::QueryHiSysEvent(const struct QueryArg& queryArg,
     const std::vector<QueryRule>& queryRules,
-    const std::shared_ptr<HiSysEventQueryCallBackBase> queryCallBack) const
+    const std::shared_ptr<HiSysEventQueryCallBack> queryCallBack) const
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
@@ -152,6 +126,11 @@ bool HiSysEventDelegate::QueryHiSysEvent(const struct QueryArg& queryArg,
     SysEventServiceProxy sysEventService(service);
     return sysEventService.QuerySysEvent(queryArg.beginTime, queryArg.endTime,
         queryArg.maxEvents, aospRules, spCallBack);
+}
+
+HiSysEventDelegate::~HiSysEventDelegate()
+{
+    HiLog::Error(LABEL, "HiSysEventDelegate destructor");
 }
 
 void HiSysEventDelegate::BinderFunc()

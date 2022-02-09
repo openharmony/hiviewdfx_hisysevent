@@ -22,7 +22,7 @@ namespace HiviewDFX {
 void HiSysEventListenerProxy::Handle(const std::u16string& domain, const std::u16string& eventName,
     uint32_t eventType, const std::u16string& eventDetail)
 {
-    std::shared_ptr<HiSysEventSubscribeCallBackBase> subScribeListener = GetSubScribeListener();
+    std::shared_ptr<HiSysEventSubscribeCallBack> subScribeListener = GetSubScribeListener();
     if (subScribeListener != nullptr) {
         subScribeListener->OnHandle(U16String2String(domain),
             U16String2String(eventName),
@@ -31,22 +31,12 @@ void HiSysEventListenerProxy::Handle(const std::u16string& domain, const std::u1
     }
 }
 
-bool HiSysEventListenerProxy::Compare(std::shared_ptr<HiSysEventSubscribeCallBackBase> cmpListener,
-    const void* env) const
-{
-    std::shared_ptr<HiSysEventSubscribeCallBackBase> subScribeListener = GetSubScribeListener();
-    if (subScribeListener != nullptr) {
-        return subScribeListener->Compare(cmpListener, env);
-    }
-    return false;
-}
-
 sptr<CallbackDeathRecipient> HiSysEventListenerProxy::GetCallbackDeathRecipient() const
 {
     return callbackDeathRecipient;
 }
 
-std::shared_ptr<HiSysEventSubscribeCallBackBase> HiSysEventListenerProxy::GetSubScribeListener() const
+std::shared_ptr<HiSysEventSubscribeCallBack> HiSysEventListenerProxy::GetSubScribeListener() const
 {
     return callbackDeathRecipient->GetSubScribeListener();
 }
@@ -58,7 +48,7 @@ void CallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
     }
 }
 
-std::shared_ptr<HiSysEventSubscribeCallBackBase> CallbackDeathRecipient::GetSubScribeListener() const
+std::shared_ptr<HiSysEventSubscribeCallBack> CallbackDeathRecipient::GetSubScribeListener() const
 {
     return subScribeListener;
 }

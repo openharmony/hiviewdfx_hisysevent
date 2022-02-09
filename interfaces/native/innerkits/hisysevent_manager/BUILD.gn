@@ -25,10 +25,7 @@ config("hisyseventmanager_config") {
 }
 
 ohos_shared_library("libhisyseventmanager") {
-  sources = [
-    "hisysevent_manager.cpp",
-    "hisysevent_subscribe_callback_native.cpp",
-  ]
+  sources = [ "hisysevent_manager.cpp", ]
 
   output_name = "libhisyseventmanager"
   install_enable = true

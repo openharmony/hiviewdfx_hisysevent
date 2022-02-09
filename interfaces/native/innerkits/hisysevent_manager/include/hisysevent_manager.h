@@ -19,8 +19,8 @@
 #include <string>
 #include <vector>
 
-#include "hisysevent_query_callback_base.h"
-#include "hisysevent_subscribe_callback_native.h"
+#include "hisysevent_query_callback.h"
+#include "hisysevent_subscribe_callback.h"
 #include "sys_event_rule.h"
 
 namespace OHOS {
@@ -98,13 +98,13 @@ private:
 class HiSysEventManager {
 public:
     HiSysEventManager() = default;
-    static int AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBackBase> listener,
+    static bool AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener,
         std::vector<ListenerRule>& rules);
-    static void RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBackBase> listener);
+    static bool RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener);
     static bool QueryHiSysEvent(struct QueryArg& queryArg,
         std::vector<QueryRule>& queryRules,
-        std::shared_ptr<HiSysEventQueryCallBackBase> queryCallBack);
-    static bool SetDebugMode(std::shared_ptr<HiSysEventSubscribeCallBackBase> listener, bool mode);
+        std::shared_ptr<HiSysEventQueryCallBack> queryCallBack);
+    static bool SetDebugMode(std::shared_ptr<HiSysEventSubscribeCallBack> listener, bool mode);
     ~HiSysEventManager() {}
 };
 } // namespace HiviewDFX
