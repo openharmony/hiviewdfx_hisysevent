@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
- #ifndef HISYSEVENT_SUBSCRIBE_OPERATE_H
- #define HISYSEVENT_SUBSCRIBE_OPERATE_H
+#ifndef HISYSEVENT_SUBSCRIBE_OPERATE_H
+#define HISYSEVENT_SUBSCRIBE_OPERATE_H
 
 #include <memory>
 #include <string>
@@ -31,7 +31,7 @@ public:
     virtual ~HiSysEventSubscribeOperate() {}
 
 public:
-    virtual bool AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener, 
+    virtual bool AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
         const std::vector<ListenerRule>& Rule);
     virtual bool RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener);
     virtual bool SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBack> listener, const bool mode);
@@ -45,4 +45,4 @@ private:
 } // namespace HiviewDFX
 } // namespace OHOS
 
- #endif // HISYSEVENT_SUBSCRIBE_OPERATE_H
+#endif // HISYSEVENT_SUBSCRIBE_OPERATE_H
