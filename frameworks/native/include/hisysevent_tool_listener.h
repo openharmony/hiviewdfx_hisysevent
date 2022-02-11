@@ -18,16 +18,16 @@
 
 #include <string>
 
-#include "hisysevent_subscribe_callback_native.h"
+#include "hisysevent_subscribe_callback.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class HiSysEventToolListener : public OHOS::HiviewDFX::HiSysEventSubscribeCallBackNative {
+class HiSysEventToolListener : public OHOS::HiviewDFX::HiSysEventSubscribeCallBack {
 public:
-    explicit HiSysEventToolListener() : HiSysEventSubscribeCallBackNative() {}
+    HiSysEventToolListener() {}
     void OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
         const std::string& eventDetail);
-    virtual ~HiSysEventToolListener() {}
+    ~HiSysEventToolListener() {}
     void OnServiceDied();
 };
 } // namespace HiviewDFX

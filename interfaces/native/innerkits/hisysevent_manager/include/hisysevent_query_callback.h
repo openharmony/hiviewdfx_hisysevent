@@ -13,21 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef HISYSEVENT_QUERY_CALLBACK_BASE_H
-#define HISYSEVENT_QUERY_CALLBACK_BASE_H
+#ifndef HISYSEVENT_QUERY_CALLBACK_H
+#define HISYSEVENT_QUERY_CALLBACK_H
 
 #include <string>
 #include <vector>
 
 namespace OHOS {
 namespace HiviewDFX {
-class HiSysEventQueryCallBackBase {
+class HiSysEventQueryCallBack {
 public:
+    HiSysEventQueryCallBack() = default;
     virtual void OnQuery(const ::std::vector<std::string>& sysEvent,
         const ::std::vector<int64_t>& seq);
     virtual void OnComplete(int32_t reason, int32_t total);
+
+private:
+    HiSysEventQueryCallBack(const HiSysEventQueryCallBack&) = delete;
+    HiSysEventQueryCallBack& operator=(const HiSysEventQueryCallBack&) = delete;
+    HiSysEventQueryCallBack(const HiSysEventQueryCallBack&&) = delete;
+    HiSysEventQueryCallBack& operator=(const HiSysEventQueryCallBack&&) = delete;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif // HISYSEVENT_QUERY_CALLBACK_BASE_H
+#endif // HISYSEVENT_QUERY_CALLBACK_H

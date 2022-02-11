@@ -30,9 +30,11 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
-static constexpr int SECS_IN_MINUTE = 60;
-static constexpr int SECS_IN_HOUR = 3600;
+namespace {
+constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
+constexpr int SECS_IN_MINUTE = 60;
+constexpr int SECS_IN_HOUR = 3600;
+}
 
 static inline uint64_t GetMilliseconds()
 {

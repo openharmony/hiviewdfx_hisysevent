@@ -19,32 +19,31 @@
 #include <string>
 #include <vector>
 
-#include "hisysevent_subscribe_callback_base.h"
+#include "hisysevent_subscribe_callback.h"
 #include "sys_event_callback_stub.h"
 
 namespace OHOS {
 namespace HiviewDFX {
 class CallbackDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    CallbackDeathRecipient(const std::shared_ptr<HiSysEventSubscribeCallBackBase> callback)
+    CallbackDeathRecipient(const std::shared_ptr<HiSysEventSubscribeCallBack> callback)
         : subScribeListener(callback) {};
     virtual ~CallbackDeathRecipient() {};
     void OnRemoteDied(const wptr<IRemoteObject> &object) override;
-    std::shared_ptr<HiSysEventSubscribeCallBackBase> GetSubScribeListener() const;
+    std::shared_ptr<HiSysEventSubscribeCallBack> GetSubScribeListener() const;
 
 private:
-    std::shared_ptr<HiSysEventSubscribeCallBackBase> subScribeListener;
+    std::shared_ptr<HiSysEventSubscribeCallBack> subScribeListener;
 };
 
 class HiSysEventListenerProxy : public SysEventCallbackStub {
 public:
-    explicit HiSysEventListenerProxy(const std::shared_ptr<HiSysEventSubscribeCallBackBase> callback)
+    explicit HiSysEventListenerProxy(const std::shared_ptr<HiSysEventSubscribeCallBack> callback)
         : callbackDeathRecipient(new CallbackDeathRecipient(callback)) {}
     void Handle(const std::u16string& domain, const std::u16string& eventName, uint32_t eventType,
         const std::u16string& eventDetail) override;
-    bool Compare(std::shared_ptr<HiSysEventSubscribeCallBackBase> cmpListener, const void* env) const;
     sptr<CallbackDeathRecipient> GetCallbackDeathRecipient() const;
-    std::shared_ptr<HiSysEventSubscribeCallBackBase> GetSubScribeListener() const;
+    std::shared_ptr<HiSysEventSubscribeCallBack> GetSubScribeListener() const;
     virtual ~HiSysEventListenerProxy() {}
 private:
     sptr<CallbackDeathRecipient> callbackDeathRecipient;

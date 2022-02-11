@@ -13,26 +13,32 @@
  * limitations under the License.
  */
 
-#ifndef HISYSEVENT_SUBSCRIBE_CALLBACK_BASE_H
-#define HISYSEVENT_SUBSCRIBE_CALLBACK_BASE_H
+#ifndef HISYSEVENT_SUBSCRIBE_CALLBACK_H
+#define HISYSEVENT_SUBSCRIBE_CALLBACK_H
 
 #include <string>
+#include <memory>
 
 namespace OHOS {
 namespace HiviewDFX {
-class HiSysEventSubscribeCallBackBase {
+class HiSysEventSubscribeOperate;
+class HiSysEventSubscribeCallBack {
 public:
-    explicit HiSysEventSubscribeCallBackBase(void* subHandle) : handle(subHandle) {}
+    HiSysEventSubscribeCallBack() {}
     virtual void OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
         const std::string& eventDetail);
-    virtual bool Compare(const std::shared_ptr<OHOS::HiviewDFX::HiSysEventSubscribeCallBackBase> cbHandle,
-        const void* env) const;
-    virtual const void* GetHandle();
     virtual void OnServiceDied();
-    virtual ~HiSysEventSubscribeCallBackBase() {}
+    virtual ~HiSysEventSubscribeCallBack() {}
 
-protected:
-    void *handle;
+private:
+    HiSysEventSubscribeCallBack(const HiSysEventSubscribeCallBack&) = delete;
+    HiSysEventSubscribeCallBack& operator=(const HiSysEventSubscribeCallBack&) = delete;
+    HiSysEventSubscribeCallBack(const HiSysEventSubscribeCallBack&&) = delete;
+    HiSysEventSubscribeCallBack& operator=(const HiSysEventSubscribeCallBack&&) = delete;
+
+    HiSysEventSubscribeOperate* listenerProxy = nullptr;
+
+friend class HiSysEventManager;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

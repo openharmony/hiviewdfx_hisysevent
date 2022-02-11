@@ -19,11 +19,11 @@
 #include <string>
 #include <vector>
 
-#include "hisysevent_query_callback_base.h"
+#include "hisysevent_query_callback.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class HiSysEventToolQuery : public OHOS::HiviewDFX::HiSysEventQueryCallBackBase {
+class HiSysEventToolQuery : public OHOS::HiviewDFX::HiSysEventQueryCallBack {
 public:
     void OnQuery(const ::std::vector<std::string>& sysEvent,
         const ::std::vector<int64_t>& seq);

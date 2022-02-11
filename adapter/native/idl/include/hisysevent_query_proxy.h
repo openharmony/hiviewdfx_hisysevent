@@ -19,14 +19,14 @@
 #include <string>
 #include <vector>
 
-#include "hisysevent_query_callback_base.h"
+#include "hisysevent_query_callback.h"
 #include "query_sys_event_callback_stub.h"
 
 namespace OHOS {
 namespace HiviewDFX {
 class HiSysEventQueryProxy : public QuerySysEventCallbackStub {
 public:
-    explicit HiSysEventQueryProxy(const std::shared_ptr<HiSysEventQueryCallBackBase> query)
+    explicit HiSysEventQueryProxy(const std::shared_ptr<HiSysEventQueryCallBack> query)
         : queryListener(query) {}
     void OnQuery(const ::std::vector<std::u16string>& sysEvent,
         const ::std::vector<int64_t>& seq) override;
@@ -34,7 +34,7 @@ public:
     virtual ~HiSysEventQueryProxy() {}
 
 private:
-    std::shared_ptr<HiSysEventQueryCallBackBase> queryListener;
+    std::shared_ptr<HiSysEventQueryCallBack> queryListener;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
