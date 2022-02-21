@@ -66,17 +66,21 @@ int Transport::SendToHiSysEventDataSource(const std::string &text)
     serverAddr.sun_path[sizeof(serverAddr.sun_path) - 1] = '\0';
 
     int socketId = socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
+    constexpr size_t BUF_SIZE = 2000;
+    char res[BUF_SIZE];
     if (socketId < 0) {
+        strerror_r(errno, res, BUF_SIZE);
         HiLog::Error(LABEL, "create hisysevent client socket failed, error=%{public}d, msg=%{public}s",
-            errno, strerror(errno));
+            errno, res);
         return ERR_DOES_NOT_INIT;
     }
     InitRecvBuffer(socketId);
     if (sendto(socketId, text.c_str(), text.size(), 0, reinterpret_cast<sockaddr*>(&serverAddr),
         sizeof(serverAddr)) < 0) {
         close(socketId);
+        strerror_r(errno, res, BUF_SIZE);
         HiLog::Error(LABEL, "send data to hisysevent server failed, error=%{public}d, msg=%{public}s",
-            errno, strerror(errno));
+            errno, res);
         return ERR_SEND_FAIL;
     }
     close(socketId);
