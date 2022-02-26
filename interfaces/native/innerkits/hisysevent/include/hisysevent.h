@@ -64,6 +64,7 @@ public:
         static constexpr char USB[] = "USB";
         static constexpr char WEARABLE_HARDWARE[] = "WEARABLEHW";
         static constexpr char WEARABLE[] = "WEARABLE";
+        static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
         static constexpr char OTHERS[] = "OTHERS";
     };
 
