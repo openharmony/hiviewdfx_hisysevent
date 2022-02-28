@@ -17,9 +17,6 @@
         ],
         "rom": "",
         "ram": "",
-        "hisysevent_config": [
-            "//base/hiviewdfx/hisysevent/frameworks/config/hiviewdfx/hisysevent.yaml"
-        ],
         "deps": {
             "components": [
                 "hilog_native",
