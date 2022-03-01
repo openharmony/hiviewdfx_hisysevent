@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-class SysEventCallbackStub : virtual public IRemoteStub<ISysEventCallback> {
+class SysEventCallbackStub : public IRemoteStub<ISysEventCallback> {
 public:
     SysEventCallbackStub() = default;
     virtual ~SysEventCallbackStub() = default;

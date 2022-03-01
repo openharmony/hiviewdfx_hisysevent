@@ -26,7 +26,11 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
+namespace {
+constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
+constexpr size_t BUF_SIZE = 2000;
+char errMsg[BUF_SIZE] = { 0 };
+}
 Transport Transport::instance_;
 
 Transport& Transport::GetInstance()
@@ -39,18 +43,21 @@ void Transport::InitRecvBuffer(int socketId)
     int oldN = 0;
     socklen_t oldOutSize = sizeof(int);
     if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&oldN), &oldOutSize) < 0) {
-        HiLog::Error(LABEL, "get socket send buffer error=%{public}d, msg=%{public}s", errno, strerror(errno));
+        strerror_r(errno, errMsg, BUF_SIZE);
+        HiLog::Error(LABEL, "get socket send buffer error=%{public}d, msg=%{public}s", errno, errMsg);
     }
 
     int sendBuffSize = MAX_DATA_SIZE;
     if (setsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&sendBuffSize), sizeof(int)) < 0) {
-        HiLog::Error(LABEL, "set socket send buffer error=%{public}d, msg=%{public}s", errno, strerror(errno));
+        strerror_r(errno, errMsg, BUF_SIZE);
+        HiLog::Error(LABEL, "set socket send buffer error=%{public}d, msg=%{public}s", errno, errMsg);
     }
 
     int newN = 0;
     socklen_t newOutSize = sizeof(int);
     if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&newN), &newOutSize) < 0) {
-        HiLog::Error(LABEL, "get new socket send buffer error=%{public}d, msg=%{public}s", errno, strerror(errno));
+        strerror_r(errno, errMsg, BUF_SIZE);
+        HiLog::Error(LABEL, "get new socket send buffer error=%{public}d, msg=%{public}s", errno, errMsg);
     }
     HiLog::Debug(LABEL, "reset send buffer size old=%{public}d, new=%{public}d", oldN, newN);
 }
@@ -66,21 +73,19 @@ int Transport::SendToHiSysEventDataSource(const std::string &text)
     serverAddr.sun_path[sizeof(serverAddr.sun_path) - 1] = '\0';
 
     int socketId = socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
-    constexpr size_t BUF_SIZE = 2000;
-    char res[BUF_SIZE];
     if (socketId < 0) {
-        strerror_r(errno, res, BUF_SIZE);
+        strerror_r(errno, errMsg, BUF_SIZE);
         HiLog::Error(LABEL, "create hisysevent client socket failed, error=%{public}d, msg=%{public}s",
-            errno, res);
+            errno, errMsg);
         return ERR_DOES_NOT_INIT;
     }
     InitRecvBuffer(socketId);
     if (sendto(socketId, text.c_str(), text.size(), 0, reinterpret_cast<sockaddr*>(&serverAddr),
         sizeof(serverAddr)) < 0) {
         close(socketId);
-        strerror_r(errno, res, BUF_SIZE);
+        strerror_r(errno, errMsg, BUF_SIZE);
         HiLog::Error(LABEL, "send data to hisysevent server failed, error=%{public}d, msg=%{public}s",
-            errno, res);
+            errno, errMsg);
         return ERR_SEND_FAIL;
     }
     close(socketId);
