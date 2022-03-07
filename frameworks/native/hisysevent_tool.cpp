@@ -166,10 +166,8 @@ bool HiSysEventTool::DoAction()
 
 void HiSysEventTool::WaitClient()
 {
-    if (clientCmdArg.real) {
-        unique_lock<mutex> lock(mutexClient);
-        condvClient.wait(lock);
-    }
+    unique_lock<mutex> lock(mutexClient);
+    condvClient.wait(lock);
 }
 
 void HiSysEventTool::NotifyClient()

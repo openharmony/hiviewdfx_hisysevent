@@ -29,6 +29,7 @@ void HiSysEventToolQuery::OnQuery(const ::std::vector<std::string>& sysEvent,
 
 void HiSysEventToolQuery::OnComplete(int32_t reason, int32_t total)
 {
+    exit(0);
     return;
 }
 } // namespace HiviewDFX

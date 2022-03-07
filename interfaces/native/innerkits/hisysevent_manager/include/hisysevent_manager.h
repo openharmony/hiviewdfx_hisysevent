@@ -71,9 +71,8 @@ private:
 
 class QueryRule {
 public:
-    QueryRule(const std::string& domain, const std::vector<std::string>& eventList,
-         RuleType ruleType = RuleType::WHOLE_WORD)
-        : domain(domain), eventList(eventList), ruleType(ruleType) {}
+    QueryRule(const std::string& domain, const std::vector<std::string>& eventList)
+        : domain(domain), eventList(eventList), ruleType(RuleType::WHOLE_WORD) {}
 
 public:
     std::string GetDomain() const
