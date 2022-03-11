@@ -19,7 +19,7 @@ config("hisysevent_config") {
 
   include_dirs = [
     "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/include",
-    "//utils/native/base/include",
+    "//third_party/bounds_checking_function/include",
   ]
 }
 
@@ -45,5 +45,5 @@ ohos_shared_library("libhisysevent") {
     "hitrace_native:libhitrace",
   ]
 
-  deps = [ "//utils/native/base:utilsecurec_shared" ]
+  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 }

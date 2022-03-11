@@ -26,7 +26,7 @@ config("sys_event_impl_config") {
 ohos_source_set("sys_event_impl_client") {
   include_dirs = [
     "include",
-    "//utils/native/base/include",
+    "//third_party/bounds_checking_function/include",
   ]
 
   sources = [
@@ -50,7 +50,7 @@ ohos_source_set("sys_event_impl_client") {
 ohos_source_set("sys_event_service_gen_src_client") {
   include_dirs = [
     "include",
-    "//utils/native/base/include",
+    "//third_party/bounds_checking_function/include",
     "//utils/system/safwk/native/include",
   ]
 
