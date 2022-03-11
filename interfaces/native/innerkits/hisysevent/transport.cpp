@@ -41,7 +41,7 @@ Transport& Transport::GetInstance()
 void Transport::InitRecvBuffer(int socketId)
 {
     int oldN = 0;
-    socklen_t oldOutSize = sizeof(int);
+    socklen_t oldOutSize = static_cast<socklen_t>(sizeof(int));
     if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&oldN), &oldOutSize) < 0) {
         strerror_r(errno, errMsg, BUF_SIZE);
         HiLog::Error(LABEL, "get socket send buffer error=%{public}d, msg=%{public}s", errno, errMsg);
@@ -54,7 +54,7 @@ void Transport::InitRecvBuffer(int socketId)
     }
 
     int newN = 0;
-    socklen_t newOutSize = sizeof(int);
+    socklen_t newOutSize = static_cast<socklen_t>(sizeof(int));
     if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&newN), &newOutSize) < 0) {
         strerror_r(errno, errMsg, BUF_SIZE);
         HiLog::Error(LABEL, "get new socket send buffer error=%{public}d, msg=%{public}s", errno, errMsg);
