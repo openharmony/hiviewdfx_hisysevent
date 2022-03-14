@@ -45,6 +45,9 @@ ohos_source_set("sys_event_impl_client") {
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
+
+  part_name = "hisysevent_native"
+  subsystem_name = "hiviewdfx"
 }
 
 ohos_source_set("sys_event_service_gen_src_client") {
@@ -73,4 +76,7 @@ ohos_source_set("sys_event_service_gen_src_client") {
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
+
+  part_name = "hisysevent_native"
+  subsystem_name = "hiviewdfx"
 }
