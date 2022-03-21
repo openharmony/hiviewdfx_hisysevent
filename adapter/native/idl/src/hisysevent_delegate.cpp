@@ -62,7 +62,7 @@ bool HiSysEventDelegate::AddEventListener(const std::shared_ptr<HiSysEventSubscr
     auto service = GetSysEventService();
     if (service == nullptr) {
         HiLog::Error(LABEL, "Fail to get service.");
-        return 0;
+        return false;
     }
     std::vector<SysEventRule> eventRules;
     ConvertListenerRule(rules, eventRules);
@@ -73,8 +73,7 @@ bool HiSysEventDelegate::AddEventListener(const std::shared_ptr<HiSysEventSubscr
 
     SysEventServiceProxy sysEventService(service);
     service->RemoveDeathRecipient(spListenerCallBack->GetCallbackDeathRecipient());
-    int result = sysEventService.AddListener(eventRules, spListenerCallBack);
-    return result >= 0;
+    return sysEventService.AddListener(eventRules, spListenerCallBack);
 }
 
 bool HiSysEventDelegate::RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener)
@@ -88,8 +87,7 @@ bool HiSysEventDelegate::RemoveListener(const std::shared_ptr<HiSysEventSubscrib
         return false;
     }
     SysEventServiceProxy sysEventService(service);
-    sysEventService.RemoveListener(spListenerCallBack);
-    return true;
+    return sysEventService.RemoveListener(spListenerCallBack);
 }
 
 bool HiSysEventDelegate::SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
@@ -117,15 +115,15 @@ bool HiSysEventDelegate::QueryHiSysEvent(const struct QueryArg& queryArg,
         return false;
     }
 
-    std::vector<SysEventQueryRule> aospRules;
-    ConvertQueryRule(queryRules, aospRules);
+    std::vector<SysEventQueryRule> hospRules;
+    ConvertQueryRule(queryRules, hospRules);
 
     sptr<HiSysEventQueryProxy> spCallBack =
         new OHOS::HiviewDFX::HiSysEventQueryProxy(queryCallBack);
 
     SysEventServiceProxy sysEventService(service);
     return sysEventService.QuerySysEvent(queryArg.beginTime, queryArg.endTime,
-        queryArg.maxEvents, aospRules, spCallBack);
+        queryArg.maxEvents, hospRules, spCallBack);
 }
 
 HiSysEventDelegate::~HiSysEventDelegate()
