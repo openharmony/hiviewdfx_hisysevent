@@ -51,7 +51,8 @@ static constexpr unsigned int MAX_ARRAY_SIZE = 100;
 static constexpr unsigned int MAX_PARAM_NUMBER = 128;
 static constexpr unsigned int MAX_STRING_LENGTH = 256 * 1024;
 static constexpr unsigned int MAX_DATA_SIZE = 384 * 1024;
-} // HiviewDFX
-} // OHOS
+} // namespace HiviewDFX
+} // namespace OHOS
 
 #endif // HISYSEVENT_DEF_H
+

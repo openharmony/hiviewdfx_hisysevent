@@ -38,7 +38,10 @@ sptr<CallbackDeathRecipient> HiSysEventListenerProxy::GetCallbackDeathRecipient(
 
 std::shared_ptr<HiSysEventSubscribeCallBack> HiSysEventListenerProxy::GetSubScribeListener() const
 {
-    return callbackDeathRecipient->GetSubScribeListener();
+    if (callbackDeathRecipient != nullptr) {
+        return callbackDeathRecipient->GetSubScribeListener();
+    }
+    return nullptr;
 }
 
 void CallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)

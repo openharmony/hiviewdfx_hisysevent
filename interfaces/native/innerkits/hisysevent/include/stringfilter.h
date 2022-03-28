@@ -47,3 +47,4 @@ private:
 } // namespace OHOS
 
 #endif // HISYSEVENT_STRING_FILTER_H
+

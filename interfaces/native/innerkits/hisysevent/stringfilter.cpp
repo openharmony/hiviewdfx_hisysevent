@@ -43,27 +43,28 @@ StringFilter::StringFilter()
         ss >> charTab_[static_cast<int>(e.first)];
     }
 
+    int i = 0;
     // build state transition table
-    for (int i = 0; i < CHAR_RANGE; ++i) {
+    for (i = 0; i < CHAR_RANGE; ++i) {
         statTab_[STATE_BEGIN][i] = STATE_STOP;
     }
-    for (int i = 'a'; i <= 'z'; ++i) {
+    for (i = 'a'; i <= 'z'; ++i) {
         statTab_[STATE_BEGIN][i] = STATE_RUN;
     }
-    for (int i = 'A'; i <= 'Z'; ++i) {
+    for (i = 'A'; i <= 'Z'; ++i) {
         statTab_[STATE_BEGIN][i] = STATE_RUN;
     }
 
-    for (int i = 0; i < CHAR_RANGE; ++i) {
+    for (i = 0; i < CHAR_RANGE; ++i) {
         statTab_[STATE_RUN][i] = STATE_STOP;
     }
-    for (int i = '0'; i <= '9'; ++i) {
+    for (i = '0'; i <= '9'; ++i) {
         statTab_[STATE_RUN][i] = STATE_RUN;
     }
-    for (int i = 'a'; i <= 'z'; ++i) {
+    for (i = 'a'; i <= 'z'; ++i) {
         statTab_[STATE_RUN][i] = STATE_RUN;
     }
-    for (int i = 'A'; i <= 'Z'; ++i) {
+    for (i = 'A'; i <= 'Z'; ++i) {
         statTab_[STATE_RUN][i] = STATE_RUN;
     }
     statTab_[STATE_RUN][static_cast<int>('_')] = STATE_RUN;
@@ -94,7 +95,7 @@ bool StringFilter::IsValidName(const std::string &text, unsigned int maxSize)
     int state = STATE_BEGIN;
     for (auto c : text) {
         unsigned int ic = static_cast<unsigned int>(c);
-        if (ic >= CHAR_RANGE || state < 0 || state >= StringFilter::STATE_NUM) {
+        if ((ic >= CHAR_RANGE) || (state < 0) || (state >= StringFilter::STATE_NUM)) {
             return false;
         }
         state = statTab_[state][ic];
@@ -111,3 +112,4 @@ StringFilter& StringFilter::GetInstance()
 }
 } // namespace HiviewDFX
 } // namespace OHOS
+

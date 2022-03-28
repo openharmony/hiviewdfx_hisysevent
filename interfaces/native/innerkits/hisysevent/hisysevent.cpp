@@ -117,10 +117,7 @@ void HiSysEvent::ExplainRetCode(HiSysEvent::EventBase &eventBase)
 
 bool HiSysEvent::IsError(HiSysEvent::EventBase &eventBase)
 {
-    if (eventBase.retCode_ < SUCCESS) {
-        return true;
-    }
-    return false;
+    return (eventBase.retCode_ < SUCCESS);
 }
 
 bool HiSysEvent::IsErrorAndUpdate(int retCode, HiSysEvent::EventBase &eventBase)
@@ -223,3 +220,4 @@ void HiSysEvent::WritebaseInfo(HiSysEvent::EventBase &eventBase)
 }
 } // namespace HiviewDFX
 } // namespace OHOS
+

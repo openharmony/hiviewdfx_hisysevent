@@ -23,6 +23,9 @@ using namespace OHOS::HiviewDFX;
 int main(int argc, char* argv[])
 {
     auto client = make_unique<HiSysEventTool>();
+    if (client == nullptr) {
+        _exit(-1);
+    }
     if (!client->ParseCmdLine(argc, argv)) {
         client->DoCmdHelp();
         _exit(-1);

@@ -40,9 +40,15 @@ bool SysEventServiceProxy::AddListener(const std::vector<SysEventRule>& rules, c
         HiLog::Error(LABEL, "parcel write rules failed.");
         return result;
     }
+    if (callback == nullptr) {
+        return result;
+    }
     ret = data.WriteRemoteObject(callback->AsObject());
     if (!ret) {
         HiLog::Error(LABEL, "parcel write callback failed.");
+        return result;
+    }
+    if (remote == nullptr) {
         return result;
     }
     MessageParcel reply;
@@ -72,9 +78,15 @@ bool SysEventServiceProxy::RemoveListener(const sptr<ISysEventCallback> &callbac
         HiLog::Error(LABEL, "write descriptor failed.");
         return result;
     }
+    if (callback == nullptr) {
+        return result;
+    }
     bool ret = data.WriteRemoteObject(callback->AsObject());
     if (!ret) {
         HiLog::Error(LABEL, "parcel write object in callback failed.");
+        return result;
+    }
+    if (remote == nullptr) {
         return result;
     }
     MessageParcel reply;
@@ -104,25 +116,13 @@ bool SysEventServiceProxy::QuerySysEvent(int64_t beginTime, int64_t endTime, int
         HiLog::Error(LABEL, "write descriptor failed.");
         return result;
     }
-
-    bool ret = data.WriteInt64(beginTime);
+    bool ret = data.WriteInt64(beginTime) && data.WriteInt64(endTime) &&
+        data.WriteInt32(maxEvents) && WriteVectorToParcel(data, rules);
     if (!ret) {
-        HiLog::Error(LABEL, "parcel write begin time failed.");
+        HiLog::Error(LABEL, "parcel write params failed.");
         return result;
     }
-    ret = data.WriteInt64(endTime);
-    if (!ret) {
-        HiLog::Error(LABEL, "parcel write end time failed.");
-        return result;
-    }
-    ret = data.WriteInt32(maxEvents);
-    if (!ret) {
-        HiLog::Error(LABEL, "parcel write max events failed.");
-        return result;
-    }
-    ret = WriteVectorToParcel(data, rules);
-    if (!ret) {
-        HiLog::Error(LABEL, "parcel write query rules failed.");
+    if (callback == nullptr) {
         return result;
     }
     ret = data.WriteRemoteObject(callback->AsObject());
@@ -130,7 +130,9 @@ bool SysEventServiceProxy::QuerySysEvent(int64_t beginTime, int64_t endTime, int
         HiLog::Error(LABEL, "parcel write callback failed.");
         return result;
     }
-
+    if (remote == nullptr) {
+        return result;
+    }
     MessageParcel reply;
     MessageOption option;
     int32_t res = remote->SendRequest(QUERY_SYS_EVENT, data, reply, option);
@@ -159,7 +161,9 @@ bool SysEventServiceProxy::SetDebugMode(const sptr<ISysEventCallback>& callback,
         HiLog::Error(LABEL, "write descriptor failed.");
         return result;
     }
-
+    if (callback == nullptr) {
+        return result;
+    }
     bool ret = data.WriteRemoteObject(callback->AsObject());
     if (!ret) {
         HiLog::Error(LABEL, "parcel write callback failed.");
@@ -168,6 +172,9 @@ bool SysEventServiceProxy::SetDebugMode(const sptr<ISysEventCallback>& callback,
     ret = data.WriteBool(mode);
     if (!ret) {
         HiLog::Error(LABEL, "parcel write mode failed.");
+        return result;
+    }
+    if (remote == nullptr) {
         return result;
     }
     MessageParcel reply;
@@ -186,3 +193,4 @@ bool SysEventServiceProxy::SetDebugMode(const sptr<ISysEventCallback>& callback,
 }
 } // namespace HiviewDFX
 } // namespace OHOS
+

@@ -29,7 +29,7 @@ public:
     SysEventQueryRule(const std::string& domain, const std::vector<std::string>& events,
         uint32_t ruleType = RuleType::WHOLE_WORD)
         : domain(domain), eventList(events), ruleType(ruleType) {};
-    ~SysEventQueryRule() {};
+    ~SysEventQueryRule() {}
 
     bool Marshalling(Parcel& parcel) const override;
     static SysEventQueryRule* Unmarshalling(Parcel& parcel);

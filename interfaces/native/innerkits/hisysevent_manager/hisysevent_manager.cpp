@@ -24,7 +24,10 @@ namespace HiviewDFX {
 bool HiSysEventManager::AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener,
     std::vector<ListenerRule>& rules)
 {
-    if (!listener->listenerProxy) {
+    if (listener == nullptr) {
+        return false;
+    }
+    if (listener->listenerProxy == nullptr) {
         listener->listenerProxy = new HiSysEventDelegate();
     }
     return listener->listenerProxy->AddEventListener(listener, rules);
@@ -32,7 +35,7 @@ bool HiSysEventManager::AddEventListener(std::shared_ptr<HiSysEventSubscribeCall
 
 bool HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener)
 {
-    if (!listener->listenerProxy) {
+    if (listener == nullptr || listener->listenerProxy == nullptr) {
         return false;
     }
     auto listenerRemoveResult = listener->listenerProxy->RemoveListener(listener);
@@ -46,12 +49,18 @@ bool HiSysEventManager::QueryHiSysEvent(struct QueryArg& queryArg,
     std::shared_ptr<HiSysEventQueryCallBack> queryCallBack)
 {
     auto proxy = std::make_unique<HiSysEventDelegate>();
-    return proxy->QueryHiSysEvent(queryArg, queryRules, queryCallBack);
+    if (proxy != nullptr) {
+        return proxy->QueryHiSysEvent(queryArg, queryRules, queryCallBack);
+    }
+    return false;
 }
 
 bool HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventSubscribeCallBack> listener, bool mode)
 {
-    return listener->listenerProxy ? listener->listenerProxy->SetDebugMode(listener, mode) : false;
+    if (listener == nullptr || listener->listenerProxy == nullptr) {
+        return false;
+    }
+    return listener->listenerProxy->SetDebugMode(listener, mode);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
