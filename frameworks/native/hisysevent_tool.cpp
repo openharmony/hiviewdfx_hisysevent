@@ -46,6 +46,9 @@ RuleType GetRuleTypeFromArg(const string& fromArgs)
 
 bool HiSysEventTool::ParseCmdLine(int argc, char** argv)
 {
+    if (argv == nullptr) {
+        return false;
+    }
     int opt;
     char string[] = "rc:o:n:t:ls:e:m:dh";
     if (argc > 1) {
@@ -140,21 +143,25 @@ bool HiSysEventTool::DoAction()
 {
     if (clientCmdArg.real) {
         auto toolListener = std::make_shared<HiSysEventToolListener>();
+        if (toolListener == nullptr) {
+            return false;
+        }
         std::vector<ListenerRule> sysRules;
         ListenerRule listenerRule(clientCmdArg.domain, clientCmdArg.eventName,
             clientCmdArg.tag, clientCmdArg.ruleType);
         sysRules.emplace_back(listenerRule);
         auto listenerAddResult = HiSysEventManager::AddEventListener(toolListener, sysRules);
-        if (listenerAddResult) {
-            if (!clientCmdArg.isDebug ||
-                (clientCmdArg.isDebug &&
-                    HiSysEventManager::SetDebugMode(toolListener, true)))
+        if (listenerAddResult &&
+            (!clientCmdArg.isDebug || HiSysEventManager::SetDebugMode(toolListener, true))) {
             return true;
         }
     }
 
     if (clientCmdArg.history) {
         auto queryCallBack = std::make_shared<HiSysEventToolQuery>();
+        if (queryCallBack == nullptr) {
+            return false;
+        }
         struct QueryArg args(clientCmdArg.beginTime, clientCmdArg.endTime, clientCmdArg.maxEvents);
         std::vector<QueryRule> queryRules;
         if (HiSysEventManager::QueryHiSysEvent(args, queryRules, queryCallBack)) {

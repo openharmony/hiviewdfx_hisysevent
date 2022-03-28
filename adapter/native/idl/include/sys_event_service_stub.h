@@ -27,7 +27,7 @@ public:
     virtual ~SysEventServiceStub() = default;
     DISALLOW_COPY_AND_MOVE(SysEventServiceStub);
 
-    virtual int32_t OnRemoteRequest(uint32_t code,
+    int32_t OnRemoteRequest(uint32_t code,
         MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 
 private:

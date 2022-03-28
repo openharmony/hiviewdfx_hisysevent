@@ -42,7 +42,7 @@ private:
     std::mutex mutex_;
     std::list<std::string> retryDataList_;
 };
-} // HiviewDFX
-} // OHOS
+} // namespace HiviewDFX
+} // namespace OHOS
 
 #endif // HISYSEVENT_TRANSPORT_H

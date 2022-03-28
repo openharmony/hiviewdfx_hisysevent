@@ -24,7 +24,7 @@ namespace HiviewDFX {
 class SysEventCallbackProxy : public IRemoteProxy<ISysEventCallback> {
 public:
     explicit SysEventCallbackProxy(const sptr<IRemoteObject>& impl)
-        : IRemoteProxy<ISysEventCallback>(impl) {};
+        : IRemoteProxy<ISysEventCallback>(impl) {}
     virtual ~SysEventCallbackProxy() = default;
     DISALLOW_COPY_AND_MOVE(SysEventCallbackProxy);
 

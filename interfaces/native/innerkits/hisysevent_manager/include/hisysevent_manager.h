@@ -30,7 +30,7 @@ struct QueryArg {
     long long endTime;
     int maxEvents;
     QueryArg(const long long begin, const long long end, const int max)
-        : beginTime(begin), endTime(end), maxEvents(max) {};
+        : beginTime(begin), endTime(end), maxEvents(max) {}
     QueryArg() {}
 };
 
@@ -110,3 +110,4 @@ public:
 } // namespace OHOS
 
 #endif // HISYSEVENT_MANAGER_H
+

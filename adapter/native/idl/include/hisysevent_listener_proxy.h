@@ -26,9 +26,9 @@ namespace OHOS {
 namespace HiviewDFX {
 class CallbackDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    CallbackDeathRecipient(const std::shared_ptr<HiSysEventSubscribeCallBack> callback)
-        : subScribeListener(callback) {};
-    virtual ~CallbackDeathRecipient() {};
+    explicit CallbackDeathRecipient(const std::shared_ptr<HiSysEventSubscribeCallBack> callback)
+        : subScribeListener(callback) {}
+    virtual ~CallbackDeathRecipient() {}
     void OnRemoteDied(const wptr<IRemoteObject> &object) override;
     std::shared_ptr<HiSysEventSubscribeCallBack> GetSubScribeListener() const;
 

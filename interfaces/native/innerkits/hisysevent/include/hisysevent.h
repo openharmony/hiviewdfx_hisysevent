@@ -412,7 +412,7 @@ private:
 
     static unsigned int GetArrayMax();
     static void SendSysEvent(EventBase &eventBase);
-}; // HiSysEvent
+};
 } // namespace HiviewDFX
 } // namespace OHOS
 

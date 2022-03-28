@@ -73,104 +73,107 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventNormal001, TestSize.Level1)
     std::string domain = "DEMO";
     std::string eventName = "NORMAL001";
 
-    bool bValue = true;
-    char cValue = 'a';
-    short sValue = -100;
-    int iValue = -200;
-    long lValue = -300;
-    long long llValue = -400;
+    bool testBoolValue = true;
+    char testCharValue = 'a';
+    short testShortValue = -100;
+    int testIntValue = -200;
+    long testLongValue = -300;
+    long long testLongLongValue = -400;
 
-    unsigned char ucValue = 'a';
-    unsigned short usValue = 100;
-    unsigned int uiValue = 200;
-    unsigned long ulValue = 300;
-    unsigned long long ullValue = 400;
+    unsigned char testUnsignedCharValue = 'a';
+    unsigned short testUnsignedShortValue = 100;
+    unsigned int testUnsignedIntValue = 200;
+    unsigned long testUnsignedLongValue = 300;
+    unsigned long long testUnsignedLongLongValue = 400;
 
-    float fValue = 1.1;
-    double dValue = 2.2;
-    std::string strValue = "abc";
+    float testFloatValue = 1.1;
+    double testDoubleValue = 2.2;
+    std::string testStringValue = "abc";
 
-    std::vector<bool> bValues;
-    bValues.push_back(true);
-    bValues.push_back(true);
-    bValues.push_back(false);
+    std::vector<bool> testBoolValues;
+    testBoolValues.push_back(true);
+    testBoolValues.push_back(true);
+    testBoolValues.push_back(false);
 
-    std::vector<char> cValues;
-    cValues.push_back('a');
-    cValues.push_back('b');
-    cValues.push_back('c');
+    std::vector<char> testCharValues;
+    testCharValues.push_back('a');
+    testCharValues.push_back('b');
+    testCharValues.push_back('c');
 
-    std::vector<unsigned char> ucValues;
-    ucValues.push_back('a');
-    ucValues.push_back('b');
-    ucValues.push_back('c');
+    std::vector<unsigned char> testUnsignedCharValues;
+    testUnsignedCharValues.push_back('a');
+    testUnsignedCharValues.push_back('b');
+    testUnsignedCharValues.push_back('c');
 
-    std::vector<short> sValues;
-    sValues.push_back(-100);
-    sValues.push_back(-200);
-    sValues.push_back(-300);
+    std::vector<short> testShortValues;
+    testShortValues.push_back(-100);
+    testShortValues.push_back(-200);
+    testShortValues.push_back(-300);
 
-    std::vector<unsigned short> usValues;
-    usValues.push_back(100);
-    usValues.push_back(200);
-    usValues.push_back(300);
+    std::vector<unsigned short> testUnsignedShortValues;
+    testUnsignedShortValues.push_back(100);
+    testUnsignedShortValues.push_back(200);
+    testUnsignedShortValues.push_back(300);
 
-    std::vector<int> iValues;
-    iValues.push_back(-1000);
-    iValues.push_back(-2000);
-    iValues.push_back(-3000);
+    std::vector<int> testIntValues;
+    testIntValues.push_back(-1000);
+    testIntValues.push_back(-2000);
+    testIntValues.push_back(-3000);
 
-    std::vector<unsigned int> uiValues;
-    uiValues.push_back(1000);
-    uiValues.push_back(2000);
-    uiValues.push_back(3000);
+    std::vector<unsigned int> testUnsignedIntValues;
+    testUnsignedIntValues.push_back(1000);
+    testUnsignedIntValues.push_back(2000);
+    testUnsignedIntValues.push_back(3000);
 
-    std::vector<long> lValues;
-    lValues.push_back(-10000);
-    lValues.push_back(-20000);
-    lValues.push_back(-30000);
+    std::vector<long> testLongValues;
+    testLongValues.push_back(-10000);
+    testLongValues.push_back(-20000);
+    testLongValues.push_back(-30000);
 
-    std::vector<unsigned long> ulValues;
-    ulValues.push_back(10000);
-    ulValues.push_back(20000);
-    ulValues.push_back(30000);
+    std::vector<unsigned long> testUnsignedLongValues;
+    testUnsignedLongValues.push_back(10000);
+    testUnsignedLongValues.push_back(20000);
+    testUnsignedLongValues.push_back(30000);
 
-    std::vector<long long> llValues;
-    llValues.push_back(-100000);
-    llValues.push_back(-200000);
-    llValues.push_back(-300000);
+    std::vector<long long> testLongLongValues;
+    testLongLongValues.push_back(-100000);
+    testLongLongValues.push_back(-200000);
+    testLongLongValues.push_back(-300000);
 
-    std::vector<unsigned long long> ullValues;
-    ullValues.push_back(100000);
-    ullValues.push_back(200000);
-    ullValues.push_back(300000);
+    std::vector<unsigned long long> testUnsignedLongLongValues;
+    testUnsignedLongLongValues.push_back(100000);
+    testUnsignedLongLongValues.push_back(200000);
+    testUnsignedLongLongValues.push_back(300000);
 
-    std::vector<float> fValues;
-    fValues.push_back(1.1);
-    fValues.push_back(2.2);
-    fValues.push_back(3.3);
+    std::vector<float> testFloatValues;
+    testFloatValues.push_back(1.1);
+    testFloatValues.push_back(2.2);
+    testFloatValues.push_back(3.3);
 
-    std::vector<double> dValues;
-    dValues.push_back(10.1);
-    dValues.push_back(20.2);
-    dValues.push_back(30.3);
+    std::vector<double> testDoubleValues;
+    testDoubleValues.push_back(10.1);
+    testDoubleValues.push_back(20.2);
+    testDoubleValues.push_back(30.3);
 
-    std::vector<std::string> strValues;
-    strValues.push_back(std::string("a"));
-    strValues.push_back(std::string("b"));
-    strValues.push_back(std::string("c"));
+    std::vector<std::string> testStringValues;
+    testStringValues.push_back(std::string("a"));
+    testStringValues.push_back(std::string("b"));
+    testStringValues.push_back(std::string("c"));
 
     HiLog::Info(LABEL, "test hisysevent normal write");
     int result = HiSysEvent::Write(domain, eventName, HiSysEvent::EventType::FAULT,
-        "keyBool", bValue, "keyChar", cValue, "keyShort", sValue, "keyInt", iValue,
-        "KeyLong", lValue, "KeyLongLong", llValue,
-        "keyUnsignedChar", ucValue, "keyUnsignedShort", usValue, "keyUnsignedInt", uiValue,
-        "keyUnsignedLong", ulValue, "keyUnsignedLongLong", ullValue,
-        "keyFloat", fValue, "keyDouble", dValue, "keyString1", strValue, "keyString2", "efg",
-        "keyBools", bValues, "keyChars", cValues, "keyUnsignedChars", ucValues,
-        "keyShorts", sValues, "keyUnsignedShorts", usValues, "keyInts", iValues, "keyUnsignedInts", uiValues,
-        "keyLongs", lValues, "keyUnsignedLongs", ulValues, "keyLongLongs", llValues, "keyUnsignedLongLongs", ullValues,
-        "keyFloats", fValues, "keyDoubles", dValues, "keyStrings", strValues);
+        "keyBool", testBoolValue, "keyChar", testCharValue, "keyShort", testShortValue,
+        "keyInt", testIntValue, "KeyLong", testLongValue, "KeyLongLong", testLongLongValue,
+        "keyUnsignedChar", testUnsignedCharValue, "keyUnsignedShort", testUnsignedShortValue,
+        "keyUnsignedInt", testUnsignedIntValue, "keyUnsignedLong", testUnsignedLongValue,
+        "keyUnsignedLongLong", testUnsignedLongLongValue, "keyFloat", testFloatValue,
+        "keyDouble", testDoubleValue, "keyString1", testStringValue, "keyString2", "efg",
+        "keyBools", testBoolValues, "keyChars", testCharValues, "keyUnsignedChars", testUnsignedCharValues,
+        "keyShorts", testShortValues, "keyUnsignedShorts", testUnsignedShortValues,
+        "keyInts", testIntValues, "keyUnsignedInts", testUnsignedIntValues, "keyLongs", testLongValues,
+        "keyUnsignedLongs", testUnsignedLongValues, "keyLongLongs", testLongLongValues,
+        "keyUnsignedLongLongs", testUnsignedLongLongValues, "keyFloats", testFloatValues,
+        "keyDoubles", testDoubleValues, "keyStrings", testStringValues);
     HiLog::Info(LABEL, "normal write, retCode=%{public}d", result);
     ASSERT_TRUE(result == 0);
 }

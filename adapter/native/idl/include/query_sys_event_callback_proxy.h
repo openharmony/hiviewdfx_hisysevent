@@ -24,7 +24,7 @@ namespace HiviewDFX {
 class QuerySysEventCallbackProxy : public IRemoteProxy<IQuerySysEventCallback> {
 public:
     explicit QuerySysEventCallbackProxy(const sptr<IRemoteObject>& impl)
-        : IRemoteProxy<IQuerySysEventCallback>(impl) {};
+        : IRemoteProxy<IQuerySysEventCallback>(impl) {}
     virtual ~QuerySysEventCallbackProxy() = default;
     DISALLOW_COPY_AND_MOVE(QuerySysEventCallbackProxy);
 
