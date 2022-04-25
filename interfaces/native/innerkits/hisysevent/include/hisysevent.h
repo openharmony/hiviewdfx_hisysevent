@@ -39,6 +39,7 @@ public:
         static constexpr char BUNDLE_MANAGER[] = "BUNDLE_MANAGER";
         static constexpr char CCRUNTIME[] = "CCRUNTIME";
         static constexpr char COMMUNICATION[] = "COMMUNICATION";
+        static constexpr char COMMONEVENT[] = "COMMONEVENT";
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
         static constexpr char DISTRIBUTED_DATAMGR[] = "DISTDATAMGR";
         static constexpr char DISTRIBUTED_SCHEDULE[] = "DISTSCHEDULE";
