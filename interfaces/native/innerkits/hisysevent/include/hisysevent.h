@@ -36,6 +36,7 @@ public:
         static constexpr char AI[] = "AI";
         static constexpr char BARRIER_FREE[] = "BARRIERFREE";
         static constexpr char BIOMETRICS[] = "BIOMETRICS";
+        static constexpr char BUNDLE_MANAGER[] = "BUNDLE_MANAGER";
         static constexpr char CCRUNTIME[] = "CCRUNTIME";
         static constexpr char COMMUNICATION[] = "COMMUNICATION";
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
