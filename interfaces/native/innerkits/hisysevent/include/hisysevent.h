@@ -43,6 +43,7 @@ public:
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
         static constexpr char DISTRIBUTED_DATAMGR[] = "DISTDATAMGR";
         static constexpr char DISTRIBUTED_SCHEDULE[] = "DISTSCHEDULE";
+        static constexpr char DISTRIBUTED_SCREEN[] = "DISTSCREEN";
         static constexpr char GLOBAL[] = "GLOBAL";
         static constexpr char GRAPHIC[] = "GRAPHIC";
         static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
