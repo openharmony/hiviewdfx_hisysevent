@@ -35,6 +35,7 @@
       "sub_component": [
         "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent:libhisysevent",
         "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
+        "//base/hiviewdfx/hisysevent/interfaces/js/kits:hisysevent_napi",
         "//base/hiviewdfx/hisysevent/frameworks/native:hisysevent"
       ],
       "inner_kits": [
@@ -57,7 +58,10 @@
           }
         }
       ],
-      "test": [ "//base/hiviewdfx/hisysevent/test:moduletest" ]
+      "test": [
+        "//base/hiviewdfx/hisysevent/test:moduletest",
+        "//base/hiviewdfx/hisysevent/test:unittest"
+      ]
     }
   }
 }

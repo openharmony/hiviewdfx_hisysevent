@@ -25,7 +25,7 @@ namespace OHOS {
 namespace HiviewDFX {
 class HiSysEvent {
 public:
-    friend class HiSysEventJNI;
+    friend class NapiHiSysEventAdapter;
     // system event domain list
     class Domain {
     public:
