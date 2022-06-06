@@ -25,7 +25,7 @@ namespace OHOS {
 namespace HiviewDFX {
 class HiSysEvent {
 public:
-    friend class HiSysEventJNI;
+    friend class NapiHiSysEventAdapter;
     // system event domain list
     class Domain {
     public:
@@ -45,6 +45,7 @@ public:
         static constexpr char DISTRIBUTED_SCHEDULE[] = "DISTSCHEDULE";
         static constexpr char DISTRIBUTED_SCREEN[] = "DISTSCREEN";
         static constexpr char DISTRIBUTED_HARDWARE_FWK[] = "DHFWK";
+        static constexpr char DISTRIBUTED_CAMERA[] = "DISTCAMERA";
         static constexpr char GLOBAL[] = "GLOBAL";
         static constexpr char GRAPHIC[] = "GRAPHIC";
         static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
