@@ -13,24 +13,41 @@
  * limitations under the License.
  */
 
-#ifndef HISYSEVENT_CLIENT_QUERY_H
-#define HISYSEVENT_CLIENT_QUERY_H
+#ifndef NAPI_HISYSEVENT_QUERIER_H
+#define NAPI_HISYSEVENT_QUERIER_H
 
+#include <functional>
 #include <string>
 #include <vector>
 
 #include "hisysevent_query_callback.h"
+#include "napi/native_api.h"
+#include "napi/native_node_api.h"
+#include "napi_callback_context.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class HiSysEventToolQuery : public OHOS::HiviewDFX::HiSysEventQueryCallBack {
+using ON_COMPLETE_FUNC = std::function<void()>;
+class NapiHiSysEventQuerier : public OHOS::HiviewDFX::HiSysEventQueryCallBack {
+public:
+    NapiHiSysEventQuerier(CallbackContext* context, ON_COMPLETE_FUNC onCompleteHandler)
+        : callbackContext(context), onCompleteHandler(onCompleteHandler) {}
+    virtual ~NapiHiSysEventQuerier()
+    {
+        napi_delete_reference(callbackContext->env, callbackContext->ref);
+        delete callbackContext;
+    }
+
 public:
     void OnQuery(const ::std::vector<std::string>& sysEvent,
         const std::vector<int64_t>& seq);
     void OnComplete(int32_t reason, int32_t total);
-    virtual ~HiSysEventToolQuery() {}
+
+private:
+    CallbackContext* callbackContext;
+    ON_COMPLETE_FUNC onCompleteHandler;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif // HISYSEVENT_CLIENT_QUERY_H
+#endif // NAPI_HISYSEVENT_QUERIER_H

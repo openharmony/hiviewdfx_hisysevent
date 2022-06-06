@@ -97,13 +97,13 @@ private:
 class HiSysEventManager {
 public:
     HiSysEventManager() = default;
-    static bool AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener,
+    static int32_t AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener,
         std::vector<ListenerRule>& rules);
-    static bool RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener);
-    static bool QueryHiSysEvent(struct QueryArg& queryArg,
+    static int32_t RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener);
+    static int32_t QueryHiSysEvent(struct QueryArg& queryArg,
         std::vector<QueryRule>& queryRules,
         std::shared_ptr<HiSysEventQueryCallBack> queryCallBack);
-    static bool SetDebugMode(std::shared_ptr<HiSysEventSubscribeCallBack> listener, bool mode);
+    static int32_t SetDebugMode(std::shared_ptr<HiSysEventSubscribeCallBack> listener, bool mode);
     ~HiSysEventManager() {}
 };
 } // namespace HiviewDFX

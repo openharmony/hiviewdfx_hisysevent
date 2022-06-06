@@ -63,11 +63,11 @@ describe('hiSysEventJsUnitTest', function () {
             name: "STACK",
             eventType: hiSysEvent.EventType.FAULT,
             params: {
-                "PID": 1,
-                "UID": 1,
-                "PACKAGE_NAME": "com.huawei.testHiSysEvent",
-                "PROCESS_NAME": "hiview js test suite",
-                "MSG": "no msg."
+                PID: 1,
+                UID: 1,
+                PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                PROCESS_NAME: "hiview js test suite",
+                MSG: "no msg."
             }
         }, (err, val) => {
             if (err) {
@@ -96,11 +96,11 @@ describe('hiSysEventJsUnitTest', function () {
             name: "STACK",
             eventType: hiSysEvent.EventType.FAULT,
             params: {
-                "PID": 1,
-                "UID": 1,
-                "PACKAGE_NAME": "com.huawei.testHiSysEvent",
-                "PROCESS_NAME": "hiview js test suite",
-                "MSG": "no msg."
+                PID: 1,
+                UID: 1,
+                PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                PROCESS_NAME: "hiview js test suite",
+                MSG: "no msg."
             }
         }).then(
             (val) => {
@@ -117,5 +117,131 @@ describe('hiSysEventJsUnitTest', function () {
             }
         );
         console.info('hiSysEventJsUnitTest002 end')
+    });
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest003
+     * @tc.desc: Test function return of adding/remove hisysevent watcher result.
+     * @tc.type: FUNC
+     */
+    it('hiSysEventJsUnitTest003', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest003 start')
+        let watcher = {
+            rules: [{
+                domain: "RELIABILITY",
+                name: "STACK",
+                tag: "STABILITY",
+                ruleType: hiSysEvent.RuleType.WHOLE_WORD,
+            }],
+            onEvent: (info) => {
+            },
+            onServiceDied: () => {
+            }
+        }
+        let result = hiSysEvent.addWatcher(watcher)
+        expect(result).assertEqual(0)
+        result = hiSysEvent.removeWatcher(watcher)
+        expect(result).assertEqual(0)
+        console.info('hiSysEventJsUnitTest003 end')
+        done();
+    });
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest004
+     * @tc.desc: Test watcher callback
+     * @tc.type: FUNC
+     */
+    it('hiSysEventJsUnitTest004', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest004 start')
+        let watcher = {
+            rules: [{
+                domain: "RELIABILITY",
+                name: "STACK",
+                tag: "STABILITY",
+                ruleType: hiSysEvent.RuleType.WHOLE_WORD,
+            }],
+            onEvent: (info) => {
+                console.info(`hiSysEventJsUnitTest004: OnEvent...`)
+                expect(Object.keys(info).length > 0).assertTrue()
+                console.info(`domain is : ${info.domain}, name is ${info.name}, eventType is ${info.eventType}`)
+                done();
+            },
+            onServiceDied: () => {
+                console.info(`hiSysEventJsUnitTest004: OnServiceDie...`)
+            }
+        }
+        let result = hiSysEvent.addWatcher(watcher)
+        expect(result).assertEqual(0)
+        hiSysEvent.write({
+            domain: "RELIABILITY",
+            name: "STACK",
+            eventType: hiSysEvent.EventType.FAULT,
+            params: {
+                PID: 1,
+                UID: 1,
+                PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                PROCESS_NAME: "hiview js test suite",
+                MSG: "no msg."
+            }
+        }, (err, val) => {
+            if (err) {
+                console.error('in hiSysEventJsUnitTest004 test callback: err.code = ' + err.code);
+                result = err.code;
+            } else {
+                console.info('in hiSysEventJsUnitTest004 test callback: result = ' + val);
+                result = val;
+            }
+        })
+        sleep(1000) // avoid deleting watcher before callback called
+        result = hiSysEvent.removeWatcher(watcher)
+        expect(result).assertEqual(0)
+        console.info('hiSysEventJsUnitTest004 end')
+    });
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest005
+     * @tc.desc: Test query callback
+     * @tc.type: FUNC
+     */
+    it('hiSysEventJsUnitTest005', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest005 start')
+        hiSysEvent.write({
+            domain: "RELIABILITY",
+            name: "STACK",
+            eventType: hiSysEvent.EventType.FAULT,
+            params: {
+                PID: 1,
+                UID: 1,
+                PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                PROCESS_NAME: "hiview napi test suite",
+                MSG: "no msg."
+            }
+        }, (err, val) => {
+            if (err) {
+                console.error('in hiSysEventJsUnitTest005 test callback: err.code = ' + err.code)
+                result = err.code;
+            } else {
+                console.info('in hiSysEventJsUnitTest005 test callback: result = ' + val)
+                result = val;
+            }
+        })
+        hiSysEvent.query({
+            beginTime: -1,
+            endTime: -1,
+            maxEvents: 5,
+        }, [{
+            domain: "RELIABILITY",
+            names: ["STACK"],
+        }], {
+            onQuery: function (infos, seqs) {
+                expect(infos.length >= 0).assertTrue()
+                expect(seqs.length >= 0).assertTrue()
+            },
+            onComplete: function(reason, total) {
+                console.info(`hiSysEventJsUnitTest005: reason is ${reason}, total is ${total}`)
+                done();
+            }
+        })
+        console.info('hiSysEventJsUnitTest005 end')
     });
 });

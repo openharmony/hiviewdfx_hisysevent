@@ -21,6 +21,7 @@
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "ret_code.h"
 #include "sys_event_service_proxy.h"
 #include "system_ability_definition.h"
 
@@ -56,13 +57,13 @@ void HiSysEventDelegate::ConvertQueryRule(const std::vector<QueryRule>& rules,
     });
 }
 
-bool HiSysEventDelegate::AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
+int32_t HiSysEventDelegate::AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
     const std::vector<ListenerRule>& rules)
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
         HiLog::Error(LABEL, "Fail to get service.");
-        return false;
+        return ERROR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
     std::vector<SysEventRule> eventRules;
     ConvertListenerRule(rules, eventRules);
@@ -76,43 +77,43 @@ bool HiSysEventDelegate::AddEventListener(const std::shared_ptr<HiSysEventSubscr
     return sysEventService.AddListener(eventRules, spListenerCallBack);
 }
 
-bool HiSysEventDelegate::RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener)
+int32_t HiSysEventDelegate::RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener)
 {
     if (!spListenerCallBack) {
-        return false;
+        return ERROR_LISTENER_NOT_EXIST;
     }
     auto service = GetSysEventService();
     if (service == nullptr) {
         HiLog::Error(LABEL, "Fail to get service.");
-        return false;
+        return ERROR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
     SysEventServiceProxy sysEventService(service);
     return sysEventService.RemoveListener(spListenerCallBack);
 }
 
-bool HiSysEventDelegate::SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
+int32_t HiSysEventDelegate::SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
     const bool mode)
 {
     if (!spListenerCallBack) {
-        return false;
+        return ERROR_LISTENER_NOT_EXIST;
     }
     auto service = GetSysEventService();
     if (service == nullptr) {
         HiLog::Error(LABEL, "Fail to get service.");
-        return false;
+        return ERROR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
     SysEventServiceProxy sysEventService(service);
     return sysEventService.SetDebugMode(spListenerCallBack, mode);
 }
 
-bool HiSysEventDelegate::QueryHiSysEvent(const struct QueryArg& queryArg,
+int32_t HiSysEventDelegate::QueryHiSysEvent(const struct QueryArg& queryArg,
     const std::vector<QueryRule>& queryRules,
     const std::shared_ptr<HiSysEventQueryCallBack> queryCallBack) const
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
         HiLog::Error(LABEL, "Fail to get service.");
-        return false;
+        return ERROR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
 
     std::vector<SysEventQueryRule> hospRules;

@@ -28,11 +28,11 @@ public:
     virtual ~SysEventServiceProxy() = default;
     DISALLOW_COPY_AND_MOVE(SysEventServiceProxy);
 
-    bool AddListener(const std::vector<SysEventRule>& rules, const sptr<ISysEventCallback>& callback);
-    bool RemoveListener(const sptr<ISysEventCallback>& callback);
-    bool QuerySysEvent(int64_t beginTime, int64_t endTime, int32_t maxEvents,
+    int32_t AddListener(const std::vector<SysEventRule>& rules, const sptr<ISysEventCallback>& callback);
+    int32_t RemoveListener(const sptr<ISysEventCallback>& callback);
+    int32_t QuerySysEvent(int64_t beginTime, int64_t endTime, int32_t maxEvents,
         const std::vector<SysEventQueryRule>& rules, const sptr<IQuerySysEventCallback>& callback);
-    bool SetDebugMode(const sptr<ISysEventCallback>& callback, bool mode);
+    int32_t SetDebugMode(const sptr<ISysEventCallback>& callback, bool mode);
 
 private:
     static inline BrokerDelegator<SysEventServiceProxy> delegator_;

@@ -29,7 +29,7 @@ constexpr char ERROR_CODE_KEY[] = "code";
 void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* eventAsyncContext)
 {
     napi_value resource = nullptr;
-    napi_create_string_utf8(env, FUNC_SOURCE_NAME, NAPI_AUTO_LENGTH, &resource);
+    NapiHiSysEventUtil::CreateStringValue(env, FUNC_SOURCE_NAME, resource);
 
     napi_create_async_work(
         env, nullptr, resource,

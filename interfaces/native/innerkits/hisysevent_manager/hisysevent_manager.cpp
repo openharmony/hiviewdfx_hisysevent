@@ -16,16 +16,17 @@
 #include "hisysevent_manager.h"
 
 #include "hisysevent_delegate.h"
+#include "ret_code.h"
 
 using namespace std;
 
 namespace OHOS {
 namespace HiviewDFX {
-bool HiSysEventManager::AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener,
+int32_t HiSysEventManager::AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener,
     std::vector<ListenerRule>& rules)
 {
     if (listener == nullptr) {
-        return false;
+        return ERROR_LISTENER_NOT_EXIST;
     }
     if (listener->listenerProxy == nullptr) {
         listener->listenerProxy = new HiSysEventDelegate();
@@ -33,10 +34,10 @@ bool HiSysEventManager::AddEventListener(std::shared_ptr<HiSysEventSubscribeCall
     return listener->listenerProxy->AddEventListener(listener, rules);
 }
 
-bool HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener)
+int32_t HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener)
 {
     if (listener == nullptr || listener->listenerProxy == nullptr) {
-        return false;
+        return ERROR_LISTENER_NOT_EXIST;
     }
     auto listenerRemoveResult = listener->listenerProxy->RemoveListener(listener);
     delete listener->listenerProxy;
@@ -44,7 +45,7 @@ bool HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBa
     return listenerRemoveResult;
 }
 
-bool HiSysEventManager::QueryHiSysEvent(struct QueryArg& queryArg,
+int32_t HiSysEventManager::QueryHiSysEvent(struct QueryArg& queryArg,
     std::vector<QueryRule>& queryRules,
     std::shared_ptr<HiSysEventQueryCallBack> queryCallBack)
 {
@@ -52,13 +53,13 @@ bool HiSysEventManager::QueryHiSysEvent(struct QueryArg& queryArg,
     if (proxy != nullptr) {
         return proxy->QueryHiSysEvent(queryArg, queryRules, queryCallBack);
     }
-    return false;
+    return ERROR_LISTENER_NOT_EXIST;
 }
 
-bool HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventSubscribeCallBack> listener, bool mode)
+int32_t HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventSubscribeCallBack> listener, bool mode)
 {
     if (listener == nullptr || listener->listenerProxy == nullptr) {
-        return false;
+        return ERROR_LISTENER_NOT_EXIST;
     }
     return listener->listenerProxy->SetDebugMode(listener, mode);
 }
