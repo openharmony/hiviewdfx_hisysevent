@@ -33,6 +33,7 @@ void QuerySysEventCallbackProxy::OnQuery(const std::vector<std::u16string>& sysE
         HiLog::Error(LABEL, "write descriptor failed.");
         return;
     }
+
     bool ret = data.WriteString16Vector(sysEvent);
     if (!ret) {
         HiLog::Error(LABEL, "write sys event failed.");
@@ -43,13 +44,12 @@ void QuerySysEventCallbackProxy::OnQuery(const std::vector<std::u16string>& sysE
         HiLog::Error(LABEL, "write sys seq failed.");
         return;
     }
+
     MessageParcel reply;
     MessageOption option = {MessageOption::TF_ASYNC};
-    if (remote != nullptr) {
-        int32_t res = remote->SendRequest(ON_QUERY, data, reply, option);
-        if (res != ERR_OK) {
-            HiLog::Error(LABEL, "send request failed, error is %{public}d.", res);
-        }
+    int32_t res = remote->SendRequest(ON_QUERY, data, reply, option);
+    if (res != ERR_OK) {
+        HiLog::Error(LABEL, "send request failed, error is %{public}d.", res);
     }
 }
 
@@ -72,11 +72,9 @@ void QuerySysEventCallbackProxy::OnComplete(int32_t reason, int32_t total)
     }
     MessageParcel reply;
     MessageOption option = {MessageOption::TF_ASYNC};
-    if (remote != nullptr) {
-        int32_t res = remote->SendRequest(ON_COMPLETE, data, reply, option);
-        if (res != ERR_OK) {
-            HiLog::Error(LABEL, "send request failed, error is %{public}d.", res);
-        }
+    int32_t res = remote->SendRequest(ON_COMPLETE, data, reply, option);
+    if (res != ERR_OK) {
+        HiLog::Error(LABEL, "send request failed, error is %{public}d.", res);
     }
 }
 } // namespace HiviewDFX

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,25 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
+#ifndef NAPI_CALLBACK_CONTEXT_H
+#define NAPI_CALLBACK_CONTEXT_H
 
-#ifndef HISYSEVENT_CLIENT_QUERY_H
-#define HISYSEVENT_CLIENT_QUERY_H
+#include <functional>
 
-#include <string>
-#include <vector>
-
-#include "hisysevent_query_callback.h"
+#include "napi/native_api.h"
+#include "napi/native_node_api.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class HiSysEventToolQuery : public OHOS::HiviewDFX::HiSysEventQueryCallBack {
-public:
-    void OnQuery(const ::std::vector<std::string>& sysEvent,
-        const std::vector<int64_t>& seq);
-    void OnComplete(int32_t reason, int32_t total);
-    virtual ~HiSysEventToolQuery() {}
+struct CallbackContext;
+using CALL_BACK_FUNC = std::function<void(CallbackContext*)>;
+using CallbackContext = struct CallbackContext {
+    napi_env env = nullptr;
+    napi_ref ref = nullptr;
+    CALL_BACK_FUNC callback;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
-
-#endif // HISYSEVENT_CLIENT_QUERY_H
+#endif // NAPI_CALLBACK_CONTEXT_H

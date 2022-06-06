@@ -35,13 +35,13 @@ namespace HiviewDFX {
 class HiSysEventDelegate : public HiSysEventSubscribeOperate {
 public:
     HiSysEventDelegate() {}
-    bool AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
+    int32_t AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
         const std::vector<ListenerRule>& rules);
-    bool RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener);
-    bool QueryHiSysEvent(const struct QueryArg& queryArg,
+    int32_t RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener);
+    int32_t QueryHiSysEvent(const struct QueryArg& queryArg,
         const std::vector<QueryRule>& queryRules,
         const std::shared_ptr<HiSysEventQueryCallBack> queryCallBack) const;
-    bool SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
+    int32_t SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
         const bool mode);
     virtual ~HiSysEventDelegate();
     static void BinderFunc();

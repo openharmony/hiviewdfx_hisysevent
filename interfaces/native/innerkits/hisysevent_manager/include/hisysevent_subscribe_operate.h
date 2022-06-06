@@ -31,10 +31,10 @@ public:
     virtual ~HiSysEventSubscribeOperate() {}
 
 public:
-    virtual bool AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
+    virtual int32_t AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
         const std::vector<ListenerRule>& Rule);
-    virtual bool RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener);
-    virtual bool SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBack> listener, const bool mode);
+    virtual int32_t RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener);
+    virtual int32_t SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBack> listener, const bool mode);
 
 private:
     HiSysEventSubscribeOperate(const HiSysEventSubscribeOperate&) = delete;

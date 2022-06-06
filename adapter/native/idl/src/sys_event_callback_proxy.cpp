@@ -42,11 +42,9 @@ void SysEventCallbackProxy::Handle(const std::u16string& domain, const std::u16s
     }
     MessageParcel reply;
     MessageOption option = {MessageOption::TF_ASYNC};
-    if (remote != nullptr) {
-        int32_t res = remote->SendRequest(HANDLE, data, reply, option);
-        if (res != ERR_OK) {
-            HiLog::Error(LABEL, "send request failed, error is %{public}d.", res);
-        }
+    int32_t res = remote->SendRequest(HANDLE, data, reply, option);
+    if (res != ERR_OK) {
+        HiLog::Error(LABEL, "send request failed, error is %{public}d.", res);
     }
 }
 } // namespace HiviewDFX
