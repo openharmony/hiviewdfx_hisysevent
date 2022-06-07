@@ -151,7 +151,7 @@ bool HiSysEventTool::DoAction()
             clientCmdArg.tag, clientCmdArg.ruleType);
         sysRules.emplace_back(listenerRule);
         auto listenerAddResult = HiSysEventManager::AddEventListener(toolListener, sysRules);
-        if (listenerAddResult &&
+        if (listenerAddResult == 0 &&
             (!clientCmdArg.isDebug || HiSysEventManager::SetDebugMode(toolListener, true))) {
             return true;
         }
@@ -164,7 +164,7 @@ bool HiSysEventTool::DoAction()
         }
         struct QueryArg args(clientCmdArg.beginTime, clientCmdArg.endTime, clientCmdArg.maxEvents);
         std::vector<QueryRule> queryRules;
-        if (HiSysEventManager::QueryHiSysEvent(args, queryRules, queryCallBack)) {
+        if (HiSysEventManager::QueryHiSysEvent(args, queryRules, queryCallBack) == 0) {
             return true;
         }
     }
