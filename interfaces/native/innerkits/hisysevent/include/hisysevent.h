@@ -44,7 +44,7 @@ public:
         static constexpr char DISTRIBUTED_DATAMGR[] = "DISTDATAMGR";
         static constexpr char DISTRIBUTED_SCHEDULE[] = "DISTSCHEDULE";
         static constexpr char DISTRIBUTED_SCREEN[] = "DISTSCREEN";
-        static constexpr char DISTRIBUTED_HARDWARE_FWK[] = "DISTDHFWK";
+        static constexpr char DISTRIBUTED_HARDWARE_FWK[] = "DISTHWFWK";
         static constexpr char DISTRIBUTED_INPUT[] = "DISTINPUT";
         static constexpr char DISTRIBUTED_DEVICE_MANAGER[] = "DISTDM";
         static constexpr char DISTRIBUTED_CAMERA[] = "DISTCAMERA";
