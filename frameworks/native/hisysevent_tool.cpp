@@ -152,7 +152,7 @@ bool HiSysEventTool::DoAction()
         sysRules.emplace_back(listenerRule);
         auto listenerAddResult = HiSysEventManager::AddEventListener(toolListener, sysRules);
         if (listenerAddResult == 0 &&
-            (!clientCmdArg.isDebug || HiSysEventManager::SetDebugMode(toolListener, true))) {
+            (!clientCmdArg.isDebug || HiSysEventManager::SetDebugMode(toolListener, true) == 0)) {
             return true;
         }
     }
