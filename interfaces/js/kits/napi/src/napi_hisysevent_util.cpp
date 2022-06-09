@@ -26,7 +26,7 @@ namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_UTIL" };
 constexpr uint32_t BUF_SIZE = 10240;
 constexpr int SYS_EVENT_INFO_PARAM_INDEX = 0;
-constexpr long long DEFAULT_TIME_STAMP = -1;
+constexpr long long DEFAULT_TIME_STAMP = 0;
 constexpr int32_t DEFAULT_MAX_EVENTS = 1000;
 constexpr char PARAMS_ATTR[] = "params";
 constexpr char TAG_ATTR[] = "tag";
@@ -122,7 +122,7 @@ double ParseBigIntValue(const napi_env env, const napi_value& value, uint64_t de
 
 long long ParseLongLongIntValue(const napi_env env, const napi_value& value, long long defaultValue = 0)
 {
-    uint64_t bigIntValue = defaultValue;
+    uint64_t bigIntValue = static_cast<uint64_t>(defaultValue);
     bool lossless = true;
     napi_status ret = napi_get_value_bigint_uint64(env, value, &bigIntValue, &lossless);
     if (ret != napi_ok) {
@@ -763,9 +763,8 @@ void NapiHiSysEventUtil::CallJSCallback(CallbackContext* context, CALL_BACK_FUNC
                 context->callback(context);
             }
             napi_close_handle_scope(context->env, scope);
-            if (work != nullptr) {
-                delete work;
-            }
+            delete work;
+            work = nullptr;
         }
     );
 }

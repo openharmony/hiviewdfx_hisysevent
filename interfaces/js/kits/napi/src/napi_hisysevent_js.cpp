@@ -44,6 +44,8 @@ constexpr size_t REMOVE_LISTENER_LISTENER_PARAM_INDEX = 0;
 constexpr size_t QUERY_QUERY_ARG_PARAM_INDEX = 0;
 constexpr size_t QUERY_RULE_ARRAY_PARAM_INDEX = 1;
 constexpr size_t QUERY_QUERIER_PARAM_INDEX = 2;
+constexpr long long DEFAULT_TIME_STAMP = 0;
+constexpr int DEFAULT_EVENT_COUNT = 0;
 std::unordered_map<napi_ref, std::shared_ptr<NapiHiSysEventListener>> listeners;
 std::unordered_map<napi_ref, std::shared_ptr<NapiHiSysEventQuerier>> queriers;
 }
@@ -184,7 +186,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
             static_cast<int>(QUERY_FUNC_MAX_PARAM_NUM));
         return val;
     }
-    QueryArg queryArg;
+    QueryArg queryArg = { DEFAULT_TIME_STAMP, DEFAULT_TIME_STAMP, DEFAULT_EVENT_COUNT };
     ret = NapiHiSysEventUtil::ParseQueryArg(env, params[QUERY_QUERY_ARG_PARAM_INDEX], queryArg);
     if (ret != SUCCESS) {
         HiLog::Error(LABEL, "failed to parse query arg.");

@@ -164,7 +164,6 @@ describe('hiSysEventJsUnitTest', function () {
                 console.info(`hiSysEventJsUnitTest004: OnEvent...`)
                 expect(Object.keys(info).length > 0).assertTrue()
                 console.info(`domain is : ${info.domain}, name is ${info.name}, eventType is ${info.eventType}`)
-                done();
             },
             onServiceDied: () => {
                 console.info(`hiSysEventJsUnitTest004: OnServiceDie...`)
@@ -192,9 +191,11 @@ describe('hiSysEventJsUnitTest', function () {
                 result = val;
             }
         })
-        sleep(1000) // avoid deleting watcher before callback called
-        result = hiSysEvent.removeWatcher(watcher)
-        expect(result).assertEqual(0)
+        setTimeout(() => {
+            result = hiSysEvent.removeWatcher(watcher)
+            expect(result).assertEqual(0)
+            done();
+        }, 1000)
         console.info('hiSysEventJsUnitTest004 end')
     });
 
