@@ -44,6 +44,8 @@ constexpr size_t REMOVE_LISTENER_LISTENER_PARAM_INDEX = 0;
 constexpr size_t QUERY_QUERY_ARG_PARAM_INDEX = 0;
 constexpr size_t QUERY_RULE_ARRAY_PARAM_INDEX = 1;
 constexpr size_t QUERY_QUERIER_PARAM_INDEX = 2;
+constexpr long long DEFAULT_TIME_STAMP = -1;
+constexpr int DEFAULT_EVENT_COUNT = 1000;
 std::unordered_map<napi_ref, std::shared_ptr<NapiHiSysEventListener>> listeners;
 std::unordered_map<napi_ref, std::shared_ptr<NapiHiSysEventQuerier>> queriers;
 }
@@ -184,7 +186,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
             static_cast<int>(QUERY_FUNC_MAX_PARAM_NUM));
         return val;
     }
-    QueryArg queryArg;
+    QueryArg queryArg = { DEFAULT_TIME_STAMP, DEFAULT_TIME_STAMP, DEFAULT_EVENT_COUNT };
     ret = NapiHiSysEventUtil::ParseQueryArg(env, params[QUERY_QUERY_ARG_PARAM_INDEX], queryArg);
     if (ret != SUCCESS) {
         HiLog::Error(LABEL, "failed to parse query arg.");
@@ -202,9 +204,11 @@ static napi_value Query(napi_env env, napi_callback_info info)
     callbackContext->env = env;
     napi_create_reference(env, params[QUERY_QUERIER_PARAM_INDEX], 1, &callbackContext->ref);
     std::shared_ptr<NapiHiSysEventQuerier> querier = std::make_shared<NapiHiSysEventQuerier>(callbackContext,
-        [&env, &params] {
+        [callbackContext, &params] (napi_env env) {
+            napi_value querier = nullptr;
+            napi_get_reference_value(callbackContext->env, callbackContext->ref, &querier);
             auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventQuerier>(env,
-                params[QUERY_QUERIER_PARAM_INDEX], queriers);
+               querier, queriers);
             if (iter != queriers.end()) {
                 queriers.erase(iter->first);
             }

@@ -31,7 +31,7 @@ constexpr size_t ON_SERVICE_DIED_PARAM_COUNT = 0;
 void NapiHiSysEventListener::OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
     const std::string& eventDetail)
 {
-    NapiHiSysEventUtil::CallJSCallback(
+    jsCallbackManager->Add(
         callbackContext,
         [this, domain, eventName, eventType, eventDetail] (CallbackContext* context) {
             napi_value sysEventInfo = nullptr;
@@ -59,7 +59,7 @@ void NapiHiSysEventListener::OnHandle(const std::string& domain, const std::stri
 
 void NapiHiSysEventListener::OnServiceDied()
 {
-    NapiHiSysEventUtil::CallJSCallback(callbackContext, [this] (CallbackContext* context) {
+    jsCallbackManager->Add(callbackContext, [this] (CallbackContext* context) {
         napi_value listener = nullptr;
         napi_status status = napi_get_reference_value(context->env, context->ref, &listener);
         if (status != napi_ok) {

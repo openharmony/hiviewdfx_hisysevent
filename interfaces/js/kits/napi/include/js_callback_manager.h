@@ -13,25 +13,32 @@
  * limitations under the License.
  */
  
-#ifndef NAPI_CALLBACK_CONTEXT_H
-#define NAPI_CALLBACK_CONTEXT_H
+#ifndef JS_CALLBACK_MANAGER_H
+#define JS_CALLBACK_MANAGER_H
 
-#include <functional>
+#include <atomic>
+#include <queue>
+#include <tuple>
 
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "napi_callback_context.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-struct CallbackContext;
-using CALLBACK_FUNC = std::function<void(CallbackContext*)>;
-using CALLBACK_END_FUNC = std::function<void()>;
-using CallbackContext = struct CallbackContext {
-    napi_env env = nullptr;
-    napi_ref ref = nullptr;
-    CALLBACK_FUNC callback;
-    CALLBACK_END_FUNC endCallback;
+class JsCallbackManager final {
+public:
+    explicit JsCallbackManager() {}
+public:
+    void Add(CallbackContext* context, CALLBACK_FUNC callback, CALLBACK_END_FUNC callbackEnd = nullptr);
+
+private:
+    void ImmediateRun(bool needPop = false);
+
+private:
+    std::atomic<bool> inCalling = false;
+    std::queue<std::tuple<CallbackContext*, CALLBACK_FUNC, CALLBACK_END_FUNC>> jsCallbacks;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
-#endif // NAPI_CALLBACK_CONTEXT_H
+#endif // JS_CALLBACK_MANAGER_H

@@ -55,7 +55,6 @@ public:
     static void CreateStringValue(const napi_env env, std::string value, napi_value& ret);
     static napi_value GetPropertyByName(const napi_env env, const napi_value& object,
         const std::string& propertyName);
-    static void CallJSCallback(CallbackContext* context, CALL_BACK_FUNC callback);
 
 public:
     template<typename T>

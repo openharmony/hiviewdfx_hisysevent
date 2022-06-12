@@ -23,6 +23,7 @@ ohos_shared_library("hisysevent_napi") {
   configs = []
 
   sources = [
+    "./src/js_callback_manager.cpp",
     "./src/napi_hisysevent_adapter.cpp",
     "./src/napi_hisysevent_init.cpp",
     "./src/napi_hisysevent_js.cpp",
