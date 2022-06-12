@@ -18,7 +18,6 @@
 #include "hilog/log.h"
 #include "json/json.h"
 #include "ret_def.h"
-#include "uv.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -26,7 +25,7 @@ namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_UTIL" };
 constexpr uint32_t BUF_SIZE = 10240;
 constexpr int SYS_EVENT_INFO_PARAM_INDEX = 0;
-constexpr long long DEFAULT_TIME_STAMP = 0;
+constexpr long long DEFAULT_TIME_STAMP = -1;
 constexpr int32_t DEFAULT_MAX_EVENTS = 1000;
 constexpr char PARAMS_ATTR[] = "params";
 constexpr char TAG_ATTR[] = "tag";
@@ -120,17 +119,6 @@ double ParseBigIntValue(const napi_env env, const napi_value& value, uint64_t de
     return static_cast<double>(bigIntValue);
 }
 
-long long ParseLongLongIntValue(const napi_env env, const napi_value& value, long long defaultValue = 0)
-{
-    uint64_t bigIntValue = static_cast<uint64_t>(defaultValue);
-    bool lossless = true;
-    napi_status ret = napi_get_value_bigint_uint64(env, value, &bigIntValue, &lossless);
-    if (ret != napi_ok) {
-        HiLog::Error(LABEL, "failed to parse napi value of big int type.");
-    }
-    return static_cast<long long>(bigIntValue);
-}
-
 std::string ParseStringValue(const napi_env env, const napi_value& value, std::string defaultValue = "")
 {
     char buf[BUF_SIZE] = {0};
@@ -159,11 +147,16 @@ long long GetLonglongTypeAttribute(const napi_env env, const napi_value& object,
     const std::string& propertyName, long long defaultValue = 0)
 {
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
-    if (!CheckValueTypeValidity(env, propertyValue, napi_valuetype::napi_number)) {
-        HiLog::Error(LABEL, "type is not napi_number.");
+    bool isNumberType = CheckValueTypeValidity(env, propertyValue, napi_valuetype::napi_number);
+    bool isBigIntType = CheckValueTypeValidity(env, propertyValue, napi_valuetype::napi_bigint);
+    if (!isNumberType && !isBigIntType) {
+        HiLog::Error(LABEL, "type is not napi_number or napi_bigint.");
         return defaultValue;
     }
-    return ParseLongLongIntValue(env, propertyValue, defaultValue);
+    if (isBigIntType) {
+        return static_cast<long long>(ParseBigIntValue(env, propertyValue));
+    }
+    return static_cast<long long>(ParseNumberValue(env, propertyValue, defaultValue));
 }
 
 int32_t ParseInt32Value(const napi_env env, const napi_value& value, int32_t defaultValue = 0)
@@ -738,35 +731,6 @@ void NapiHiSysEventUtil::CreateStringValue(const napi_env env, std::string value
     if (status != napi_ok) {
         HiLog::Error(LABEL, "failed to create napi value of string type.");
     }
-}
-
-void NapiHiSysEventUtil::CallJSCallback(CallbackContext* context, CALL_BACK_FUNC callback)
-{
-    uv_loop_t* loop = nullptr;
-    napi_get_uv_event_loop(context->env, &loop);
-    context->callback = callback;
-    uv_work_t* work = new uv_work_t();
-    work->data = (void*)context;
-    uv_queue_work(
-        loop,
-        work,
-        [] (uv_work_t* work) {},
-        [] (uv_work_t* work, int status) {
-            CallbackContext* context = (CallbackContext*)work->data;
-            napi_handle_scope scope = nullptr;
-            napi_open_handle_scope(context->env, &scope);
-            if (scope == nullptr) {
-                HiLog::Debug(LABEL, "napi scope is null.");
-                return;
-            }
-            if (context->callback != nullptr) {
-                context->callback(context);
-            }
-            napi_close_handle_scope(context->env, scope);
-            delete work;
-            work = nullptr;
-        }
-    );
 }
 } // namespace HiviewDFX
 } // namespace OHOS

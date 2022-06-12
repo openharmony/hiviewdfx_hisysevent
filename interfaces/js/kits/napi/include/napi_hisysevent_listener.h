@@ -19,6 +19,7 @@
 #include <string>
 
 #include "hisysevent_subscribe_callback.h"
+#include "js_callback_manager.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "napi_callback_context.h"
@@ -28,7 +29,10 @@ namespace HiviewDFX {
 class NapiHiSysEventListener : public OHOS::HiviewDFX::HiSysEventSubscribeCallBack {
 public:
     NapiHiSysEventListener(CallbackContext* context)
-        : callbackContext(context) {}
+    {
+        callbackContext = context;
+        jsCallbackManager = std::make_shared<JsCallbackManager>();
+    }
     virtual ~NapiHiSysEventListener()
     {
         napi_delete_reference(callbackContext->env, callbackContext->ref);
@@ -42,6 +46,7 @@ public:
 
 private:
     CallbackContext* callbackContext;
+    std::shared_ptr<JsCallbackManager> jsCallbackManager;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

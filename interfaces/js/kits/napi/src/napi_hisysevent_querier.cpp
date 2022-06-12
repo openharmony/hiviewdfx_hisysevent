@@ -30,7 +30,7 @@ constexpr size_t ON_QUERY_COMPLTE_PARAM_COUNT = 2;
 void NapiHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvent,
     const std::vector<int64_t>& seq)
 {
-    NapiHiSysEventUtil::CallJSCallback(callbackContext, [this, sysEvent, seq](CallbackContext* context) {
+    jsCallbackManager->Add(callbackContext, [this, sysEvent, seq] (CallbackContext* context) {
         napi_value sysEventJsParam = nullptr;
         napi_create_array_with_length(context->env, sysEvent.size(), &sysEventJsParam);
         NapiHiSysEventUtil::CreateJsSysEventInfoArray(context->env, sysEvent, sysEventJsParam);
@@ -45,14 +45,14 @@ void NapiHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvent,
         napi_status status = napi_call_function(context->env, querier, onQuery, ON_QUERY_COMPLTE_PARAM_COUNT,
             argv, &ret);
         if (status != napi_ok) {
-            HiLog::Debug(LABEL, "Failed to call OnQuery JS function.");
+            HiLog::Error(LABEL, "Failed to call OnQuery JS function.");
         }
     });
 }
 
 void NapiHiSysEventQuerier::OnComplete(int32_t reason, int32_t total)
 {
-    NapiHiSysEventUtil::CallJSCallback(callbackContext, [this, reason, total](CallbackContext* context) {
+    jsCallbackManager->Add(callbackContext, [this, reason, total] (CallbackContext* context) {
         napi_value reasonJsParam = nullptr;
         NapiHiSysEventUtil::CreateInt32Value(context->env, reason, reasonJsParam);
         napi_value totalJsParam = nullptr;
@@ -65,10 +65,11 @@ void NapiHiSysEventQuerier::OnComplete(int32_t reason, int32_t total)
         napi_status status = napi_call_function(context->env, querier, OnComplete, ON_QUERY_COMPLTE_PARAM_COUNT,
             argv, &ret);
         if (status != napi_ok) {
-            HiLog::Debug(LABEL, "Failed to call OnComplete JS function.");
+            HiLog::Error(LABEL, "Failed to call OnComplete JS function.");
         }
+    }, [this] () {
         if (this->onCompleteHandler != nullptr) {
-            this->onCompleteHandler();
+            this->onCompleteHandler(this->callbackContext->env);
         }
     });
 }

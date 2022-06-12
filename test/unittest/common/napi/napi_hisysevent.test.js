@@ -195,8 +195,8 @@ describe('hiSysEventJsUnitTest', function () {
             result = hiSysEvent.removeWatcher(watcher)
             expect(result).assertEqual(0)
             done();
+            console.info('hiSysEventJsUnitTest004 end')
         }, 1000)
-        console.info('hiSysEventJsUnitTest004 end')
     });
 
     /**
@@ -226,23 +226,27 @@ describe('hiSysEventJsUnitTest', function () {
                 result = val;
             }
         })
-        hiSysEvent.query({
-            beginTime: -1,
-            endTime: -1,
-            maxEvents: 5,
-        }, [{
-            domain: "RELIABILITY",
-            names: ["STACK"],
-        }], {
-            onQuery: function (infos, seqs) {
-                expect(infos.length >= 0).assertTrue()
-                expect(seqs.length >= 0).assertTrue()
-            },
-            onComplete: function(reason, total) {
-                console.info(`hiSysEventJsUnitTest005: reason is ${reason}, total is ${total}`)
-                done();
-            }
-        })
-        console.info('hiSysEventJsUnitTest005 end')
-    });
+        setTimeout(() => {
+            let ret = hiSysEvent.query({
+                beginTime: -1,
+                endTime: -1,
+                maxEvents: 10,
+            }, [{
+                domain: "RELIABILITY",
+                names: ["STACK"],
+            }], {
+                onQuery: function (infos, seqs) {
+                    expect(infos.length >= 0).assertTrue()
+                    expect(seqs.length >= 0).assertTrue()
+                    console.info(`hiSysEventJsUnitTest005: infos.size is ${infos.length}, seqs.length is ${seqs.length}`)
+                },
+                onComplete: function(reason, total) {
+                    console.info(`hiSysEventJsUnitTest005: reason is ${reason}, total is ${total}`)
+                    done()
+                    console.info(`hiSysEventJsUnitTest005 end`)
+                }
+            })
+            expect(ret).assertEqual(0)
+        }, 1000);
+    })
 });

@@ -21,17 +21,22 @@
 #include <vector>
 
 #include "hisysevent_query_callback.h"
+#include "js_callback_manager.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "napi_callback_context.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-using ON_COMPLETE_FUNC = std::function<void()>;
+using ON_COMPLETE_FUNC = std::function<void(napi_env)>;
 class NapiHiSysEventQuerier : public OHOS::HiviewDFX::HiSysEventQueryCallBack {
 public:
-    NapiHiSysEventQuerier(CallbackContext* context, ON_COMPLETE_FUNC onCompleteHandler)
-        : callbackContext(context), onCompleteHandler(onCompleteHandler) {}
+    NapiHiSysEventQuerier(CallbackContext* context, ON_COMPLETE_FUNC handler)
+    {
+        callbackContext = context;
+        onCompleteHandler = handler;
+        jsCallbackManager = std::make_shared<JsCallbackManager>();
+    }
     virtual ~NapiHiSysEventQuerier()
     {
         napi_delete_reference(callbackContext->env, callbackContext->ref);
@@ -46,6 +51,7 @@ public:
 private:
     CallbackContext* callbackContext;
     ON_COMPLETE_FUNC onCompleteHandler;
+    std::shared_ptr<JsCallbackManager> jsCallbackManager;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
