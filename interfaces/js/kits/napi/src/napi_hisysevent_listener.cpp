@@ -33,44 +33,38 @@ void NapiHiSysEventListener::OnHandle(const std::string& domain, const std::stri
 {
     jsCallbackManager->Add(
         callbackContext,
-        [this, domain, eventName, eventType, eventDetail] (CallbackContext* context) {
+        [this, domain, eventName, eventType, eventDetail] (const napi_env env, const napi_ref ref) {
             napi_value sysEventInfo = nullptr;
-            NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(context->env, eventDetail, sysEventInfo);
-            NapiHiSysEventUtil::AppendStringPropertyToJsObject(context->env, NapiHiSysEventUtil::DOMAIN_ATTR,
-                domain, sysEventInfo);
-            NapiHiSysEventUtil::AppendStringPropertyToJsObject(context->env, NapiHiSysEventUtil::NAME_ATTR,
-                eventName, sysEventInfo);
-            NapiHiSysEventUtil::AppendInt32PropertyToJsObject(context->env, NapiHiSysEventUtil::EVENT_TYPE_ATTR,
-                eventType, sysEventInfo);
+            NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(env, eventDetail, sysEventInfo);
             napi_value argv[ON_EVENT_PARAM_COUNT] = {sysEventInfo};
             napi_value listener = nullptr;
-            napi_status status = napi_get_reference_value(context->env, context->ref, &listener);
+            napi_status status = napi_get_reference_value(env, ref, &listener);
             if (status != napi_ok) {
-                HiLog::Error(LABEL, "Failed to get JS reference of event listener.");
+                HiLog::Error(LABEL, "failed to get JS reference of event listener.");
             }
-            napi_value onEvent = NapiHiSysEventUtil::GetPropertyByName(context->env, listener, ON_EVENT_ATTR);
+            napi_value onEvent = NapiHiSysEventUtil::GetPropertyByName(env, listener, ON_EVENT_ATTR);
             napi_value ret = nullptr;
-            status = napi_call_function(context->env, listener, onEvent, ON_EVENT_PARAM_COUNT, argv, &ret);
+            status = napi_call_function(env, listener, onEvent, ON_EVENT_PARAM_COUNT, argv, &ret);
             if (status != napi_ok) {
-                HiLog::Error(LABEL, "Failed to call onEvent JS function.");
+                HiLog::Error(LABEL, "failed to call onEvent JS function.");
             }
         });
 }
 
 void NapiHiSysEventListener::OnServiceDied()
 {
-    jsCallbackManager->Add(callbackContext, [this] (CallbackContext* context) {
+    jsCallbackManager->Add(callbackContext, [this] (const napi_env env, const napi_ref ref) {
         napi_value listener = nullptr;
-        napi_status status = napi_get_reference_value(context->env, context->ref, &listener);
+        napi_status status = napi_get_reference_value(env, ref, &listener);
         if (status != napi_ok) {
-            HiLog::Error(LABEL, "Failed to get JS reference of event listener.");
+            HiLog::Error(LABEL, "failed to get JS reference of event listener.");
         }
-        napi_value onServiceDied = NapiHiSysEventUtil::GetPropertyByName(context->env, listener, ON_SERVICE_DIED_ATTR);
+        napi_value onServiceDied = NapiHiSysEventUtil::GetPropertyByName(env, listener, ON_SERVICE_DIED_ATTR);
         napi_value ret = nullptr;
-        status = napi_call_function(context->env, listener, onServiceDied, ON_SERVICE_DIED_PARAM_COUNT,
+        status = napi_call_function(env, listener, onServiceDied, ON_SERVICE_DIED_PARAM_COUNT,
             nullptr, &ret);
         if (status != napi_ok) {
-            HiLog::Error(LABEL, "Failed to call onServiceDied JS function.");
+            HiLog::Error(LABEL, "failed to call onServiceDied JS function.");
         }
     });
 }

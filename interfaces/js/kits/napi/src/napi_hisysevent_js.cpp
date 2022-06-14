@@ -204,11 +204,11 @@ static napi_value Query(napi_env env, napi_callback_info info)
     callbackContext->env = env;
     napi_create_reference(env, params[QUERY_QUERIER_PARAM_INDEX], 1, &callbackContext->ref);
     std::shared_ptr<NapiHiSysEventQuerier> querier = std::make_shared<NapiHiSysEventQuerier>(callbackContext,
-        [callbackContext, &params] (napi_env env) {
+        [] (const napi_env env, const napi_ref ref) {
             napi_value querier = nullptr;
-            napi_get_reference_value(callbackContext->env, callbackContext->ref, &querier);
+            napi_get_reference_value(env, ref, &querier);
             auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventQuerier>(env,
-               querier, queriers);
+                querier, queriers);
             if (iter != queriers.end()) {
                 queriers.erase(iter->first);
             }

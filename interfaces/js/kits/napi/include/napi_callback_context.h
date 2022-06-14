@@ -23,14 +23,13 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-struct CallbackContext;
-using CALLBACK_FUNC = std::function<void(CallbackContext*)>;
-using CALLBACK_END_FUNC = std::function<void()>;
+using CALLBACK_FUNC = std::function<void(const napi_env, const napi_ref)>;
+using RELEASE_FUNC = std::function<void()>;
 using CallbackContext = struct CallbackContext {
     napi_env env = nullptr;
     napi_ref ref = nullptr;
     CALLBACK_FUNC callback;
-    CALLBACK_END_FUNC endCallback;
+    RELEASE_FUNC release;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -34,6 +34,9 @@ constexpr char BEGIN_TIME_ATTR[] = "beginTime";
 constexpr char END_TIME_ATTR[] = "endTime";
 constexpr char MAX_EVENTS_ATTR[] = "maxEvents";
 constexpr char NAMES_ATTR[] = "names";
+constexpr char DOMAIN__KEY[] = "domain_";
+constexpr char NAME__KEY[] = "name_";
+constexpr char TYPE__KEY[] = "type_";
 const std::string INVALID_KEY_TYPE_ARR[] = {
     "[object Object]",
     "null",
@@ -431,19 +434,32 @@ void SetNamedProperty(const napi_env env, napi_value& object, const std::string&
 
 bool IsBaseInfoKey(const std::string& propertyName)
 {
-    return propertyName == NapiHiSysEventUtil::DOMAIN_ATTR || propertyName == NapiHiSysEventUtil::NAME_ATTR
-        || propertyName == NapiHiSysEventUtil::EVENT_TYPE_ATTR;
+    return propertyName == DOMAIN__KEY || propertyName == NAME__KEY || propertyName == TYPE__KEY;
+}
+
+std::string translateKeyToAttrName(const std::string& key)
+{
+    if (key == DOMAIN__KEY) {
+        return NapiHiSysEventUtil::DOMAIN_ATTR;
+    }
+    if (key == NAME__KEY) {
+        return NapiHiSysEventUtil::NAME_ATTR;
+    }
+    if (key == TYPE__KEY) {
+        return NapiHiSysEventUtil::EVENT_TYPE_ATTR;
+    }
+    return "";
 }
 
 void AppendBaseInfo(const napi_env env, napi_value& sysEventInfo, const std::string& key, Json::Value& value)
 {
-    if ((key == NapiHiSysEventUtil::DOMAIN_ATTR  || key == NapiHiSysEventUtil::NAME_ATTR)
-        && value.isString()) {
-        NapiHiSysEventUtil::AppendStringPropertyToJsObject(env, key, value.asString(), sysEventInfo);
+    if ((key == DOMAIN__KEY || key == NAME__KEY) && value.isString()) {
+        NapiHiSysEventUtil::AppendStringPropertyToJsObject(env, translateKeyToAttrName(key),
+            value.asString(), sysEventInfo);
     }
-    if (key == NapiHiSysEventUtil::EVENT_TYPE_ATTR && value.isInt()) {
-        NapiHiSysEventUtil::AppendInt32PropertyToJsObject(env, key, static_cast<int32_t>(value.asInt()),
-            sysEventInfo);
+    if (key == TYPE__KEY && value.isInt()) {
+        NapiHiSysEventUtil::AppendInt32PropertyToJsObject(env, translateKeyToAttrName(key),
+            static_cast<int32_t>(value.asInt()), sysEventInfo);
     }
 }
 
@@ -555,7 +571,7 @@ void NapiHiSysEventUtil::ParseHiSysEventInfo(const napi_env env, napi_value* par
 
 
 void NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(const napi_env env, const std::string& jsonStr,
-    napi_value& sysEventInfo, bool appendBaseInfo)
+    napi_value& sysEventInfo)
 {
     Json::Value eventJson;
 #ifdef JSONCPP_VERSION_STRING
@@ -578,9 +594,6 @@ void NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(const napi_env env, const 
     auto eventNameList = eventJson.getMemberNames();
     for (auto it = eventNameList.cbegin(); it != eventNameList.cend(); it++) {
         auto propertyName = *it;
-        if (!appendBaseInfo && IsBaseInfoKey(propertyName)) {
-            continue;
-        }
         if (IsBaseInfoKey(propertyName)) {
             AppendBaseInfo(env, sysEventInfo, propertyName, eventJson[propertyName]);
         } else {
@@ -596,8 +609,11 @@ void NapiHiSysEventUtil::CreateJsSysEventInfoArray(const napi_env env, const std
     auto len = originValues.size();
     for (size_t i = 0; i < len; i++) {
         napi_value item;
-        CreateHiSysEventInfoJsObject(env, originValues[i], item, true);
-        napi_set_element(env, array, i, item);
+        CreateHiSysEventInfoJsObject(env, originValues[i], item);
+        napi_status status = napi_set_element(env, array, i, item);
+        if (status != napi_ok) {
+            HiLog::Error(LABEL, "napi_set_element failed");
+        }
     }
 }
 
@@ -624,7 +640,10 @@ void NapiHiSysEventUtil::CreateJsInt64Array(const napi_env env, const std::vecto
     for (size_t i = 0; i < len; i++) {
         napi_value item;
         CreateBigInt64Value(env, originValues[i], item);
-        napi_set_element(env, array, i, item);
+        napi_status status = napi_set_element(env, array, i, item);
+        if (status != napi_ok) {
+            HiLog::Error(LABEL, "napi_set_element failed");
+        }
     }
 }
 
