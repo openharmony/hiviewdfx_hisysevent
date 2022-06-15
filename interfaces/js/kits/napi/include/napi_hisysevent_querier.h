@@ -28,7 +28,7 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-using ON_COMPLETE_FUNC = std::function<void(napi_env)>;
+using ON_COMPLETE_FUNC = std::function<void(const napi_env, const napi_ref)>;
 class NapiHiSysEventQuerier : public OHOS::HiviewDFX::HiSysEventQueryCallBack {
 public:
     NapiHiSysEventQuerier(CallbackContext* context, ON_COMPLETE_FUNC handler)
