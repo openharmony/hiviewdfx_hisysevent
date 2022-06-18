@@ -163,7 +163,12 @@ describe('hiSysEventJsUnitTest', function () {
             onEvent: (info) => {
                 console.info(`hiSysEventJsUnitTest004: OnEvent...`)
                 expect(Object.keys(info).length > 0).assertTrue()
-                console.info(`domain is : ${info.domain}, name is ${info.name}, eventType is ${info.eventType}`)
+                console.info(`hiSysEventJsUnitTest004: domain is : ${info.domain}, name is ${info.name}, eventType is ${info.eventType}`)
+                if (info.params instanceof Object) {
+                    for (const key in info.params) {
+                        console.info(`hiSysEventJsUnitTest004: ${key}: ${info.params[key]}`)
+                    }
+                }
             },
             onServiceDied: () => {
                 console.info(`hiSysEventJsUnitTest004: OnServiceDie...`)
@@ -194,7 +199,7 @@ describe('hiSysEventJsUnitTest', function () {
         setTimeout(() => {
             result = hiSysEvent.removeWatcher(watcher)
             expect(result).assertEqual(0)
-            done();
+            done()
             console.info('hiSysEventJsUnitTest004 end')
         }, 1000)
     });
@@ -230,17 +235,36 @@ describe('hiSysEventJsUnitTest', function () {
             let ret = hiSysEvent.query({
                 beginTime: -1,
                 endTime: -1,
-                maxEvents: 10,
+                maxEvents: 2,
             }, [{
                 domain: "RELIABILITY",
                 names: ["STACK"],
             }], {
                 onQuery: function (infos, seqs) {
+                    console.info(`hiSysEventJsUnitTest005: onQuery...`)
                     expect(infos.length >= 0).assertTrue()
                     expect(seqs.length >= 0).assertTrue()
                     console.info(`hiSysEventJsUnitTest005: infos.size is ${infos.length}, seqs.length is ${seqs.length}`)
+                    if (infos instanceof Array) {
+                        for (let i = 0; i < infos.length; i++) {
+                            let item = infos[i];
+                            console.info(`hiSysEventJsUnitTest005: domain is ${item.domain}, name is ${item.name}, eventType is ${item.eventType}`)
+                            if (item.params instanceof Object) {
+                                for (const key in item.params) {
+                                    console.info(`hiSysEventJsUnitTest005: ${key}: ${item.params[key]}`)
+                                }
+                            }
+                        }
+                    }
+                    if (seqs instanceof Array) {
+                        for (let i = 0; i < seqs.length; i++) {
+                            let item = seqs[i];
+                            console.info(`hiSysEventJsUnitTest005: seq${i}: ${item}`)
+                        }
+                    }
                 },
                 onComplete: function(reason, total) {
+                    console.info(`hiSysEventJsUnitTest005: onComplete...`)
                     console.info(`hiSysEventJsUnitTest005: reason is ${reason}, total is ${total}`)
                     done()
                     console.info(`hiSysEventJsUnitTest005 end`)
