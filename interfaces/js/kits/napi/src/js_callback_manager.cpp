@@ -24,7 +24,7 @@ namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "JS_CALLBACK_MANAGER" };
 constexpr int CONTEXT_INDEX = 0;
 constexpr int CALLBACK_FUNC_INDEX = 1;
-constexpr int REALEASE_FUNC_INDEX = 2;
+constexpr int RELEASE_FUNC_INDEX = 2;
 void DeleteWork(uv_work_t* work)
 {
     if (work != nullptr) {
@@ -38,7 +38,7 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
     uv_loop_t* loop = nullptr;
     napi_get_uv_event_loop(context->env, &loop);
     context->callback = std::get<CALLBACK_FUNC_INDEX>(current);
-    context->release = std::get<REALEASE_FUNC_INDEX>(current);
+    context->release = std::get<RELEASE_FUNC_INDEX>(current);
     uv_work_t* work = new uv_work_t();
     work->data = (void*)context;
     uv_queue_work(
