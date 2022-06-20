@@ -41,6 +41,7 @@ public:
         static constexpr char COMMUNICATION[] = "COMMUNICATION";
         static constexpr char COMMONEVENT[] = "COMMONEVENT";
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
+        static constexpr char DEVICE_PROFILE[] = "DEVICE_PROFILE";
         static constexpr char DISTRIBUTED_DATAMGR[] = "DISTDATAMGR";
         static constexpr char DISTRIBUTED_SCHEDULE[] = "DISTSCHEDULE";
         static constexpr char DISTRIBUTED_SCREEN[] = "DISTSCREEN";
@@ -63,7 +64,6 @@ public:
         static constexpr char POWERMGR[] = "POWERMGR";
         static constexpr char ROUTER[] = "ROUTER";
         static constexpr char SAMGR[] = "SAMGR";
-        static constexpr char DEVICE_PROFILE[] = "DEVICE_PROFILE";
         static constexpr char SECURITY[] = "SECURITY";
         static constexpr char SENSORS[] = "SENSORS";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
