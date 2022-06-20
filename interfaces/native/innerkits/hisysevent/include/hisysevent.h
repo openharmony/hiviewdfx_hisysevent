@@ -49,6 +49,7 @@ public:
         static constexpr char DISTRIBUTED_DEVICE_MANAGER[] = "DISTDM";
         static constexpr char DISTRIBUTED_CAMERA[] = "DISTCAMERA";
         static constexpr char GLOBAL[] = "GLOBAL";
+        static constexpr char GLOBAL_RESMGR[] = "GLOBAL_RESMGR";
         static constexpr char GRAPHIC[] = "GRAPHIC";
         static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
         static constexpr char IAWARE[] = "IAWARE";
