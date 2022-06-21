@@ -135,8 +135,8 @@ void HiSysEventTool::DoCmdHelp()
         << "subscribe on domain and event name" << endl;
     cout << "-r -d set debug mode, both options must appear at the same time." << endl;
     cout << "-l -s <begin time> -e <end time> -m <max hisysevent count>" << endl;
-    cout << "      get history hisysevent log, begin time should not be "
-        << "earlier than end time." << endl;
+    cout << "      get history hisysevent log, end time should not be "
+        << "earlier than begin time." << endl;
 }
 
 bool HiSysEventTool::DoAction()

@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef JS_CALLBACK_MANAGER_H
 #define JS_CALLBACK_MANAGER_H
 
 #include <atomic>
+#include <mutex>
 #include <queue>
 #include <tuple>
 
@@ -30,14 +31,15 @@ class JsCallbackManager final {
 public:
     explicit JsCallbackManager() {}
 public:
-    void Add(CallbackContext* context, CALLBACK_FUNC callback, CALLBACK_END_FUNC callbackEnd = nullptr);
+    void Add(CallbackContext* context, CALLBACK_FUNC callback, RELEASE_FUNC release = nullptr);
 
 private:
     void ImmediateRun(bool needPop = false);
 
 private:
     std::atomic<bool> inCalling = false;
-    std::queue<std::tuple<CallbackContext*, CALLBACK_FUNC, CALLBACK_END_FUNC>> jsCallbacks;
+    std::mutex managerMutex;
+    std::queue<std::tuple<CallbackContext*, CALLBACK_FUNC, RELEASE_FUNC>> jsCallbacks;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
