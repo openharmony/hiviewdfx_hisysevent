@@ -245,7 +245,7 @@ static napi_module _module = {
     .nm_flags = 0,
     .nm_filename = nullptr,
     .nm_register_func = Init,
-    .nm_modname = "hisysevent",
+    .nm_modname = "hiSysEvent",
     .nm_priv = ((void*)0),
     .reserved = {0}
 };
