@@ -41,6 +41,7 @@ public:
         static constexpr char COMMUNICATION[] = "COMMUNICATION";
         static constexpr char COMMONEVENT[] = "COMMONEVENT";
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
+        static constexpr char DEVICE_PROFILE[] = "DEVICE_PROFILE";
         static constexpr char DISTRIBUTED_DATAMGR[] = "DISTDATAMGR";
         static constexpr char DISTRIBUTED_SCHEDULE[] = "DISTSCHEDULE";
         static constexpr char DISTRIBUTED_SCREEN[] = "DISTSCREEN";
