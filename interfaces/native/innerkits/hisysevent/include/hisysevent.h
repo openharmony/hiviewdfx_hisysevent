@@ -65,6 +65,7 @@ public:
         static constexpr char ROUTER[] = "ROUTER";
         static constexpr char SAMGR[] = "SAMGR";
         static constexpr char SECURITY[] = "SECURITY";
+        static constexpr char SENSORS[] = "SENSORS";
         static constexpr char SENSOR[] = "SENSOR";
         static constexpr char MISCDEVICE[] = "MISCDEVICE";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
