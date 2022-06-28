@@ -58,6 +58,8 @@ public:
         static constexpr char INTELLI_TV[] = "INTELLITV";
         static constexpr char IVI_HARDWARE[] = "IVIHARDWARE";
         static constexpr char LOCATION[] = "LOCATION";
+        static constexpr char MEDICAL_SENSOR[] = "MEDICAL_SENSOR";
+        static constexpr char MISCDEVICE[] = "MISCDEVICE";
         static constexpr char MSDP[] = "MSDP";
         static constexpr char MULTI_MEDIA[] = "MULTIMEDIA";
         static constexpr char MULTI_MODAL_INPUT[] = "MULTIMODALINPUT";
@@ -66,7 +68,7 @@ public:
         static constexpr char ROUTER[] = "ROUTER";
         static constexpr char SAMGR[] = "SAMGR";
         static constexpr char SECURITY[] = "SECURITY";
-        static constexpr char SENSORS[] = "SENSORS";
+        static constexpr char SENSOR[] = "SENSOR";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
         static constexpr char STARTUP[] = "STARTUP";
         static constexpr char TELEPHONY[] = "TELEPHONY";
