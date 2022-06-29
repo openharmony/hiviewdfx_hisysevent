@@ -65,6 +65,7 @@ public:
         static constexpr char MULTI_MODAL_INPUT[] = "MULTIMODALINPUT";
         static constexpr char NOTIFICATION[] = "NOTIFICATION";
         static constexpr char POWERMGR[] = "POWERMGR";
+        static constexpr char REQUEST[] = "REQUEST";
         static constexpr char ROUTER[] = "ROUTER";
         static constexpr char SAMGR[] = "SAMGR";
         static constexpr char SECURITY[] = "SECURITY";
@@ -78,7 +79,6 @@ public:
         static constexpr char WEARABLE[] = "WEARABLE";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
         static constexpr char OTHERS[] = "OTHERS";
-        static constexpr char MISC_REQUEST[] = "MISC_REQUEST";
     };
 
     enum EventType {
