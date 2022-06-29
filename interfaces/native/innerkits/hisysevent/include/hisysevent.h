@@ -78,6 +78,7 @@ public:
         static constexpr char WEARABLE[] = "WEARABLE";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
         static constexpr char OTHERS[] = "OTHERS";
+        static constexpr char MISC_REQUEST[] = "MISC_REQUEST";
     };
 
     enum EventType {
