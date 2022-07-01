@@ -30,10 +30,11 @@ public:
     class Domain {
     public:
         static constexpr char AAFWK[] = "AAFWK";
-        static constexpr char APPEXECFWK[] = "APPEXECFWK";
+        static constexpr char ACCESSIBILITY[] = "ACCESSIBILITY";
         static constexpr char ACCOUNT[] = "ACCOUNT";
         static constexpr char ACE[] = "ACE";
         static constexpr char AI[] = "AI";
+        static constexpr char APPEXECFWK[] = "APPEXECFWK";
         static constexpr char BARRIER_FREE[] = "BARRIERFREE";
         static constexpr char BIOMETRICS[] = "BIOMETRICS";
         static constexpr char BLUETOOTH[] = "BLUETOOTH";
