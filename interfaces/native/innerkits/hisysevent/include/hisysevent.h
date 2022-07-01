@@ -76,6 +76,8 @@ public:
         static constexpr char TELEPHONY[] = "TELEPHONY";
         static constexpr char UPDATE[] = "UPDATE";
         static constexpr char USB[] = "USB";
+        static constexpr char USERIAM_PIN[] = "USERIAM_PIN";
+        static constexpr char USERIAM_FWK[] = "USERIAM_FWK";
         static constexpr char WEARABLE_HARDWARE[] = "WEARABLEHW";
         static constexpr char WEARABLE[] = "WEARABLE";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
