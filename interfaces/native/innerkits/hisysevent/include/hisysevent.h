@@ -80,6 +80,8 @@ public:
         static constexpr char WEARABLE_HARDWARE[] = "WEARABLEHW";
         static constexpr char WEARABLE[] = "WEARABLE";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
+        static constexpr char CUSTOMIZATION_EDM[] = "CUST_EDM";
+        static constexpr char CUSTOMIZATION_CONFIG[] = "CUST_CONFIG";
         static constexpr char OTHERS[] = "OTHERS";
     };
 
