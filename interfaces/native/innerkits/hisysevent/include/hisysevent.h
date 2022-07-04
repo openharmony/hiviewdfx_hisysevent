@@ -64,6 +64,7 @@ public:
         static constexpr char LOCATION[] = "LOCATION";
         static constexpr char MEDICAL_SENSOR[] = "MEDICAL_SENSOR";
         static constexpr char MISCDEVICE[] = "MISCDEVICE";
+        static constexpr char MISC_PASTEBOARD[] = "MISC_PASTEBOARD";
         static constexpr char MSDP[] = "MSDP";
         static constexpr char MULTI_MEDIA[] = "MULTIMEDIA";
         static constexpr char MULTI_MODAL_INPUT[] = "MULTIMODALINPUT";
