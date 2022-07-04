@@ -60,7 +60,6 @@ public:
         static constexpr char LOCATION[] = "LOCATION";
         static constexpr char MEDICAL_SENSOR[] = "MEDICAL_SENSOR";
         static constexpr char MISCDEVICE[] = "MISCDEVICE";
-        static constexpr char MISC_WALLPAPER[] = "MISC_WALLPAPER";
         static constexpr char MSDP[] = "MSDP";
         static constexpr char MULTI_MEDIA[] = "MULTIMEDIA";
         static constexpr char MULTI_MODAL_INPUT[] = "MULTIMODALINPUT";
@@ -72,6 +71,7 @@ public:
         static constexpr char SENSOR[] = "SENSOR";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
         static constexpr char STARTUP[] = "STARTUP";
+        static constexpr char THEME[] = "THEME";
         static constexpr char TELEPHONY[] = "TELEPHONY";
         static constexpr char UPDATE[] = "UPDATE";
         static constexpr char USB[] = "USB";
