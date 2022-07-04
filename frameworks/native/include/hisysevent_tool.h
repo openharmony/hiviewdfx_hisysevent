@@ -25,6 +25,7 @@ namespace OHOS {
 namespace HiviewDFX {
 struct ArgStuct {
     bool real;
+    bool checkValidEvent;
     std::string domain;
     std::string eventName;
     std::string tag;
@@ -39,19 +40,23 @@ struct ArgStuct {
 class HiSysEventTool {
 public:
     HiSysEventTool();
-    bool ParseCmdLine(int argc, char** argv);
-    void DoCmdHelp();
-    void WaitClient();
-    void NotifyClient();
-    bool DoAction();
     ~HiSysEventTool() {}
+
+public:
+    void DoCmdHelp();
+    bool DoAction();
+    void NotifyClient();
+    bool ParseCmdLine(int argc, char** argv);
+    void WaitClient();
 
 private:
     bool CheckCmdLine();
+    void HandleInput(int argc, char** argv, const char* selection);
 
+private:
     struct ArgStuct clientCmdArg;
-    std::mutex mutexClient;
     std::condition_variable condvClient;
+    std::mutex mutexClient;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

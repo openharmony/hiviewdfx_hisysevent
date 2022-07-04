@@ -20,15 +20,22 @@
 
 #include "hisysevent_subscribe_callback.h"
 
+#include "hisysevent_json_decorator.h"
+
 namespace OHOS {
 namespace HiviewDFX {
 class HiSysEventToolListener : public OHOS::HiviewDFX::HiSysEventSubscribeCallBack {
 public:
-    HiSysEventToolListener() {}
+    HiSysEventToolListener(bool checkValidEvent)
+        : checkValidEvent(checkValidEvent), eventJsonDecorator(std::make_shared<HiSysEventJsonDecorator>()) {}
     void OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
         const std::string& eventDetail);
     ~HiSysEventToolListener() {}
     void OnServiceDied();
+
+private:
+    bool checkValidEvent;
+    std::shared_ptr<HiSysEventJsonDecorator> eventJsonDecorator;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

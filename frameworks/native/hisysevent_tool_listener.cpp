@@ -22,6 +22,10 @@ namespace HiviewDFX {
 void HiSysEventToolListener::OnHandle(const std::string& domain, const std::string& eventName,
     const int eventType, const std::string& eventDetail)
 {
+    if (checkValidEvent && eventJsonDecorator != nullptr) {
+        std::cout << eventJsonDecorator->DecorateEventJsonStr(eventDetail) << std::endl;
+        return;
+    }
     std::cout << eventDetail << std::endl;
 }
 
