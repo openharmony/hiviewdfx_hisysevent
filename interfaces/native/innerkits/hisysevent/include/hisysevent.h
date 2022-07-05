@@ -68,6 +68,7 @@ public:
         static constexpr char MULTI_MEDIA[] = "MULTIMEDIA";
         static constexpr char MULTI_MODAL_INPUT[] = "MULTIMODALINPUT";
         static constexpr char NOTIFICATION[] = "NOTIFICATION";
+        static constexpr char PASTEBOARD[] = "PASTEBOARD";
         static constexpr char POWERMGR[] = "POWERMGR";
         static constexpr char REQUEST[] = "REQUEST";
         static constexpr char ROUTER[] = "ROUTER";
