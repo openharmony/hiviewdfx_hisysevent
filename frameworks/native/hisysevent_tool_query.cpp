@@ -22,7 +22,11 @@ namespace HiviewDFX {
 void HiSysEventToolQuery::OnQuery(const ::std::vector<std::string>& sysEvent,
     const ::std::vector<int64_t>& seq)
 {
-    for_each(sysEvent.cbegin(), sysEvent.cend(), [](const std::string &tmp) {
+    for_each(sysEvent.cbegin(), sysEvent.cend(), [this] (const std::string& tmp) {
+        if (this->checkValidEvent && this->eventJsonDecorator != nullptr) {
+            std::cout << this->eventJsonDecorator->DecorateEventJsonStr(tmp) << std::endl;
+            return;
+        }
         std::cout << tmp << std::endl;
     });
 }

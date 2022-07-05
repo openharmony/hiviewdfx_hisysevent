@@ -21,14 +21,22 @@
 
 #include "hisysevent_query_callback.h"
 
+#include "hisysevent_json_decorator.h"
+
 namespace OHOS {
 namespace HiviewDFX {
 class HiSysEventToolQuery : public OHOS::HiviewDFX::HiSysEventQueryCallBack {
 public:
+    HiSysEventToolQuery(bool checkValidEvent)
+        : checkValidEvent(checkValidEvent), eventJsonDecorator(std::make_shared<HiSysEventJsonDecorator>()) {}
     void OnQuery(const ::std::vector<std::string>& sysEvent,
         const std::vector<int64_t>& seq);
     void OnComplete(int32_t reason, int32_t total);
     virtual ~HiSysEventToolQuery() {}
+
+private:
+    bool checkValidEvent;
+    std::shared_ptr<HiSysEventJsonDecorator> eventJsonDecorator;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

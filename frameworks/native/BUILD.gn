@@ -37,17 +37,21 @@ ohos_executable("hisysevent") {
     "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_client",
     "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_service_gen_src_client",
     "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
+    "//third_party/cJSON:cjson_static",
+    "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
 
   external_deps = [
     "hilog_native:libhilog",
+    "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
 
   sources = [
+    "hisysevent_json_decorator.cpp",
     "hisysevent_tool.cpp",
     "hisysevent_tool_listener.cpp",
     "hisysevent_tool_query.cpp",
