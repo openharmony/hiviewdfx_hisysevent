@@ -79,9 +79,9 @@ public:
         static constexpr char SENSOR[] = "SENSOR";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
         static constexpr char STARTUP[] = "STARTUP";
+        static constexpr char TELEPHONY[] = "TELEPHONY";
         static constexpr char THEME[] = "THEME";
         static constexpr char TIME[] = "TIME";
-        static constexpr char TELEPHONY[] = "TELEPHONY";
         static constexpr char UPDATE[] = "UPDATE";
         static constexpr char USB[] = "USB";
         static constexpr char USERIAM_PIN[] = "USERIAM_PIN";
