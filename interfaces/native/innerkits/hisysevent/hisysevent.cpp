@@ -36,6 +36,8 @@ constexpr int SECS_IN_MINUTE = 60;
 constexpr int SECS_IN_HOUR = 3600;
 }
 
+WriteController HiSysEvent::controller;
+
 static inline uint64_t GetMilliseconds()
 {
     auto now = std::chrono::system_clock::now();

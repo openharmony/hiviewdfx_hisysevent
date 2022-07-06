@@ -21,8 +21,48 @@
 #include <sstream>
 #include <vector>
 
+#include "def.h"
+#include "write_controller.h"
+
+/*
+ * Usage: define string macro "DOMAIN_MASKS" to disable one or more components.
+ *     Method1: add macro in this header file, e.g.          #define DOMAIN_MASKS "AAFWK|APPEXECFWK|ACCOUNT"
+ *     Method1: addd cflags in build.gn file, e.g.           -D DOMAIN_MASKS="AAFWK|APPEXECFWK|ACCOUNT"
+ */
 namespace OHOS {
 namespace HiviewDFX {
+// init domain masks
+#ifndef DOMAIN_MASKS
+#define DOMAIN_MASKS ""
+#endif
+
+static constexpr char DOMAIN_MASKS_DEF[] = DOMAIN_MASKS;
+
+// split domain masks by '|', then compare with str
+template<const std::string_view& str, const std::string_view& masks, std::string::size_type pos = 0>
+struct IsMaskedImpl {
+    inline static constexpr auto newpos = masks.find('|', pos);
+    inline static constexpr bool value =
+        IsMaskedImpl<str, masks, (newpos != std::string_view::npos) ? pos + 1 : newpos>::value ||
+        (pos != newpos && pos != masks.size() &&
+            masks.substr(pos, (newpos != std::string_view::npos) ? newpos - pos : str.size() - pos).compare(str) == 0);
+};
+
+template<const std::string_view& str, const std::string_view& masks>
+struct IsMaskedImpl<str, masks, std::string_view::npos> {
+    inline static constexpr bool value = false;
+};
+
+template<const char* domain, const char* domainMasks>
+struct IsMaskedCvt {
+    inline static constexpr std::string_view domainView {domain};
+    inline static constexpr std::string_view domainMasksView {domainMasks};
+    inline static constexpr bool value = IsMaskedImpl<domainView, domainMasksView>::value;
+};
+
+template<const char* domain>
+inline static constexpr bool isMasked = IsMaskedCvt<domain, DOMAIN_MASKS_DEF>::value;
+
 class HiSysEvent {
 public:
     friend class NapiHiSysEventAdapter;
@@ -103,7 +143,7 @@ public:
      * @param keyValues system event parameter name or value
      * @return 0 success, other fail
      */
-    template<typename... Types>
+    template<typename... Types> // [[deprecated("Use macro HiSysEventWrite to write instead.")]]
     static int Write(const std::string &domain, const std::string &eventName,
         EventType type, Types... keyValues)
     {
@@ -124,6 +164,23 @@ public:
 
         SendSysEvent(eventBase);
         return eventBase.retCode_;
+    }
+
+    template<const char* domain, typename... Types, std::enable_if_t<!isMasked<domain>>* = nullptr>
+    static int Write(const char* func, int64_t line, const std::string& eventName,
+        EventType type, Types... keyValues)
+    {
+        if (controller.CheckLimitWritingEvent(domain, eventName.c_str(), func, line)) {
+            return ERR_WRITE_IN_HIGH_FREQ;
+        }
+        return Write(std::string(domain), eventName, type, keyValues...);
+    }
+
+    template<const char* domain, typename... Types, std::enable_if_t<isMasked<domain>>* = nullptr>
+    inline static constexpr int Write(const char*, int64_t, const std::string&, EventType, Types...)
+    {
+        // do nothing
+        return ERR_DOMAIN_MASKED;
     }
 
 private:
@@ -431,7 +488,20 @@ private:
 
     static unsigned int GetArrayMax();
     static void SendSysEvent(EventBase &eventBase);
+
+    static WriteController controller;
 };
+
+// macro interface
+#define HiSysEventWrite(domain, eventName, type, ...) \
+    ({ \
+        int ret = ERR_DOMAIN_MASKED; \
+        if constexpr (!OHOS::HiviewDFX::isMasked<domain>) { \
+            ret = OHOS::HiviewDFX::HiSysEvent::Write<domain>(__FUNCTION__, __LINE__, \
+                eventName, type, ##__VA_ARGS__); \
+        } \
+        ret; \
+    })
 } // namespace HiviewDFX
 } // namespace OHOS
 
