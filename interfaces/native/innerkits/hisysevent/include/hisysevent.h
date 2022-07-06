@@ -99,6 +99,7 @@ public:
         static constexpr char GRAPHIC[] = "GRAPHIC";
         static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
         static constexpr char IAWARE[] = "IAWARE";
+        static constexpr char INPUTMETHOD[] = "INPUTMETHOD";
         static constexpr char INTELLI_ACCESSORIES[] = "INTELLIACC";
         static constexpr char INTELLI_TV[] = "INTELLITV";
         static constexpr char IVI_HARDWARE[] = "IVIHARDWARE";
@@ -118,8 +119,9 @@ public:
         static constexpr char SENSOR[] = "SENSOR";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
         static constexpr char STARTUP[] = "STARTUP";
-        static constexpr char THEME[] = "THEME";
         static constexpr char TELEPHONY[] = "TELEPHONY";
+        static constexpr char THEME[] = "THEME";
+        static constexpr char TIME[] = "TIME";
         static constexpr char UPDATE[] = "UPDATE";
         static constexpr char USB[] = "USB";
         static constexpr char USERIAM_PIN[] = "USERIAM_PIN";
