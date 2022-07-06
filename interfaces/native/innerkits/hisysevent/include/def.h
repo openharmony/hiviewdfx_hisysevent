@@ -25,12 +25,16 @@ static constexpr int ERR_EVENT_NAME_INVALID = -2;
 static constexpr int ERR_DOES_NOT_INIT = -3;
 static constexpr int ERR_OVER_SIZE = -4;
 static constexpr int ERR_SEND_FAIL = -5;
+static constexpr int ERR_WRITE_IN_HIGH_FREQ = -6;
+static constexpr int ERR_DOMAIN_MASKED = -7;
 static constexpr char ERR_MSG_LEVEL0[][32] = {
     "invalid domain name",
     "invalid event name",
     "socket init error",
     "over size",
-    "send data failed"
+    "send data failed",
+    "write too frequently",
+    "domain has been masked"
 };
 
 static constexpr int ERR_KEY_NAME_INVALID = 1;
