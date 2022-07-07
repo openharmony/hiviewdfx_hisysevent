@@ -54,8 +54,8 @@ private:
 
 private:
     Json::Value root;
-    bool isRootValid;
     DECORATE_MARKS decoratedMarks;
+    bool isRootValid = false;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
