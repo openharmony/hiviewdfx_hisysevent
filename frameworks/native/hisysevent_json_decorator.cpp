@@ -190,7 +190,7 @@ std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const std::string& ori
                         [&ret, &eventJson, &key, &definedName] (const char* ele) {
                             return (key.compare(ele) == 0);
                         }) == std::cend(INNER_BUILD_KEYS)) {
-                        ret |= this->CheckAttrDecorationNeed(eventJson, key, definedName);
+                        ret = this->CheckAttrDecorationNeed(eventJson, key, definedName) || ret;
                     }
                 }
                 return ret;
