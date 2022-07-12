@@ -238,7 +238,7 @@ std::string HiSysEventJsonDecorator::DecorateJsonStr(const Json::Value& jsonStr,
 bool HiSysEventJsonDecorator::JudgeDataType(const std::string &dataType, const Json::Value &eventJson)
 {
     if (dataType.compare("BOOL") == 0) {
-        return eventJson.isBool();
+        return eventJson.isBool() || (eventJson.isInt() && (eventJson.asInt() == 0 || eventJson.asInt() == 1));
     } else if ((dataType.compare("INT8") == 0) || (dataType.compare("INT16") == 0) ||
         (dataType.compare("INT32") == 0)) {
         return eventJson.isInt();
