@@ -141,6 +141,7 @@ public:
 
 public:
     /**
+     * @deprecated
      * @brief write system event
      * @param domain    system event domain name
      * @param eventName system event name
@@ -148,27 +149,11 @@ public:
      * @param keyValues system event parameter name or value
      * @return 0 success, other fail
      */
-    template<typename... Types> // [[deprecated("Use macro HiSysEventWrite to write instead.")]]
+    template<typename... Types>
     static int Write(const std::string &domain, const std::string &eventName,
         EventType type, Types... keyValues)
     {
-        EventBase eventBase(domain, eventName, type);
-        eventBase.jsonStr_ << "{";
-        WritebaseInfo(eventBase);
-        if (IsError(eventBase)) {
-            ExplainRetCode(eventBase);
-            return eventBase.retCode_;
-        }
-
-        InnerWrite(eventBase, keyValues...);
-        if (IsError(eventBase)) {
-            ExplainRetCode(eventBase);
-            return eventBase.retCode_;
-        }
-        eventBase.jsonStr_ << "}";
-
-        SendSysEvent(eventBase);
-        return eventBase.retCode_;
+        return InnerWrite(domain, eventName, type, keyValues...);
     }
 
     template<const char* domain, typename... Types, std::enable_if_t<!isMasked<domain>>* = nullptr>
@@ -178,7 +163,7 @@ public:
         if (controller.CheckLimitWritingEvent(domain, eventName.c_str(), func, line)) {
             return ERR_WRITE_IN_HIGH_FREQ;
         }
-        return Write(std::string(domain), eventName, type, keyValues...);
+        return InnerWrite(std::string(domain), eventName, type, keyValues...);
     }
 
     template<const char* domain, typename... Types, std::enable_if_t<isMasked<domain>>* = nullptr>
@@ -205,6 +190,29 @@ private:
     };
 
 private:
+    template<typename... Types>
+    static int InnerWrite(const std::string &domain, const std::string &eventName,
+        EventType type, Types... keyValues)
+    {
+        EventBase eventBase(domain, eventName, type);
+        eventBase.jsonStr_ << "{";
+        WritebaseInfo(eventBase);
+        if (IsError(eventBase)) {
+            ExplainRetCode(eventBase);
+            return eventBase.retCode_;
+        }
+
+        InnerWrite(eventBase, keyValues...);
+        if (IsError(eventBase)) {
+            ExplainRetCode(eventBase);
+            return eventBase.retCode_;
+        }
+        eventBase.jsonStr_ << "}";
+
+        SendSysEvent(eventBase);
+        return eventBase.retCode_;
+    }
+
     template<typename T>
     static void AppendData(EventBase &eventBase, const std::string &key, T value)
     {
