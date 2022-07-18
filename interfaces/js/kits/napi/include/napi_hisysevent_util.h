@@ -18,7 +18,9 @@
 
 #include <memory>
 #include <string>
+#include <sys/syscall.h>
 #include <vector>
+#include <unistd.h>
 #include <unordered_map>
 
 #include "hisysevent_manager.h"
@@ -58,14 +60,17 @@ public:
 
 public:
     template<typename T>
-    static typename std::unordered_map<napi_ref, std::shared_ptr<T>>::iterator
+    static typename std::unordered_map<napi_ref, std::pair<pid_t, std::shared_ptr<T>>>::iterator
     CompareAndReturnCacheItem(const napi_env env, napi_value& standard,
-        std::unordered_map<napi_ref, std::shared_ptr<T>>& resources)
+        std::unordered_map<napi_ref, std::pair<pid_t, std::shared_ptr<T>>>& resources)
     {
         bool found = false;
         napi_status status;
         auto iter = resources.begin();
         for (; iter != resources.end(); iter++) {
+            if (iter->second.first != syscall(SYS_gettid)) { // avoid error caused by vm run in multi-thread
+                continue;
+            }
             napi_value val = nullptr;
             status = napi_get_reference_value(env, iter->first, &val);
             if (status != napi_ok) {
