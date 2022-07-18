@@ -46,8 +46,10 @@ constexpr size_t QUERY_RULE_ARRAY_PARAM_INDEX = 1;
 constexpr size_t QUERY_QUERIER_PARAM_INDEX = 2;
 constexpr long long DEFAULT_TIME_STAMP = -1;
 constexpr int DEFAULT_EVENT_COUNT = 1000;
-std::unordered_map<napi_ref, std::shared_ptr<NapiHiSysEventListener>> listeners;
-std::unordered_map<napi_ref, std::shared_ptr<NapiHiSysEventQuerier>> queriers;
+using NAPI_LISTENER_PAIR = std::pair<pid_t, std::shared_ptr<NapiHiSysEventListener>>;
+using NAPI_QUERIER_PAIR = std::pair<pid_t, std::shared_ptr<NapiHiSysEventQuerier>>;
+std::unordered_map<napi_ref, NAPI_LISTENER_PAIR> listeners;
+std::unordered_map<napi_ref, NAPI_QUERIER_PAIR> queriers;
 }
 
 static napi_value Write(napi_env env, napi_callback_info info)
@@ -133,7 +135,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
         return val;
     }
-    listeners[callbackContext->ref] = listener;
+    listeners[callbackContext->ref] = std::make_pair(syscall(SYS_gettid), listener);
     NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
     return val;
 }
@@ -163,7 +165,7 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
         return val;
     }
     listeners.erase(iter->first);
-    ret = HiSysEventManager::RemoveListener(iter->second);
+    ret = HiSysEventManager::RemoveListener(iter->second.second);
     NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
     return val;
 }
@@ -217,7 +219,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
         return val;
     }
-    queriers[callbackContext->ref] = querier;
+    queriers[callbackContext->ref] = std::make_pair(syscall(SYS_gettid), querier);
     NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
     return val;
 }
