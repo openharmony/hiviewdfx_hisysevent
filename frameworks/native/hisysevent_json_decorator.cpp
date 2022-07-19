@@ -18,7 +18,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "cJSON.h"
+#include "flat_json_parser.h"
 #include "hilog/log.h"
 #include "hisysevent.h"
 
@@ -131,27 +131,25 @@ bool HiSysEventJsonDecorator::CheckEventDecorationNeed(const Json::Value& eventJ
     return baseInfoNeed || extensiveInfoNeed;
 }
 
-void HiSysEventJsonDecorator::Decorate(std::stringstream& ss, const Json::Value& origin, Validity validity,
-    std::string& key)
+std::string HiSysEventJsonDecorator::Decorate(Validity validity, std::string& key, std::string& value)
 {
-    if (!ss.good()) {
-        return;
-    }
-    std::string value = TranslateJsonToStr(origin[key]);
+    std::stringstream ss;
     switch (validity) {
         case Validity::KEY_INVALID:
-            ss << "\"" << DECORATE_PREFIX << key << DECORATE_SUFFIX << "\":" << value << ",";
+            ss << "\"" << DECORATE_PREFIX << key << DECORATE_SUFFIX << "\":" << value;
             break;
         case Validity::VALUE_INVALID:
-            ss << "\"" << key << "\":" << DECORATE_PREFIX << value << DECORATE_SUFFIX << ",";
+            ss << "\"" << key << "\":" << DECORATE_PREFIX << value << DECORATE_SUFFIX;
             break;
         case Validity::KV_BOTH_VALID:
-            ss << "\"" << key << "\":" << value << ",";
+            ss << "\"" << key << "\":" << value;
             break;
         default:
-            // do nothing.
             break;
     }
+    std::string ret = ss.str();
+    ss.clear();
+    return ret;
 }
 
 std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const std::string& origin)
@@ -200,39 +198,19 @@ std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const std::string& ori
         return origin;
     }
     HiLog::Debug(LABEL, "all invalid key or value will be high-lighted with red color.");
-    return DecorateJsonStr(eventJson, origin, decoratedMarks);
+    return DecorateJsonStr(origin, decoratedMarks);
 }
 
-std::string HiSysEventJsonDecorator::DecorateJsonStr(const Json::Value& jsonStr, const std::string& origin,
-    DECORATE_MARKS marks)
+std::string HiSysEventJsonDecorator::DecorateJsonStr(const std::string& origin, DECORATE_MARKS marks)
 {
     if (marks.empty()) {
         return origin;
     }
-    std::stringstream ss;
-    ss << "{";
-    cJSON* cJsonArr = cJSON_Parse(origin.c_str());
-    if (cJsonArr == NULL) {
-        return "";
-    }
-    int size = cJSON_GetArraySize(cJsonArr);
-    cJSON* item = nullptr;
-    for (int i = 0; i < size; i++) {
-        item = cJSON_GetArrayItem(cJsonArr, i);
-        std::string key = item->string;
-        auto iter = marks.find(key);
-        Decorate(ss, jsonStr,
-            (iter == marks.end() ? Validity::KV_BOTH_VALID : iter->second),
-            key);
-    }
-    if (ss.tellp() != 0) {
-        ss.seekp(-1, std::ios_base::end);
-    }
-    ss << "}";
-    std::string rebuild = ss.str();
-    ss.clear();
-    cJSON_Delete(cJsonArr);
-    return rebuild;
+    FlatJsonParser parser(origin);
+    return parser.Print([this, &marks] (KV& kv) -> std::string {
+        auto iter = marks.find(kv.first);
+        return this->Decorate((iter == marks.end() ? Validity::KV_BOTH_VALID : iter->second), kv.first, kv.second);
+    });
 }
 
 bool HiSysEventJsonDecorator::JudgeDataType(const std::string &dataType, const Json::Value &eventJson)
