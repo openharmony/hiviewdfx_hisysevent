@@ -46,9 +46,8 @@ private:
     Validity CheckLevelValidity(const Json::Value& baseInfo);
     bool CheckEventDecorationNeed(const Json::Value& eventJson, BASE_INFO_HANDLER baseJsonInfoHandler,
         EXTENSIVE_INFO_HANDLER extensiveJsonInfoHandler);
-    void Decorate(std::stringstream& ss, const Json::Value& origin, Validity validity, std::string& key);
-    std::string DecorateJsonStr(const Json::Value& origin, const std::string& standard,
-        DECORATE_MARKS marks);
+    std::string Decorate(Validity validity, std::string& key, std::string& value);
+    std::string DecorateJsonStr(const std::string& standard, DECORATE_MARKS marks);
     bool JudgeDataType(const std::string& dataType, const Json::Value& eventJson);
     std::string TranslateJsonToStr(const Json::Value& json);
 
