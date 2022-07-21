@@ -42,10 +42,10 @@ ohos_shared_library("libhisyseventmanager") {
     "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_client",
     "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_service_gen_src_client",
     "//third_party/bounds_checking_function:libsec_shared",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hilog_native:libhilog",
     "hitrace_native:libhitrace",
     "ipc:ipc_core",

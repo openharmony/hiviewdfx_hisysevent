@@ -28,18 +28,17 @@ ohos_moduletest("HiSysEventNativeTest") {
 
   configs = [ ":hisysevent_native_test_config" ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
 
   if (is_standard_system) {
     external_deps = [
+      "c_utils:utils",
       "hisysevent_native:libhisysevent",
       "hiviewdfx_hilog_native:libhilog",
     ]
   } else {
     external_deps = [
+      "c_utils:utils",
       "hilog:libhilog",
       "hisysevent_native:libhisysevent",
     ]
