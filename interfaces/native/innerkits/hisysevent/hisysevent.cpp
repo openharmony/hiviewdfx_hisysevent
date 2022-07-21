@@ -17,7 +17,6 @@
 
 #include <chrono>
 #include <iomanip>
-#include <sstream>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -32,8 +31,13 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
-constexpr int SECS_IN_MINUTE = 60;
-constexpr int SECS_IN_HOUR = 3600;
+std::string GetFomattedTime(unsigned int time)
+{
+    unsigned int dec = 10;
+    std::string ret {static_cast<char>('0' + (time / dec % dec))}; // add num at tens place
+    ret += static_cast<char>('0' + time % dec); // add num at ones place
+    return ret;
+}
 }
 
 WriteController HiSysEvent::controller;
@@ -64,17 +68,19 @@ static std::string GetTimeZone()
         return "";
     }
     time_t diffSec = mktime(&tmLocal) - mktime(&tmUtc);
-    int tzHour = std::abs(diffSec) / SECS_IN_HOUR;
-    if (tzHour > 12) { // max time zone is 12
+    unsigned int secsInHour = 3600;
+    unsigned int tzHour = std::abs(diffSec) / secsInHour;
+    unsigned int maxTimeZone = 12; // max time zone is 12
+    if (tzHour > maxTimeZone) {
         HiLog::Error(LABEL, "failed to get hours for time zone, set to 0.");
         tzHour = 0;
     }
-    int tzMin = (std::abs(diffSec) % SECS_IN_HOUR) / SECS_IN_MINUTE;
-    std::stringstream ss;
-    ss << ((diffSec < 0) ? "-" : "+");
-    ss << std::setw(2) << std::setfill('0') << tzHour; // the number of digits in the hour is 2
-    ss << std::setw(2) << std::setfill('0') << tzMin; // the number of digits in the min is 2
-    return ss.str();
+    unsigned int secsInMin = 60;
+    unsigned int tzMin = (std::abs(diffSec) % secsInHour) / secsInMin;
+    std::string tz {(diffSec < 0) ? "-" : "+"};
+    tz += GetFomattedTime(tzHour);
+    tz += GetFomattedTime(tzMin);
+    return tz;
 }
 
 int HiSysEvent::CheckKey(const std::string &key)
