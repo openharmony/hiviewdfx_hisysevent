@@ -50,11 +50,11 @@ ohos_executable("hisysevent") {
   ]
 
   sources = [
-    "flat_json_parser.cpp",
     "hisysevent_json_decorator.cpp",
     "hisysevent_tool.cpp",
     "hisysevent_tool_listener.cpp",
     "hisysevent_tool_query.cpp",
+    "json_flatten_parser.cpp",
     "main.cpp",
   ]
 
