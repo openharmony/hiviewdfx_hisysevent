@@ -38,10 +38,10 @@ ohos_executable("hisysevent") {
     "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_service_gen_src_client",
     "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
     "//third_party/jsoncpp:jsoncpp",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
