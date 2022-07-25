@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef HISYSEVENT_FRAMEWORKS_NATIVE_INCLUDE_FLAT_JSON_PARSER_H
-#define HISYSEVENT_FRAMEWORKS_NATIVE_INCLUDE_FLAT_JSON_PARSER_H
+#ifndef HISYSEVENT_FRAMEWORKS_NATIVE_INCLUDE_JSON_FLATTEN_PARSER_H
+#define HISYSEVENT_FRAMEWORKS_NATIVE_INCLUDE_JSON_FLATTEN_PARSER_H
 
 #include <functional>
 #include <vector>
@@ -23,16 +23,14 @@ namespace OHOS {
 namespace HiviewDFX {
 using KV = std::pair<std::string, std::string>;
 using PrintKvHandler = std::function<std::string(KV&)>;
-class FlatJsonParser {
+class JsonFlattenParser {
 public:
-    FlatJsonParser(const std::string& jsonStr);
+    JsonFlattenParser(const std::string& jsonStr);
 
 public:
     static void Initialize();
 
 public:
-    void AppendStringValue(const std::string& key, const std::string& value);
-    void AppendUInt64Value(const std::string& key, const uint64_t value);
     void Parse(const std::string& jsonStr);
     std::string Print(PrintKvHandler handler);
 
@@ -50,13 +48,11 @@ private:
     std::string ParseBrackets(const std::string& jsonStr, char leftBracket);
 
 private:
-    static uint8_t charFilter_[CHAR_RANGE];
-
-private:
-    std::vector<KV> kvList_;
-    size_t index_ {0};
+    static uint8_t charFilter[CHAR_RANGE];
+    std::vector<KV> kvList;
+    size_t curPos {0};
 };
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif // HISYSEVENT_FRAMEWORKS_NATIVE_INCLUDE_FLAT_JSON_PARSER_H
+#endif // HISYSEVENT_FRAMEWORKS_NATIVE_INCLUDE_JSON_FLATTEN_PARSER_H

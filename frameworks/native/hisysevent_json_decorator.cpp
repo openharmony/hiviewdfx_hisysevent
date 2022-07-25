@@ -18,9 +18,9 @@
 #include <fstream>
 #include <sstream>
 
-#include "flat_json_parser.h"
 #include "hilog/log.h"
 #include "hisysevent.h"
+#include "json_flatten_parser.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -206,7 +206,7 @@ std::string HiSysEventJsonDecorator::DecorateJsonStr(const std::string& origin, 
     if (marks.empty()) {
         return origin;
     }
-    FlatJsonParser parser(origin);
+    JsonFlattenParser parser(origin);
     return parser.Print([this, &marks] (KV& kv) -> std::string {
         auto iter = marks.find(kv.first);
         return this->Decorate((iter == marks.end() ? Validity::KV_BOTH_VALID : iter->second), kv.first, kv.second);

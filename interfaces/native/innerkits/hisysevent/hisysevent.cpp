@@ -69,14 +69,14 @@ static std::string GetTimeZone()
     }
     time_t diffSec = mktime(&tmLocal) - mktime(&tmUtc);
     unsigned int secsInHour = 3600;
-    unsigned int tzHour = std::abs(diffSec) / secsInHour;
+    unsigned int tzHour = static_cast<unsigned int>(std::abs(diffSec)) / secsInHour;
     unsigned int maxTimeZone = 12; // max time zone is 12
     if (tzHour > maxTimeZone) {
         HiLog::Error(LABEL, "failed to get hours for time zone, set to 0.");
         tzHour = 0;
     }
     unsigned int secsInMin = 60;
-    unsigned int tzMin = (std::abs(diffSec) % secsInHour) / secsInMin;
+    unsigned int tzMin = (static_cast<unsigned int>(std::abs(diffSec)) % secsInHour) / secsInMin;
     std::string tz {(diffSec < 0) ? "-" : "+"};
     tz += GetFomattedTime(tzHour);
     tz += GetFomattedTime(tzMin);
