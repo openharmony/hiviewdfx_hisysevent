@@ -30,48 +30,56 @@ constexpr size_t ON_QUERY_COMPLTE_PARAM_COUNT = 2;
 void NapiHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvent,
     const std::vector<int64_t>& seq)
 {
-    jsCallbackManager->Add(callbackContext, [this, sysEvent, seq] (const napi_env env, const napi_ref ref) {
-        napi_value sysEventInfoJsArray = nullptr;
-        napi_create_array_with_length(env, sysEvent.size(), &sysEventInfoJsArray);
-        NapiHiSysEventUtil::CreateJsSysEventInfoArray(env, sysEvent, sysEventInfoJsArray);
-        napi_value seqJsArray = nullptr;
-        napi_create_array_with_length(env, seq.size(), &seqJsArray);
-        NapiHiSysEventUtil::CreateJsInt64Array(env, seq, seqJsArray);
-        napi_value argv[ON_QUERY_COMPLTE_PARAM_COUNT] = {sysEventInfoJsArray, seqJsArray};
-        napi_value querier = nullptr;
-        napi_get_reference_value(env, ref, &querier);
-        napi_value onQuery = NapiHiSysEventUtil::GetPropertyByName(env, querier, ON_QUERY_ATTR);
-        napi_value ret = nullptr;
-        napi_status status = napi_call_function(env, querier, onQuery, ON_QUERY_COMPLTE_PARAM_COUNT,
-            argv, &ret);
-        if (status != napi_ok) {
-            HiLog::Error(LABEL, "failed to call OnQuery JS function.");
-        }
-    });
+    jsCallbackManager->Add(callbackContext,
+        [this, sysEvent, seq] (const napi_env env, const napi_ref ref, pid_t threadId) {
+            if (threadId != syscall(SYS_gettid)) {
+                return;
+            }
+            napi_value sysEventInfoJsArray = nullptr;
+            napi_create_array_with_length(env, sysEvent.size(), &sysEventInfoJsArray);
+            NapiHiSysEventUtil::CreateJsSysEventInfoArray(env, sysEvent, sysEventInfoJsArray);
+            napi_value seqJsArray = nullptr;
+            napi_create_array_with_length(env, seq.size(), &seqJsArray);
+            NapiHiSysEventUtil::CreateJsInt64Array(env, seq, seqJsArray);
+            napi_value argv[ON_QUERY_COMPLTE_PARAM_COUNT] = {sysEventInfoJsArray, seqJsArray};
+            napi_value querier = nullptr;
+            napi_get_reference_value(env, ref, &querier);
+            napi_value onQuery = NapiHiSysEventUtil::GetPropertyByName(env, querier, ON_QUERY_ATTR);
+            napi_value ret = nullptr;
+            napi_status status = napi_call_function(env, querier, onQuery, ON_QUERY_COMPLTE_PARAM_COUNT,
+                argv, &ret);
+            if (status != napi_ok) {
+                HiLog::Error(LABEL, "failed to call OnQuery JS function.");
+            }
+        });
 }
 
 void NapiHiSysEventQuerier::OnComplete(int32_t reason, int32_t total)
 {
-    jsCallbackManager->Add(callbackContext, [this, reason, total] (const napi_env env, const napi_ref ref) {
-        napi_value reasonJsParam = nullptr;
-        NapiHiSysEventUtil::CreateInt32Value(env, reason, reasonJsParam);
-        napi_value totalJsParam = nullptr;
-        NapiHiSysEventUtil::CreateInt32Value(env, total, totalJsParam);
-        napi_value argv[ON_QUERY_COMPLTE_PARAM_COUNT] = {reasonJsParam, totalJsParam};
-        napi_value querier = nullptr;
-        napi_get_reference_value(env, ref, &querier);
-        napi_value OnComplete = NapiHiSysEventUtil::GetPropertyByName(env, querier, ON_COMPLETE_ATTR);
-        napi_value ret = nullptr;
-        napi_status status = napi_call_function(env, querier, OnComplete, ON_QUERY_COMPLTE_PARAM_COUNT,
-            argv, &ret);
-        if (status != napi_ok) {
-            HiLog::Error(LABEL, "failed to call OnComplete JS function.");
-        }
-    }, [this] () {
-        if (this->onCompleteHandler != nullptr && this->callbackContext != nullptr) {
-            this->onCompleteHandler(this->callbackContext->env, this->callbackContext->ref);
-        }
-    });
+    jsCallbackManager->Add(callbackContext,
+        [this, reason, total] (const napi_env env, const napi_ref ref, pid_t threadId) {
+            if (threadId != syscall(SYS_gettid)) {
+                return;
+            }
+            napi_value reasonJsParam = nullptr;
+            NapiHiSysEventUtil::CreateInt32Value(env, reason, reasonJsParam);
+            napi_value totalJsParam = nullptr;
+            NapiHiSysEventUtil::CreateInt32Value(env, total, totalJsParam);
+            napi_value argv[ON_QUERY_COMPLTE_PARAM_COUNT] = {reasonJsParam, totalJsParam};
+            napi_value querier = nullptr;
+            napi_get_reference_value(env, ref, &querier);
+            napi_value OnComplete = NapiHiSysEventUtil::GetPropertyByName(env, querier, ON_COMPLETE_ATTR);
+            napi_value ret = nullptr;
+            napi_status status = napi_call_function(env, querier, OnComplete, ON_QUERY_COMPLTE_PARAM_COUNT,
+                argv, &ret);
+            if (status != napi_ok) {
+                HiLog::Error(LABEL, "failed to call OnComplete JS function.");
+            }
+        }, [this] () {
+            if (this->onCompleteHandler != nullptr && this->callbackContext != nullptr) {
+                this->onCompleteHandler(this->callbackContext->env, this->callbackContext->ref);
+            }
+        });
 }
 } // HiviewDFX
 } // OHOS
