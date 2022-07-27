@@ -17,6 +17,8 @@
 #define NAPI_HISYSEVENT_LISTENER_H
 
 #include <string>
+#include <sys/syscall.h>
+#include <unistd.h>
 
 #include "hisysevent_subscribe_callback.h"
 #include "js_callback_manager.h"
@@ -35,7 +37,9 @@ public:
     }
     virtual ~NapiHiSysEventListener()
     {
-        napi_delete_reference(callbackContext->env, callbackContext->ref);
+        if (callbackContext->threadId == syscall(SYS_gettid)) {
+            napi_delete_reference(callbackContext->env, callbackContext->ref);
+        }
         delete callbackContext;
     }
 

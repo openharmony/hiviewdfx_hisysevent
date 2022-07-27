@@ -19,6 +19,8 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <sys/syscall.h>
+#include <unistd.h>
 
 #include "hisysevent_query_callback.h"
 #include "js_callback_manager.h"
@@ -39,7 +41,9 @@ public:
     }
     virtual ~NapiHiSysEventQuerier()
     {
-        napi_delete_reference(callbackContext->env, callbackContext->ref);
+        if (callbackContext->threadId == syscall(SYS_gettid)) {
+            napi_delete_reference(callbackContext->env, callbackContext->ref);
+        }
         delete callbackContext;
     }
 
