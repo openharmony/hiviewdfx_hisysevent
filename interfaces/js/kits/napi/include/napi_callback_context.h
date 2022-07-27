@@ -17,19 +17,21 @@
 #define NAPI_CALLBACK_CONTEXT_H
 
 #include <functional>
+#include <sys/syscall.h>
 
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-using CALLBACK_FUNC = std::function<void(const napi_env, const napi_ref)>;
+using CALLBACK_FUNC = std::function<void(const napi_env, const napi_ref, pid_t thredId)>;
 using RELEASE_FUNC = std::function<void()>;
 using CallbackContext = struct CallbackContext {
     napi_env env = nullptr;
     napi_ref ref = nullptr;
     CALLBACK_FUNC callback;
     RELEASE_FUNC release;
+    pid_t threadId;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
