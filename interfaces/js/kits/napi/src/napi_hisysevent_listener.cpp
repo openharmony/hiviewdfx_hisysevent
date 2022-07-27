@@ -31,9 +31,11 @@ constexpr size_t ON_SERVICE_DIED_PARAM_COUNT = 0;
 void NapiHiSysEventListener::OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
     const std::string& eventDetail)
 {
-    jsCallbackManager->Add(
-        callbackContext,
-        [this, domain, eventName, eventType, eventDetail] (const napi_env env, const napi_ref ref) {
+    jsCallbackManager->Add(callbackContext,
+        [this, domain, eventName, eventType, eventDetail] (const napi_env env, const napi_ref ref, pid_t threadId) {
+            if (threadId != syscall(SYS_gettid)) {
+                return;
+            }
             napi_value sysEventInfo = nullptr;
             NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(env, eventDetail, sysEventInfo);
             napi_value argv[ON_EVENT_PARAM_COUNT] = {sysEventInfo};
@@ -53,20 +55,24 @@ void NapiHiSysEventListener::OnHandle(const std::string& domain, const std::stri
 
 void NapiHiSysEventListener::OnServiceDied()
 {
-    jsCallbackManager->Add(callbackContext, [this] (const napi_env env, const napi_ref ref) {
-        napi_value listener = nullptr;
-        napi_status status = napi_get_reference_value(env, ref, &listener);
-        if (status != napi_ok) {
-            HiLog::Error(LABEL, "failed to get JS reference of event listener.");
-        }
-        napi_value onServiceDied = NapiHiSysEventUtil::GetPropertyByName(env, listener, ON_SERVICE_DIED_ATTR);
-        napi_value ret = nullptr;
-        status = napi_call_function(env, listener, onServiceDied, ON_SERVICE_DIED_PARAM_COUNT,
-            nullptr, &ret);
-        if (status != napi_ok) {
-            HiLog::Error(LABEL, "failed to call onServiceDied JS function.");
-        }
-    });
+    jsCallbackManager->Add(callbackContext,
+        [this] (const napi_env env, const napi_ref ref, pid_t threadId) {
+            if (threadId != syscall(SYS_gettid)) {
+                return;
+            }
+            napi_value listener = nullptr;
+            napi_status status = napi_get_reference_value(env, ref, &listener);
+            if (status != napi_ok) {
+                HiLog::Error(LABEL, "failed to get JS reference of event listener.");
+            }
+            napi_value onServiceDied = NapiHiSysEventUtil::GetPropertyByName(env, listener, ON_SERVICE_DIED_ATTR);
+            napi_value ret = nullptr;
+            status = napi_call_function(env, listener, onServiceDied, ON_SERVICE_DIED_PARAM_COUNT,
+                nullptr, &ret);
+            if (status != napi_ok) {
+                HiLog::Error(LABEL, "failed to call onServiceDied JS function.");
+            }
+        });
 }
 } // HiviewDFX
 } // OHOS

@@ -62,7 +62,7 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
                 return;
             }
             if (context->callback != nullptr) {
-                context->callback(context->env, context->ref);
+                context->callback(context->env, context->ref, context->threadId);
             }
             napi_close_handle_scope(context->env, scope);
             DeleteWork(work);

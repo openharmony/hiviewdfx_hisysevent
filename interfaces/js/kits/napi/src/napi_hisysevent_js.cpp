@@ -127,6 +127,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
     }
     CallbackContext* callbackContext = new CallbackContext();
     callbackContext->env = env;
+    callbackContext->threadId = syscall(SYS_gettid);
     napi_create_reference(env, params[ADD_LISTENER_LISTENER_PARAM_INDEX], 1, &callbackContext->ref);
     std::shared_ptr<NapiHiSysEventListener> listener = std::make_shared<NapiHiSysEventListener>(callbackContext);
     ret = HiSysEventManager::AddEventListener(listener, rules);
@@ -135,7 +136,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
         return val;
     }
-    listeners[callbackContext->ref] = std::make_pair(syscall(SYS_gettid), listener);
+    listeners[callbackContext->ref] = std::make_pair(callbackContext->threadId, listener);
     NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
     return val;
 }
@@ -181,8 +182,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
     napi_value val = nullptr;
     if (paramNum != QUERY_FUNC_MAX_PARAM_NUM) {
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-        HiLog::Error(LABEL,
-            "failed to query hisysevent, count of parameters is not equal to %{public}d.",
+        HiLog::Error(LABEL, "failed to query hisysevent, count of parameters is not equal to %{public}d.",
             static_cast<int>(QUERY_FUNC_MAX_PARAM_NUM));
         return val;
     }
@@ -202,13 +202,13 @@ static napi_value Query(napi_env env, napi_callback_info info)
     }
     CallbackContext* callbackContext = new CallbackContext();
     callbackContext->env = env;
+    callbackContext->threadId = syscall(SYS_gettid);
     napi_create_reference(env, params[QUERY_QUERIER_PARAM_INDEX], 1, &callbackContext->ref);
     std::shared_ptr<NapiHiSysEventQuerier> querier = std::make_shared<NapiHiSysEventQuerier>(callbackContext,
         [] (const napi_env env, const napi_ref ref) {
             napi_value querier = nullptr;
             napi_get_reference_value(env, ref, &querier);
-            auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventQuerier>(env,
-                querier, queriers);
+            auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventQuerier>(env, querier, queriers);
             if (iter != queriers.end()) {
                 queriers.erase(iter->first);
             }
@@ -219,7 +219,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
         return val;
     }
-    queriers[callbackContext->ref] = std::make_pair(syscall(SYS_gettid), querier);
+    queriers[callbackContext->ref] = std::make_pair(callbackContext->threadId, querier);
     NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
     return val;
 }
