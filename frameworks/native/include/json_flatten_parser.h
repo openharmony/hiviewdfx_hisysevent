@@ -25,27 +25,27 @@ using KV = std::pair<std::string, std::string>;
 using PrintKvHandler = std::function<std::string(KV&)>;
 class JsonFlattenParser {
 public:
-    JsonFlattenParser(const std::string& jsonStr);
+    JsonFlattenParser(const std::string& json);
 
 public:
     static void Initialize();
 
 public:
-    void Parse(const std::string& jsonStr);
+    void Parse(const std::string& json);
     std::string Print(PrintKvHandler handler);
 
 public:
+    static constexpr uint8_t BRACKET_FLAG {3};
     static constexpr uint8_t CHAR_RANGE {128};
     static constexpr uint8_t NUMBER_FLAG {1};
     static constexpr uint8_t STRING_FLAG {2};
-    static constexpr uint8_t BRACKET_FLAG {3};
 
 private:
-    std::string ParseKey(const std::string& jsonStr);
-    std::string ParseValue(const std::string& jsonStr);
-    std::string ParseNumer(const std::string& jsonStr);
-    std::string ParseString(const std::string& jsonStr);
-    std::string ParseBrackets(const std::string& jsonStr, char leftBracket);
+    std::string ParseBrackets(const std::string& json, char leftBracket);
+    std::string ParseKey(const std::string& json);
+    std::string ParseNumer(const std::string& json);
+    std::string ParseString(const std::string& json);
+    std::string ParseValue(const std::string& json);
 
 private:
     static uint8_t charFilter[CHAR_RANGE];
