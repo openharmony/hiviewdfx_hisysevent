@@ -15,8 +15,12 @@
 
 #include "sys_event_callback_stub.h"
 
+#include <string>
+
 #include "errors.h"
 #include "hilog/log.h"
+#include "ipc_object_stub.h"
+#include "ipc_types.h"
 
 namespace OHOS {
 namespace HiviewDFX {

@@ -12,15 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include <gtest/gtest.h>
 
-#include <chrono>
+#include <iosfwd>
 #include <string>
-#include <thread>
 #include <unistd.h>
 #include <vector>
 
+#include "gtest/gtest-message.h"
+#include "gtest/gtest-test-part.h"
+#include "gtest/hwext/gtest-ext.h"
+#include "gtest/hwext/gtest-tag.h"
 #include "hilog/log.h"
+
 #include "hisysevent.h"
 
 #ifndef SYS_EVENT_PARAMS

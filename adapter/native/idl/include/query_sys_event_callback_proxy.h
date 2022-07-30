@@ -17,7 +17,17 @@
 #define OHOS_HIVIEWDFX_QUERY_SYS_EVENT_CALLBACK_PROXY_H
 
 #include "iquery_sys_event_callback.h"
+
+#include <cstdint>
+#include <functional>
+#include <string>
+#include <vector>
+
+#include "iremote_broker.h"
+#include "iremote_object.h"
 #include "iremote_proxy.h"
+#include "nocopyable.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace HiviewDFX {

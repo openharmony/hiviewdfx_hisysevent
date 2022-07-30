@@ -15,7 +15,13 @@
 
 #include "stringfilter.h"
 
+#include <iosfwd>
+#include <istream>
+#include <ostream>
 #include <sstream>
+#include <streambuf>
+#include <string>
+#include <utility>
 #include <vector>
 
 namespace OHOS {

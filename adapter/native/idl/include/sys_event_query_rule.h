@@ -16,6 +16,9 @@
 #ifndef OHOS_HIVIEWDFX_SYS_EVENT_QUERY_RULE_H
 #define OHOS_HIVIEWDFX_SYS_EVENT_QUERY_RULE_H
 
+#include <cstdint>
+#include <iosfwd>
+#include <string>
 #include <vector>
 
 #include "parcel.h"

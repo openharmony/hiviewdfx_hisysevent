@@ -15,8 +15,13 @@
 
 #include "transport.h"
 
-#include <cinttypes>
+#include <__mutex_base>
+#include <cerrno>
+#include <cstddef>
+#include <iosfwd>
+#include <list>
 #include <securec.h>
+#include <string>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>

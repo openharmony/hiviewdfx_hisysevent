@@ -16,6 +16,10 @@
 #ifndef OHOS_HIVIEWDFX_SYS_EVENT_RULE_H
 #define OHOS_HIVIEWDFX_SYS_EVENT_RULE_H
 
+#include <cstdint>
+#include <iosfwd>
+#include <string>
+
 #include "parcel.h"
 #include "rule_type.h"
 
