@@ -15,8 +15,14 @@
 
 #include "write_controller.h"
 
-#include <securec.h>
+#include <__mutex_base>
+#include <cstddef>
+#include <cstdint>
+#include <iosfwd>
+#include <ostream>
+#include <sys/time.h>
 #include <sstream>
+#include <string>
 
 #include "hilog/log.h"
 

@@ -15,7 +15,12 @@
 
 #include "json_flatten_parser.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <iosfwd>
 #include <string>
+#include <vector>
 
 namespace OHOS {
 namespace HiviewDFX {

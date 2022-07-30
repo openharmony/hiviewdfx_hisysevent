@@ -16,8 +16,14 @@
 #ifndef OHOS_HIVIEWDFX_QUERY_SYS_EVENT_CALLBACK_STUB_H
 #define OHOS_HIVIEWDFX_QUERY_SYS_EVENT_CALLBACK_STUB_H
 
+#include <cstdint>
+
 #include "iquery_sys_event_callback.h"
 #include "iremote_stub.h"
+#include "message_option.h"
+#include "message_parcel.h"
+#include "nocopyable.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace HiviewDFX {

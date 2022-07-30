@@ -15,7 +15,16 @@
 
 #include "hisysevent_tool_query.h"
 
+#include <algorithm>
+#include <cstdint>
+#include <cstdlib>
+#include <iosfwd>
 #include <iostream>
+#include <memory>
+#include <ostream>
+#include <vector>
+
+#include "hisysevent_json_decorator.h"
 
 namespace OHOS {
 namespace HiviewDFX {
