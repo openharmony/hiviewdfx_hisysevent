@@ -129,6 +129,7 @@ public:
         static constexpr char USERIAM_FWK[] = "USERIAM_FWK";
         static constexpr char WEARABLE[] = "WEARABLE";
         static constexpr char WEARABLE_HARDWARE[] = "WEARABLEHW";
+        static constexpr char WEBVIEW[] = "WEBVIEW";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
         static constexpr char OTHERS[] = "OTHERS";
     };
