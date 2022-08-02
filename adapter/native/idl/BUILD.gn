@@ -42,7 +42,7 @@ ohos_source_set("sys_event_impl_client") {
     "hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   part_name = "hisysevent_native"
@@ -72,7 +72,7 @@ ohos_source_set("sys_event_service_gen_src_client") {
     "hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   part_name = "hisysevent_native"
