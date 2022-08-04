@@ -85,6 +85,7 @@ public:
         static constexpr char CUSTOMIZATION_CONFIG[] = "CUST_CONFIG";
         static constexpr char CUSTOMIZATION_EDM[] = "CUST_EDM";
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
+        static constexpr char DEVICE_AUTH[] = "DEVICE_AUTH";
         static constexpr char DEVICE_PROFILE[] = "DEVICE_PROFILE";
         static constexpr char DISTRIBUTED_AUDIO[] = "DISTAUDIO";
         static constexpr char DISTRIBUTED_CAMERA[] = "DISTCAMERA";
