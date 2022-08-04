@@ -27,6 +27,11 @@
 #include "hilog/log.h"
 
 #include "hisysevent.h"
+#include "hisysevent_manager.h"
+#include "hisysevent_query_callback.h"
+#include "hisysevent_subscribe_callback.h"
+#include "ret_code.h"
+#include "rule_type.h"
 
 #ifndef SYS_EVENT_PARAMS
 #define SYS_EVENT_PARAMS(A) "key"#A, 0 + (A), "keyA"#A, 1 + (A), "keyB"#A, 2 + (A), "keyC"#A, 3 + (A), \
@@ -37,7 +42,26 @@ using namespace testing::ext;
 using OHOS::HiviewDFX::HiLogLabel;
 using OHOS::HiviewDFX::HiLog;
 using OHOS::HiviewDFX::HiSysEvent;
+
 static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENTTEST" };
+
+class Watcher : public OHOS::HiviewDFX::HiSysEventSubscribeCallBack {
+public:
+    Watcher() {}
+    void OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
+        const std::string& eventDetail) {}
+    ~Watcher() {}
+    void OnServiceDied() {}
+};
+
+class Querier : public OHOS::HiviewDFX::HiSysEventQueryCallBack {
+public:
+    Querier() {}
+    void OnQuery(const ::std::vector<std::string>& sysEvent,
+        const std::vector<int64_t>& seq) {}
+    void OnComplete(int32_t reason, int32_t total) {}
+    virtual ~Querier() {}
+};
 
 class HiSysEventNativeTest : public testing::Test {
 public:
@@ -838,4 +862,45 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArrayStringValueMoreThan256K026, Te
     int result = HiSysEvent::Write(domain, eventName, HiSysEvent::EventType::FAULT, "key1", values);
     HiLog::Info(LABEL, "array item value length is more than 256K, retCode=%{public}d", result);
     ASSERT_TRUE(result > 0);
+}
+
+/**
+ * @tc.name: TestHiSysEventManagerAddEventListenerWithTooManyRules
+ * @tc.desc: Test AddEventListener with more than 20 rules
+ * @tc.type: FUNC
+ * @tc.require: AR000H02CM
+ */
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddEventListenerWithTooManyRules, TestSize.Level1)
+{
+    auto watcher = std::make_shared<Watcher>();
+    OHOS::HiviewDFX::ListenerRule listenerRule("DOMAIN", "EVENT_NAME", "", OHOS::HiviewDFX::RuleType::WHOLE_WORD);
+    int ruleCount = 20;
+    std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
+    while (ruleCount-- > 0) {
+        sysRules.emplace_back(listenerRule);
+    }
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::AddEventListener(watcher, sysRules);
+    ASSERT_TRUE(ret == 0);
+    sysRules.emplace_back(listenerRule);
+    ret = OHOS::HiviewDFX::HiSysEventManager::AddEventListener(watcher, sysRules);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_TOO_MANY_WATCH_RULES);
+}
+
+/**
+ * @tc.name: TestHiSysEventManagerAddTooManyEventListener
+ * @tc.desc: Test add more than 30 event listener
+ * @tc.type: FUNC
+ * @tc.require: AR000H02CM
+ */
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddTooManyEventListener, TestSize.Level1)
+{
+    OHOS::HiviewDFX::ListenerRule listenerRule("DOMAIN", "EVENT_NAME", "", OHOS::HiviewDFX::RuleType::WHOLE_WORD);
+    std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
+    sysRules.emplace_back(listenerRule);
+    int cnt = 30;
+    int32_t ret = 0;
+    while (cnt-- > 0) {
+        ret = OHOS::HiviewDFX::HiSysEventManager::AddEventListener(std::make_shared<Watcher>(), sysRules);
+    }
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_TOO_MANY_WATCHERS);
 }

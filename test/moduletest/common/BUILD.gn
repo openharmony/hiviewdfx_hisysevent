@@ -28,12 +28,17 @@ ohos_moduletest("HiSysEventNativeTest") {
 
   configs = [ ":hisysevent_native_test_config" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = [
+    "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_client",
+    "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_service_gen_src_client",
+    "//third_party/googletest:gtest_main",
+  ]
 
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
       "hisysevent_native:libhisysevent",
+      "hisysevent_native:libhisyseventmanager",
       "hiviewdfx_hilog_native:libhilog",
     ]
   } else {
@@ -41,6 +46,7 @@ ohos_moduletest("HiSysEventNativeTest") {
       "c_utils:utils",
       "hilog:libhilog",
       "hisysevent_native:libhisysevent",
+      "hisysevent_native:libhisyseventmanager",
     ]
     cflags_cc = [ "-D__HIVIEW_HAVE_HITRACE__" ]
   }
