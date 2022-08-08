@@ -17,6 +17,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <thread>
 #include <unistd.h>
 #include <vector>
 
@@ -904,3 +905,73 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddTooManyEventListener, Tes
     }
     ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_TOO_MANY_WATCHERS);
 }
+
+/**
+ * @tc.name: TestHiSysEventManagerQueryWithTooManyRules
+ * @tc.desc: Test query with 11 query rules
+ * @tc.type: FUNC
+ * @tc.require: AR000H02CO
+ */
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithTooManyRules, TestSize.Level1)
+{
+    auto querier = std::make_shared<Querier>();
+    long long defaultTimeStap = -1;
+    int queryCount = 10;
+    struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
+    std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
+    int rulesCount = 11;
+    while (rulesCount-- > 0) {
+        std::vector<std::string> eventNames {"EVENT_NAME"};
+        OHOS::HiviewDFX::QueryRule rule("DOMAIN", eventNames);
+        queryRules.emplace_back(rule);
+    }
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::QueryHiSysEvent(args, queryRules, querier);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_TOO_MANY_QUERY_RULES);
+}
+
+/**
+ * @tc.name: TestHiSysEventManagerTooManyConcurrentQueries
+ * @tc.desc: Test more than 4 queries at same time
+ * @tc.type: FUNC
+ * @tc.require: AR000H02CO
+ */
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerTooManyConcurrentQueries, TestSize.Level1)
+{
+    auto querier = std::make_shared<Querier>();
+    long long defaultTimeStap = -1;
+    int queryCount = 10;
+    struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
+    std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
+    int threadCount = 5;
+    auto ret = OHOS::HiviewDFX::IPC_CALL_SUCCEED;
+    for (int i = 0; i < threadCount; i++) {
+        std::thread t([&ret, &args, &queryRules, &querier] () {
+            ret = OHOS::HiviewDFX::HiSysEventManager::QueryHiSysEvent(args, queryRules, querier);
+        });
+        t.detach();
+    }
+    sleep(8);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_TOO_MANY_CONCURRENT_QUERIES ||
+        OHOS::HiviewDFX::ERROR_QUERY_TOO_FREQUENTLY);
+}
+
+/**
+ * @tc.name: TestHiSysEventManagerQueryTooFrequently
+ * @tc.desc: Test query twice in 1 seconds
+ * @tc.type: FUNC
+ * @tc.require: AR000H02CO
+ */
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryTooFrequently, TestSize.Level1)
+{
+    auto querier = std::make_shared<Querier>();
+    long long defaultTimeStap = -1;
+    int queryCount = 10;
+    struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
+    std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::QueryHiSysEvent(args, queryRules, querier);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::IPC_CALL_SUCCEED);
+    ret = OHOS::HiviewDFX::HiSysEventManager::QueryHiSysEvent(args, queryRules, querier);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_QUERY_TOO_FREQUENTLY);
+}
+
+
