@@ -75,6 +75,7 @@ public:
         static constexpr char ACE[] = "ACE";
         static constexpr char AI[] = "AI";
         static constexpr char APPEXECFWK[] = "APPEXECFWK";
+        static constexpr char AV_SESSION[] = "AV_SESSION";
         static constexpr char BARRIER_FREE[] = "BARRIERFREE";
         static constexpr char BIOMETRICS[] = "BIOMETRICS";
         static constexpr char BLUETOOTH[] = "BLUETOOTH";
