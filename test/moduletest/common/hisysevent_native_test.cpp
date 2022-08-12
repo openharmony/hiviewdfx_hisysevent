@@ -969,9 +969,6 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryTooFrequently, TestSize
     struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
     std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
     auto ret = OHOS::HiviewDFX::HiSysEventManager::QueryHiSysEvent(args, queryRules, querier);
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::IPC_CALL_SUCCEED);
     ret = OHOS::HiviewDFX::HiSysEventManager::QueryHiSysEvent(args, queryRules, querier);
     ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_QUERY_TOO_FREQUENTLY);
 }
-
-
