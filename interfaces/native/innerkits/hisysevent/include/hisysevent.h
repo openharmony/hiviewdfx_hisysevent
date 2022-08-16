@@ -88,6 +88,7 @@ public:
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
         static constexpr char DEVICE_AUTH[] = "DEVICE_AUTH";
         static constexpr char DEVICE_PROFILE[] = "DEVICE_PROFILE";
+        static constexpr char DEVICE_SECURITY_LEVEL[] = "DEVICE_SECURITY_LEVEL";
         static constexpr char DISTRIBUTED_AUDIO[] = "DISTAUDIO";
         static constexpr char DISTRIBUTED_CAMERA[] = "DISTCAMERA";
         static constexpr char DISTRIBUTED_DATAMGR[] = "DISTDATAMGR";
@@ -118,7 +119,6 @@ public:
         static constexpr char REQUEST[] = "REQUEST";
         static constexpr char ROUTER[] = "ROUTER";
         static constexpr char SAMGR[] = "SAMGR";
-        static constexpr char SECURITY[] = "SECURITY";
         static constexpr char SECURITY_HUKS[] = "SECURITY_HUKS";
         static constexpr char SENSOR[] = "SENSOR";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
