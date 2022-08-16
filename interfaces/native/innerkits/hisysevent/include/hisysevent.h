@@ -88,7 +88,6 @@ public:
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
         static constexpr char DEVICE_AUTH[] = "DEVICE_AUTH";
         static constexpr char DEVICE_PROFILE[] = "DEVICE_PROFILE";
-        static constexpr char DEVICE_SECURITY_LEVEL[] = "DEVICE_SECURITY_LEVEL";
         static constexpr char DISTRIBUTED_AUDIO[] = "DISTAUDIO";
         static constexpr char DISTRIBUTED_CAMERA[] = "DISTCAMERA";
         static constexpr char DISTRIBUTED_DATAMGR[] = "DISTDATAMGR";
@@ -97,6 +96,7 @@ public:
         static constexpr char DISTRIBUTED_INPUT[] = "DISTINPUT";
         static constexpr char DISTRIBUTED_SCHEDULE[] = "DISTSCHEDULE";
         static constexpr char DISTRIBUTED_SCREEN[] = "DISTSCREEN";
+        static constexpr char DSLM[] = "DSLM";
         static constexpr char GLOBAL[] = "GLOBAL";
         static constexpr char GLOBAL_I18N[] = "GLOBAL_I18N";
         static constexpr char GLOBAL_RESMGR[] = "GLOBAL_RESMGR";
