@@ -102,6 +102,7 @@ public:
         static constexpr char GLOBAL_RESMGR[] = "GLOBAL_RESMGR";
         static constexpr char GRAPHIC[] = "GRAPHIC";
         static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
+        static constexpr char HUKS[] = "HUKS";
         static constexpr char IAWARE[] = "IAWARE";
         static constexpr char INPUTMETHOD[] = "INPUTMETHOD";
         static constexpr char INTELLI_ACCESSORIES[] = "INTELLIACC";
@@ -119,7 +120,6 @@ public:
         static constexpr char REQUEST[] = "REQUEST";
         static constexpr char ROUTER[] = "ROUTER";
         static constexpr char SAMGR[] = "SAMGR";
-        static constexpr char SECURITY_HUKS[] = "SECURITY_HUKS";
         static constexpr char SENSOR[] = "SENSOR";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
         static constexpr char STARTUP[] = "STARTUP";
