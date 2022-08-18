@@ -78,7 +78,7 @@ public:
             HiLog::Debug(LABEL, "sysEvent: %{public}s", item.c_str());
         }
         for (auto& item : seq) {
-            HiLog::Debug(LABEL, "seq: %{public}lld", item);
+            HiLog::Debug(LABEL, "seq: %{public}s", std::to_string(item).c_str());
         }
     }
     virtual void OnComplete(int32_t reason, int32_t total) override
