@@ -30,6 +30,7 @@ ohos_shared_library("libhisysevent") {
 
   sources = [
     "hisysevent.cpp",
+    "hisysevent_c.cpp",
     "stringfilter.cpp",
     "transport.cpp",
     "write_controller.cpp",
