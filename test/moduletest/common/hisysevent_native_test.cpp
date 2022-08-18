@@ -43,25 +43,48 @@ using namespace testing::ext;
 using OHOS::HiviewDFX::HiLogLabel;
 using OHOS::HiviewDFX::HiLog;
 using OHOS::HiviewDFX::HiSysEvent;
+using OHOS::HiviewDFX::HiSysEventSubscribeCallBack;
+using OHOS::HiviewDFX::HiSysEventQueryCallBack;
 
 static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENTTEST" };
 
-class Watcher : public OHOS::HiviewDFX::HiSysEventSubscribeCallBack {
+class Watcher : public HiSysEventSubscribeCallBack {
 public:
     Watcher() {}
-    void OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
-        const std::string& eventDetail) {}
     ~Watcher() {}
-    void OnServiceDied() {}
+
+    virtual void OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
+        const std::string& eventDetail) override
+    {
+        HiLog::Debug(LABEL, "domain: %{public}s, eventName: %{public}s, eventType: %{public}d, extra: %{public}s.",
+            domain.c_str(), eventName.c_str(), eventType, eventDetail.c_str());
+    }
+
+    virtual void OnServiceDied() override
+    {
+        HiLog::Debug(LABEL, "OnServiceDied");
+    }
 };
 
-class Querier : public OHOS::HiviewDFX::HiSysEventQueryCallBack {
+class Querier : public HiSysEventQueryCallBack {
 public:
     Querier() {}
-    void OnQuery(const ::std::vector<std::string>& sysEvent,
-        const std::vector<int64_t>& seq) {}
-    void OnComplete(int32_t reason, int32_t total) {}
     virtual ~Querier() {}
+
+    virtual void OnQuery(const ::std::vector<std::string>& sysEvent,
+        const std::vector<int64_t>& seq) override
+    {
+        for (auto& item : sysEvent) {
+            HiLog::Debug(LABEL, "sysEvent: %{public}s", item.c_str());
+        }
+        for (auto& item : seq) {
+            HiLog::Debug(LABEL, "seq: %{public}lld", item);
+        }
+    }
+    virtual void OnComplete(int32_t reason, int32_t total) override
+    {
+        HiLog::Debug(LABEL, "reason: %{public}d, total: %{public}d.", reason, total);
+    }
 };
 
 class HiSysEventNativeTest : public testing::Test {
@@ -71,7 +94,6 @@ public:
     void SetUp();
     void TearDown();
 };
-
 
 void HiSysEventNativeTest::SetUpTestCase(void)
 {
