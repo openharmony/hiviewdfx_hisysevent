@@ -162,10 +162,11 @@ bool HiSysEventTool::DoAction()
             clientCmdArg.tag, clientCmdArg.ruleType);
         sysRules.emplace_back(listenerRule);
         auto listenerAddResult = HiSysEventManager::AddEventListener(toolListener, sysRules);
-        if (listenerAddResult == 0 &&
-            (!clientCmdArg.isDebug || HiSysEventManager::SetDebugMode(toolListener, true) == 0)) {
-            return true;
+        if (listenerAddResult != 0 ||
+            (clientCmdArg.isDebug && HiSysEventManager::SetDebugMode(toolListener, true) != 0)) {
+            cout << "failed to subscribe sys event." << endl;
         }
+        return true;
     }
 
     if (clientCmdArg.history) {
@@ -175,9 +176,12 @@ bool HiSysEventTool::DoAction()
         }
         struct QueryArg args(clientCmdArg.beginTime, clientCmdArg.endTime, clientCmdArg.maxEvents);
         std::vector<QueryRule> queryRules;
-        if (HiSysEventManager::QueryHiSysEvent(args, queryRules, queryCallBack) == 0) {
-            return true;
+        auto queryRet = HiSysEventManager::QueryHiSysEvent(args, queryRules, queryCallBack);
+        if (queryRet != 0) {
+            cout << "some errors happened when querying sys event, error code: \033[31m" << queryRet
+                << "\033[0m." << endl;
         }
+        return true;
     }
     return false;
 }
