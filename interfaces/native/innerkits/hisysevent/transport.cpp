@@ -86,10 +86,12 @@ int Transport::SendToHiSysEventDataSource(const std::string &text)
     }
     InitRecvBuffer(socketId);
     auto sendRet = 0;
+    auto retryTimes = RETRY_TIMES;
     do {
         sendRet = sendto(socketId, text.c_str(), text.size(), 0,
             reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
-    } while (sendRet < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
+        retryTimes--;
+    } while (sendRet < 0 && retryTimes > 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
     if (sendRet < 0) {
         close(socketId);
         strerror_r(errno, errMsg, BUF_SIZE);
