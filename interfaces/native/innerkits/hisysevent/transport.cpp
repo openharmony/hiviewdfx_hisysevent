@@ -72,7 +72,7 @@ int Transport::SendToHiSysEventDataSource(const std::string &text)
     }
     serverAddr.sun_path[sizeof(serverAddr.sun_path) - 1] = '\0';
 
-    int socketId = socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
+    int socketId = TEMP_FAILURE_RETRY(socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0));
     if (socketId < 0) {
         strerror_r(errno, errMsg, BUF_SIZE);
         HiLog::Error(LABEL, "create hisysevent client socket failed, error=%{public}d, msg=%{public}s",
@@ -80,8 +80,14 @@ int Transport::SendToHiSysEventDataSource(const std::string &text)
         return ERR_DOES_NOT_INIT;
     }
     InitRecvBuffer(socketId);
-    if (sendto(socketId, text.c_str(), text.size(), 0, reinterpret_cast<sockaddr*>(&serverAddr),
-        sizeof(serverAddr)) < 0) {
+    auto sendRet = 0;
+    auto retryTimes = RETRY_TIMES;
+    do {
+        sendRet = sendto(socketId, text.c_str(), text.size(), 0,
+            reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
+        retryTimes--;
+    } while (sendRet < 0 && retryTimes > 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
+    if (sendRet < 0) {
         close(socketId);
         strerror_r(errno, errMsg, BUF_SIZE);
         HiLog::Error(LABEL, "send data to hisysevent server failed, error=%{public}d, msg=%{public}s",
