@@ -41,18 +41,21 @@
     "keyI"#A, 9 + (A)
 #endif
 using namespace testing::ext;
-using OHOS::HiviewDFX::HiLogLabel;
-using OHOS::HiviewDFX::HiLog;
-using OHOS::HiviewDFX::HiSysEvent;
-using OHOS::HiviewDFX::HiSysEventSubscribeCallBack;
-using OHOS::HiviewDFX::HiSysEventQueryCallBack;
+using namespace OHOS::HiviewDFX;
 
-static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENTTEST" };
+namespace {
+constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENTTEST" };
+constexpr char TEST_DOMAIN[] = "DEMO";
+int32_t WriteSysEventByMarcoInterface()
+{
+    return HiSysEventWrite(TEST_DOMAIN, "DEMO_EVENTNAME", HiSysEvent::EventType::FAULT,
+        "PARAM_KEY", "PARAM_VAL");
+}
 
 class Watcher : public HiSysEventSubscribeCallBack {
 public:
     Watcher() {}
-    ~Watcher() {}
+    virtual ~Watcher() {}
 
     virtual void OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
         const std::string& eventDetail) override
@@ -87,6 +90,7 @@ public:
         HiLog::Debug(LABEL, "reason: %{public}d, total: %{public}d.", reason, total);
     }
 };
+}
 
 class HiSysEventNativeTest : public testing::Test {
 public:
@@ -896,10 +900,29 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArrayStringValueMoreThan256K026, Te
 }
 
 /**
+ * @tc.name: TestDefensingHiSysEventStorm
+ * @tc.desc: write event more than 10 times in 5 seconds
+ * @tc.type: FUNC
+ * @tc.require: issueI5FNPQ
+ */
+HWTEST_F(HiSysEventNativeTest, TestDefensingHiSysEventStorm, TestSize.Level1)
+{
+    int writeCount = 12;
+    for (int i = 0; i < writeCount; i++) {
+        auto result = WriteSysEventByMarcoInterface();
+        if (i <= 10) {
+            ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == 0));
+        } else {
+            ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::ERR_WRITE_IN_HIGH_FREQ));
+        }
+    }
+}
+
+/**
  * @tc.name: TestHiSysEventManagerAddEventListenerWithTooManyRules
  * @tc.desc: Test AddEventListener with more than 20 rules
  * @tc.type: FUNC
- * @tc.require: AR000H02CM
+ * @tc.require: issueI5KDIG
  */
 HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddEventListenerWithTooManyRules, TestSize.Level1)
 {
@@ -921,7 +944,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddEventListenerWithTooManyR
  * @tc.name: TestHiSysEventManagerAddTooManyEventListener
  * @tc.desc: Test add more than 30 event listener
  * @tc.type: FUNC
- * @tc.require: AR000H02CM
+ * @tc.require: issueI5KDIG
  */
 HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddTooManyEventListener, TestSize.Level1)
 {
@@ -940,7 +963,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddTooManyEventListener, Tes
  * @tc.name: TestHiSysEventManagerQueryWithTooManyRules
  * @tc.desc: Test query with 11 query rules
  * @tc.type: FUNC
- * @tc.require: AR000H02CO
+ * @tc.require: issueI5L2RV
  */
 HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithTooManyRules, TestSize.Level1)
 {
@@ -963,7 +986,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithTooManyRules, TestS
  * @tc.name: TestHiSysEventManagerTooManyConcurrentQueries
  * @tc.desc: Test more than 4 queries at same time
  * @tc.type: FUNC
- * @tc.require: AR000H02CO
+ * @tc.require: issueI5L2RV
  */
 HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerTooManyConcurrentQueries, TestSize.Level1)
 {
@@ -989,7 +1012,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerTooManyConcurrentQueries, Te
  * @tc.name: TestHiSysEventManagerQueryTooFrequently
  * @tc.desc: Test query twice in 1 seconds
  * @tc.type: FUNC
- * @tc.require: AR000H02CO
+ * @tc.require: issueI5L2RV
  */
 HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryTooFrequently, TestSize.Level1)
 {
