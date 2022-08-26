@@ -72,6 +72,7 @@ public:
     class Domain {
     public:
         static constexpr char AAFWK[] = "AAFWK";
+        static constexpr char ACCESS_TOKEN[] = "ACCESS_TOKEN";
         static constexpr char ACCESSIBILITY[] = "ACCESSIBILITY";
         static constexpr char ACCOUNT[] = "ACCOUNT";
         static constexpr char ACE[] = "ACE";
@@ -98,6 +99,7 @@ public:
         static constexpr char DISTRIBUTED_INPUT[] = "DISTINPUT";
         static constexpr char DISTRIBUTED_SCHEDULE[] = "DISTSCHEDULE";
         static constexpr char DISTRIBUTED_SCREEN[] = "DISTSCREEN";
+        static constexpr char DLP[] = "DLP";
         static constexpr char DSLM[] = "DSLM";
         static constexpr char GLOBAL[] = "GLOBAL";
         static constexpr char GLOBAL_I18N[] = "GLOBAL_I18N";
