@@ -493,9 +493,11 @@ private:
 
     static void AppendValue(EventBase &eventBase, const std::string &item);
     static void AppendValue(EventBase &eventBase, const char item);
+    static void AppendValue(EventBase &eventBase, const signed char item);
     static void AppendValue(EventBase &eventBase, const unsigned char item);
     static void AppendHexData(EventBase &eventBase, const std::string &key, uint64_t value);
     static void InnerWrite(EventBase &eventBase);
+    static void InnerWrite(EventBase &eventBase, HiSysEventParam params[], size_t size);
     static void WritebaseInfo(EventBase &eventBase);
 
     static int CheckKey(const std::string &key);
@@ -509,6 +511,37 @@ private:
 
     static unsigned int GetArrayMax();
     static void SendSysEvent(EventBase &eventBase);
+
+    static void AppendInvalidParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendBoolParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendInt8Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendUint8Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendInt16Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendUint16Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendInt32Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendUint32Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendInt64Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendUint64Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendFloatParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendDoubleParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendStringParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+
+    template<typename T>
+    static void AppendArrayParam(HiSysEvent::EventBase &eventBase, const std::string &key,
+        const T *array, size_t arraySize);
+    static void AppendBoolArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendInt8ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendUint8ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendInt16ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendUint16ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendInt32ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendUint32ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendInt64ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendUint64ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendFloatArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendDoubleArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendStringArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
+    static void AppendParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
 
     static WriteController controller;
 };
