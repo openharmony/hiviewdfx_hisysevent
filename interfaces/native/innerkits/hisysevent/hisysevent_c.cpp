@@ -18,6 +18,7 @@
 #include <string>
 
 #include "hilog/log.h"
+#include "hisysevent.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -25,12 +26,12 @@ namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
 }
 
-int HiSysEventInnerWrite(const std::string &domain, const std::string &name, HiSysEventEventType type,
+int HiSysEventInnerWrite(const std::string& domain, const std::string& name, HiSysEventEventType type,
     HiSysEventParam params[], size_t size)
 {
-    HiLog::Info(LABEL, "domain=%{public}s,name=%{public}s,type=%{public}d, param szie=%{public}zu",
+    HiLog::Info(LABEL, "domain=%{public}s, name=%{public}s, type=%{public}d, param szie=%{public}zu",
         domain.c_str(), name.c_str(), type, size);
-    return 0;
+    return HiSysEvent::Write(domain, name, HiSysEvent::EventType(type), params, size);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
@@ -42,6 +43,12 @@ extern "C" {
 int OH_HiSysEvent_Write(const char* domain, const char* name, HiSysEventEventType type,
     HiSysEventParam params[], size_t size)
 {
+    if (domain == nullptr) {
+        return OHOS::HiviewDFX::ERR_DOMAIN_NAME_INVALID;
+    }
+    if (name == nullptr) {
+        return OHOS::HiviewDFX::ERR_EVENT_NAME_INVALID;
+    }
     return OHOS::HiviewDFX::HiSysEventInnerWrite(domain, name, type, params, size);
 }
 

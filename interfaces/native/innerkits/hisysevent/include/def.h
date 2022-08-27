@@ -41,11 +41,13 @@ static constexpr int ERR_KEY_NAME_INVALID = 1;
 static constexpr int ERR_VALUE_LENGTH_TOO_LONG = 2;
 static constexpr int ERR_KEY_NUMBER_TOO_MUCH = 3;
 static constexpr int ERR_ARRAY_TOO_MUCH = 4;
+static constexpr int ERR_VALUE_INVALID = 5;
 static constexpr char ERR_MSG_LEVEL1[][32] = {
     "invalid key name",
     "string value too long",
     "too many keys (>128)",
-    "too many array items (>100)"
+    "too many array items (>100)",
+    "invalid value"
 };
 
 static constexpr unsigned int MAX_DOMAIN_LENGTH = 16;
