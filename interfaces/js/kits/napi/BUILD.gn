@@ -17,7 +17,6 @@ ohos_shared_library("hisysevent_napi") {
   include_dirs = [
     ".",
     "include/",
-    "//third_party/node/src",
   ]
 
   configs = []
@@ -32,16 +31,14 @@ ohos_shared_library("hisysevent_napi") {
     "./src/napi_hisysevent_util.cpp",
   ]
 
-  deps = [
-    "//foundation/arkui/napi:ace_napi",
-    "//third_party/jsoncpp:jsoncpp",
-  ]
+  deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "hisysevent_native:libhisyseventmanager",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   relative_install_dir = "module"
