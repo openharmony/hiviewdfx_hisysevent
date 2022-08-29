@@ -86,6 +86,7 @@ public:
         static constexpr char CCRUNTIME[] = "CCRUNTIME";
         static constexpr char COMMONEVENT[] = "COMMONEVENT";
         static constexpr char COMMUNICATION[] = "COMMUNICATION";
+        static constexpr char DSOFTBUS[] = "DSOFTBUS";
         static constexpr char CUSTOMIZATION_CONFIG[] = "CUST_CONFIG";
         static constexpr char CUSTOMIZATION_EDM[] = "CUST_EDM";
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
