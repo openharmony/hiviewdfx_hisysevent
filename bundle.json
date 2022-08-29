@@ -22,14 +22,18 @@
     "ram": "",
     "deps": {
       "components": [
+        "c_utils",
         "hilog_native",
         "hitrace_native",
         "ipc",
+        "napi",
         "safwk",
-        "samgr",
-        "utils_base"
+        "samgr"
       ],
-      "third_party": []
+      "third_party": [
+        "bounds_checking_function",
+        "jsoncpp"
+      ]
     },
     "build": {
       "sub_component": [
