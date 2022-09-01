@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 /**
- * @brief define parameter value type
+ * @brief Define the type of the param.
  */
 enum HiSysEventParamType {
     HISYSEVENT_INVALID = 0,
@@ -56,7 +56,7 @@ enum HiSysEventParamType {
 typedef enum HiSysEventParamType HiSysEventParamType;
 
 /**
- * @brief define type of parameter value
+ * @brief Define the value of the param.
  */
 union HiSysEventParamValue {
     bool b;
@@ -76,7 +76,7 @@ union HiSysEventParamValue {
 typedef union HiSysEventParamValue HiSysEventParamValue;
 
 /**
- * @brief define parameter name with value
+ * @brief Define param struct.
  */
 struct HiSysEventParam {
     char name[33];
@@ -87,7 +87,7 @@ struct HiSysEventParam {
 typedef struct HiSysEventParam HiSysEventParam;
 
 /**
- * @brief event type
+ * @brief Event type.
  */
 enum HiSysEventEventType {
     HISYSEVENT_FAULT = 1,
@@ -98,13 +98,13 @@ enum HiSysEventEventType {
 typedef enum HiSysEventEventType HiSysEventEventType;
 
 /**
- * @brief write sysevnt to hiview
- * @param domain event domain
- * @param name   event name
- * @param type   event type
- * @param params parameter of event
- * @param size the size of paramter list
- * @return int  less than 0 fail to send hiview, 0: successful, large than 0 discard some event parameter
+ * @brief Write system event.
+ * @param domain event domain.
+ * @param name   event name.
+ * @param type   event type.
+ * @param params event params.
+ * @param size   the size of param list.
+ * @return 0 means success, less than 0 means failure, greater than 0 means invalid params.
  */
 int OH_HiSysEvent_Write(const char* domain, const char* name, HiSysEventEventType type,
     HiSysEventParam params[], size_t size);
