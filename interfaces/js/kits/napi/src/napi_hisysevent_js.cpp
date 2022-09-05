@@ -20,7 +20,7 @@
 
 #include "def.h"
 #include "hilog/log.h"
-#include "hisysevent_manager.h"
+#include "hisysevent_base_manager.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "napi_callback_context.h"
@@ -87,7 +87,7 @@ static napi_value Write(napi_env env, napi_callback_info info)
         }
     } else if (paramNum > WRITE_FUNC_MAX_PARAM_NUM) {
         HiLog::Error(LABEL, "count of params is invalid =%{public}d.", static_cast<int>(paramNum));
-        asyncContext->eventWroteResult = ERROR_INVALID_PARAM_COUNT;
+        asyncContext->eventWroteResult = ERR_INVALID_PARAM_COUNT;
     }
     // set promise object if callback function is null
     napi_value promise = nullptr;
@@ -107,7 +107,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
     napi_value thisArg = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
-    int32_t ret = ERROR_INVALID_PARAM_COUNT;
+    int32_t ret = ERR_INVALID_PARAM_COUNT;
     napi_value val = nullptr;
     if (paramNum != ADD_LISTENER_FUNC_MAX_PARAM_NUM) {
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
@@ -130,7 +130,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
     callbackContext->threadId = syscall(SYS_gettid);
     napi_create_reference(env, params[ADD_LISTENER_LISTENER_PARAM_INDEX], 1, &callbackContext->ref);
     std::shared_ptr<NapiHiSysEventListener> listener = std::make_shared<NapiHiSysEventListener>(callbackContext);
-    ret = HiSysEventManager::AddEventListener(listener, rules);
+    ret = HiSysEventBaseManager::AddListener(listener, rules);
     if (ret != NAPI_SUCCESS) {
         HiLog::Error(LABEL, "failed to add event listener.");
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
@@ -148,7 +148,7 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
     napi_value thisArg = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
-    int32_t ret = ERROR_INVALID_PARAM_COUNT;
+    int32_t ret = ERR_INVALID_PARAM_COUNT;
     napi_value val = nullptr;
     if (paramNum != REMOVE_LISTENER_FUNC_MAX_PARAM_NUM) {
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
@@ -160,13 +160,13 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
     auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventListener>(env,
         params[REMOVE_LISTENER_LISTENER_PARAM_INDEX], listeners);
     if (iter == listeners.end()) {
-        ret = ERROR_NAPI_LISTENER_NOT_FOUND;
+        ret = ERR_NAPI_LISTENER_NOT_FOUND;
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
         HiLog::Error(LABEL, "failed to found this listener from added ones, so no need to remove it.");
         return val;
     }
     listeners.erase(iter->first);
-    ret = HiSysEventManager::RemoveListener(iter->second.second);
+    ret = HiSysEventBaseManager::RemoveListener(iter->second.second);
     NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
     return val;
 }
@@ -178,7 +178,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
     napi_value thisArg = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
-    int32_t ret = ERROR_INVALID_PARAM_COUNT;
+    int32_t ret = ERR_INVALID_PARAM_COUNT;
     napi_value val = nullptr;
     if (paramNum != QUERY_FUNC_MAX_PARAM_NUM) {
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
@@ -213,7 +213,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
                 queriers.erase(iter->first);
             }
         });
-    ret = HiSysEventManager::QueryHiSysEvent(queryArg, rules, querier);
+    ret = HiSysEventBaseManager::Query(queryArg, rules, querier);
     if (ret != NAPI_SUCCESS) {
         HiLog::Error(LABEL, "failed to query hisysevent.");
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);

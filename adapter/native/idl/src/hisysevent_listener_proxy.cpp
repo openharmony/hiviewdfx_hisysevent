@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,12 +22,10 @@ namespace HiviewDFX {
 void HiSysEventListenerProxy::Handle(const std::u16string& domain, const std::u16string& eventName,
     uint32_t eventType, const std::u16string& eventDetail)
 {
-    std::shared_ptr<HiSysEventSubscribeCallBack> subScribeListener = GetSubScribeListener();
-    if (subScribeListener != nullptr) {
-        subScribeListener->OnHandle(U16String2String(domain),
-            U16String2String(eventName),
-            eventType,
-            U16String2String(eventDetail));
+    auto eventListener = GetEventListener();
+    if (eventListener != nullptr) {
+        eventListener->OnEvent(U16String2String(domain), U16String2String(eventName),
+            eventType, U16String2String(eventDetail));
     }
 }
 
@@ -36,24 +34,25 @@ sptr<CallbackDeathRecipient> HiSysEventListenerProxy::GetCallbackDeathRecipient(
     return callbackDeathRecipient;
 }
 
-std::shared_ptr<HiSysEventSubscribeCallBack> HiSysEventListenerProxy::GetSubScribeListener() const
+std::shared_ptr<HiSysEventBaseListener> HiSysEventListenerProxy::GetEventListener() const
 {
     if (callbackDeathRecipient != nullptr) {
-        return callbackDeathRecipient->GetSubScribeListener();
+        return callbackDeathRecipient->GetEventListener();
     }
     return nullptr;
 }
 
 void CallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
 {
-    if (subScribeListener != nullptr) {
-        subScribeListener->OnServiceDied();
+    auto eventListener = GetEventListener();
+    if (eventListener != nullptr) {
+        eventListener->OnServiceDied();
     }
 }
 
-std::shared_ptr<HiSysEventSubscribeCallBack> CallbackDeathRecipient::GetSubScribeListener() const
+std::shared_ptr<HiSysEventBaseListener> CallbackDeathRecipient::GetEventListener() const
 {
-    return subScribeListener;
+    return eventListener;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

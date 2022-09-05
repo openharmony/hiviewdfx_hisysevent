@@ -651,28 +651,28 @@ int32_t NapiHiSysEventUtil::ParseListenerRules(const napi_env env, napi_value& a
     std::vector<ListenerRule>& listenerRules)
 {
     if (!CheckValueIsArray(env, array)) {
-        return ERROR_LISTENER_RULES_TYPE_NOT_ARRAY;
+        return ERR_LISTENER_RULES_TYPE_NOT_ARRAY;
     }
     uint32_t len = 0;
     napi_status status = napi_get_array_length(env, array, &len);
     if (status != napi_ok) {
-        return ERROR_NAPI_PARSED_FAILED;
+        return ERR_NAPI_PARSED_FAILED;
     }
     napi_value firstItem;
     status = napi_get_element(env, array, 0, &firstItem);
     if (status != napi_ok) {
-        return ERROR_NAPI_PARSED_FAILED;
+        return ERR_NAPI_PARSED_FAILED;
     }
     napi_valuetype type;
     status = napi_typeof(env, firstItem, &type);
     if (status != napi_ok) {
-        return ERROR_NAPI_PARSED_FAILED;
+        return ERR_NAPI_PARSED_FAILED;
     }
     napi_value element;
     for (uint32_t i = 0; i < len; i++) {
         status = napi_get_element(env, array, i, &element);
         if (status != napi_ok) {
-            return ERROR_NAPI_PARSED_FAILED;
+            return ERR_NAPI_PARSED_FAILED;
         }
         if (CheckValueTypeValidity(env, element, napi_valuetype::napi_object)) {
             listenerRules.emplace_back(ParseListenerRule(env, element));
@@ -684,28 +684,28 @@ int32_t NapiHiSysEventUtil::ParseListenerRules(const napi_env env, napi_value& a
 int32_t NapiHiSysEventUtil::ParseQueryRules(const napi_env env, napi_value& array, std::vector<QueryRule>& queryRules)
 {
     if (!CheckValueIsArray(env, array)) {
-        return ERROR_QUERY_RULES_TYPE_NOT_ARRAY;
+        return ERR_QUERY_RULES_TYPE_NOT_ARRAY;
     }
     uint32_t len = 0;
     napi_status status = napi_get_array_length(env, array, &len);
     if (status != napi_ok) {
-        return ERROR_NAPI_PARSED_FAILED;
+        return ERR_NAPI_PARSED_FAILED;
     }
     napi_value firstItem;
     status = napi_get_element(env, array, 0, &firstItem);
     if (status != napi_ok) {
-        return ERROR_NAPI_PARSED_FAILED;
+        return ERR_NAPI_PARSED_FAILED;
     }
     napi_valuetype type;
     status = napi_typeof(env, firstItem, &type);
     if (status != napi_ok) {
-        return ERROR_NAPI_PARSED_FAILED;
+        return ERR_NAPI_PARSED_FAILED;
     }
     napi_value element;
     for (uint32_t i = 0; i < len; i++) {
         status = napi_get_element(env, array, i, &element);
         if (status != napi_ok) {
-            return ERROR_NAPI_PARSED_FAILED;
+            return ERR_NAPI_PARSED_FAILED;
         }
         if (CheckValueTypeValidity(env, element, napi_valuetype::napi_object)) {
             queryRules.emplace_back(ParseQueryRule(env, element));
@@ -717,7 +717,7 @@ int32_t NapiHiSysEventUtil::ParseQueryRules(const napi_env env, napi_value& arra
 int32_t NapiHiSysEventUtil::ParseQueryArg(const napi_env env, napi_value& jsObj, QueryArg& queryArg)
 {
     if (!CheckValueTypeValidity(env, jsObj, napi_valuetype::napi_object)) {
-        return ERROR_QUERY_ARG_TYPE_INVALID;
+        return ERR_QUERY_ARG_TYPE_INVALID;
     }
     queryArg.beginTime = GetLonglongTypeAttribute(env, jsObj, BEGIN_TIME_ATTR, DEFAULT_TIME_STAMP);
     HiLog::Debug(LABEL, "queryArg.beginTime is %{public}lld.", queryArg.beginTime);

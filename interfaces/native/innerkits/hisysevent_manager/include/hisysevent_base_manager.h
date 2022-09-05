@@ -13,33 +13,33 @@
  * limitations under the License.
  */
 
-#ifndef HISYSEVENT_MANAGER_H
-#define HISYSEVENT_MANAGER_H
+#ifndef HISYSEVENT_BASE_MANAGER_H
+#define HISYSEVENT_BASE_MANAGER_H
 
 #include <string>
 #include <vector>
 
-#include "hisysevent_listener.h"
-#include "hisysevent_query_callback.h"
+#include "hisysevent_base_listener.h"
+#include "hisysevent_base_query_callback.h"
 #include "hisysevent_rules.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class HiSysEventManager {
+class HiSysEventBaseManager {
 public:
-    HiSysEventManager() = default;
-    ~HiSysEventManager() {}
+    HiSysEventBaseManager() = default;
+    ~HiSysEventBaseManager() {}
 
 public:
-    static int32_t AddListener(std::shared_ptr<HiSysEventListener> listener,
+    static int32_t AddListener(std::shared_ptr<HiSysEventBaseListener> listener,
         std::vector<ListenerRule>& rules);
-    static int32_t RemoveListener(std::shared_ptr<HiSysEventListener> listener);
+    static int32_t RemoveListener(std::shared_ptr<HiSysEventBaseListener> listener);
     static int32_t Query(struct QueryArg& arg, std::vector<QueryRule>& rules,
-        std::shared_ptr<HiSysEventQueryCallback> callback);
-    static int32_t SetDebugMode(std::shared_ptr<HiSysEventListener> listener, bool mode);
+        std::shared_ptr<HiSysEventBaseQueryCallback> callback);
+    static int32_t SetDebugMode(std::shared_ptr<HiSysEventBaseListener> listener, bool mode);
 };
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif // HISYSEVENT_MANAGER_H
+#endif // HISYSEVENT_INNER_MANAGER_H
 

@@ -20,14 +20,14 @@ namespace OHOS {
 namespace HiviewDFX {
 static constexpr int32_t NAPI_SUCCESS = 0;
 
-static constexpr int32_t ERROR_INVALID_PARAM_COUNT = -100;
-static constexpr int32_t ERROR_NAPI_PARSED_FAILED = -101;
-static constexpr int32_t ERROR_LISTENER_RULES_TYPE_NOT_ARRAY = -102;
-static constexpr int32_t ERROR_LISTENER_RULE_TYPE_INVALID = -103;
-static constexpr int32_t ERROR_QUERY_ARG_TYPE_INVALID = -104;
-static constexpr int32_t ERROR_QUERY_RULES_TYPE_NOT_ARRAY = -105;
-static constexpr int32_t ERROR_QUERY_RULE_TYPE_INVALID = -106;
-static constexpr int32_t ERROR_NAPI_LISTENER_NOT_FOUND = -107;
+static constexpr int32_t ERR_INVALID_PARAM_COUNT = -100;
+static constexpr int32_t ERR_NAPI_PARSED_FAILED = -101;
+static constexpr int32_t ERR_LISTENER_RULES_TYPE_NOT_ARRAY = -102;
+static constexpr int32_t ERR_LISTENER_RULE_TYPE_INVALID = -103;
+static constexpr int32_t ERR_QUERY_ARG_TYPE_INVALID = -104;
+static constexpr int32_t ERR_QUERY_RULES_TYPE_NOT_ARRAY = -105;
+static constexpr int32_t ERR_QUERY_RULE_TYPE_INVALID = -106;
+static constexpr int32_t ERR_NAPI_LISTENER_NOT_FOUND = -107;
 } // namespace HiviewDFX
 } // namespace OHOS
 

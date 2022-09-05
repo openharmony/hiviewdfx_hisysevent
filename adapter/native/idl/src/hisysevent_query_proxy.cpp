@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,26 +15,28 @@
 
 #include "hisysevent_query_proxy.h"
 
+#include <vector>
+
 #include "string_convertor.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-void HiSysEventQueryProxy::OnQuery(const ::std::vector<std::u16string>& sysEvent,
+void HiSysEventQueryProxy::OnQuery(const ::std::vector<std::u16string>& sysEvents,
     const ::std::vector<int64_t>& seq)
 {
-    if (queryListener != nullptr) {
-        std::vector<std::string> strList;
-        for_each(sysEvent.cbegin(), sysEvent.cend(), [&strList](const std::u16string& tmp) {
-            strList.emplace_back(U16String2String(tmp));
+    if (queryCallback != nullptr) {
+        std::vector<std::string> destSysEvents;
+        for_each(sysEvents.cbegin(), sysEvents.cend(), [&destSysEvents](const std::u16string& sysEvent) {
+            destSysEvents.emplace_back(U16String2String(sysEvent));
         });
-        queryListener->OnQuery(strList, seq);
+        queryCallback->OnQuery(destSysEvents, seq);
     }
 }
 
 void HiSysEventQueryProxy::OnComplete(int32_t reason, int32_t total)
 {
-    if (queryListener != nullptr) {
-        queryListener->OnComplete(reason, total);
+    if (queryCallback != nullptr) {
+        queryCallback->OnComplete(reason, total);
     }
 }
 } // namespace HiviewDFX

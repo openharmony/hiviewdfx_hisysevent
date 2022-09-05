@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,32 +13,31 @@
  * limitations under the License.
  */
 
-#ifndef HISYSEVENT_TOOL_LISTENER_H
-#define HISYSEVENT_TOOL_LISTENER_H
+#ifndef HISYSEVENT_LISTENER_H
+#define HISYSEVENT_LISTENER_H
 
 #include <string>
 
-#include "hisysevent_listener.h"
-
-#include "hisysevent_json_decorator.h"
+#include "hisysevent_record.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class HiSysEventToolListener : public OHOS::HiviewDFX::HiSysEventListener {
+class HiSysEventListener {
 public:
-    HiSysEventToolListener(bool checkValidEvent)
-        : checkValidEvent(checkValidEvent), eventJsonDecorator(std::make_shared<HiSysEventJsonDecorator>()) {}
-    ~HiSysEventToolListener() {}
+    HiSysEventListener() {}
+    virtual ~HiSysEventListener() {}
 
 public:
-    void OnEvent(std::shared_ptr<HiSysEventRecord> sysEvent);
-    void OnServiceDied();
+   virtual void OnEvent(std::shared_ptr<HiSysEventRecord> sysEvent) = 0;
+   virtual void OnServiceDied() = 0;
 
 private:
-    bool checkValidEvent;
-    std::shared_ptr<HiSysEventJsonDecorator> eventJsonDecorator;
+    HiSysEventListener(const HiSysEventListener&) = delete;
+    HiSysEventListener& operator=(const HiSysEventListener&) = delete;
+    HiSysEventListener(const HiSysEventListener&&) = delete;
+    HiSysEventListener& operator=(const HiSysEventListener&&) = delete;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif // HISYSEVENT_TOOL_LISTENER_H
+#endif // HISYSEVENT_LISTENER_H
