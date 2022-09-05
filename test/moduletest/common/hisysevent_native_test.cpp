@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,8 +30,9 @@
 #include "def.h"
 #include "hisysevent.h"
 #include "hisysevent_manager.h"
+#include "hisysevent_record.h"
 #include "hisysevent_query_callback.h"
-#include "hisysevent_subscribe_callback.h"
+#include "hisysevent_listener.h"
 #include "ret_code.h"
 #include "rule_type.h"
 
@@ -52,16 +53,19 @@ int32_t WriteSysEventByMarcoInterface()
         "PARAM_KEY", "PARAM_VAL");
 }
 
-class Watcher : public HiSysEventSubscribeCallBack {
+class Watcher : public HiSysEventListener {
 public:
     Watcher() {}
     virtual ~Watcher() {}
 
-    virtual void OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
-        const std::string& eventDetail) override
+    virtual void OnEvent(std::shared_ptr<HiSysEventRecord> sysEvent) override
     {
+        if (sysEvent == nullptr) {
+            return;
+        }
         HiLog::Debug(LABEL, "domain: %{public}s, eventName: %{public}s, eventType: %{public}d, extra: %{public}s.",
-            domain.c_str(), eventName.c_str(), eventType, eventDetail.c_str());
+            sysEvent->GetDomain().c_str(), sysEvent->GetEventName().c_str(), sysEvent->GetEventType(),
+            sysEvent->AsJson().c_str());
     }
 
     virtual void OnServiceDied() override
@@ -70,19 +74,18 @@ public:
     }
 };
 
-class Querier : public HiSysEventQueryCallBack {
+class Querier : public HiSysEventQueryCallback {
 public:
     Querier() {}
     virtual ~Querier() {}
 
-    virtual void OnQuery(const ::std::vector<std::string>& sysEvent,
-        const std::vector<int64_t>& seq) override
+    virtual void OnQuery(std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) override
     {
-        for (auto& item : sysEvent) {
-            HiLog::Debug(LABEL, "sysEvent: %{public}s", item.c_str());
+        if (sysEvents == nullptr) {
+            return;
         }
-        for (auto& item : seq) {
-            HiLog::Debug(LABEL, "seq: %{public}s", std::to_string(item).c_str());
+        for (auto& item : *sysEvents) {
+            HiLog::Debug(LABEL, "sysEvent: %{public}s", item.AsJson().c_str());
         }
     }
     virtual void OnComplete(int32_t reason, int32_t total) override
@@ -104,7 +107,9 @@ static bool WrapSysEventWriteAssertion(int32_t ret, bool cond)
 {
     return cond || ret == OHOS::HiviewDFX::ERR_SEND_FAIL ||
         ret == OHOS::HiviewDFX::ERR_WRITE_IN_HIGH_FREQ ||
-        ret == OHOS::HiviewDFX::ERR_DOMAIN_MASKED;
+        ret == OHOS::HiviewDFX::ERR_DOMAIN_MASKED ||
+        ret == OHOS::HiviewDFX::ERR_TOO_MANY_CONCURRENT_QUERIES ||
+        ret == OHOS::HiviewDFX::ERR_QUERY_TOO_FREQUENTLY;
 }
 
 void HiSysEventNativeTest::SetUpTestCase(void)
@@ -919,12 +924,12 @@ HWTEST_F(HiSysEventNativeTest, TestDefensingHiSysEventStorm, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestHiSysEventManagerAddEventListenerWithTooManyRules
- * @tc.desc: Test AddEventListener with more than 20 rules
+ * @tc.name: TestHiSysEventManagerAddListenerWithTooManyRules
+ * @tc.desc: Test AddListener with more than 20 rules
  * @tc.type: FUNC
  * @tc.require: issueI5KDIG
  */
-HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddEventListenerWithTooManyRules, TestSize.Level1)
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddListenerWithTooManyRules, TestSize.Level1)
 {
     auto watcher = std::make_shared<Watcher>();
     OHOS::HiviewDFX::ListenerRule listenerRule("DOMAIN", "EVENT_NAME", "", OHOS::HiviewDFX::RuleType::WHOLE_WORD);
@@ -933,11 +938,11 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddEventListenerWithTooManyR
     while (ruleCount-- > 0) {
         sysRules.emplace_back(listenerRule);
     }
-    auto ret = OHOS::HiviewDFX::HiSysEventManager::AddEventListener(watcher, sysRules);
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
     ASSERT_TRUE(ret == 0);
     sysRules.emplace_back(listenerRule);
-    ret = OHOS::HiviewDFX::HiSysEventManager::AddEventListener(watcher, sysRules);
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_TOO_MANY_WATCH_RULES);
+    ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_TOO_MANY_WATCH_RULES);
 }
 
 /**
@@ -954,9 +959,9 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddTooManyEventListener, Tes
     int cnt = 30;
     int32_t ret = 0;
     while (cnt-- > 0) {
-        ret = OHOS::HiviewDFX::HiSysEventManager::AddEventListener(std::make_shared<Watcher>(), sysRules);
+        ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(std::make_shared<Watcher>(), sysRules);
     }
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_TOO_MANY_WATCHERS);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_TOO_MANY_WATCHERS);
 }
 
 /**
@@ -978,8 +983,8 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithTooManyRules, TestS
         OHOS::HiviewDFX::QueryRule rule("DOMAIN", eventNames);
         queryRules.emplace_back(rule);
     }
-    auto ret = OHOS::HiviewDFX::HiSysEventManager::QueryHiSysEvent(args, queryRules, querier);
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_TOO_MANY_QUERY_RULES);
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_TOO_MANY_QUERY_RULES);
 }
 
 /**
@@ -999,13 +1004,13 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerTooManyConcurrentQueries, Te
     auto ret = OHOS::HiviewDFX::IPC_CALL_SUCCEED;
     for (int i = 0; i < threadCount; i++) {
         std::thread t([&ret, &args, &queryRules, &querier] () {
-            ret = OHOS::HiviewDFX::HiSysEventManager::QueryHiSysEvent(args, queryRules, querier);
+            ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
         });
         t.detach();
     }
     sleep(8);
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_TOO_MANY_CONCURRENT_QUERIES ||
-        OHOS::HiviewDFX::ERROR_QUERY_TOO_FREQUENTLY);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_TOO_MANY_CONCURRENT_QUERIES ||
+        OHOS::HiviewDFX::ERR_QUERY_TOO_FREQUENTLY);
 }
 
 /**
@@ -1021,7 +1026,199 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryTooFrequently, TestSize
     int queryCount = 10;
     struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
     std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
-    auto ret = OHOS::HiviewDFX::HiSysEventManager::QueryHiSysEvent(args, queryRules, querier);
-    ret = OHOS::HiviewDFX::HiSysEventManager::QueryHiSysEvent(args, queryRules, querier);
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERROR_QUERY_TOO_FREQUENTLY);
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
+    ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_QUERY_TOO_FREQUENTLY);
+}
+
+/**
+ * @tc.name: TestInitHiSysEventRecordWithIncorrectStr
+ * @tc.desc: Test init a hisysevent record with an incorrect string
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestInitHiSysEventRecordWithIncorrectStr, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":\"param a\",";
+    HiSysEventRecord record(JSON_STR);
+    int64_t val = 0;
+    int ret = record.GetParamValue("type_", val);
+    ASSERT_TRUE(ret == ERR_INIT_FAILED);
+}
+
+/**
+ * @tc.name: TestParseValueByInvalidKeyFromHiSysEventRecord
+ * @tc.desc: Test parse value by a invalid key from a hisysevent record
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestParseValueByInvalidKeyFromHiSysEventRecord, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":\"param a\",\"PARAM_B\":\"param b\"}";
+    HiSysEventRecord record(JSON_STR);
+    int64_t val = 0;
+    int ret = record.GetParamValue("XXX", val);
+    ASSERT_TRUE(ret == ERR_KEY_NOT_EXIST);
+}
+
+/**
+ * @tc.name: TestParseValueByInvalidTypeFromHiSysEventRecord
+ * @tc.desc: Test parse value by a invalid type from a hisysevent record
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestParseValueByInvalidTypeFromHiSysEventRecord, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":\"param a\",\"PARAM_B\":\"param b\"}";
+    HiSysEventRecord record(JSON_STR);
+    int64_t val = 0;
+    int ret = record.GetParamValue("PARAM_B", val);
+    ASSERT_TRUE(ret == ERR_TYPE_NOT_MATCH);
+}
+
+/**
+ * @tc.name: TestParseEventDomainNameTypeFromHiSysEventRecord
+ * @tc.desc: Test parse event domain, name and type from a hisysevent record
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestParseEventDomainNameTypeFromHiSysEventRecord, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":\"param a\",\"PARAM_B\":\"param b\"}";
+    HiSysEventRecord record(JSON_STR);
+    ASSERT_TRUE(record.GetDomain() == "DEMO");
+    ASSERT_TRUE(record.GetEventName() == "EVENT_NAME_A");
+    ASSERT_TRUE(record.GetEventType() == 4);
+}
+
+/**
+ * @tc.name: TestParseInt64ValueFromHiSysEventRecord
+ * @tc.desc: Test parse int64 value from a hisysevent record
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestParseInt64ValueFromHiSysEventRecord, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":-1,\"PARAM_B\":\"param b\"}";
+    HiSysEventRecord record(JSON_STR);
+    int64_t val = 0;
+    int ret = record.GetParamValue("PARAM_A", val);
+    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val == -1);
+}
+
+/**
+ * @tc.name: TestParseUInt64ValueFromHiSysEventRecord
+ * @tc.desc: Test parse uint64 value from a hisysevent record
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestParseUInt64ValueFromHiSysEventRecord, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":3,\"PARAM_B\":\"param b\"}";
+    HiSysEventRecord record(JSON_STR);
+    uint64_t val = 0;
+    int ret = record.GetParamValue("PARAM_A", val);
+    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val == 3);
+}
+
+/**
+ * @tc.name: TestParseDoubleValueFromHiSysEventRecord
+ * @tc.desc: Test parse double value from a hisysevent record
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestParseDoubleValueFromHiSysEventRecord, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":3.4,\"PARAM_B\":\"param b\"}";
+    HiSysEventRecord record(JSON_STR);
+    double val = 0;
+    int ret = record.GetParamValue("PARAM_A", val);
+    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && abs(val - 3.4) < 1e-8);
+}
+
+/**
+ * @tc.name: TestParseStringValueFromHiSysEventRecord
+ * @tc.desc: Test parse string value from a hisysevent record
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestParseStringValueFromHiSysEventRecord, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":3.4,\"PARAM_B\":\"param b\"}";
+    HiSysEventRecord record(JSON_STR);
+    std::string val;
+    int ret = record.GetParamValue("PARAM_B", val);
+    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val == "param b");
+}
+
+/**
+ * @tc.name: TestParseInt64ArrayFromHiSysEventRecord
+ * @tc.desc: Test parse int64 array from a hisysevent record
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestParseInt64ArrayFromHiSysEventRecord, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":3.4,\"PARAM_B\":[-1, 0, 1]}";
+    HiSysEventRecord record(JSON_STR);
+    std::vector<int64_t> val;
+    int ret = record.GetParamValue("PARAM_B", val);
+    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val.size() == 3 && val[0] == -1);
+}
+
+/**
+ * @tc.name: TestParseUInt64ArrayFromHiSysEventRecord
+ * @tc.desc: Test parse uint64 array from a hisysevent record
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestParseUInt64ArrayFromHiSysEventRecord, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":3.4,\"PARAM_B\":[1, 2, 3]}";
+    HiSysEventRecord record(JSON_STR);
+    std::vector<uint64_t> val;
+    int ret = record.GetParamValue("PARAM_B", val);
+    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val.size() == 3 && val[0] == 1);
+}
+
+/**
+ * @tc.name: TestParseDoubleArrayFromHiSysEventRecord
+ * @tc.desc: Test parse double array from a hisysevent record
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestParseDoubleArrayFromHiSysEventRecord, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":3.4,\"PARAM_B\":[2.1, 0.0, 3.3]}";
+    HiSysEventRecord record(JSON_STR);
+    std::vector<double> val;
+    int ret = record.GetParamValue("PARAM_B", val);
+    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val.size() == 3 && abs(val[0] - 2.1) < 1e-8);
+}
+
+/**
+ * @tc.name: TestParseStringArrayFromHiSysEventRecord
+ * @tc.desc: Test parse string array from a hisysevent record
+ * @tc.type: FUNC
+ * @tc.require: issueI5OA3F
+ */
+HWTEST_F(HiSysEventNativeTest, TestParseStringArrayFromHiSysEventRecord, TestSize.Level1)
+{
+    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
+        \"PARAM_A\":3.4,\"PARAM_B\":[\"123\", \"456\", \"789\"]}";
+    HiSysEventRecord record(JSON_STR);
+    std::vector<std::string> val;
+    int ret = record.GetParamValue("PARAM_B", val);
+    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val.size() == 3 && val[0] == "123");
 }

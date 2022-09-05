@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,53 +15,36 @@
 
 #include "hisysevent_manager.h"
 
+#include "hisysevent_base_manager.h"
 #include "hisysevent_delegate.h"
 #include "ret_code.h"
 
-using namespace std;
-
 namespace OHOS {
 namespace HiviewDFX {
-int32_t HiSysEventManager::AddEventListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener,
+int32_t HiSysEventManager::AddListener(std::shared_ptr<HiSysEventListener> listener,
     std::vector<ListenerRule>& rules)
 {
-    if (listener == nullptr) {
-        return ERROR_LISTENER_NOT_EXIST;
-    }
-    if (listener->listenerProxy == nullptr) {
-        listener->listenerProxy = new HiSysEventDelegate();
-    }
-    return listener->listenerProxy->AddEventListener(listener, rules);
+    auto baseListener = std::make_shared<HiSysEventBaseListener>(listener);
+    return HiSysEventBaseManager::AddListener(baseListener, rules);
 }
 
-int32_t HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventSubscribeCallBack> listener)
+int32_t HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventListener> listener)
 {
-    if (listener == nullptr || listener->listenerProxy == nullptr) {
-        return ERROR_LISTENER_NOT_EXIST;
-    }
-    auto listenerRemoveResult = listener->listenerProxy->RemoveListener(listener);
-    delete listener->listenerProxy;
-    listener->listenerProxy = nullptr;
-    return listenerRemoveResult;
+    auto baseListener = std::make_shared<HiSysEventBaseListener>(listener);
+    return HiSysEventBaseManager::RemoveListener(baseListener);
 }
 
-int32_t HiSysEventManager::QueryHiSysEvent(struct QueryArg& queryArg,
-    std::vector<QueryRule>& queryRules,
-    std::shared_ptr<HiSysEventQueryCallBack> queryCallBack)
+int32_t HiSysEventManager::Query(struct QueryArg& arg, std::vector<QueryRule>& rules,
+    std::shared_ptr<HiSysEventQueryCallback> callback)
 {
-    auto proxy = std::make_unique<HiSysEventDelegate>();
-    if (proxy != nullptr) {
-        return proxy->QueryHiSysEvent(queryArg, queryRules, queryCallBack);
-    }
-    return ERROR_LISTENER_NOT_EXIST;
+    auto baseQueryCallback = std::make_shared<HiSysEventBaseQueryCallback>(callback);
+    return HiSysEventBaseManager::Query(arg, rules, baseQueryCallback);
 }
 
-int32_t HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventSubscribeCallBack> listener, bool mode)
+int32_t HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventListener> listener, bool mode)
 {
-    if (listener == nullptr || listener->listenerProxy == nullptr) {
-        return ERROR_LISTENER_NOT_EXIST;
-    }
-    return listener->listenerProxy->SetDebugMode(listener, mode);
+    auto baseListener = std::make_shared<HiSysEventBaseListener>(listener);
+    return HiSysEventBaseManager::SetDebugMode(baseListener, mode);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

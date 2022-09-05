@@ -105,7 +105,7 @@ Validity HiSysEventJsonDecorator::CheckLevelValidity(const Json::Value& baseInfo
 }
 
 bool HiSysEventJsonDecorator::CheckEventDecorationNeed(const Json::Value& eventJson,
-    BASE_INFO_HANDLER baseJsonInfoHandler, EXTENSIVE_INFO_HANDLER extensiveJsonInfoHandler)
+    BaseInfoHandler baseJsonInfoHandler, ExtensiveInfoHander extensiveJsonInfoHandler)
 {
     if (!isRootValid || !root.isObject() || !eventJson.isObject()) {
         return true;
@@ -152,8 +152,9 @@ std::string HiSysEventJsonDecorator::Decorate(Validity validity, std::string& ke
     return ret;
 }
 
-std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const std::string& origin)
+std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const HiSysEventRecord& record)
 {
+    std::string origin = record.AsJson();
     decoratedMarks.clear(); // reset marked keys.
     if (!isRootValid) {
         HiLog::Error(LABEL, "root json value is not valid, failed to decorate.");
@@ -201,7 +202,7 @@ std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const std::string& ori
     return DecorateJsonStr(origin, decoratedMarks);
 }
 
-std::string HiSysEventJsonDecorator::DecorateJsonStr(const std::string& origin, DECORATE_MARKS marks)
+std::string HiSysEventJsonDecorator::DecorateJsonStr(const std::string& origin, DecorateMarks marks)
 {
     if (marks.empty()) {
         return origin;

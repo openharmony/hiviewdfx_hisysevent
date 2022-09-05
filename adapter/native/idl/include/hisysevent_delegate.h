@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,31 +20,34 @@
 #include <string>
 #include <thread>
 
+#include "hisysevent_base_listener.h"
+#include "hisysevent_base_query_callback.h"
 #include "hisysevent_listener_proxy.h"
+#include "hisysevent_listenning_operate.h"
 #include "hisysevent_manager.h"
-#include "hisysevent_query_callback.h"
-#include "hisysevent_subscribe_callback.h"
-#include "hisysevent_subscribe_operate.h"
 #include "sys_event_query_rule.h"
+#include "sys_event_rule.h"
 #include "system_ability.h"
 #include "system_ability_definition.h"
-#include "sys_event_rule.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class HiSysEventDelegate : public HiSysEventSubscribeOperate {
+class HiSysEventDelegate : public HiSysEventListenningOperate {
 public:
     HiSysEventDelegate() {}
-    int32_t AddEventListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
-        const std::vector<ListenerRule>& rules);
-    int32_t RemoveListener(const std::shared_ptr<HiSysEventSubscribeCallBack> listener);
-    int32_t QueryHiSysEvent(const struct QueryArg& queryArg,
-        const std::vector<QueryRule>& queryRules,
-        const std::shared_ptr<HiSysEventQueryCallBack> queryCallBack) const;
-    int32_t SetDebugMode(const std::shared_ptr<HiSysEventSubscribeCallBack> listener,
-        const bool mode);
     virtual ~HiSysEventDelegate();
+
+public:
     static void BinderFunc();
+
+public:
+    int32_t AddListener(const std::shared_ptr<HiSysEventBaseListener> listener,
+        const std::vector<ListenerRule>& rules);
+    int32_t RemoveListener(const std::shared_ptr<HiSysEventBaseListener> listener);
+    int32_t Query(const struct QueryArg& arg, const std::vector<QueryRule>& rules,
+        const std::shared_ptr<HiSysEventBaseQueryCallback> callback) const;
+    int32_t SetDebugMode(const std::shared_ptr<HiSysEventBaseListener> listener,
+        const bool mode);
 
 private:
     void ConvertListenerRule(const std::vector<ListenerRule>& rules,
@@ -52,7 +55,9 @@ private:
     void ConvertQueryRule(const std::vector<QueryRule>& rules,
         std::vector<SysEventQueryRule>& sysRules) const;
     sptr<IRemoteObject> GetSysEventService() const;
-    sptr<OHOS::HiviewDFX::HiSysEventListenerProxy> spListenerCallBack = nullptr;
+
+private:
+    sptr<HiSysEventListenerProxy> spListenerCallBack = nullptr;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

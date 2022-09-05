@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,22 +19,24 @@
 #include <string>
 #include <vector>
 
-#include "hisysevent_query_callback.h"
+#include "hisysevent_base_query_callback.h"
 #include "query_sys_event_callback_stub.h"
 
 namespace OHOS {
 namespace HiviewDFX {
 class HiSysEventQueryProxy : public QuerySysEventCallbackStub {
 public:
-    explicit HiSysEventQueryProxy(const std::shared_ptr<HiSysEventQueryCallBack> query)
-        : queryListener(query) {}
+    explicit HiSysEventQueryProxy(const std::shared_ptr<HiSysEventBaseQueryCallback> callback)
+        : queryCallback(callback) {}
+    virtual ~HiSysEventQueryProxy() {}
+
+public:
     void OnQuery(const ::std::vector<std::u16string>& sysEvent,
         const ::std::vector<int64_t>& seq) override;
     void OnComplete(int32_t reason, int32_t total) override;
-    virtual ~HiSysEventQueryProxy() {}
 
 private:
-    std::shared_ptr<HiSysEventQueryCallBack> queryListener;
+    std::shared_ptr<HiSysEventBaseQueryCallback> queryCallback;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

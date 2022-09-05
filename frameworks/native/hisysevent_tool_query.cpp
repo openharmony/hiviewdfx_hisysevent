@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,15 +28,17 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-void HiSysEventToolQuery::OnQuery(const ::std::vector<std::string>& sysEvent,
-    const ::std::vector<int64_t>& seq)
+void HiSysEventToolQuery::OnQuery(std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents)
 {
-    for_each(sysEvent.cbegin(), sysEvent.cend(), [this] (const std::string& tmp) {
+    if (sysEvents == nullptr) {
+        return;
+    }
+    for_each((*sysEvents).cbegin(), (*sysEvents).cend(), [this] (const HiSysEventRecord& sysEventRecord) {
         if (this->checkValidEvent && this->eventJsonDecorator != nullptr) {
-            std::cout << this->eventJsonDecorator->DecorateEventJsonStr(tmp) << std::endl;
+            std::cout << this->eventJsonDecorator->DecorateEventJsonStr(sysEventRecord) << std::endl;
             return;
         }
-        std::cout << tmp << std::endl;
+        std::cout << sysEventRecord.AsJson() << std::endl;
     });
 }
 

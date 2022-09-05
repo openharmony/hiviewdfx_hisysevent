@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,20 +19,24 @@
 #include <string>
 #include <vector>
 
+#include "hisysevent_record.h"
+
 namespace OHOS {
 namespace HiviewDFX {
-class HiSysEventQueryCallBack {
+class HiSysEventQueryCallback {
 public:
-    HiSysEventQueryCallBack() = default;
-    virtual void OnQuery(const ::std::vector<std::string>& sysEvent,
-        const ::std::vector<int64_t>& seq);
-    virtual void OnComplete(int32_t reason, int32_t total);
+    HiSysEventQueryCallback() {}
+    virtual ~HiSysEventQueryCallback() {}
+
+public:
+    virtual void OnQuery(std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) = 0;
+    virtual void OnComplete(int32_t reason, int32_t total) = 0;
 
 private:
-    HiSysEventQueryCallBack(const HiSysEventQueryCallBack&) = delete;
-    HiSysEventQueryCallBack& operator=(const HiSysEventQueryCallBack&) = delete;
-    HiSysEventQueryCallBack(const HiSysEventQueryCallBack&&) = delete;
-    HiSysEventQueryCallBack& operator=(const HiSysEventQueryCallBack&&) = delete;
+    HiSysEventQueryCallback(const HiSysEventQueryCallback&) = delete;
+    HiSysEventQueryCallback& operator=(const HiSysEventQueryCallback&) = delete;
+    HiSysEventQueryCallback(const HiSysEventQueryCallback&&) = delete;
+    HiSysEventQueryCallback& operator=(const HiSysEventQueryCallback&&) = delete;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,18 +19,16 @@
 #include <string>
 #include <vector>
 
-#include "hisysevent_query_callback.h"
-
 #include "hisysevent_json_decorator.h"
+#include "hisysevent_query_callback.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class HiSysEventToolQuery : public OHOS::HiviewDFX::HiSysEventQueryCallBack {
+class HiSysEventToolQuery : public OHOS::HiviewDFX::HiSysEventQueryCallback {
 public:
     HiSysEventToolQuery(bool checkValidEvent)
         : checkValidEvent(checkValidEvent), eventJsonDecorator(std::make_shared<HiSysEventJsonDecorator>()) {}
-    void OnQuery(const ::std::vector<std::string>& sysEvent,
-        const std::vector<int64_t>& seq);
+    void OnQuery(std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents);
     void OnComplete(int32_t reason, int32_t total);
     virtual ~HiSysEventToolQuery() {}
 

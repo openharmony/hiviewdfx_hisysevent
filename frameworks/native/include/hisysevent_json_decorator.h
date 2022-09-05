@@ -16,6 +16,7 @@
 #ifndef HISYSEVENT_JSON_DECORATOR_H
 #define HISYSEVENT_JSON_DECORATOR_H
 
+#include "hisysevent_record.h"
 #include "json/json.h"
 
 #include <functional>
@@ -29,14 +30,14 @@ enum Validity {
     KV_BOTH_VALID
 };
 
-using BASE_INFO_HANDLER = std::function<bool(const Json::Value&)>;
-using EXTENSIVE_INFO_HANDLER = std::function<bool(const Json::Value&, const Json::Value&)>;
-using DECORATE_MARKS = std::unordered_map<std::string, Validity>;
+using BaseInfoHandler = std::function<bool(const Json::Value&)>;
+using ExtensiveInfoHander = std::function<bool(const Json::Value&, const Json::Value&)>;
+using DecorateMarks = std::unordered_map<std::string, Validity>;
 
 class HiSysEventJsonDecorator {
 public:
     HiSysEventJsonDecorator();
-    std::string DecorateEventJsonStr(const std::string& origin);
+    std::string DecorateEventJsonStr(const HiSysEventRecord& record);
 
 private:
     bool CheckAttrDecorationNeed(const Json::Value& eventJson, const std::string& key,
@@ -44,16 +45,16 @@ private:
     Validity CheckAttrValidity(const Json::Value& eventJson, const std::string& key,
         const Json::Value& standard);
     Validity CheckLevelValidity(const Json::Value& baseInfo);
-    bool CheckEventDecorationNeed(const Json::Value& eventJson, BASE_INFO_HANDLER baseJsonInfoHandler,
-        EXTENSIVE_INFO_HANDLER extensiveJsonInfoHandler);
+    bool CheckEventDecorationNeed(const Json::Value& eventJson, BaseInfoHandler baseJsonInfoHandler,
+        ExtensiveInfoHander extensiveJsonInfoHandler);
     std::string Decorate(Validity validity, std::string& key, std::string& value);
-    std::string DecorateJsonStr(const std::string& standard, DECORATE_MARKS marks);
+    std::string DecorateJsonStr(const std::string& standard, DecorateMarks marks);
     bool JudgeDataType(const std::string& dataType, const Json::Value& eventJson);
     std::string TranslateJsonToStr(const Json::Value& json);
 
 private:
     Json::Value root;
-    DECORATE_MARKS decoratedMarks;
+    DecorateMarks decoratedMarks;
     bool isRootValid = false;
 };
 } // namespace HiviewDFX

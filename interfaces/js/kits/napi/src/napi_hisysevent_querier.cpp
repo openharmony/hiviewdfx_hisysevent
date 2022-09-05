@@ -27,17 +27,17 @@ constexpr char ON_COMPLETE_ATTR[] = "onComplete";
 constexpr size_t ON_QUERY_COMPLTE_PARAM_COUNT = 2;
 }
 
-void NapiHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvent,
+void NapiHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvents,
     const std::vector<int64_t>& seq)
 {
     jsCallbackManager->Add(callbackContext,
-        [this, sysEvent, seq] (const napi_env env, const napi_ref ref, pid_t threadId) {
+        [this, sysEvents, seq] (const napi_env env, const napi_ref ref, pid_t threadId) {
             if (threadId != syscall(SYS_gettid)) {
                 return;
             }
             napi_value sysEventInfoJsArray = nullptr;
-            napi_create_array_with_length(env, sysEvent.size(), &sysEventInfoJsArray);
-            NapiHiSysEventUtil::CreateJsSysEventInfoArray(env, sysEvent, sysEventInfoJsArray);
+            napi_create_array_with_length(env, sysEvents.size(), &sysEventInfoJsArray);
+            NapiHiSysEventUtil::CreateJsSysEventInfoArray(env, sysEvents, sysEventInfoJsArray);
             napi_value seqJsArray = nullptr;
             napi_create_array_with_length(env, seq.size(), &seqJsArray);
             NapiHiSysEventUtil::CreateJsInt64Array(env, seq, seqJsArray);

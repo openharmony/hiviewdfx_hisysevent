@@ -20,7 +20,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#include "hisysevent_subscribe_callback.h"
+#include "hisysevent_base_listener.h"
 #include "js_callback_manager.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
@@ -28,7 +28,7 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-class NapiHiSysEventListener : public OHOS::HiviewDFX::HiSysEventSubscribeCallBack {
+class NapiHiSysEventListener : public HiSysEventBaseListener {
 public:
     NapiHiSysEventListener(CallbackContext* context)
     {
@@ -44,13 +44,15 @@ public:
     }
 
 public:
-    void OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
-        const std::string& eventDetail);
-    void OnServiceDied();
+    virtual void OnEvent(const std::string& domain, const std::string& eventName, const int eventType,
+        const std::string& eventDetail) override;
+    virtual void OnServiceDied() override;
 
 private:
     CallbackContext* callbackContext;
     std::shared_ptr<JsCallbackManager> jsCallbackManager;
+
+friend class HiSysEventManager;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

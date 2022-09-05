@@ -28,7 +28,7 @@ constexpr size_t ON_EVENT_PARAM_COUNT = 1;
 constexpr size_t ON_SERVICE_DIED_PARAM_COUNT = 0;
 }
 
-void NapiHiSysEventListener::OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
+void NapiHiSysEventListener::OnEvent(const std::string& domain, const std::string& eventName, const int eventType,
     const std::string& eventDetail)
 {
     jsCallbackManager->Add(callbackContext,

@@ -29,15 +29,12 @@ ohos_executable("hisysevent") {
     "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk",
   ]
 
-  public_configs = [
-    "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_config",
-    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_config",
-  ]
+  public_configs =
+      [ "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_config" ]
 
   deps = [
     "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_client",
     "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_service_gen_src_client",
-    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
     "//third_party/jsoncpp:jsoncpp",
   ]
 
@@ -45,6 +42,7 @@ ohos_executable("hisysevent") {
     "c_utils:utils",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
+    "hisysevent_native:libhisyseventmanager",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]

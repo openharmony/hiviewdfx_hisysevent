@@ -17,6 +17,7 @@ ohos_shared_library("hisysevent_napi") {
   include_dirs = [
     ".",
     "include/",
+    "//third_party/node/src",
   ]
 
   configs = []
@@ -30,8 +31,6 @@ ohos_shared_library("hisysevent_napi") {
     "./src/napi_hisysevent_querier.cpp",
     "./src/napi_hisysevent_util.cpp",
   ]
-
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
     "hilog_native:libhilog",

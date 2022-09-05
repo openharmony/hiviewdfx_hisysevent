@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,32 +19,37 @@
 #include <string>
 #include <vector>
 
-#include "hisysevent_subscribe_callback.h"
+#include "hisysevent_base_listener.h"
 #include "sys_event_callback_stub.h"
 
 namespace OHOS {
 namespace HiviewDFX {
 class CallbackDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    explicit CallbackDeathRecipient(const std::shared_ptr<HiSysEventSubscribeCallBack> callback)
-        : subScribeListener(callback) {}
+    explicit CallbackDeathRecipient(const std::shared_ptr<HiSysEventBaseListener> listener)
+        : eventListener(listener) {}
     virtual ~CallbackDeathRecipient() {}
+
+public:
     void OnRemoteDied(const wptr<IRemoteObject> &object) override;
-    std::shared_ptr<HiSysEventSubscribeCallBack> GetSubScribeListener() const;
+    std::shared_ptr<HiSysEventBaseListener> GetEventListener() const;
 
 private:
-    std::shared_ptr<HiSysEventSubscribeCallBack> subScribeListener;
+    std::shared_ptr<HiSysEventBaseListener> eventListener;
 };
 
 class HiSysEventListenerProxy : public SysEventCallbackStub {
 public:
-    explicit HiSysEventListenerProxy(const std::shared_ptr<HiSysEventSubscribeCallBack> callback)
-        : callbackDeathRecipient(new CallbackDeathRecipient(callback)) {}
+    explicit HiSysEventListenerProxy(const std::shared_ptr<HiSysEventBaseListener> listener)
+        : callbackDeathRecipient(new CallbackDeathRecipient(listener)) {}
+    virtual ~HiSysEventListenerProxy() {}
+
+public:
     void Handle(const std::u16string& domain, const std::u16string& eventName, uint32_t eventType,
         const std::u16string& eventDetail) override;
     sptr<CallbackDeathRecipient> GetCallbackDeathRecipient() const;
-    std::shared_ptr<HiSysEventSubscribeCallBack> GetSubScribeListener() const;
-    virtual ~HiSysEventListenerProxy() {}
+    std::shared_ptr<HiSysEventBaseListener> GetEventListener() const;
+
 private:
     sptr<CallbackDeathRecipient> callbackDeathRecipient;
 };

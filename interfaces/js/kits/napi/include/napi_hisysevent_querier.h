@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,7 +22,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#include "hisysevent_query_callback.h"
+#include "hisysevent_base_query_callback.h"
 #include "js_callback_manager.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
@@ -31,7 +31,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 using ON_COMPLETE_FUNC = std::function<void(const napi_env, const napi_ref)>;
-class NapiHiSysEventQuerier : public OHOS::HiviewDFX::HiSysEventQueryCallBack {
+class NapiHiSysEventQuerier : public HiSysEventBaseQueryCallback {
 public:
     NapiHiSysEventQuerier(CallbackContext* context, ON_COMPLETE_FUNC handler)
     {
@@ -48,9 +48,9 @@ public:
     }
 
 public:
-    void OnQuery(const ::std::vector<std::string>& sysEvent,
-        const std::vector<int64_t>& seq);
-    void OnComplete(int32_t reason, int32_t total);
+    virtual void OnQuery(const ::std::vector<std::string>& sysEvents,
+        const std::vector<int64_t>& seq) override;
+    virtual void OnComplete(int32_t reason, int32_t total) override;
 
 private:
     CallbackContext* callbackContext;
