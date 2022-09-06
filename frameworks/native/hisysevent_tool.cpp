@@ -176,6 +176,10 @@ bool HiSysEventTool::DoAction()
         }
         struct QueryArg args(clientCmdArg.beginTime, clientCmdArg.endTime, clientCmdArg.maxEvents);
         std::vector<QueryRule> queryRules;
+        if (!clientCmdArg.domain.empty() && !clientCmdArg.eventName.empty()) {
+            QueryRule rule(clientCmdArg.domain, { clientCmdArg.eventName });
+            queryRules.push_back(rule);
+        }
         auto queryRet = HiSysEventManager::Query(args, queryRules, queryCallBack);
         if (queryRet != 0) {
             cout << "some errors happened when querying sys event, error code: \033[31m" << queryRet
