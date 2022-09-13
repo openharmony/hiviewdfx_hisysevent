@@ -26,7 +26,7 @@ config("hisysevent_config") {
 ohos_shared_library("libhisysevent") {
   configs = [ ":hisysevent_config" ]
 
-  public_configs = [ ":hisysevent_config" ]
+  all_dependent_configs = [ ":hisysevent_config" ]
 
   sources = [
     "hisysevent.cpp",

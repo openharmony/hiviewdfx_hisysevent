@@ -36,7 +36,6 @@ ohos_shared_library("hisysevent_napi") {
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "hisysevent_native:libhisyseventmanager",
-    "ipc:ipc_core",
     "napi:ace_napi",
   ]
 

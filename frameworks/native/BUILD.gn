@@ -41,7 +41,6 @@ ohos_executable("hisysevent") {
   external_deps = [
     "c_utils:utils",
     "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
     "hisysevent_native:libhisyseventmanager",
     "ipc:ipc_core",
     "samgr:samgr_proxy",

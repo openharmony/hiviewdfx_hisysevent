@@ -16,7 +16,6 @@
 #include "hisysevent_manager.h"
 
 #include "hisysevent_base_manager.h"
-#include "hisysevent_delegate.h"
 #include "ret_code.h"
 
 namespace OHOS {
