@@ -35,10 +35,10 @@ public:
     std::string Print(PrintKvHandler handler);
 
 public:
-    static constexpr uint8_t BRACKET_FLAG {3};
-    static constexpr uint8_t CHAR_RANGE {128};
-    static constexpr uint8_t NUMBER_FLAG {1};
-    static constexpr uint8_t STRING_FLAG {2};
+    static constexpr uint8_t BRACKET_FLAG { 3 };
+    static constexpr uint8_t NUMBER_FLAG { 1 };
+    static constexpr uint8_t STRING_FLAG { 2 };
+    static constexpr int CHAR_RANGE { 256 };
 
 private:
     std::string ParseBrackets(const std::string& json, char leftBracket);
