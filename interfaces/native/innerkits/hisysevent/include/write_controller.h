@@ -102,7 +102,7 @@ public:
     EventLimitStat()
     {
         count = 0;
-        gettimeofday(&begin, NULL);
+        gettimeofday(&begin, nullptr);
     }
 
 public:
