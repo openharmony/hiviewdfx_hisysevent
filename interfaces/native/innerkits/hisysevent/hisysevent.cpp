@@ -45,7 +45,7 @@ static inline uint64_t GetMilliseconds()
 static std::string GetTimeZone()
 {
     struct timeval tv;
-    if (gettimeofday(&tv, NULL) != 0) {
+    if (gettimeofday(&tv, nullptr) != 0) {
         HiLog::Error(LABEL, "can not get tz");
         return "";
     }

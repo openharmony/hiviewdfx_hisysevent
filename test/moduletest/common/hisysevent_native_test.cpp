@@ -58,7 +58,7 @@ public:
     Watcher() {}
     virtual ~Watcher() {}
 
-    virtual void OnEvent(std::shared_ptr<HiSysEventRecord> sysEvent) override
+    void OnEvent(std::shared_ptr<HiSysEventRecord> sysEvent) final
     {
         if (sysEvent == nullptr) {
             return;
@@ -68,7 +68,7 @@ public:
             sysEvent->AsJson().c_str());
     }
 
-    virtual void OnServiceDied() override
+    void OnServiceDied() final
     {
         HiLog::Debug(LABEL, "OnServiceDied");
     }
@@ -79,7 +79,7 @@ public:
     Querier() {}
     virtual ~Querier() {}
 
-    virtual void OnQuery(std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) override
+    void OnQuery(std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) final
     {
         if (sysEvents == nullptr) {
             return;
@@ -88,7 +88,7 @@ public:
             HiLog::Debug(LABEL, "sysEvent: %{public}s", item.AsJson().c_str());
         }
     }
-    virtual void OnComplete(int32_t reason, int32_t total) override
+    void OnComplete(int32_t reason, int32_t total) final
     {
         HiLog::Debug(LABEL, "reason: %{public}d, total: %{public}d.", reason, total);
     }

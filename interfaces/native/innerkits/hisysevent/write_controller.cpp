@@ -45,7 +45,7 @@ bool WriteController::CheckLimitWritingEvent(const char* domain, const char* eve
         return false;
     }
     timeval cur;
-    gettimeofday(&cur, NULL);
+    gettimeofday(&cur, nullptr);
     if (stat.begin.tv_sec + HISYSEVENT_PERIOD < cur.tv_sec) {
         stat.count = 1;
         stat.begin = cur;
