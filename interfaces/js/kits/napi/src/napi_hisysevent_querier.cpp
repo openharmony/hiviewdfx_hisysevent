@@ -75,7 +75,10 @@ void NapiHiSysEventQuerier::OnComplete(int32_t reason, int32_t total)
             if (status != napi_ok) {
                 HiLog::Error(LABEL, "failed to call OnComplete JS function.");
             }
-        }, [this] () {
+        }, [this] (pid_t threadId) {
+            if (threadId != syscall(SYS_gettid)) {
+                return;
+            }
             if (this->onCompleteHandler != nullptr && this->callbackContext != nullptr) {
                 this->onCompleteHandler(this->callbackContext->env, this->callbackContext->ref);
             }
