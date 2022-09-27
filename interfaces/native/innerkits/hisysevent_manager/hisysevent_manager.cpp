@@ -15,22 +15,43 @@
 
 #include "hisysevent_manager.h"
 
+#include "hilog/log.h"
 #include "hisysevent_base_manager.h"
 #include "ret_code.h"
 
 namespace OHOS {
 namespace HiviewDFX {
+namespace {
+constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_MANAGER" };
+}
+
+std::unordered_map<std::shared_ptr<HiSysEventListener>,
+        std::shared_ptr<HiSysEventBaseListener>> HiSysEventManager::listenerToBaseMap;
+
 int32_t HiSysEventManager::AddListener(std::shared_ptr<HiSysEventListener> listener,
     std::vector<ListenerRule>& rules)
 {
-    auto baseListener = std::make_shared<HiSysEventBaseListener>(listener);
+    auto baseListener = listenerToBaseMap[listener];
+    if (listenerToBaseMap.find(listener) == listenerToBaseMap.end()) {
+        baseListener = std::make_shared<HiSysEventBaseListener>(listener);
+        listenerToBaseMap[listener] = baseListener;
+    }
     return HiSysEventBaseManager::AddListener(baseListener, rules);
 }
 
 int32_t HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventListener> listener)
 {
-    auto baseListener = std::make_shared<HiSysEventBaseListener>(listener);
-    return HiSysEventBaseManager::RemoveListener(baseListener);
+    auto baseListener = listenerToBaseMap[listener];
+    if (listenerToBaseMap[listener] == nullptr) {
+        HiLog::Warn(LABEL, "no need to remove a listener which has not been added.");
+        return ERR_LISTENER_NOT_EXIST;
+    }
+    auto ret = HiSysEventBaseManager::RemoveListener(baseListener);
+    if (ret == IPC_CALL_SUCCEED) {
+        HiLog::Debug(LABEL, "remove listener from local cache.");
+        listenerToBaseMap.erase(listener);
+    }
+    return ret;
 }
 
 int32_t HiSysEventManager::Query(struct QueryArg& arg, std::vector<QueryRule>& rules,
@@ -42,7 +63,11 @@ int32_t HiSysEventManager::Query(struct QueryArg& arg, std::vector<QueryRule>& r
 
 int32_t HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventListener> listener, bool mode)
 {
-    auto baseListener = std::make_shared<HiSysEventBaseListener>(listener);
+    auto baseListener = listenerToBaseMap[listener];
+    if (listenerToBaseMap[listener] == nullptr) {
+        HiLog::Warn(LABEL, "no need to set debug mode on a listener which has not been added.");
+        return ERR_LISTENER_NOT_EXIST;
+    }
     return HiSysEventBaseManager::SetDebugMode(baseListener, mode);
 }
 } // namespace HiviewDFX

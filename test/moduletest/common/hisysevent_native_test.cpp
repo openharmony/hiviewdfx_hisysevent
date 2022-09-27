@@ -924,6 +924,46 @@ HWTEST_F(HiSysEventNativeTest, TestDefensingHiSysEventStorm, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TestAddAndRemoveListener
+ * @tc.desc: add listener and then remove it
+ * @tc.type: FUNC
+ * @tc.require: issueI5KDIG
+ */
+HWTEST_F(HiSysEventNativeTest, TestAddAndRemoveListener, TestSize.Level1)
+{
+    auto watcher = std::make_shared<Watcher>();
+    OHOS::HiviewDFX::ListenerRule listenerRule("DOMAIN", "EVENT_NAME", "", OHOS::HiviewDFX::RuleType::WHOLE_WORD);
+    std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
+    sysRules.emplace_back(listenerRule);
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
+    ASSERT_TRUE(ret == 0);
+    ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(watcher);
+    ASSERT_TRUE(ret == 0);
+}
+
+/**
+ * @tc.name: TestEnableAndDisableDebugMode
+ * @tc.desc: enable debug mode and then disable it
+ * @tc.type: FUNC
+ * @tc.require: issueI5KDIG
+ */
+HWTEST_F(HiSysEventNativeTest, TestEnableAndDisableDebugMode, TestSize.Level1)
+{
+    auto watcher = std::make_shared<Watcher>();
+    OHOS::HiviewDFX::ListenerRule listenerRule("DOMAIN", "EVENT_NAME", "", OHOS::HiviewDFX::RuleType::WHOLE_WORD);
+    std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
+    sysRules.emplace_back(listenerRule);
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
+    ASSERT_TRUE(ret == 0);
+    ret = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(watcher, true);
+    ASSERT_TRUE(ret == 0);
+    ret = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(watcher, true);
+    ASSERT_TRUE(ret == ERR_DEBUG_MODE_SET_REPEAT);
+    ret = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(watcher, false);
+    ASSERT_TRUE(ret == 0);
+}
+
+/**
  * @tc.name: TestHiSysEventManagerAddListenerWithTooManyRules
  * @tc.desc: Test AddListener with more than 20 rules
  * @tc.type: FUNC
