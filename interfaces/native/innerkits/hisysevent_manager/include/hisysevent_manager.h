@@ -17,8 +17,10 @@
 #define HISYSEVENT_MANAGER_H
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+#include "hisysevent_base_listener.h"
 #include "hisysevent_listener.h"
 #include "hisysevent_query_callback.h"
 #include "hisysevent_rules.h"
@@ -37,6 +39,10 @@ public:
     static int32_t Query(struct QueryArg& arg, std::vector<QueryRule>& rules,
         std::shared_ptr<HiSysEventQueryCallback> callback);
     static int32_t SetDebugMode(std::shared_ptr<HiSysEventListener> listener, bool mode);
+
+private:
+    static std::unordered_map<std::shared_ptr<HiSysEventListener>,
+        std::shared_ptr<HiSysEventBaseListener>> listenerToBaseMap;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
