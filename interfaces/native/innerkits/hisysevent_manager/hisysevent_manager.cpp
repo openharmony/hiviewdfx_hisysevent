@@ -33,7 +33,7 @@ int32_t HiSysEventManager::AddListener(std::shared_ptr<HiSysEventListener> liste
     std::vector<ListenerRule>& rules)
 {
     auto baseListener = listenerToBaseMap[listener];
-    if (listenerToBaseMap.find(listener) == listenerToBaseMap.end()) {
+    if (baseListener == nullptr) {
         baseListener = std::make_shared<HiSysEventBaseListener>(listener);
         listenerToBaseMap[listener] = baseListener;
     }
@@ -43,7 +43,7 @@ int32_t HiSysEventManager::AddListener(std::shared_ptr<HiSysEventListener> liste
 int32_t HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventListener> listener)
 {
     auto baseListener = listenerToBaseMap[listener];
-    if (listenerToBaseMap[listener] == nullptr) {
+    if (baseListener == nullptr) {
         HiLog::Warn(LABEL, "no need to remove a listener which has not been added.");
         return ERR_LISTENER_NOT_EXIST;
     }
@@ -65,7 +65,7 @@ int32_t HiSysEventManager::Query(struct QueryArg& arg, std::vector<QueryRule>& r
 int32_t HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventListener> listener, bool mode)
 {
     auto baseListener = listenerToBaseMap[listener];
-    if (listenerToBaseMap[listener] == nullptr) {
+    if (baseListener == nullptr) {
         HiLog::Warn(LABEL, "no need to set debug mode on a listener which has not been added.");
         return ERR_LISTENER_NOT_EXIST;
     }
