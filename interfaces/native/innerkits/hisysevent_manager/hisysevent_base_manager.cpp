@@ -15,15 +15,21 @@
 
 #include "hisysevent_base_manager.h"
 
+#include "hilog/log.h"
 #include "hisysevent_delegate.h"
 #include "ret_code.h"
 
 namespace OHOS {
 namespace HiviewDFX {
+namespace {
+constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_BASE_MANAGER" };
+}
+
 int32_t HiSysEventBaseManager::AddListener(std::shared_ptr<HiSysEventBaseListener> listener,
     std::vector<ListenerRule>& rules)
 {
     if (listener == nullptr) {
+        HiLog::Warn(LABEL, "no need to add a listener which is null.");
         return ERR_LISTENER_NOT_EXIST;
     }
     if (listener->listenerProxy == nullptr) {
@@ -35,6 +41,7 @@ int32_t HiSysEventBaseManager::AddListener(std::shared_ptr<HiSysEventBaseListene
 int32_t HiSysEventBaseManager::RemoveListener(std::shared_ptr<HiSysEventBaseListener> listener)
 {
     if (listener == nullptr || listener->listenerProxy == nullptr) {
+        HiLog::Warn(LABEL, "no need to remove a base listener which has not been added.");
         return ERR_LISTENER_NOT_EXIST;
     }
     auto ret = listener->listenerProxy->RemoveListener(listener);
@@ -56,6 +63,7 @@ int32_t HiSysEventBaseManager::Query(struct QueryArg& arg, std::vector<QueryRule
 int32_t HiSysEventBaseManager::SetDebugMode(std::shared_ptr<HiSysEventBaseListener> listener, bool mode)
 {
     if (listener == nullptr || listener->listenerProxy == nullptr) {
+        HiLog::Warn(LABEL, "no need to set debug mode on a base listener which has not been added.");
         return ERR_LISTENER_NOT_EXIST;
     }
     return listener->listenerProxy->SetDebugMode(listener, mode);
