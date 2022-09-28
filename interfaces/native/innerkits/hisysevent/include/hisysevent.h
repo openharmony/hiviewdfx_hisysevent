@@ -100,6 +100,7 @@ public:
         static constexpr char DISTRIBUTED_SCHEDULE[] = "DISTSCHEDULE";
         static constexpr char DISTRIBUTED_SCREEN[] = "DISTSCREEN";
         static constexpr char DLP[] = "DLP";
+        static constexpr char DLP_CRE_SERVICE[] = "DLP_CRE_SERVICE";
         static constexpr char DSLM[] = "DSLM";
         static constexpr char DSOFTBUS[] = "DSOFTBUS";
         static constexpr char GLOBAL[] = "GLOBAL";
