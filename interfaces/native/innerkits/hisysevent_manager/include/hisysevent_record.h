@@ -51,7 +51,7 @@ public:
     int64_t GetTid() const;
     int64_t GetUid() const;
     uint64_t GetPspanId() const;
-    uint64_t GetSpandId() const;
+    uint64_t GetSpanId() const;
     uint64_t GetTime() const;
     uint64_t GetTraceId() const;
     void GetParamNames(std::vector<std::string>& params) const;
