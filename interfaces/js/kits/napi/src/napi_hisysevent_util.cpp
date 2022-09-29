@@ -184,7 +184,7 @@ int32_t GetInt32TypeAttribute(const napi_env env, const napi_value& object,
     return ParseInt32Value(env, propertyValue);
 }
 
-void AppendBoolArrayData(const napi_env env, HiSysEventInfo& info, const std::string key,
+void AppendBoolArrayData(const napi_env env, HiSysEventInfo& info, const std::string& key,
     const napi_value array, size_t len)
 {
     std::vector<bool> values;
@@ -203,7 +203,7 @@ void AppendBoolArrayData(const napi_env env, HiSysEventInfo& info, const std::st
     info.boolArrayParams[key] = values;
 }
 
-void AppendNumberArrayData(const napi_env env, HiSysEventInfo& info, const std::string key,
+void AppendNumberArrayData(const napi_env env, HiSysEventInfo& info, const std::string& key,
     const napi_value array, size_t len)
 {
     std::vector<double> values;
@@ -222,7 +222,7 @@ void AppendNumberArrayData(const napi_env env, HiSysEventInfo& info, const std::
     info.doubleArrayParams[key] = values;
 }
 
-void AppendBigIntArrayData(const napi_env env, HiSysEventInfo& info, const std::string key,
+void AppendBigIntArrayData(const napi_env env, HiSysEventInfo& info, const std::string& key,
     const napi_value array, size_t len)
 {
     std::vector<double> values;
@@ -241,7 +241,7 @@ void AppendBigIntArrayData(const napi_env env, HiSysEventInfo& info, const std::
     info.doubleArrayParams[key] = values;
 }
 
-void AppendStringArrayData(const napi_env env, HiSysEventInfo& info, const std::string key,
+void AppendStringArrayData(const napi_env env, HiSysEventInfo& info, const std::string& key,
     const napi_value array, size_t len)
 {
     std::vector<std::string> values;
@@ -394,7 +394,7 @@ void ParseStringArray(const napi_env env, napi_value& arrayValue, std::vector<st
     }
 }
 
-ListenerRule ParseListenerRule(const napi_env env, napi_value& jsObj)
+ListenerRule ParseListenerRule(const napi_env env, const napi_value& jsObj)
 {
     if (!CheckValueTypeValidity(env, jsObj, napi_valuetype::napi_object)) {
         return ListenerRule("", RuleType::WHOLE_WORD);
