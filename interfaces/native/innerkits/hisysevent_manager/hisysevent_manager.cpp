@@ -32,6 +32,10 @@ std::unordered_map<std::shared_ptr<HiSysEventListener>,
 int32_t HiSysEventManager::AddListener(std::shared_ptr<HiSysEventListener> listener,
     std::vector<ListenerRule>& rules)
 {
+    if (listener == nullptr) {
+        HiLog::Warn(LABEL, "add a null listener is not allowed.");
+        return ERR_LISTENER_NOT_EXIST;
+    }
     auto baseListener = listenerToBaseMap[listener];
     if (baseListener == nullptr) {
         baseListener = std::make_shared<HiSysEventBaseListener>(listener);
@@ -42,6 +46,10 @@ int32_t HiSysEventManager::AddListener(std::shared_ptr<HiSysEventListener> liste
 
 int32_t HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventListener> listener)
 {
+    if (listener == nullptr) {
+        HiLog::Warn(LABEL, "remov a null listener is not allowed.");
+        return ERR_LISTENER_NOT_EXIST;
+    }
     auto baseListener = listenerToBaseMap[listener];
     if (baseListener == nullptr) {
         HiLog::Warn(LABEL, "no need to remove a listener which has not been added.");
@@ -64,6 +72,10 @@ int32_t HiSysEventManager::Query(struct QueryArg& arg, std::vector<QueryRule>& r
 
 int32_t HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventListener> listener, bool mode)
 {
+    if (listener == nullptr) {
+        HiLog::Warn(LABEL, "set debug mode on a null listener is not allowed.");
+        return ERR_LISTENER_NOT_EXIST;
+    }
     auto baseListener = listenerToBaseMap[listener];
     if (baseListener == nullptr) {
         HiLog::Warn(LABEL, "no need to set debug mode on a listener which has not been added.");

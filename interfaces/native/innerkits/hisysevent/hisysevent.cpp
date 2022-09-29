@@ -382,7 +382,8 @@ void HiSysEvent::AppendStringArrayParam(HiSysEvent::EventBase &eventBase, const 
 void HiSysEvent::AppendParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
     using AppendParamFunc = void (*)(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    const AppendParamFunc appendFuncs[] = {
+    constexpr int totalAppendFuncSize = 25;
+    const AppendParamFunc appendFuncs[totalAppendFuncSize] = {
         &HiSysEvent::AppendInvalidParam,
         &HiSysEvent::AppendBoolParam,
         &HiSysEvent::AppendInt8Param,
@@ -409,7 +410,7 @@ void HiSysEvent::AppendParam(HiSysEvent::EventBase &eventBase, const HiSysEventP
         &HiSysEvent::AppendDoubleArrayParam,
         &HiSysEvent::AppendStringArrayParam,
     };
-    if (size_t paramType = param.t; paramType < (sizeof(appendFuncs) / sizeof(appendFuncs[0]))) {
+    if (size_t paramType = param.t; paramType < totalAppendFuncSize) {
         appendFuncs[paramType](eventBase, param);
     } else {
         eventBase.retCode_ = ERR_VALUE_INVALID;
