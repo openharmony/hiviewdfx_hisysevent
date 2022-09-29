@@ -15,6 +15,7 @@
 
 #include "hisysevent_json_decorator.h"
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
@@ -96,10 +97,10 @@ Validity HiSysEventJsonDecorator::CheckLevelValidity(const Json::Value& baseInfo
         return Validity::KEY_INVALID;
     }
     std::string levelDes = baseInfo[LEVEL].asString();
-    for (auto level : VALID_LEVELS) {
-        if (level == levelDes) {
-            return Validity::KV_BOTH_VALID;
-        }
+    if (std::any_of(std::begin(VALID_LEVELS), std::end(VALID_LEVELS), [&levelDes] (auto& level) {
+        return level == levelDes;
+    })) {
+        return Validity::KV_BOTH_VALID;
     }
     return Validity::VALUE_INVALID;
 }

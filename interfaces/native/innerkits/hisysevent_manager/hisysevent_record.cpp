@@ -69,7 +69,7 @@ uint64_t HiSysEventRecord::GetTraceId() const
     return GetUInt64ValueByKey("traceid_");
 }
 
-uint64_t HiSysEventRecord::GetSpandId() const
+uint64_t HiSysEventRecord::GetSpanId() const
 {
     return GetUInt64ValueByKey("spanid_");
 }
@@ -111,14 +111,14 @@ int HiSysEventRecord::GetIntValueByKey(const std::string key) const
 
 int64_t HiSysEventRecord::GetInt64ValueByKey(const std::string key) const
 {
-    int64_t value;
+    int64_t value = 0;
     (void)GetParamValue(key, value);
     return value;
 }
 
 uint64_t HiSysEventRecord::GetUInt64ValueByKey(const std::string key) const
 {
-    uint64_t value;
+    uint64_t value = 0;
     (void)GetParamValue(key, value);
     return value;
 }

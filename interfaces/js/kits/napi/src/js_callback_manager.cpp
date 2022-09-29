@@ -29,7 +29,6 @@ void DeleteWork(uv_work_t* work)
 {
     if (work != nullptr) {
         delete work;
-        work = nullptr;
     }
 }
 

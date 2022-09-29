@@ -209,8 +209,8 @@ describe('hiSysEventJsUnitTest', function () {
             setTimeout(() => {
                 result = hiSysEvent.removeWatcher(watcher)
                 expect(result).assertEqual(0)
-                done()
                 console.info('hiSysEventJsUnitTest004 end')
+                done()
             }, 1000)
         }
     });
@@ -277,14 +277,14 @@ describe('hiSysEventJsUnitTest', function () {
                 onComplete: function(reason, total) {
                     console.info(`hiSysEventJsUnitTest005: onComplete...`)
                     console.info(`hiSysEventJsUnitTest005: reason is ${reason}, total is ${total}`)
-                    done()
                     console.info(`hiSysEventJsUnitTest005 end`)
+                    done()
                 }
             })
             if (result == -19) { // -19: no permission
                 expect(true)
-                done()
                 console.info(`hiSysEventJsUnitTest005 end`)
+                done()
             } else {
                 expect(result).assertEqual(0)
             }
