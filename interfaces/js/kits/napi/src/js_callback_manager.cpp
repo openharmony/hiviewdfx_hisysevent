@@ -67,7 +67,7 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
             napi_close_handle_scope(context->env, scope);
             DeleteWork(work);
             if (context->release != nullptr) {
-                context->release();
+                context->release(context->threadId);
             }
         });
 }
@@ -78,13 +78,13 @@ void JsCallbackManager::Add(CallbackContext* context, CALLBACK_FUNC callback,
 {
     {
         std::lock_guard<std::mutex> lock(managerMutex);
-        jsCallbacks.emplace(std::make_tuple(context, callback, [this, release] () {
+        jsCallbacks.emplace(std::make_tuple(context, callback, [this, release] (pid_t threadId) {
             if (release == nullptr) {
                 this->ImmediateRun(true);
             } else {
                 // Destructor of JsCallbackManager will be called in release callback,
                 // so no need to call next callback in queue.
-                release();
+                release(threadId);
             }
         }));
         if (inCalling.load(std::memory_order_acquire)) {
