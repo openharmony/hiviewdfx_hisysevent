@@ -127,6 +127,7 @@ public:
         static constexpr char REQUEST[] = "REQUEST";
         static constexpr char ROUTER[] = "ROUTER";
         static constexpr char SAMGR[] = "SAMGR";
+        static constexpr char SECURITY_GUARD[] = "SECURITY_GUARD";
         static constexpr char SENSOR[] = "SENSOR";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
         static constexpr char STARTUP[] = "STARTUP";
