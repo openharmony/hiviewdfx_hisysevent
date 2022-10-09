@@ -22,7 +22,6 @@
 
 #include "def.h"
 #include "hilog/log.h"
-#include "hitrace/hitraceid.h"
 #include "hitrace/trace.h"
 #include "stringfilter.h"
 #include "transport.h"
@@ -214,7 +213,7 @@ void HiSysEvent::WritebaseInfo(HiSysEvent::EventBase &eventBase)
     AppendData(eventBase, "pid_", getpid());
     AppendData(eventBase, "tid_", gettid());
     AppendData(eventBase, "uid_", getuid());
-    HiTraceId hitraceId = HiTrace::GetId();
+    HiTraceId hitraceId = HiTraceChain::GetId();
     if (!hitraceId.IsValid()) {
         eventBase.keyCnt_ = 0;
         return;

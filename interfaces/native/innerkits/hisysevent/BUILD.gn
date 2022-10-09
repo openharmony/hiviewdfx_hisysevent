@@ -44,7 +44,7 @@ ohos_shared_library("libhisysevent") {
 
   external_deps = [
     "hilog_native:libhilog",
-    "hitrace_native:libhitrace",
+    "hitrace_native:libhitracechain",
   ]
 
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
