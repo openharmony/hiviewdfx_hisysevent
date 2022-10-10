@@ -84,6 +84,7 @@ public:
         static constexpr char BLUETOOTH[] = "BLUETOOTH";
         static constexpr char BUNDLE_MANAGER[] = "BUNDLE_MANAGER";
         static constexpr char CCRUNTIME[] = "CCRUNTIME";
+        static constexpr char CERT_MANAGER[] = "CERT_MANAGER";
         static constexpr char COMMONEVENT[] = "COMMONEVENT";
         static constexpr char COMMUNICATION[] = "COMMUNICATION";
         static constexpr char CUSTOMIZATION_CONFIG[] = "CUST_CONFIG";
