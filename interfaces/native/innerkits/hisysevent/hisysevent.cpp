@@ -31,13 +31,6 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
-std::string GetFomattedTime(unsigned int time)
-{
-    unsigned int dec = 10;
-    std::string ret {static_cast<char>('0' + (time / dec % dec))}; // add num at tens place
-    ret += static_cast<char>('0' + time % dec); // add num at ones place
-    return ret;
-}
 }
 
 WriteController HiSysEvent::controller;
@@ -52,7 +45,7 @@ static inline uint64_t GetMilliseconds()
 static std::string GetTimeZone()
 {
     struct timeval tv;
-    if (gettimeofday(&tv, NULL) != 0) {
+    if (gettimeofday(&tv, nullptr) != 0) {
         HiLog::Error(LABEL, "can not get tz");
         return "";
     }
@@ -62,25 +55,13 @@ static std::string GetTimeZone()
         HiLog::Error(LABEL, "failed to get local time.");
         return "";
     }
-    struct tm tmUtc;
-    if (gmtime_r(&sysSec, &tmUtc) == nullptr) {
-        HiLog::Error(LABEL, "failed to get GMT time.");
-        return "";
+    int timeZoneBufSize = 20;
+    char timeZone[timeZoneBufSize];
+    auto ret = strftime(timeZone, timeZoneBufSize, "%z", &tmLocal);
+    if (ret > 0) {
+        return std::string(timeZone);
     }
-    time_t diffSec = mktime(&tmLocal) - mktime(&tmUtc);
-    unsigned int secsInHour = 3600;
-    unsigned int tzHour = static_cast<unsigned int>(std::abs(diffSec)) / secsInHour;
-    unsigned int maxTimeZone = 12; // max time zone is 12
-    if (tzHour > maxTimeZone) {
-        HiLog::Error(LABEL, "failed to get hours for time zone, set to 0.");
-        tzHour = 0;
-    }
-    unsigned int secsInMin = 60;
-    unsigned int tzMin = (static_cast<unsigned int>(std::abs(diffSec)) % secsInHour) / secsInMin;
-    std::string tz {(diffSec < 0) ? "-" : "+"};
-    tz += GetFomattedTime(tzHour);
-    tz += GetFomattedTime(tzMin);
-    return tz;
+    return std::string("+0000");
 }
 
 int HiSysEvent::CheckKey(const std::string &key)
