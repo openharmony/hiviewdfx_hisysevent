@@ -61,10 +61,11 @@ static napi_value Write(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
     napi_value val = nullptr;
     napi_get_undefined(env, &val);
-    if (paramNum != WRITE_FUNC_MAX_PARAM_NUM - 1 && paramNum != WRITE_FUNC_MAX_PARAM_NUM) {
+    if (paramNum < WRITE_FUNC_MAX_PARAM_NUM - 1) {
         HiLog::Error(LABEL,
-            "failed to write hisysevent, count of parameters is not equal to %{public}d or %{public}d.",
+            "count of parameters is not equal to %{public}d or %{public}d.",
             static_cast<int>(WRITE_FUNC_MAX_PARAM_NUM - 1), static_cast<int>(WRITE_FUNC_MAX_PARAM_NUM));
+        NapiHiSysEventUtil::ThrowParamMandatoryError(env, "info");
         return val;
     }
     HiSysEventAsyncContext* asyncContext = new(std::nothrow) HiSysEventAsyncContext {
@@ -86,8 +87,7 @@ static napi_value Write(napi_env env, napi_callback_info info)
             napi_create_reference(env, params[paramNum - 1], 1, &asyncContext->callback);
         }
     } else if (paramNum > WRITE_FUNC_MAX_PARAM_NUM) {
-        HiLog::Error(LABEL, "count of params is invalid =%{public}d.", static_cast<int>(paramNum));
-        asyncContext->eventWroteResult = ERR_INVALID_PARAM_COUNT;
+        HiLog::Warn(LABEL, "count of params is invalid =%{public}d.", static_cast<int>(paramNum));
     }
     // set promise object if callback function is null
     napi_value promise = nullptr;
@@ -95,7 +95,6 @@ static napi_value Write(napi_env env, napi_callback_info info)
     if (asyncContext->callback == nullptr) {
         napi_create_promise(env, &asyncContext->deferred, &promise);
     }
-
     NapiHiSysEventAdapter::Write(env, asyncContext);
     return promise;
 }
@@ -107,38 +106,32 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
     napi_value thisArg = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
-    int32_t ret = ERR_INVALID_PARAM_COUNT;
-    napi_value val = nullptr;
-    if (paramNum != ADD_LISTENER_FUNC_MAX_PARAM_NUM) {
-        NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-        HiLog::Error(LABEL,
-            "failed to add a hisysevent listener, count of parameters is not equal to %{public}d.",
-            static_cast<int>(ADD_LISTENER_FUNC_MAX_PARAM_NUM));
-        return val;
+    if (paramNum < ADD_LISTENER_FUNC_MAX_PARAM_NUM) {
+        HiLog::Error(LABEL, "count of parameters is less than %{public}d.", ADD_LISTENER_FUNC_MAX_PARAM_NUM);
+        NapiHiSysEventUtil::ThrowParamMandatoryError(env, "watcher");
+        return nullptr;
     }
     std::vector<ListenerRule> rules;
     napi_value jsRulesVal = NapiHiSysEventUtil::GetPropertyByName(env, params[ADD_LISTENER_LISTENER_PARAM_INDEX],
         RULES_ATTR);
-    ret = NapiHiSysEventUtil::ParseListenerRules(env, jsRulesVal, rules);
-    if (ret != SUCCESS) {
-        HiLog::Error(LABEL, "failed to parse query rules.");
-        NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-        return val;
+    if (auto ret = NapiHiSysEventUtil::ParseListenerRules(env, jsRulesVal, rules);
+        ret != SUCCESS) {
+        HiLog::Error(LABEL, "failed to parse query rules, result code is %{public}d.", ret);
+        return nullptr;
     }
     CallbackContext* callbackContext = new CallbackContext();
     callbackContext->env = env;
     callbackContext->threadId = syscall(SYS_gettid);
     napi_create_reference(env, params[ADD_LISTENER_LISTENER_PARAM_INDEX], 1, &callbackContext->ref);
     std::shared_ptr<NapiHiSysEventListener> listener = std::make_shared<NapiHiSysEventListener>(callbackContext);
-    ret = HiSysEventBaseManager::AddListener(listener, rules);
+    auto ret = HiSysEventBaseManager::AddListener(listener, rules);
     if (ret != NAPI_SUCCESS) {
-        HiLog::Error(LABEL, "failed to add event listener.");
-        NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-        return val;
+        HiLog::Error(LABEL, "failed to add event listener, result code is %{public}d.", ret);
+        NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
+        return nullptr;
     }
     listeners[callbackContext->ref] = std::make_pair(callbackContext->threadId, listener);
-    NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-    return val;
+    return nullptr;
 }
 
 static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
@@ -148,27 +141,25 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
     napi_value thisArg = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
-    int32_t ret = ERR_INVALID_PARAM_COUNT;
-    napi_value val = nullptr;
-    if (paramNum != REMOVE_LISTENER_FUNC_MAX_PARAM_NUM) {
-        NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-        HiLog::Error(LABEL,
-            "failed to remove a hisysevent listener, count of parameters is not equal to %{public}d.",
-            static_cast<int>(REMOVE_LISTENER_FUNC_MAX_PARAM_NUM));
-        return val;
+    if (paramNum < REMOVE_LISTENER_FUNC_MAX_PARAM_NUM) {
+        HiLog::Error(LABEL, "count of parameters is less than %{public}d.", REMOVE_LISTENER_FUNC_MAX_PARAM_NUM);
+        NapiHiSysEventUtil::ThrowParamMandatoryError(env, "watcher");
+        return nullptr;
     }
     auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventListener>(env,
         params[REMOVE_LISTENER_LISTENER_PARAM_INDEX], listeners);
     if (iter == listeners.end()) {
-        ret = ERR_NAPI_LISTENER_NOT_FOUND;
-        NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
         HiLog::Error(LABEL, "failed to found this listener from added ones, so no need to remove it.");
-        return val;
+        NapiHiSysEventUtil::ThrowErrorByRet(env, ERR_NAPI_LISTENER_NOT_FOUND);
+        return nullptr;
     }
     listeners.erase(iter->first);
-    ret = HiSysEventBaseManager::RemoveListener(iter->second.second);
-    NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-    return val;
+    if (auto ret = HiSysEventBaseManager::RemoveListener(iter->second.second);
+        ret != NAPI_SUCCESS) {
+        HiLog::Error(LABEL, "failed to remove event listener, result code is %{public}d.", ret);
+        NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
+    }
+    return nullptr;
 }
 
 static napi_value Query(napi_env env, napi_callback_info info)
@@ -178,27 +169,27 @@ static napi_value Query(napi_env env, napi_callback_info info)
     napi_value thisArg = nullptr;
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
-    int32_t ret = ERR_INVALID_PARAM_COUNT;
-    napi_value val = nullptr;
-    if (paramNum != QUERY_FUNC_MAX_PARAM_NUM) {
-        NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-        HiLog::Error(LABEL, "failed to query hisysevent, count of parameters is not equal to %{public}d.",
-            static_cast<int>(QUERY_FUNC_MAX_PARAM_NUM));
-        return val;
+    if (paramNum < QUERY_FUNC_MAX_PARAM_NUM) {
+        std::unordered_map<int32_t, std::string> paramError = {
+            {QUERY_QUERY_ARG_PARAM_INDEX, "queryArg"},
+            {QUERY_RULE_ARRAY_PARAM_INDEX, "rules"},
+            {QUERY_QUERIER_PARAM_INDEX, "querier"},
+        };
+        HiLog::Error(LABEL, "count of parameters is less than %{public}d.", QUERY_FUNC_MAX_PARAM_NUM);
+        NapiHiSysEventUtil::ThrowParamMandatoryError(env, paramError.at(paramNum));
+        return nullptr;
     }
     QueryArg queryArg = { DEFAULT_TIME_STAMP, DEFAULT_TIME_STAMP, DEFAULT_EVENT_COUNT };
-    ret = NapiHiSysEventUtil::ParseQueryArg(env, params[QUERY_QUERY_ARG_PARAM_INDEX], queryArg);
-    if (ret != SUCCESS) {
-        HiLog::Error(LABEL, "failed to parse query arg.");
-        NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-        return val;
+    if (auto ret = NapiHiSysEventUtil::ParseQueryArg(env, params[QUERY_QUERY_ARG_PARAM_INDEX], queryArg);
+        ret != SUCCESS) {
+        HiLog::Error(LABEL, "failed to parse query arg, result code is %{public}d.", ret);
+        return nullptr;
     }
     std::vector<QueryRule> rules;
-    ret = NapiHiSysEventUtil::ParseQueryRules(env, params[QUERY_RULE_ARRAY_PARAM_INDEX], rules);
-    if (ret != SUCCESS) {
-        HiLog::Error(LABEL, "failed to parse query rules.");
-        NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-        return val;
+    if (auto ret = NapiHiSysEventUtil::ParseQueryRules(env, params[QUERY_RULE_ARRAY_PARAM_INDEX], rules);
+        ret != SUCCESS) {
+        HiLog::Error(LABEL, "failed to parse query rules, result code is %{public}d.", ret);
+        return nullptr;
     }
     CallbackContext* callbackContext = new CallbackContext();
     callbackContext->env = env;
@@ -213,15 +204,14 @@ static napi_value Query(napi_env env, napi_callback_info info)
                 queriers.erase(iter->first);
             }
         });
-    ret = HiSysEventBaseManager::Query(queryArg, rules, querier);
+    auto ret = HiSysEventBaseManager::Query(queryArg, rules, querier);
     if (ret != NAPI_SUCCESS) {
-        HiLog::Error(LABEL, "failed to query hisysevent.");
-        NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-        return val;
+        HiLog::Error(LABEL, "failed to query hisysevent, result code is %{public}d.", ret);
+        NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
+        return nullptr;
     }
     queriers[callbackContext->ref] = std::make_pair(callbackContext->threadId, querier);
-    NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-    return val;
+    return nullptr;
 }
 
 EXTERN_C_START

@@ -24,7 +24,8 @@ namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_QUERIER" };
 constexpr char ON_QUERY_ATTR[] = "onQuery";
 constexpr char ON_COMPLETE_ATTR[] = "onComplete";
-constexpr size_t ON_QUERY_COMPLTE_PARAM_COUNT = 2;
+constexpr size_t ON_QUERY_PARAM_COUNT = 1;
+constexpr size_t ON_QUERY_COMPLTE_COUNT = 2;
 }
 
 void NapiHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvents,
@@ -38,15 +39,12 @@ void NapiHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvents,
             napi_value sysEventInfoJsArray = nullptr;
             napi_create_array_with_length(env, sysEvents.size(), &sysEventInfoJsArray);
             NapiHiSysEventUtil::CreateJsSysEventInfoArray(env, sysEvents, sysEventInfoJsArray);
-            napi_value seqJsArray = nullptr;
-            napi_create_array_with_length(env, seq.size(), &seqJsArray);
-            NapiHiSysEventUtil::CreateJsInt64Array(env, seq, seqJsArray);
-            napi_value argv[ON_QUERY_COMPLTE_PARAM_COUNT] = {sysEventInfoJsArray, seqJsArray};
+            napi_value argv[ON_QUERY_PARAM_COUNT] = {sysEventInfoJsArray};
             napi_value querier = nullptr;
             napi_get_reference_value(env, ref, &querier);
             napi_value onQuery = NapiHiSysEventUtil::GetPropertyByName(env, querier, ON_QUERY_ATTR);
             napi_value ret = nullptr;
-            napi_status status = napi_call_function(env, querier, onQuery, ON_QUERY_COMPLTE_PARAM_COUNT,
+            napi_status status = napi_call_function(env, querier, onQuery, ON_QUERY_PARAM_COUNT,
                 argv, &ret);
             if (status != napi_ok) {
                 HiLog::Error(LABEL, "failed to call OnQuery JS function.");
@@ -65,12 +63,12 @@ void NapiHiSysEventQuerier::OnComplete(int32_t reason, int32_t total)
             NapiHiSysEventUtil::CreateInt32Value(env, reason, reasonJsParam);
             napi_value totalJsParam = nullptr;
             NapiHiSysEventUtil::CreateInt32Value(env, total, totalJsParam);
-            napi_value argv[ON_QUERY_COMPLTE_PARAM_COUNT] = {reasonJsParam, totalJsParam};
+            napi_value argv[ON_QUERY_COMPLTE_COUNT] = {reasonJsParam, totalJsParam};
             napi_value querier = nullptr;
             napi_get_reference_value(env, ref, &querier);
             napi_value OnComplete = NapiHiSysEventUtil::GetPropertyByName(env, querier, ON_COMPLETE_ATTR);
             napi_value ret = nullptr;
-            napi_status status = napi_call_function(env, querier, OnComplete, ON_QUERY_COMPLTE_PARAM_COUNT,
+            napi_status status = napi_call_function(env, querier, OnComplete, ON_QUERY_COMPLTE_COUNT,
                 argv, &ret);
             if (status != napi_ok) {
                 HiLog::Error(LABEL, "failed to call OnComplete JS function.");

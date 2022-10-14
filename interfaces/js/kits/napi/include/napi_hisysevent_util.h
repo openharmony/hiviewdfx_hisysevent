@@ -47,16 +47,24 @@ public:
         const int32_t& value, napi_value& jsObj);
     static void CreateJsSysEventInfoArray(const napi_env env, const std::vector<std::string>& originValues,
         napi_value& array);
-    static void CreateJsInt64Array(const napi_env env, const std::vector<int64_t>& originValues, napi_value& array);
     static int32_t ParseListenerRules(const napi_env env, napi_value& jsObj,
         std::vector<ListenerRule>& listenerRules);
     static int32_t ParseQueryRules(const napi_env env, napi_value& jsObj, std::vector<QueryRule>& queryRules);
     static int32_t ParseQueryArg(const napi_env env, napi_value& jsObj, QueryArg& queryArg);
+    static void CreateNull(const napi_env env, napi_value& ret);
     static void CreateInt32Value(const napi_env env, int32_t value, napi_value& ret);
-    static void CreateBigInt64Value(const napi_env env, int64_t value, napi_value& ret);
+    static void CreateInt64Value(const napi_env env, int64_t value, napi_value& ret);
+    static void CreateUInt64Value(const napi_env env, uint64_t value, napi_value& ret);
     static void CreateStringValue(const napi_env env, std::string value, napi_value& ret);
     static napi_value GetPropertyByName(const napi_env env, const napi_value& object,
         const std::string& propertyName);
+
+public:
+    static void ThrowParamMandatoryError(napi_env env, const std::string paramName);
+    static void ThrowParamTypeError(napi_env env, const std::string paramName, std::string paramType);
+    static napi_value CreateError(napi_env env, int32_t code, const std::string& msg);
+    static napi_value CreateErrorByRet(napi_env env, int32_t retCode);
+    static void ThrowErrorByRet(napi_env env, int32_t retCode);
 
 public:
     template<typename T>
@@ -86,6 +94,10 @@ public:
         }
         return iter;
     }
+
+private:
+    static std::pair<int32_t, std::string> GetErrorDetailByRet(napi_env env, int32_t retCode);
+    static void ThrowError(napi_env env, int32_t code, const std::string& msg);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

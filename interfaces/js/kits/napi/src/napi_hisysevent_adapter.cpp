@@ -21,16 +21,16 @@
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr int CALLBACK_FUNC_PARAM_NUM = 2;
+constexpr size_t ERR_INDEX = 0;
+constexpr size_t VAL_INDEX = 1;
+constexpr size_t RET_SIZE = 2;
 constexpr char FUNC_SOURCE_NAME[] = "JSHiSysEventWrite";
-constexpr char ERROR_CODE_KEY[] = "code";
 }
 
 void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* eventAsyncContext)
 {
     napi_value resource = nullptr;
     NapiHiSysEventUtil::CreateStringValue(env, FUNC_SOURCE_NAME, resource);
-
     napi_create_async_work(
         env, nullptr, resource,
         [] (napi_env env, void* data) {
@@ -41,31 +41,25 @@ void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* ev
         },
         [] (napi_env env, napi_status status, void* data) {
             HiSysEventAsyncContext* eventAsyncContext = (HiSysEventAsyncContext*)data;
-            napi_value result[CALLBACK_FUNC_PARAM_NUM] = {0};
+            napi_value results[RET_SIZE] = {0};
             if (eventAsyncContext->eventWroteResult == SUCCESS) {
-                napi_get_undefined(env, &result[0]);
-                napi_create_int32(env, eventAsyncContext->eventWroteResult, &result[1]);
+                NapiHiSysEventUtil::CreateNull(env, results[ERR_INDEX]);
+                NapiHiSysEventUtil::CreateInt32Value(env, eventAsyncContext->eventWroteResult, results[VAL_INDEX]);
             } else {
-                napi_create_object(env, &result[0]);
-                napi_value errCode = nullptr;
-                napi_create_int32(env, eventAsyncContext->eventWroteResult, &errCode);
-                napi_set_named_property(env, result[0], ERROR_CODE_KEY, errCode);
-                napi_get_undefined(env, &result[1]);
+                NapiHiSysEventUtil::CreateNull(env, results[VAL_INDEX]);
+                results[ERR_INDEX] = NapiHiSysEventUtil::CreateErrorByRet(env, eventAsyncContext->eventWroteResult);
             }
-            if (eventAsyncContext->deferred) {
-                if (eventAsyncContext->eventWroteResult == SUCCESS) {
-                    napi_resolve_deferred(env, eventAsyncContext->deferred, result[1]);
-                } else {
-                    napi_reject_deferred(env, eventAsyncContext->deferred, result[0]);
-                }
+            if (eventAsyncContext->deferred != nullptr) { // promise
+                eventAsyncContext->eventWroteResult == SUCCESS ?
+                    napi_resolve_deferred(env, eventAsyncContext->deferred, results[VAL_INDEX]) :
+                    napi_reject_deferred(env, eventAsyncContext->deferred, results[ERR_INDEX]);
             } else {
                 napi_value callback = nullptr;
                 napi_get_reference_value(env, eventAsyncContext->callback, &callback);
                 napi_value retValue = nullptr;
-                napi_call_function(env, nullptr, callback, CALLBACK_FUNC_PARAM_NUM, result, &retValue);
+                napi_call_function(env, nullptr, callback, RET_SIZE, results, &retValue);
                 napi_delete_reference(env, eventAsyncContext->callback);
             }
-
             napi_delete_async_work(env, eventAsyncContext->asyncWork);
             delete eventAsyncContext;
         }, (void*)eventAsyncContext, &eventAsyncContext->asyncWork);
