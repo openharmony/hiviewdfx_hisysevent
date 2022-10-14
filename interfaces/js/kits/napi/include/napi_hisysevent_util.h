@@ -53,7 +53,8 @@ public:
     static int32_t ParseQueryRules(const napi_env env, napi_value& jsObj, std::vector<QueryRule>& queryRules);
     static int32_t ParseQueryArg(const napi_env env, napi_value& jsObj, QueryArg& queryArg);
     static void CreateInt32Value(const napi_env env, int32_t value, napi_value& ret);
-    static void CreateBigInt64Value(const napi_env env, int64_t value, napi_value& ret);
+    static void CreateInt64Value(const napi_env env, int64_t value, napi_value& ret);
+    static void CreateUInt64Value(const napi_env env, uint64_t value, napi_value& ret);
     static void CreateStringValue(const napi_env env, std::string value, napi_value& ret);
     static napi_value GetPropertyByName(const napi_env env, const napi_value& object,
         const std::string& propertyName);
