@@ -15,8 +15,10 @@
 
 #include "napi_hisysevent_util.h"
 
+#include "def.h"
 #include "hilog/log.h"
 #include "json/json.h"
+#include "ret_code.h"
 #include "ret_def.h"
 
 namespace OHOS {
@@ -66,7 +68,7 @@ napi_valuetype GetValueType(const napi_env env, const napi_value& value)
     return valueType;
 }
 
-bool CheckValueTypeValidity(const napi_env env, const napi_value& jsObj,
+bool IsValueTypeValid(const napi_env env, const napi_value& jsObj,
     const napi_valuetype typeName)
 {
     napi_valuetype valueType = GetValueType(env, jsObj);
@@ -80,7 +82,7 @@ bool CheckValueTypeValidity(const napi_env env, const napi_value& jsObj,
 
 bool CheckValueIsArray(const napi_env env, const napi_value& jsObj)
 {
-    if (!CheckValueTypeValidity(env, jsObj, napi_valuetype::napi_object)) {
+    if (!IsValueTypeValid(env, jsObj, napi_valuetype::napi_object)) {
         return false;
     }
     bool isArray = false;
@@ -139,7 +141,8 @@ std::string GetStringTypeAttribute(const napi_env env, const napi_value& object,
     const std::string& propertyName, std::string defaultValue = "")
 {
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
-    if (!CheckValueTypeValidity(env, propertyValue, napi_valuetype::napi_string)) {
+    if (!IsValueTypeValid(env, propertyValue, napi_valuetype::napi_string)) {
+        NapiHiSysEventUtil::ThrowParamTypeError(env, propertyName, "string");
         HiLog::Error(LABEL, "type is not napi_string.");
         return defaultValue;
     }
@@ -150,8 +153,8 @@ long long GetLonglongTypeAttribute(const napi_env env, const napi_value& object,
     const std::string& propertyName, long long defaultValue = 0)
 {
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
-    bool isNumberType = CheckValueTypeValidity(env, propertyValue, napi_valuetype::napi_number);
-    bool isBigIntType = CheckValueTypeValidity(env, propertyValue, napi_valuetype::napi_bigint);
+    bool isNumberType = IsValueTypeValid(env, propertyValue, napi_valuetype::napi_number);
+    bool isBigIntType = IsValueTypeValid(env, propertyValue, napi_valuetype::napi_bigint);
     if (!isNumberType && !isBigIntType) {
         HiLog::Error(LABEL, "type is not napi_number or napi_bigint.");
         return defaultValue;
@@ -177,7 +180,8 @@ int32_t GetInt32TypeAttribute(const napi_env env, const napi_value& object,
     const std::string& propertyName, int32_t defaultValue = 0)
 {
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
-    if (!CheckValueTypeValidity(env, propertyValue, napi_valuetype::napi_number)) {
+    if (!IsValueTypeValid(env, propertyValue, napi_valuetype::napi_number)) {
+        NapiHiSysEventUtil::ThrowParamTypeError(env, propertyName, "number");
         HiLog::Error(LABEL, "type is not napi_number.");
         return defaultValue;
     }
@@ -196,7 +200,7 @@ void AppendBoolArrayData(const napi_env env, HiSysEventInfo& info, const std::st
             HiLog::Error(LABEL, "failed to get the element of bool array.");
             continue;
         }
-        if (CheckValueTypeValidity(env, element, napi_valuetype::napi_boolean)) {
+        if (IsValueTypeValid(env, element, napi_valuetype::napi_boolean)) {
             values.emplace_back(ParseBoolValue(env, element));
         }
     }
@@ -215,7 +219,7 @@ void AppendNumberArrayData(const napi_env env, HiSysEventInfo& info, const std::
             HiLog::Error(LABEL, "failed to get the element of number array.");
             continue;
         }
-        if (CheckValueTypeValidity(env, element, napi_valuetype::napi_number)) {
+        if (IsValueTypeValid(env, element, napi_valuetype::napi_number)) {
             values.emplace_back(ParseNumberValue(env, element));
         }
     }
@@ -234,7 +238,7 @@ void AppendBigIntArrayData(const napi_env env, HiSysEventInfo& info, const std::
             HiLog::Error(LABEL, "failed to get the element of big int array.");
             continue;
         }
-        if (CheckValueTypeValidity(env, element, napi_valuetype::napi_bigint)) {
+        if (IsValueTypeValid(env, element, napi_valuetype::napi_bigint)) {
             values.emplace_back(ParseBigIntValue(env, element));
         }
     }
@@ -253,7 +257,7 @@ void AppendStringArrayData(const napi_env env, HiSysEventInfo& info, const std::
             HiLog::Error(LABEL, "failed to get the element of string array.");
             continue;
         }
-        if (CheckValueTypeValidity(env, element, napi_valuetype::napi_string)) {
+        if (IsValueTypeValid(env, element, napi_valuetype::napi_string)) {
             values.emplace_back(ParseStringValue(env, element));
         }
     }
@@ -335,7 +339,7 @@ void GetObjectTypeAttribute(const napi_env env, const napi_value& object,
     const std::string& propertyName, HiSysEventInfo& info)
 {
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
-    if (!CheckValueTypeValidity(env, propertyValue, napi_valuetype::napi_object)) {
+    if (!IsValueTypeValid(env, propertyValue, napi_valuetype::napi_object)) {
         HiLog::Error(LABEL, "type is not napi_object.");
         return;
     }
@@ -354,7 +358,7 @@ void GetObjectTypeAttribute(const napi_env env, const napi_value& object,
     for (uint32_t i = 0; i < len; i++) {
         napi_value key = nullptr;
         napi_get_element(env, keyArr, i, &key);
-        if (!CheckValueTypeValidity(env, key, napi_valuetype::napi_string)) {
+        if (!IsValueTypeValid(env, key, napi_valuetype::napi_string)) {
             HiLog::Warn(LABEL, "this param would be discarded because of invalid type of the key.");
             continue;
         }
@@ -373,6 +377,7 @@ void GetObjectTypeAttribute(const napi_env env, const napi_value& object,
 void ParseStringArray(const napi_env env, napi_value& arrayValue, std::vector<std::string>& arrayDest)
 {
     if (!CheckValueIsArray(env, arrayValue)) {
+        HiLog::Error(LABEL, "try to parse a array from a napi value without array type");
         return;
     }
     uint32_t len = 0;
@@ -386,7 +391,7 @@ void ParseStringArray(const napi_env env, napi_value& arrayValue, std::vector<st
         if (status != napi_ok) {
             return;
         }
-        if (CheckValueTypeValidity(env, element, napi_valuetype::napi_string)) {
+        if (IsValueTypeValid(env, element, napi_valuetype::napi_string)) {
             std::string str = ParseStringValue(env, element);
             HiLog::Debug(LABEL, "parse string: %{public}s.", str.c_str());
             arrayDest.emplace_back(str);
@@ -396,7 +401,7 @@ void ParseStringArray(const napi_env env, napi_value& arrayValue, std::vector<st
 
 ListenerRule ParseListenerRule(const napi_env env, const napi_value& jsObj)
 {
-    if (!CheckValueTypeValidity(env, jsObj, napi_valuetype::napi_object)) {
+    if (!IsValueTypeValid(env, jsObj, napi_valuetype::napi_object)) {
         return ListenerRule("", RuleType::WHOLE_WORD);
     }
     std::string domain = GetStringTypeAttribute(env, jsObj, NapiHiSysEventUtil::DOMAIN_ATTR);
@@ -410,16 +415,36 @@ ListenerRule ParseListenerRule(const napi_env env, const napi_value& jsObj)
     return ListenerRule(domain, name, tag, RuleType(ruleType));
 }
 
+bool IsQueryRuleValid(const napi_env env, const QueryRule& rule)
+{
+    auto domain = rule.GetDomain();
+    if (domain.size() > MAX_DOMAIN_LENGTH) {
+        NapiHiSysEventUtil::ThrowErrorByRet(env, NapiInnerError::ERR_INVALID_DOMAIN_IN_QUERY_RULE);
+        return false;
+    }
+    auto names = rule.GetEventList();
+    if (std::any_of(names.begin(), names.end(), [] (auto& name) {
+        return name.size() > MAX_EVENT_NAME_LENGTH;
+    })) {
+        NapiHiSysEventUtil::ThrowErrorByRet(env, NapiInnerError::ERR_INVALID_EVENT_NAME_IN_QUERY_RULE);
+        return false;
+    }
+    return true;
+}
+
 QueryRule ParseQueryRule(const napi_env env, napi_value& jsObj)
 {
     std::vector<std::string> names;
-    if (!CheckValueTypeValidity(env, jsObj, napi_valuetype::napi_object)) {
+    if (!IsValueTypeValid(env, jsObj, napi_valuetype::napi_object)) {
         return QueryRule("", names);
     }
     std::string domain = GetStringTypeAttribute(env, jsObj, NapiHiSysEventUtil::DOMAIN_ATTR);
     HiLog::Debug(LABEL, "domain is %{public}s.", domain.c_str());
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, jsObj, NAMES_ATTR);
     ParseStringArray(env, propertyValue, names);
+    for (auto& name : names) {
+        HiLog::Debug(LABEL, "    event name is %{public}s.", name.c_str());
+    }
     return QueryRule(domain, names);
 }
 
@@ -466,24 +491,27 @@ void AppendBaseInfo(const napi_env env, napi_value& sysEventInfo, const std::str
 void CreateBoolValue(const napi_env env, bool value, napi_value& val)
 {
     napi_status status = napi_get_boolean(env, value, &val);
+    HiLog::Debug(LABEL, "create napi value of bool type, value is %{public}d.", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get create napi value of int32 type.");
+        HiLog::Error(LABEL, "failed to get create napi value of bool type.");
     }
 }
 
 void CreateDoubleValue(const napi_env env, double value, napi_value& val)
 {
     napi_status status = napi_create_double(env, value, &val);
+    HiLog::Debug(LABEL, "create napi value of double type, value is %{public}f.", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get create napi value of int32 type.");
+        HiLog::Error(LABEL, "failed to get create napi value of double type.");
     }
 }
 
 void CreateUint32Value(const napi_env env, uint32_t value, napi_value& val)
 {
     napi_status status = napi_create_uint32(env, value, &val);
+    HiLog::Debug(LABEL, "create napi value of uint32 type, value is %{public}u.", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get create napi value of int32 type.");
+        HiLog::Error(LABEL, "failed to get create napi value of uint32 type.");
     }
 }
 
@@ -502,8 +530,12 @@ void CreateParamItemTypeValue(const napi_env env, Json::Value& jsonValue, napi_v
         return;
     }
 #ifdef JSON_HAS_INT64
-    if (jsonValue.isInt64() || jsonValue.isUInt64()) {
-        NapiHiSysEventUtil::CreateBigInt64Value(env, jsonValue.asUInt64(), value);
+    if (jsonValue.isInt64() && jsonValue.type() != Json::ValueType::uintValue) {
+        NapiHiSysEventUtil::CreateInt64Value(env, jsonValue.asInt64(), value);
+        return;
+    }
+    if (jsonValue.isUInt64() && jsonValue.type() != Json::ValueType::intValue) {
+        NapiHiSysEventUtil::CreateUInt64Value(env, jsonValue.asUInt64(), value);
         return;
     }
 #endif
@@ -557,6 +589,10 @@ void NapiHiSysEventUtil::ParseHiSysEventInfo(const napi_env env, napi_value* par
     size_t paramNum, HiSysEventInfo& info)
 {
     if (paramNum <= SYS_EVENT_INFO_PARAM_INDEX) {
+        return;
+    }
+    if (!IsValueTypeValid(env, param[SYS_EVENT_INFO_PARAM_INDEX], napi_valuetype::napi_object)) {
+        NapiHiSysEventUtil::ThrowParamTypeError(env, "info", "object");
         return;
     }
     info.domain = GetStringTypeAttribute(env, param[SYS_EVENT_INFO_PARAM_INDEX], NapiHiSysEventUtil::DOMAIN_ATTR);
@@ -633,24 +669,11 @@ void NapiHiSysEventUtil::AppendInt32PropertyToJsObject(const napi_env env, const
     SetNamedProperty(env, jsObj, key, property);
 }
 
-void NapiHiSysEventUtil::CreateJsInt64Array(const napi_env env, const std::vector<int64_t>& originValues,
-    napi_value& array)
-{
-    auto len = originValues.size();
-    for (size_t i = 0; i < len; i++) {
-        napi_value item;
-        CreateBigInt64Value(env, originValues[i], item);
-        napi_status status = napi_set_element(env, array, i, item);
-        if (status != napi_ok) {
-            HiLog::Error(LABEL, "napi_set_element failed");
-        }
-    }
-}
-
 int32_t NapiHiSysEventUtil::ParseListenerRules(const napi_env env, napi_value& array,
     std::vector<ListenerRule>& listenerRules)
 {
     if (!CheckValueIsArray(env, array)) {
+        ThrowParamTypeError(env, "rules", "array");
         return ERR_LISTENER_RULES_TYPE_NOT_ARRAY;
     }
     uint32_t len = 0;
@@ -674,7 +697,7 @@ int32_t NapiHiSysEventUtil::ParseListenerRules(const napi_env env, napi_value& a
         if (status != napi_ok) {
             return ERR_NAPI_PARSED_FAILED;
         }
-        if (CheckValueTypeValidity(env, element, napi_valuetype::napi_object)) {
+        if (IsValueTypeValid(env, element, napi_valuetype::napi_object)) {
             listenerRules.emplace_back(ParseListenerRule(env, element));
         }
     }
@@ -684,6 +707,7 @@ int32_t NapiHiSysEventUtil::ParseListenerRules(const napi_env env, napi_value& a
 int32_t NapiHiSysEventUtil::ParseQueryRules(const napi_env env, napi_value& array, std::vector<QueryRule>& queryRules)
 {
     if (!CheckValueIsArray(env, array)) {
+        ThrowParamTypeError(env, "rules", "array");
         return ERR_QUERY_RULES_TYPE_NOT_ARRAY;
     }
     uint32_t len = 0;
@@ -707,8 +731,11 @@ int32_t NapiHiSysEventUtil::ParseQueryRules(const napi_env env, napi_value& arra
         if (status != napi_ok) {
             return ERR_NAPI_PARSED_FAILED;
         }
-        if (CheckValueTypeValidity(env, element, napi_valuetype::napi_object)) {
-            queryRules.emplace_back(ParseQueryRule(env, element));
+        if (IsValueTypeValid(env, element, napi_valuetype::napi_object)) {
+            auto queryRule = ParseQueryRule(env, element);
+            if (IsQueryRuleValid(env, queryRule)) {
+                queryRules.emplace_back(queryRule);
+            }
         }
     }
     return NAPI_SUCCESS;
@@ -716,7 +743,8 @@ int32_t NapiHiSysEventUtil::ParseQueryRules(const napi_env env, napi_value& arra
 
 int32_t NapiHiSysEventUtil::ParseQueryArg(const napi_env env, napi_value& jsObj, QueryArg& queryArg)
 {
-    if (!CheckValueTypeValidity(env, jsObj, napi_valuetype::napi_object)) {
+    if (!IsValueTypeValid(env, jsObj, napi_valuetype::napi_object)) {
+        ThrowParamTypeError(env, "queryArg", "object");
         return ERR_QUERY_ARG_TYPE_INVALID;
     }
     queryArg.beginTime = GetLonglongTypeAttribute(env, jsObj, BEGIN_TIME_ATTR, DEFAULT_TIME_STAMP);
@@ -728,28 +756,138 @@ int32_t NapiHiSysEventUtil::ParseQueryArg(const napi_env env, napi_value& jsObj,
     return NAPI_SUCCESS;
 }
 
+void NapiHiSysEventUtil::CreateNull(const napi_env env, napi_value& ret)
+{
+    napi_status status = napi_get_null(env, &ret);
+    if (status != napi_ok) {
+        HiLog::Error(LABEL, "failed to create napi value of null.");
+    }
+}
+
 void NapiHiSysEventUtil::CreateInt32Value(const napi_env env, int32_t value, napi_value& ret)
 {
     napi_status status = napi_create_int32(env, value, &ret);
+    HiLog::Debug(LABEL, "create napi value of int32 type, value is %{public}d.", value);
     if (status != napi_ok) {
         HiLog::Error(LABEL, "failed to create napi value of int32 type.");
     }
 }
 
-void NapiHiSysEventUtil::CreateBigInt64Value(const napi_env env, int64_t value, napi_value& ret)
+void NapiHiSysEventUtil::CreateInt64Value(const napi_env env, int64_t value, napi_value& ret)
+{
+    napi_status status = napi_create_bigint_int64(env, value, &ret);
+    HiLog::Debug(LABEL, "create napi value of int64_t type, value is %{public}s.", std::to_string(value).c_str());
+    if (status != napi_ok) {
+        HiLog::Error(LABEL, "failed to create napi value of int64_t type.");
+    }
+}
+
+void NapiHiSysEventUtil::CreateUInt64Value(const napi_env env, uint64_t value, napi_value& ret)
 {
     napi_status status = napi_create_bigint_uint64(env, value, &ret);
+    HiLog::Debug(LABEL, "create napi value of uint64_t type, value is %{public}s.", std::to_string(value).c_str());
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to create napi value of uint64 type.");
+        HiLog::Error(LABEL, "failed to create napi value of uint64_t type.");
     }
 }
 
 void NapiHiSysEventUtil::CreateStringValue(const napi_env env, std::string value, napi_value& ret)
 {
     napi_status status = napi_create_string_utf8(env, value.c_str(), NAPI_AUTO_LENGTH, &ret);
+    HiLog::Debug(LABEL, "create napi value of string type, value is %{public}s.", value.c_str());
     if (status != napi_ok) {
         HiLog::Error(LABEL, "failed to create napi value of string type.");
     }
+}
+
+void NapiHiSysEventUtil::ThrowParamMandatoryError(napi_env env, const std::string paramName)
+{
+    ThrowError(env, NapiError::ERR_PARAM_CHECK, "Parameter error. The " + paramName + " parameter is mandatory.");
+}
+
+void NapiHiSysEventUtil::ThrowParamTypeError(napi_env env, const std::string paramName, std::string paramType)
+{
+    ThrowError(env, NapiError::ERR_PARAM_CHECK, "Parameter error. The type of " + paramName + " must be "
+        + paramType + ".");
+}
+
+napi_value NapiHiSysEventUtil::CreateError(napi_env env, int32_t code, const std::string& msg)
+{
+    napi_value err = nullptr;
+    napi_value napiCode = nullptr;
+    NapiHiSysEventUtil::CreateStringValue(env, std::to_string(code), napiCode);
+    napi_value napiStr = nullptr;
+    NapiHiSysEventUtil::CreateStringValue(env, msg, napiStr);
+    if (napi_create_error(env, napiCode, napiStr, &err) != napi_ok) {
+        HiLog::Error(LABEL, "failed to create napi error");
+    }
+    return err;
+}
+
+void NapiHiSysEventUtil::ThrowError(napi_env env, int32_t code, const std::string& msg)
+{
+    if (napi_throw_error(env, std::to_string(code).c_str(), msg.c_str()) != napi_ok) {
+        HiLog::Error(LABEL, "failed to throw err, code=%{public}d, msg=%{public}s.", code, msg.c_str());
+    }
+}
+
+std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env env, int32_t retCode)
+{
+    const std::unordered_map<int32_t, std::pair<int32_t, std::string>> errMap = {
+        // common
+        {ERR_NO_PERMISSION, {NapiError::ERR_PERMISSION_CHECK,
+            "Permission denied. An attempt was made to read sysevent forbidden"
+            " by permission: ohos.permission.READ_DFX_SYSEVENT."}},
+        // write refer
+        {ERR_DOMAIN_NAME_INVALID, {NapiError::ERR_INVALID_DOMAIN, "Domain is invalid"}},
+        {ERR_EVENT_NAME_INVALID, {NapiError::ERR_INVALID_EVENT_NAME, "Event name is invalid"}},
+        {ERR_DOES_NOT_INIT, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
+        {ERR_OVER_SIZE, {NapiError::ERR_CONTENT_OVER_LIMIT, "Size of event content is over limit"}},
+        {ERR_KEY_NAME_INVALID, {NapiError::ERR_INVALID_PARAM_NAME, "Name of param is invalid"}},
+        {ERR_VALUE_LENGTH_TOO_LONG, {NapiError::ERR_STR_LEN_OVER_LIMIT,
+            "Size of string type param is over limit"}},
+        {ERR_KEY_NUMBER_TOO_MUCH, {NapiError::ERR_PARAM_COUNT_OVER_LIMIT, "Count of params is over limit"}},
+        {ERR_ARRAY_TOO_MUCH, {NapiError::ERR_ARRAY_SIZE_OVER_LIMIT, "Size of array type param is over limit"}},
+        // ipc common
+        {ERR_SYS_EVENT_SERVICE_NOT_FOUND, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
+        {ERR_CAN_NOT_WRITE_DIESCRIPTOR, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
+        {ERR_CAN_NOT_WRITE_PARCEL, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
+        {ERR_CAN_NOT_WRITE_REMOTE_OBJECT, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
+        {ERR_CAN_NOT_SEND_REQ, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
+        {ERR_CAN_NOT_READ_PARCEL, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
+        {ERR_SEND_FAIL, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
+        // add watcher
+        {ERR_TOO_MANY_WATCHERS, {NapiError::ERR_WATCHER_COUNT_OVER_LIMIT, "Count of watchers is over limit"}},
+        {ERR_TOO_MANY_WATCH_RULES, {NapiError::ERR_WATCH_RULE_COUNT_OVER_LIMIT,
+            "Count of watch rules is over limit"}},
+        // remove watcher
+        {ERR_LISTENER_NOT_EXIST, {NapiError::ERR_WATCHER_NOT_EXIST, "Watcher is not exist"}},
+        {ERR_NAPI_LISTENER_NOT_FOUND, {NapiError::ERR_WATCHER_NOT_EXIST, "Watcher is not exist"}},
+        // query refer
+        {ERR_TOO_MANY_QUERY_RULES, {NapiError::ERR_QUERY_RULE_COUNT_OVER_LIMIT,
+            "Count of query rules is over limit"}},
+        {ERR_TOO_MANY_CONCURRENT_QUERIES, {NapiError::ERR_CONCURRENT_QUERY_COUNT_OVER_LIMIT,
+            "cCount of concurrent queries is over limit"}},
+        {ERR_QUERY_TOO_FREQUENTLY, {NapiError::ERR_QUERY_TOO_FREQUENTLY, "Frequency of event query is over limit"}},
+        {NapiInnerError::ERR_INVALID_DOMAIN_IN_QUERY_RULE,
+            {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
+        {NapiInnerError::ERR_INVALID_EVENT_NAME_IN_QUERY_RULE,
+            {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
+    };
+    return errMap.find(retCode) == errMap.end() ?
+        std::make_pair(NapiError::ERR_ENV_ABNORMAL, "environment is abnormal") : errMap.at(retCode);
+}
+
+napi_value NapiHiSysEventUtil::CreateErrorByRet(napi_env env, int32_t retCode)
+{
+    auto detail = GetErrorDetailByRet(env, retCode);
+    return CreateError(env, detail.first, detail.second);
+}
+
+void NapiHiSysEventUtil::ThrowErrorByRet(napi_env env, int32_t retCode)
+{
+    auto detail = GetErrorDetailByRet(env, retCode);
+    ThrowError(env, detail.first, detail.second);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

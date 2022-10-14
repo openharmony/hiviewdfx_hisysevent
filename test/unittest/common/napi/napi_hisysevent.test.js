@@ -57,31 +57,36 @@ describe('hiSysEventJsUnitTest', function () {
      */
     it('hiSysEventJsUnitTest001', 0, async function (done) {
         console.info('hiSysEventJsUnitTest001 start')
-        let result = 0;
-        hiSysEvent.write({
-            domain: "RELIABILITY",
-            name: "STACK",
-            eventType: hiSysEvent.EventType.FAULT,
-            params: {
-                PID: 1,
-                UID: 1,
-                PACKAGE_NAME: "com.huawei.testHiSysEvent",
-                PROCESS_NAME: "hiview js test suite",
-                MSG: "no msg."
-            }
-        }, (err, val) => {
-            if (err) {
-                console.error('in hiSysEventJsUnitTest001 test callback: err.code = ' + err.code);
-                result = err.code;
-            } else {
-                console.info('in hiSysEventJsUnitTest001 test callback: result = ' + val);
-                result = val;
-            }
-            expect(result).assertEqual(0)
+        try {
+            hiSysEvent.write({
+                domain: "RELIABILITY",
+                name: "STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: {
+                    PID: 1,
+                    UID: 1,
+                    PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                    PROCESS_NAME: "hiview js test suite",
+                    MSG: "no msg."
+                }
+            }, (err, val) => {
+                if (err) {
+                    console.error('in hiSysEventJsUnitTest001 test callback: err.code = ' + err.code)
+                    expect(false)
+                } else {
+                    console.info('in hiSysEventJsUnitTest001 test callback: result = ' + val);
+                    expect(val).assertEqual(0)
+                }
+                console.info('hiSysEventJsUnitTest001 end')
+                done()
+            })
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest001 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false)
+            console.info('hiSysEventJsUnitTest001 end')
             done()
-        })
-        console.info('hiSysEventJsUnitTest001 end')
-    });
+        }
+    })
 
     /**
      * @tc.name: hiSysEventJsUnitTest002
@@ -90,34 +95,40 @@ describe('hiSysEventJsUnitTest', function () {
      */
     it('hiSysEventJsUnitTest002', 0, async function (done) {
         console.info('hiSysEventJsUnitTest002 start')
-        let result = 0;
-        hiSysEvent.write({
-            domain: "RELIABILITY",
-            name: "STACK",
-            eventType: hiSysEvent.EventType.FAULT,
-            params: {
-                PID: 1,
-                UID: 1,
-                PACKAGE_NAME: "com.huawei.testHiSysEvent",
-                PROCESS_NAME: "hiview js test suite",
-                MSG: "no msg."
-            }
-        }).then(
-            (val) => {
-                console.info('in hiSysEventJsUnitTest002 test callback: result = ' + val);
-                result = val
-                expect(result).assertEqual(0)
-                done()
-            }
-        ).catch(
-            (err) => {
-                console.error('in hiSysEventJsUnitTest002 test callback: err.code = ' + err.code);
-                result = err.code;
-                done()
-            }
-        );
-        console.info('hiSysEventJsUnitTest002 end')
-    });
+        try {
+            hiSysEvent.write({
+                domain: "RELIABILITY",
+                name: "STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: {
+                    PID: 1,
+                    UID: 1,
+                    PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                    PROCESS_NAME: "hiview js test suite",
+                    MSG: "no msg."
+                }
+            }).then(
+                (val) => {
+                    console.info('in hiSysEventJsUnitTest002 test callback: result = ' + val)
+                    expect(val).assertEqual(0)
+                    console.info('hiSysEventJsUnitTest002 end')
+                    done()
+                }
+            ).catch(
+                (err) => {
+                    console.error('in hiSysEventJsUnitTest002 test callback: err.code = ' + err.code)
+                    expect(false)
+                    console.info('hiSysEventJsUnitTest002 end')
+                    done()
+                }
+            );
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest002 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false)
+            console.info('hiSysEventJsUnitTest002 end')
+            done()
+        }
+    })
 
     /**
      * @tc.name: hiSysEventJsUnitTest003
@@ -138,18 +149,19 @@ describe('hiSysEventJsUnitTest', function () {
             onServiceDied: () => {
             }
         }
-        let result = hiSysEvent.addWatcher(watcher)
-        if (result == -19) { // -19: no permission
+        try {
+            hiSysEvent.addWatcher(watcher)
+            hiSysEvent.removeWatcher(watcher)
             expect(true)
             console.info('hiSysEventJsUnitTest003 end')
-        } else {
-            expect(result).assertEqual(0)
-            result = hiSysEvent.removeWatcher(watcher)
-            expect(result).assertEqual(0)
+            done();
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest003 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(err.code == 201)
             console.info('hiSysEventJsUnitTest003 end')
+            done()
         }
-        done();
-    });
+    })
 
     /**
      * @tc.name: hiSysEventJsUnitTest004
@@ -179,13 +191,8 @@ describe('hiSysEventJsUnitTest', function () {
                 console.info(`hiSysEventJsUnitTest004: OnServiceDie...`)
             }
         }
-        let result = hiSysEvent.addWatcher(watcher)
-        if (result == -19) { // -19: no permission
-            expect(true)
-            console.info('hiSysEventJsUnitTest004 end')
-            done()
-        } else {
-            expect(result).assertEqual(0)
+        try {
+            hiSysEvent.addWatcher(watcher)
             hiSysEvent.write({
                 domain: "RELIABILITY",
                 name: "STACK",
@@ -199,21 +206,31 @@ describe('hiSysEventJsUnitTest', function () {
                 }
             }, (err, val) => {
                 if (err) {
-                    console.error('in hiSysEventJsUnitTest004 test callback: err.code = ' + err.code);
-                    result = err.code;
+                    console.error('in hiSysEventJsUnitTest004 test callback: err.code = ' + err.code)
                 } else {
                     console.info('in hiSysEventJsUnitTest004 test callback: result = ' + val);
-                    result = val;
                 }
             })
             setTimeout(() => {
-                result = hiSysEvent.removeWatcher(watcher)
-                expect(result).assertEqual(0)
-                console.info('hiSysEventJsUnitTest004 end')
-                done()
+                try {
+                    hiSysEvent.removeWatcher(watcher)
+                    expect(true)
+                    console.info('hiSysEventJsUnitTest004 end')
+                    done()
+                } catch (err) {
+                    console.error(`hiSysEventJsUnitTest004 delay > error code: ${err.code}, error msg: ${err.message}`)
+                    expect(err.code == 201)
+                    console.info('hiSysEventJsUnitTest004 end')
+                    done()
+                }
             }, 1000)
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest004 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(err.code == 201)
+            console.info('hiSysEventJsUnitTest004 end')
+            done()
         }
-    });
+    })
 
     /**
      * @tc.name: hiSysEventJsUnitTest005
@@ -222,72 +239,489 @@ describe('hiSysEventJsUnitTest', function () {
      */
     it('hiSysEventJsUnitTest005', 0, async function (done) {
         console.info('hiSysEventJsUnitTest005 start')
-        hiSysEvent.write({
-            domain: "RELIABILITY",
-            name: "STACK",
-            eventType: hiSysEvent.EventType.FAULT,
-            params: {
-                PID: 1,
-                UID: 1,
-                PACKAGE_NAME: "com.huawei.testHiSysEvent",
-                PROCESS_NAME: "hiview napi test suite",
-                MSG: "no msg."
-            }
-        }, (err, val) => {
-            if (err) {
-                console.error('in hiSysEventJsUnitTest005 test callback: err.code = ' + err.code)
-                result = err.code;
-            } else {
-                console.info('in hiSysEventJsUnitTest005 test callback: result = ' + val)
-                result = val;
-            }
-        })
-        setTimeout(() => {
-            let result = hiSysEvent.query({
-                beginTime: -1,
-                endTime: -1,
-                maxEvents: 2,
-            }, [{
+        try {
+            hiSysEvent.write({
                 domain: "RELIABILITY",
-                names: ["STACK"],
-            }], {
-                onQuery: function (infos, seqs) {
-                    console.info(`hiSysEventJsUnitTest005: onQuery...`)
-                    expect(infos.length >= 0).assertTrue()
-                    expect(seqs.length >= 0).assertTrue()
-                    console.info(`hiSysEventJsUnitTest005: infos.size is ${infos.length}, seqs.length is ${seqs.length}`)
-                    if (infos instanceof Array) {
-                        for (let i = 0; i < infos.length; i++) {
-                            let item = infos[i];
-                            console.info(`hiSysEventJsUnitTest005: domain is ${item.domain}, name is ${item.name}, eventType is ${item.eventType}`)
-                            if (item.params instanceof Object) {
-                                for (const key in item.params) {
-                                    console.info(`hiSysEventJsUnitTest005: ${key}: ${item.params[key]}`)
-                                }
-                            }
-                        }
-                    }
-                    if (seqs instanceof Array) {
-                        for (let i = 0; i < seqs.length; i++) {
-                            let item = seqs[i];
-                            console.info(`hiSysEventJsUnitTest005: seq${i}: ${item}`)
-                        }
-                    }
-                },
-                onComplete: function(reason, total) {
-                    console.info(`hiSysEventJsUnitTest005: onComplete...`)
-                    console.info(`hiSysEventJsUnitTest005: reason is ${reason}, total is ${total}`)
-                    console.info(`hiSysEventJsUnitTest005 end`)
-                    done()
+                name: "STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: {
+                    PID: 1,
+                    UID: 1,
+                    PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                    PROCESS_NAME: "hiview napi test suite",
+                    MSG: "no msg."
+                }
+            }, (err, val) => {
+                if (err) {
+                    console.error('in hiSysEventJsUnitTest005 test callback: err.code = ' + err.code)
+                } else {
+                    console.info('in hiSysEventJsUnitTest005 test callback: result = ' + val)
                 }
             })
-            if (result == -19) { // -19: no permission
-                expect(true)
-                console.info(`hiSysEventJsUnitTest005 end`)
+            setTimeout(() => {
+                try {
+                    hiSysEvent.query({
+                        beginTime: -1,
+                        endTime: -1,
+                        maxEvents: 2,
+                    }, [{
+                        domain: "RELIABILITY",
+                        names: ["STACK"],
+                    }], {
+                        onQuery: function (infos) {
+                            console.info(`hiSysEventJsUnitTest005: onQuery...`)
+                            expect(infos.length >= 0).assertTrue()
+                            console.info(`hiSysEventJsUnitTest005: infos.size is ${infos.length}`)
+                            if (infos instanceof Array) {
+                                for (let i = 0; i < infos.length; i++) {
+                                    let item = infos[i];
+                                    console.info(`hiSysEventJsUnitTest005: domain is ${item.domain}, name is ${item.name}, eventType is ${item.eventType}`)
+                                    if (item.params instanceof Object) {
+                                        for (const key in item.params) {
+                                            console.info(`hiSysEventJsUnitTest005: ${key}: ${item.params[key]}`)
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        onComplete: function(reason, total) {
+                            console.info(`hiSysEventJsUnitTest005: onComplete...`)
+                            console.info(`hiSysEventJsUnitTest005: reason is ${reason}, total is ${total}`)
+                            expect(true)
+                            console.info(`hiSysEventJsUnitTest005 end`)
+                            done()
+                        }
+                    })
+                } catch (err) {
+                    console.error(`hiSysEventJsUnitTest005 delay > error code: ${err.code}, error msg: ${err.message}`)
+                    expect(err.code == 201)
+                    console.info('hiSysEventJsUnitTest005 end')
+                    done()
+                }
+            }, 1000);
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest005 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(err.code == 201)
+            console.info('hiSysEventJsUnitTest005 end')
+            done()
+        }
+    })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest006
+     * @tc.desc: Test query callback with domain which length is over 16
+     * @tc.type: FUNC
+     */
+    it('hiSysEventJsUnitTest006', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest006 start')
+        try {
+            hiSysEvent.write({
+                domain: "RELIABILITY",
+                name: "STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: {
+                    PID: 1,
+                    UID: 1,
+                    PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                    PROCESS_NAME: "hiview napi test suite",
+                    MSG: "no msg."
+                }
+            }, (err, val) => {
+                if (err) {
+                    console.error('in hiSysEventJsUnitTest006 test callback: err.code = ' + err.code)
+                } else {
+                    console.info('in hiSysEventJsUnitTest006 test callback: result = ' + val)
+                }
+            })
+            setTimeout(() => {
+                try {
+                    hiSysEvent.query({
+                        beginTime: -1,
+                        endTime: -1,
+                        maxEvents: 2,
+                    }, [{
+                        domain: "RELIABILITY_RELIABILITY",
+                        names: ["STACK"],
+                    }], {
+                        onQuery: function (infos) {
+                            console.info(`hiSysEventJsUnitTest006: onQuery...`)
+                            expect(infos.length >= 0).assertTrue()
+                            console.info(`hiSysEventJsUnitTest006: infos.size is ${infos.length}`)
+                            if (infos instanceof Array) {
+                                for (let i = 0; i < infos.length; i++) {
+                                    let item = infos[i];
+                                    console.info(`hiSysEventJsUnitTest005: domain is ${item.domain}, name is ${item.name}, eventType is ${item.eventType}`)
+                                    if (item.params instanceof Object) {
+                                        for (const key in item.params) {
+                                            console.info(`hiSysEventJsUnitTest005: ${key}: ${item.params[key]}`)
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        onComplete: function(reason, total) {
+                            console.info(`hiSysEventJsUnitTest006: onComplete...`)
+                            console.info(`hiSysEventJsUnitTest006: reason is ${reason}, total is ${total}`)
+                            expect(true)
+                            console.info(`hiSysEventJsUnitTest006 end`)
+                            done()
+                        }
+                    })
+                } catch (err) {
+                    console.error(`hiSysEventJsUnitTest006 delay > error code: ${err.code}, error msg: ${err.message}`)
+                    expect(err.code == 11200302)
+                    console.info('hiSysEventJsUnitTest006 end')
+                    done()
+                }
+            }, 1000);
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest006 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false)
+            console.info('hiSysEventJsUnitTest006 end')
+            done()
+        }
+    })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest007
+     * @tc.desc: Test query callback with domain which length is over 32
+     * @tc.type: FUNC
+     */
+     it('hiSysEventJsUnitTest007', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest007 start')
+        try {
+            hiSysEvent.write({
+                domain: "RELIABILITY",
+                name: "STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: {
+                    PID: 1,
+                    UID: 1,
+                    PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                    PROCESS_NAME: "hiview napi test suite",
+                    MSG: "no msg."
+                }
+            }, (err, val) => {
+                if (err) {
+                    console.error('in hiSysEventJsUnitTest007 test callback: err.code = ' + err.code)
+                } else {
+                    console.info('in hiSysEventJsUnitTest007 test callback: result = ' + val)
+                }
+            })
+            setTimeout(() => {
+                try {
+                    hiSysEvent.query({
+                        beginTime: -1,
+                        endTime: -1,
+                        maxEvents: 2,
+                    }, [{
+                        domain: "RELIABILITY",
+                        names: ["STACK_STACK_STACK_STACK_STACK_STACK"],
+                    }], {
+                        onQuery: function (infos) {
+                            console.info(`hiSysEventJsUnitTest007: onQuery...`)
+                            expect(infos.length >= 0).assertTrue()
+                            console.info(`hiSysEventJsUnitTest007: infos.size is ${infos.length}`)
+                            if (infos instanceof Array) {
+                                for (let i = 0; i < infos.length; i++) {
+                                    let item = infos[i];
+                                    console.info(`hiSysEventJsUnitTest005: domain is ${item.domain}, name is ${item.name}, eventType is ${item.eventType}`)
+                                    if (item.params instanceof Object) {
+                                        for (const key in item.params) {
+                                            console.info(`hiSysEventJsUnitTest005: ${key}: ${item.params[key]}`)
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        onComplete: function(reason, total) {
+                            console.info(`hiSysEventJsUnitTest007: onComplete...`)
+                            console.info(`hiSysEventJsUnitTest007: reason is ${reason}, total is ${total}`)
+                            expect(true)
+                            console.info(`hiSysEventJsUnitTest007 end`)
+                            done()
+                        }
+                    })
+                } catch (err) {
+                    console.error(`hiSysEventJsUnitTest007 delay > error code: ${err.code}, error msg: ${err.message}`)
+                    expect(err.code == 11200302)
+                    console.info('hiSysEventJsUnitTest007 end')
+                    done()
+                }
+            }, 1000);
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest007 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false)
+            console.info('hiSysEventJsUnitTest007 end')
+            done()
+        }
+    })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest008
+     * @tc.desc: Test hisysevent of invalid domain writing with calling AsyncCallback
+     * @tc.type: FUNC
+     */
+    it('hiSysEventJsUnitTest008', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest008 start')
+        try {
+            hiSysEvent.write({
+                domain: "RELIABILITY_RELIABILITY",
+                name: "STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: {
+                    PID: 1,
+                    UID: 1,
+                    PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                    PROCESS_NAME: "hiview js test suite",
+                    MSG: "no msg."
+                }
+            }, (err, val) => {
+                if (err) {
+                    console.error(`in hiSysEventJsUnitTest008 test callback: err.code = ${err.code}, error msg is ${err.message}`)
+                    expect(err.code == 11200001)
+                } else {
+                    console.info(`in hiSysEventJsUnitTest008 test callback: result = ${val}`)
+                    expect(false)
+                }
+                console.info('hiSysEventJsUnitTest008 end')
                 done()
-            } else {
-                expect(result).assertEqual(0)
-            }
-        }, 1000);
+            })
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest008 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false)
+            console.info('hiSysEventJsUnitTest008 end')
+            done()
+        }
+    })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest009
+     * @tc.desc: Test hisysevent of invalid event name writing with calling AsyncCallback
+     * @tc.type: FUNC
+     */
+    it('hiSysEventJsUnitTest009', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest009 start')
+        try {
+            hiSysEvent.write({
+                domain: "RELIABILITY",
+                name: "STACK_STACK_STACK_STACK_STACK_STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: {
+                    PID: 1,
+                    UID: 1,
+                    PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                    PROCESS_NAME: "hiview js test suite",
+                    MSG: "no msg."
+                }
+            }, (err, val) => {
+                if (err) {
+                    console.error(`in hiSysEventJsUnitTest009 test callback: err.code = ${err.code}, error msg is ${err.message}`)
+                    expect(err.code == 11200002)
+                } else {
+                    console.info(`in hiSysEventJsUnitTest009 test callback: result = ${val}`)
+                    expect(false)
+                }
+                console.info('hiSysEventJsUnitTest009 end')
+                done()
+            })
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest009 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false)
+            console.info('hiSysEventJsUnitTest009 end')
+            done()
+        }
+    })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest010
+     * @tc.desc: Test hisysevent which is over size writing with calling AsyncCallback
+     * @tc.type: FUNC
+     */
+     it('hiSysEventJsUnitTest010', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest010 start')
+        try {
+            hiSysEvent.write({
+                domain: "RELIABILITY",
+                name: "STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: {
+                    PID: 1,
+                    UID: 1,
+                    PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                    PROCESS_NAME: Array(384 * 1024).join("c"),
+                    MSG: "no msg."
+                }
+            }, (err, val) => {
+                if (err) {
+                    console.error(`in hiSysEventJsUnitTest010 test callback: err.code = ${err.code}, error msg is ${err.message}`)
+                    expect(err.code == 11200004)
+                } else {
+                    console.info(`in hiSysEventJsUnitTest010 test callback: result = ${val}`)
+                    expect(false)
+                }
+                console.info('hiSysEventJsUnitTest010 end')
+                done()
+            })
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest010 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false)
+            console.info('hiSysEventJsUnitTest010 end')
+            done()
+        }
+    })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest011
+     * @tc.desc: Test hisysevent of invalid param name writing with calling AsyncCallback
+     * @tc.type: FUNC
+     */
+    it('hiSysEventJsUnitTest011', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest011 start')
+        try {
+            hiSysEvent.write({
+                domain: "RELIABILITY",
+                name: "STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: {
+                    PID: 1,
+                    UID: 1,
+                    STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK: "com.huawei.testHiSysEvent",
+                    PROCESS_NAME: "hiview js test suite",
+                    MSG: "no msg."
+                }
+            }, (err, val) => {
+                if (err) {
+                    console.error(`in hiSysEventJsUnitTest011 test callback: err.code = ${err.code}, error msg is ${err.message}`)
+                    expect(err.code == 11200051)
+                } else {
+                    console.info(`in hiSysEventJsUnitTest011 test callback: result = ${val}`)
+                    expect(false)
+                }
+                console.info('hiSysEventJsUnitTest011 end')
+                done()
+            })
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest011 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false)
+            console.info('hiSysEventJsUnitTest011 end')
+            done()
+        }
+    })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest012
+     * @tc.desc: Test hisysevent with string over limit writing with calling AsyncCallback
+     * @tc.type: FUNC
+     */
+     it('hiSysEventJsUnitTest012', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest012 start')
+        try {
+            hiSysEvent.write({
+                domain: "RELIABILITY",
+                name: "STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: {
+                    PID: 1,
+                    UID: 1,
+                    PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                    PROCESS_NAME: Array(256 * 1024).join("c"),
+                    MSG: "no msg."
+                }
+            }, (err, val) => {
+                if (err) {
+                    console.error(`in hiSysEventJsUnitTest012 test callback: err.code = ${err.code}, error msg is ${err.message}`)
+                    expect(err.code == 11200052)
+                } else {
+                    console.info(`in hiSysEventJsUnitTest012 test callback: result = ${val}`)
+                    expect(false)
+                }
+                console.info('hiSysEventJsUnitTest012 end')
+                done()
+            })
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest012 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false)
+            console.info('hiSysEventJsUnitTest012 end')
+            done()
+        }
+    })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest013
+     * @tc.desc: Test hisysevent with param count over limit writing with calling AsyncCallback
+     * @tc.type: FUNC
+     */
+     it('hiSysEventJsUnitTest013', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest013 start')
+        let largeParams = {}
+        for (let i = 0; i < 200; i++) {
+            largeParams["name" + i] = i
+        }
+        try {
+            hiSysEvent.write({
+                domain: "RELIABILITY",
+                name: "STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: largeParams
+            }, (err, val) => {
+                if (err) {
+                    console.error(`in hiSysEventJsUnitTest013 test callback: err.code = ${err.code}, error msg is ${err.message}`)
+                    expect(err.code == 11200053)
+                } else {
+                    console.info(`in hiSysEventJsUnitTest013 test callback: result = ${val}`)
+                    expect(false)
+                }
+                console.info('hiSysEventJsUnitTest013 end')
+                done()
+            })
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest013 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false)
+            console.info('hiSysEventJsUnitTest013 end')
+            done()
+        }
+    })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest014
+     * @tc.desc: Test hisysevent with array size over limit writing with calling AsyncCallback
+     * @tc.type: FUNC
+     */
+     it('hiSysEventJsUnitTest014', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest014 start')
+        let msgArray = []
+        for (let i = 0; i < 200; i++) {
+            msgArray[i] = i
+        }
+        try {
+            hiSysEvent.write({
+                domain: "RELIABILITY",
+                name: "STACK",
+                eventType: hiSysEvent.EventType.FAULT,
+                params: {
+                    PID: 1,
+                    UID: 1,
+                    PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                    PROCESS_NAME: "hiview js test suite",
+                    MSG: msgArray
+                }
+            }, (err, val) => {
+                if (err) {
+                    console.error(`in hiSysEventJsUnitTest014 test callback: err.code = ${err.code}, error msg is ${err.message}`)
+                    expect(err.code == 11200054)
+                } else {
+                    console.info(`in hiSysEventJsUnitTest014 test callback: result = ${val}`)
+                    expect(false)
+                }
+                console.info('hiSysEventJsUnitTest014 end')
+                done()
+            })
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest014 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false)
+            console.info('hiSysEventJsUnitTest014 end')
+            done()
+        }
     })
 });
