@@ -502,7 +502,11 @@ void CreateParamItemTypeValue(const napi_env env, Json::Value& jsonValue, napi_v
         return;
     }
 #ifdef JSON_HAS_INT64
-    if (jsonValue.isInt64() || jsonValue.isUInt64()) {
+    if (jsonValue.isInt64() && jsonValue.type() != Json::ValueType::uintValue) {
+        NapiHiSysEventUtil::CreateBigInt64Value(env, jsonValue.asInt64(), value);
+        return;
+    }
+    if (jsonValue.isUInt64() && jsonValue.type() != Json::ValueType::intValue) {
         NapiHiSysEventUtil::CreateBigInt64Value(env, jsonValue.asUInt64(), value);
         return;
     }
