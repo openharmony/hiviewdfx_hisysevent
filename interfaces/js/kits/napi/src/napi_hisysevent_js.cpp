@@ -63,8 +63,8 @@ static napi_value Write(napi_env env, napi_callback_info info)
     napi_get_undefined(env, &val);
     if (paramNum < WRITE_FUNC_MAX_PARAM_NUM - 1) {
         HiLog::Error(LABEL,
-            "count of parameters is not equal to %{public}d or %{public}d.",
-            static_cast<int>(WRITE_FUNC_MAX_PARAM_NUM - 1), static_cast<int>(WRITE_FUNC_MAX_PARAM_NUM));
+            "count of parameters is not equal to %{public}zu or %{public}zu.",
+            WRITE_FUNC_MAX_PARAM_NUM - 1, WRITE_FUNC_MAX_PARAM_NUM);
         NapiHiSysEventUtil::ThrowParamMandatoryError(env, "info");
         return val;
     }
@@ -107,7 +107,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
     if (paramNum < ADD_LISTENER_FUNC_MAX_PARAM_NUM) {
-        HiLog::Error(LABEL, "count of parameters is less than %{public}d.", ADD_LISTENER_FUNC_MAX_PARAM_NUM);
+        HiLog::Error(LABEL, "count of parameters is less than %{public}zu.", ADD_LISTENER_FUNC_MAX_PARAM_NUM);
         NapiHiSysEventUtil::ThrowParamMandatoryError(env, "watcher");
         return nullptr;
     }
@@ -142,7 +142,7 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
     if (paramNum < REMOVE_LISTENER_FUNC_MAX_PARAM_NUM) {
-        HiLog::Error(LABEL, "count of parameters is less than %{public}d.", REMOVE_LISTENER_FUNC_MAX_PARAM_NUM);
+        HiLog::Error(LABEL, "count of parameters is less than %{public}zu.", REMOVE_LISTENER_FUNC_MAX_PARAM_NUM);
         NapiHiSysEventUtil::ThrowParamMandatoryError(env, "watcher");
         return nullptr;
     }
@@ -175,7 +175,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
             {QUERY_RULE_ARRAY_PARAM_INDEX, "rules"},
             {QUERY_QUERIER_PARAM_INDEX, "querier"},
         };
-        HiLog::Error(LABEL, "count of parameters is less than %{public}d.", QUERY_FUNC_MAX_PARAM_NUM);
+        HiLog::Error(LABEL, "count of parameters is less than %{public}zu.", QUERY_FUNC_MAX_PARAM_NUM);
         NapiHiSysEventUtil::ThrowParamMandatoryError(env, paramError.at(paramNum));
         return nullptr;
     }
