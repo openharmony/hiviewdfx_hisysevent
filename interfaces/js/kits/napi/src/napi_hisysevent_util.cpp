@@ -466,24 +466,27 @@ void AppendBaseInfo(const napi_env env, napi_value& sysEventInfo, const std::str
 void CreateBoolValue(const napi_env env, bool value, napi_value& val)
 {
     napi_status status = napi_get_boolean(env, value, &val);
+    HiLog::Debug(LABEL, "create napi value of bool type, value is %{public}d.", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get create napi value of int32 type.");
+        HiLog::Error(LABEL, "failed to get create napi value of bool type.");
     }
 }
 
 void CreateDoubleValue(const napi_env env, double value, napi_value& val)
 {
     napi_status status = napi_create_double(env, value, &val);
+    HiLog::Debug(LABEL, "create napi value of double type, value is %{public}f.", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get create napi value of int32 type.");
+        HiLog::Error(LABEL, "failed to get create napi value of double type.");
     }
 }
 
 void CreateUint32Value(const napi_env env, uint32_t value, napi_value& val)
 {
     napi_status status = napi_create_uint32(env, value, &val);
+    HiLog::Debug(LABEL, "create napi value of uint32 type, value is %{public}u.", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get create napi value of int32 type.");
+        HiLog::Error(LABEL, "failed to get create napi value of uint32 type.");
     }
 }
 
@@ -502,8 +505,12 @@ void CreateParamItemTypeValue(const napi_env env, Json::Value& jsonValue, napi_v
         return;
     }
 #ifdef JSON_HAS_INT64
-    if (jsonValue.isInt64() || jsonValue.isUInt64()) {
-        NapiHiSysEventUtil::CreateBigInt64Value(env, jsonValue.asUInt64(), value);
+    if (jsonValue.isInt64() && jsonValue.type() != Json::ValueType::uintValue) {
+        NapiHiSysEventUtil::CreateInt64Value(env, jsonValue.asInt64(), value);
+        return;
+    }
+    if (jsonValue.isUInt64() && jsonValue.type() != Json::ValueType::intValue) {
+        NapiHiSysEventUtil::CreateUInt64Value(env, jsonValue.asUInt64(), value);
         return;
     }
 #endif
@@ -639,7 +646,7 @@ void NapiHiSysEventUtil::CreateJsInt64Array(const napi_env env, const std::vecto
     auto len = originValues.size();
     for (size_t i = 0; i < len; i++) {
         napi_value item;
-        CreateBigInt64Value(env, originValues[i], item);
+        CreateInt64Value(env, originValues[i], item);
         napi_status status = napi_set_element(env, array, i, item);
         if (status != napi_ok) {
             HiLog::Error(LABEL, "napi_set_element failed");
@@ -731,22 +738,34 @@ int32_t NapiHiSysEventUtil::ParseQueryArg(const napi_env env, napi_value& jsObj,
 void NapiHiSysEventUtil::CreateInt32Value(const napi_env env, int32_t value, napi_value& ret)
 {
     napi_status status = napi_create_int32(env, value, &ret);
+    HiLog::Debug(LABEL, "create napi value of int32 type, value is %{public}d.", value);
     if (status != napi_ok) {
         HiLog::Error(LABEL, "failed to create napi value of int32 type.");
     }
 }
 
-void NapiHiSysEventUtil::CreateBigInt64Value(const napi_env env, int64_t value, napi_value& ret)
+void NapiHiSysEventUtil::CreateInt64Value(const napi_env env, int64_t value, napi_value& ret)
+{
+    napi_status status = napi_create_bigint_int64(env, value, &ret);
+    HiLog::Debug(LABEL, "create napi value of int64_t type, value is %{public}s.", std::to_string(value).c_str());
+    if (status != napi_ok) {
+        HiLog::Error(LABEL, "failed to create napi value of int64_t type.");
+    }
+}
+
+void NapiHiSysEventUtil::CreateUInt64Value(const napi_env env, uint64_t value, napi_value& ret)
 {
     napi_status status = napi_create_bigint_uint64(env, value, &ret);
+    HiLog::Debug(LABEL, "create napi value of uint64_t type, value is %{public}s.", std::to_string(value).c_str());
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to create napi value of uint64 type.");
+        HiLog::Error(LABEL, "failed to create napi value of uint64_t type.");
     }
 }
 
 void NapiHiSysEventUtil::CreateStringValue(const napi_env env, std::string value, napi_value& ret)
 {
     napi_status status = napi_create_string_utf8(env, value.c_str(), NAPI_AUTO_LENGTH, &ret);
+    HiLog::Debug(LABEL, "create napi value of string type, value is %{public}s.", value.c_str());
     if (status != napi_ok) {
         HiLog::Error(LABEL, "failed to create napi value of string type.");
     }
