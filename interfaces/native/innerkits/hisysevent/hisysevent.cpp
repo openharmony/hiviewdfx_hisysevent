@@ -31,13 +31,6 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
-std::string GetFomattedTime(unsigned int time)
-{
-    unsigned int dec = 10;
-    std::string ret {static_cast<char>('0' + (time / dec % dec))}; // add num at tens place
-    ret += static_cast<char>('0' + time % dec); // add num at ones place
-    return ret;
-}
 }
 
 WriteController HiSysEvent::controller;
@@ -49,38 +42,24 @@ static inline uint64_t GetMilliseconds()
     return millisecs.count();
 }
 
-static std::string GetTimeZone()
+std::string GetTimeZone()
 {
-    struct timeval tv;
-    if (gettimeofday(&tv, NULL) != 0) {
-        HiLog::Error(LABEL, "can not get tz");
+    struct timeval currentTime;
+    if (gettimeofday(&currentTime, nullptr) != 0) {
         return "";
     }
-    time_t sysSec = tv.tv_sec;
+    time_t systemSeconds = currentTime.tv_sec;
     struct tm tmLocal;
-    if (localtime_r(&sysSec, &tmLocal) == nullptr) {
-        HiLog::Error(LABEL, "failed to get local time.");
+    if (localtime_r(&systemSeconds, &tmLocal) == nullptr) {
         return "";
     }
-    struct tm tmUtc;
-    if (gmtime_r(&sysSec, &tmUtc) == nullptr) {
-        HiLog::Error(LABEL, "failed to get GMT time.");
-        return "";
+    int tzBufSize = 20;
+    char tz[tzBufSize];
+    auto ret = strftime(tz, tzBufSize, "%z", &tmLocal);
+    if (ret > 0) {
+        return std::string(tz);
     }
-    time_t diffSec = mktime(&tmLocal) - mktime(&tmUtc);
-    unsigned int secsInHour = 3600;
-    unsigned int tzHour = static_cast<unsigned int>(std::abs(diffSec)) / secsInHour;
-    unsigned int maxTimeZone = 12; // max time zone is 12
-    if (tzHour > maxTimeZone) {
-        HiLog::Error(LABEL, "failed to get hours for time zone, set to 0.");
-        tzHour = 0;
-    }
-    unsigned int secsInMin = 60;
-    unsigned int tzMin = (static_cast<unsigned int>(std::abs(diffSec)) % secsInHour) / secsInMin;
-    std::string tz {(diffSec < 0) ? "-" : "+"};
-    tz += GetFomattedTime(tzHour);
-    tz += GetFomattedTime(tzMin);
-    return tz;
+    return std::string("+0000");
 }
 
 int HiSysEvent::CheckKey(const std::string &key)
