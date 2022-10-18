@@ -132,7 +132,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
     std::shared_ptr<NapiHiSysEventListener> listener = std::make_shared<NapiHiSysEventListener>(callbackContext);
     ret = HiSysEventBaseManager::AddListener(listener, rules);
     if (ret != NAPI_SUCCESS) {
-        HiLog::Error(LABEL, "failed to add event listener.");
+        HiLog::Error(LABEL, "failed to add event listener, ret is %{public}d.", ret);
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
         return val;
     }
@@ -167,6 +167,9 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
     }
     listeners.erase(iter->first);
     ret = HiSysEventBaseManager::RemoveListener(iter->second.second);
+    if (ret != NAPI_SUCCESS) {
+        HiLog::Error(LABEL, "failed to remove event listener, ret is %{public}d.", ret);
+    }
     NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
     return val;
 }
@@ -215,7 +218,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
         });
     ret = HiSysEventBaseManager::Query(queryArg, rules, querier);
     if (ret != NAPI_SUCCESS) {
-        HiLog::Error(LABEL, "failed to query hisysevent.");
+        HiLog::Error(LABEL, "failed to query hisysevent, ret is %{public}d.", ret);
         NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
         return val;
     }
