@@ -72,7 +72,7 @@ describe('hiSysEventJsUnitTest', function () {
             }, (err, val) => {
                 if (err) {
                     console.error('in hiSysEventJsUnitTest001 test callback: err.code = ' + err.code)
-                    expect(false)
+                    expect(false).assertTrue()
                 } else {
                     console.info('in hiSysEventJsUnitTest001 test callback: result = ' + val);
                     expect(val).assertEqual(0)
@@ -82,7 +82,7 @@ describe('hiSysEventJsUnitTest', function () {
             })
         } catch (err) {
             console.error(`hiSysEventJsUnitTest001 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(false)
+            expect(false).assertTrue()
             console.info('hiSysEventJsUnitTest001 end')
             done()
         }
@@ -117,14 +117,14 @@ describe('hiSysEventJsUnitTest', function () {
             ).catch(
                 (err) => {
                     console.error('in hiSysEventJsUnitTest002 test callback: err.code = ' + err.code)
-                    expect(false)
+                    expect(false).assertTrue()
                     console.info('hiSysEventJsUnitTest002 end')
                     done()
                 }
             );
         } catch (err) {
             console.error(`hiSysEventJsUnitTest002 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(false)
+            expect(false).assertTrue()
             console.info('hiSysEventJsUnitTest002 end')
             done()
         }
@@ -141,7 +141,6 @@ describe('hiSysEventJsUnitTest', function () {
             rules: [{
                 domain: "RELIABILITY",
                 name: "STACK",
-                tag: "STABILITY",
                 ruleType: hiSysEvent.RuleType.WHOLE_WORD,
             }],
             onEvent: (info) => {
@@ -152,12 +151,12 @@ describe('hiSysEventJsUnitTest', function () {
         try {
             hiSysEvent.addWatcher(watcher)
             hiSysEvent.removeWatcher(watcher)
-            expect(true)
+            expect(true).assertTrue()
             console.info('hiSysEventJsUnitTest003 end')
             done();
         } catch (err) {
             console.error(`hiSysEventJsUnitTest003 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(err.code == 201)
+            expect(err.code == 201).assertTrue()
             console.info('hiSysEventJsUnitTest003 end')
             done()
         }
@@ -214,19 +213,19 @@ describe('hiSysEventJsUnitTest', function () {
             setTimeout(() => {
                 try {
                     hiSysEvent.removeWatcher(watcher)
-                    expect(true)
+                    expect(true).assertTrue()
                     console.info('hiSysEventJsUnitTest004 end')
                     done()
                 } catch (err) {
                     console.error(`hiSysEventJsUnitTest004 delay > error code: ${err.code}, error msg: ${err.message}`)
-                    expect(err.code == 201)
+                    expect(err.code == 201).assertTrue()
                     console.info('hiSysEventJsUnitTest004 end')
                     done()
                 }
             }, 1000)
         } catch (err) {
             console.error(`hiSysEventJsUnitTest004 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(err.code == 201)
+            expect(err.code == 201).assertTrue()
             console.info('hiSysEventJsUnitTest004 end')
             done()
         }
@@ -287,21 +286,21 @@ describe('hiSysEventJsUnitTest', function () {
                         onComplete: function(reason, total) {
                             console.info(`hiSysEventJsUnitTest005: onComplete...`)
                             console.info(`hiSysEventJsUnitTest005: reason is ${reason}, total is ${total}`)
-                            expect(true)
+                            expect(true).assertTrue()
                             console.info(`hiSysEventJsUnitTest005 end`)
                             done()
                         }
                     })
                 } catch (err) {
                     console.error(`hiSysEventJsUnitTest005 delay > error code: ${err.code}, error msg: ${err.message}`)
-                    expect(err.code == 201)
+                    expect(err.code == 201).assertTrue()
                     console.info('hiSysEventJsUnitTest005 end')
                     done()
                 }
             }, 1000);
         } catch (err) {
             console.error(`hiSysEventJsUnitTest005 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(err.code == 201)
+            expect(err.code == 201).assertTrue()
             console.info('hiSysEventJsUnitTest005 end')
             done()
         }
@@ -362,21 +361,21 @@ describe('hiSysEventJsUnitTest', function () {
                         onComplete: function(reason, total) {
                             console.info(`hiSysEventJsUnitTest006: onComplete...`)
                             console.info(`hiSysEventJsUnitTest006: reason is ${reason}, total is ${total}`)
-                            expect(true)
+                            expect(true).assertTrue()
                             console.info(`hiSysEventJsUnitTest006 end`)
                             done()
                         }
                     })
                 } catch (err) {
                     console.error(`hiSysEventJsUnitTest006 delay > error code: ${err.code}, error msg: ${err.message}`)
-                    expect(err.code == 11200302)
+                    expect(err.code == 11200302 || err.code == 11200304).assertTrue()
                     console.info('hiSysEventJsUnitTest006 end')
                     done()
                 }
             }, 1000);
         } catch (err) {
             console.error(`hiSysEventJsUnitTest006 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(false)
+            expect(false).assertTrue()
             console.info('hiSysEventJsUnitTest006 end')
             done()
         }
@@ -437,21 +436,21 @@ describe('hiSysEventJsUnitTest', function () {
                         onComplete: function(reason, total) {
                             console.info(`hiSysEventJsUnitTest007: onComplete...`)
                             console.info(`hiSysEventJsUnitTest007: reason is ${reason}, total is ${total}`)
-                            expect(true)
+                            expect(true).assertTrue()
                             console.info(`hiSysEventJsUnitTest007 end`)
                             done()
                         }
                     })
                 } catch (err) {
                     console.error(`hiSysEventJsUnitTest007 delay > error code: ${err.code}, error msg: ${err.message}`)
-                    expect(err.code == 11200302)
+                    expect(err.code == 11200302 || err.code == 11200304).assertTrue()
                     console.info('hiSysEventJsUnitTest007 end')
                     done()
                 }
             }, 1000);
         } catch (err) {
             console.error(`hiSysEventJsUnitTest007 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(false)
+            expect(false).assertTrue()
             console.info('hiSysEventJsUnitTest007 end')
             done()
         }
@@ -479,17 +478,17 @@ describe('hiSysEventJsUnitTest', function () {
             }, (err, val) => {
                 if (err) {
                     console.error(`in hiSysEventJsUnitTest008 test callback: err.code = ${err.code}, error msg is ${err.message}`)
-                    expect(err.code == 11200001)
+                    expect(err.code == 11200001).assertTrue()
                 } else {
                     console.info(`in hiSysEventJsUnitTest008 test callback: result = ${val}`)
-                    expect(false)
+                    expect(false).assertTrue()
                 }
                 console.info('hiSysEventJsUnitTest008 end')
                 done()
             })
         } catch (err) {
             console.error(`hiSysEventJsUnitTest008 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(false)
+            expect(false).assertTrue()
             console.info('hiSysEventJsUnitTest008 end')
             done()
         }
@@ -517,17 +516,17 @@ describe('hiSysEventJsUnitTest', function () {
             }, (err, val) => {
                 if (err) {
                     console.error(`in hiSysEventJsUnitTest009 test callback: err.code = ${err.code}, error msg is ${err.message}`)
-                    expect(err.code == 11200002)
+                    expect(err.code == 11200002).assertTrue()
                 } else {
                     console.info(`in hiSysEventJsUnitTest009 test callback: result = ${val}`)
-                    expect(false)
+                    expect(false).assertTrue()
                 }
                 console.info('hiSysEventJsUnitTest009 end')
                 done()
             })
         } catch (err) {
             console.error(`hiSysEventJsUnitTest009 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(false)
+            expect(false).assertTrue()
             console.info('hiSysEventJsUnitTest009 end')
             done()
         }
@@ -549,23 +548,23 @@ describe('hiSysEventJsUnitTest', function () {
                     PID: 1,
                     UID: 1,
                     PACKAGE_NAME: "com.huawei.testHiSysEvent",
-                    PROCESS_NAME: Array(384 * 1024).join("c"),
+                    PROCESS_NAME: Array.from({length: 384 * 1024}).join("ohos"),
                     MSG: "no msg."
                 }
             }, (err, val) => {
                 if (err) {
                     console.error(`in hiSysEventJsUnitTest010 test callback: err.code = ${err.code}, error msg is ${err.message}`)
-                    expect(err.code == 11200004)
+                    expect(err.code == 11200004).assertTrue()
                 } else {
                     console.info(`in hiSysEventJsUnitTest010 test callback: result = ${val}`)
-                    expect(false)
+                    expect(true).assertTrue()
                 }
                 console.info('hiSysEventJsUnitTest010 end')
                 done()
             })
         } catch (err) {
             console.error(`hiSysEventJsUnitTest010 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(false)
+            expect(false).assertTrue()
             console.info('hiSysEventJsUnitTest010 end')
             done()
         }
@@ -593,17 +592,17 @@ describe('hiSysEventJsUnitTest', function () {
             }, (err, val) => {
                 if (err) {
                     console.error(`in hiSysEventJsUnitTest011 test callback: err.code = ${err.code}, error msg is ${err.message}`)
-                    expect(err.code == 11200051)
+                    expect(err.code == 11200051).assertTrue()
                 } else {
                     console.info(`in hiSysEventJsUnitTest011 test callback: result = ${val}`)
-                    expect(false)
+                    expect(false).assertTrue()
                 }
                 console.info('hiSysEventJsUnitTest011 end')
                 done()
             })
         } catch (err) {
             console.error(`hiSysEventJsUnitTest011 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(false)
+            expect(false).assertTrue()
             console.info('hiSysEventJsUnitTest011 end')
             done()
         }
@@ -625,23 +624,23 @@ describe('hiSysEventJsUnitTest', function () {
                     PID: 1,
                     UID: 1,
                     PACKAGE_NAME: "com.huawei.testHiSysEvent",
-                    PROCESS_NAME: Array(256 * 1024).join("c"),
+                    PROCESS_NAME: Array.from({length: 256 * 1024}).join("ohos"),
                     MSG: "no msg."
                 }
             }, (err, val) => {
                 if (err) {
                     console.error(`in hiSysEventJsUnitTest012 test callback: err.code = ${err.code}, error msg is ${err.message}`)
-                    expect(err.code == 11200052)
+                    expect(err.code == 11200052).assertTrue()
                 } else {
                     console.info(`in hiSysEventJsUnitTest012 test callback: result = ${val}`)
-                    expect(false)
+                    expect(true).assertTrue()
                 }
                 console.info('hiSysEventJsUnitTest012 end')
                 done()
             })
         } catch (err) {
             console.error(`hiSysEventJsUnitTest012 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(false)
+            expect(false).assertTrue()
             console.info('hiSysEventJsUnitTest012 end')
             done()
         }
@@ -667,17 +666,17 @@ describe('hiSysEventJsUnitTest', function () {
             }, (err, val) => {
                 if (err) {
                     console.error(`in hiSysEventJsUnitTest013 test callback: err.code = ${err.code}, error msg is ${err.message}`)
-                    expect(err.code == 11200053)
+                    expect(err.code == 11200053).assertTrue()
                 } else {
                     console.info(`in hiSysEventJsUnitTest013 test callback: result = ${val}`)
-                    expect(false)
+                    expect(false).assertTrue()
                 }
                 console.info('hiSysEventJsUnitTest013 end')
                 done()
             })
         } catch (err) {
             console.error(`hiSysEventJsUnitTest013 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(false)
+            expect(false).assertTrue()
             console.info('hiSysEventJsUnitTest013 end')
             done()
         }
@@ -709,17 +708,17 @@ describe('hiSysEventJsUnitTest', function () {
             }, (err, val) => {
                 if (err) {
                     console.error(`in hiSysEventJsUnitTest014 test callback: err.code = ${err.code}, error msg is ${err.message}`)
-                    expect(err.code == 11200054)
+                    expect(err.code == 11200054).assertTrue()
                 } else {
                     console.info(`in hiSysEventJsUnitTest014 test callback: result = ${val}`)
-                    expect(false)
+                    expect(false).assertTrue()
                 }
                 console.info('hiSysEventJsUnitTest014 end')
                 done()
             })
         } catch (err) {
             console.error(`hiSysEventJsUnitTest014 > error code: ${err.code}, error msg: ${err.message}`)
-            expect(false)
+            expect(false).assertTrue()
             console.info('hiSysEventJsUnitTest014 end')
             done()
         }
