@@ -143,6 +143,8 @@ public:
         static constexpr char WEARABLE_HARDWARE[] = "WEARABLEHW";
         static constexpr char WEBVIEW[] = "WEBVIEW";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
+        static constexpr char CAST_ENGINE[] = "CASTENGINE";
+        static constexpr char ISHARE[] = "ISHARE";
         static constexpr char OTHERS[] = "OTHERS";
     };
 
