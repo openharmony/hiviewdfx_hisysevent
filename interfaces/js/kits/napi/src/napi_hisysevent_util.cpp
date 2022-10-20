@@ -137,6 +137,21 @@ std::string ParseStringValue(const napi_env env, const napi_value& value, std::s
     return dest;
 }
 
+std::string GetTagAttribute(const napi_env env, const napi_value& object, std::string defaultValue = "")
+{
+    napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, TAG_ATTR);
+    if (IsValueTypeValid(env, propertyValue, napi_valuetype::napi_null) ||
+        IsValueTypeValid(env, propertyValue, napi_valuetype::napi_undefined)) {
+        return defaultValue;
+    }
+    if (IsValueTypeValid(env, propertyValue, napi_valuetype::napi_string)) {
+        return ParseStringValue(env, propertyValue, defaultValue);
+    }
+    NapiHiSysEventUtil::ThrowParamTypeError(env, TAG_ATTR, "string");
+    HiLog::Error(LABEL, "type of listener tag is not napi_string.");
+    return defaultValue;
+}
+
 std::string GetStringTypeAttribute(const napi_env env, const napi_value& object,
     const std::string& propertyName, std::string defaultValue = "")
 {
@@ -408,10 +423,10 @@ ListenerRule ParseListenerRule(const napi_env env, const napi_value& jsObj)
     HiLog::Debug(LABEL, "domain is %{public}s.", domain.c_str());
     std::string name = GetStringTypeAttribute(env, jsObj, NapiHiSysEventUtil::NAME_ATTR);
     HiLog::Debug(LABEL, "name is %{public}s.", name.c_str());
-    std::string tag = GetStringTypeAttribute(env, jsObj, TAG_ATTR);
-    HiLog::Debug(LABEL, "tag is %{public}s.", tag.c_str());
     int32_t ruleType = GetInt32TypeAttribute(env, jsObj, RULE_TYPE_ATTR, RuleType::WHOLE_WORD);
     HiLog::Debug(LABEL, "ruleType is %{public}d.", ruleType);
+    std::string tag = GetTagAttribute(env, jsObj);
+    HiLog::Debug(LABEL, "tag is %{public}s.", tag.c_str());
     return ListenerRule(domain, name, tag, RuleType(ruleType));
 }
 
