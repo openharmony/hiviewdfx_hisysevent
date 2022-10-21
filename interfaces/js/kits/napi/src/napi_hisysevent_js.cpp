@@ -116,7 +116,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
         RULES_ATTR);
     if (auto ret = NapiHiSysEventUtil::ParseListenerRules(env, jsRulesVal, rules);
         ret != SUCCESS) {
-        HiLog::Error(LABEL, "failed to parse query rules, result code is %{public}d.", ret);
+        HiLog::Error(LABEL, "failed to parse watch rules, result code is %{public}d.", ret);
         return nullptr;
     }
     CallbackContext* callbackContext = new CallbackContext();
@@ -149,7 +149,7 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
     auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventListener>(env,
         params[REMOVE_LISTENER_LISTENER_PARAM_INDEX], listeners);
     if (iter == listeners.end()) {
-        HiLog::Error(LABEL, "failed to found this listener from added ones, so no need to remove it.");
+        HiLog::Error(LABEL, "listener not exist.");
         NapiHiSysEventUtil::ThrowErrorByRet(env, ERR_NAPI_LISTENER_NOT_FOUND);
         return nullptr;
     }
