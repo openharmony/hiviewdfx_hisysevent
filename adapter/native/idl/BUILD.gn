@@ -61,6 +61,7 @@ ohos_source_set("sys_event_service_gen_src_client") {
   ]
 
   sources = [
+    "src/ash_mem_utils.cpp",
     "src/query_sys_event_callback_proxy.cpp",
     "src/query_sys_event_callback_stub.cpp",
     "src/sys_event_callback_proxy.cpp",
