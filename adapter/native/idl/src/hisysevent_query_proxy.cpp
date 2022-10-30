@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 #include "hisysevent_query_proxy.h"
 
-#include "string_convertor.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -25,7 +25,7 @@ void HiSysEventQueryProxy::OnQuery(const ::std::vector<std::u16string>& sysEvent
     if (queryListener != nullptr) {
         std::vector<std::string> strList;
         for_each(sysEvent.cbegin(), sysEvent.cend(), [&strList](const std::u16string& tmp) {
-            strList.emplace_back(U16String2String(tmp));
+            strList.emplace_back(Str16ToStr8(tmp));
         });
         queryListener->OnQuery(strList, seq);
     }
