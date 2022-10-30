@@ -15,7 +15,7 @@
 
 #include "hisysevent_listener_proxy.h"
 
-#include "string_convertor.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -24,8 +24,8 @@ void HiSysEventListenerProxy::Handle(const std::u16string& domain, const std::u1
 {
     auto eventListener = GetEventListener();
     if (eventListener != nullptr) {
-        eventListener->OnEvent(U16String2String(domain), U16String2String(eventName),
-            eventType, U16String2String(eventDetail));
+        eventListener->OnEvent(Str16ToStr8(domain), Str16ToStr8(eventName),
+            eventType, Str16ToStr8(eventDetail));
     }
 }
 
