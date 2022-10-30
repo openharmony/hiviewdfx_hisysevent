@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,20 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_HIVIEWDFX_WSTRING_TO_STRING_H
-#define OHOS_HIVIEWDFX_WSTRING_TO_STRING_H
+#ifndef OHOS_HIVIEWDFX_ASH_MEM_UTILS_H
+#define OHOS_HIVIEWDFX_ASH_MEM_UTILS_H
 
-#include <codecvt>
-#include <string>
+#include "ashmem.h"
+#include "message_parcel.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-static std::string U16String2String(std::u16string source)
-{
-    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convertor;
-    return convertor.to_bytes(source);
-}
+class AshMemUtils {
+public:
+    static bool WriteBulkData(MessageParcel& parcel, const std::vector<std::u16string>& src);
+    static bool ReadBulkData(MessageParcel& parcel, std::vector<std::u16string>& dest);
+
+private:
+    static sptr<Ashmem> GetAshmem();
+    static void CloseAshmem(sptr<Ashmem> ashmem);
+};
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif // OHOS_HIVIEWDFX_WSTRING_TO_STRING_H
+#endif // OHOS_HIVIEWDFX_ASH_MEM_UTILS_H

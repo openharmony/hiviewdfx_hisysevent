@@ -20,12 +20,14 @@
 #include "json/json.h"
 #include "ret_code.h"
 #include "ret_def.h"
+#include "stringfilter.h"
 
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_UTIL" };
-constexpr uint32_t BUF_SIZE = 10240;
+constexpr uint32_t JS_STR_PARM_LEN_LIMIT = 1024 * 10; // 10k
+constexpr uint32_t BUF_SIZE = 1024 * 11; // 11k
 constexpr int SYS_EVENT_INFO_PARAM_INDEX = 0;
 constexpr long long DEFAULT_TIME_STAMP = -1;
 constexpr int32_t DEFAULT_MAX_EVENTS = 1000;
@@ -128,7 +130,7 @@ std::string ParseStringValue(const napi_env env, const napi_value& value, std::s
 {
     char buf[BUF_SIZE] = {0};
     size_t bufLength = 0;
-    napi_status status = napi_get_value_string_utf8(env, value, buf, BUF_SIZE, &bufLength);
+    napi_status status = napi_get_value_string_utf8(env, value, buf, BUF_SIZE - 1, &bufLength);
     if (status != napi_ok) {
         HiLog::Error(LABEL, "failed to parse napi value of string type.");
         return defaultValue;
@@ -433,13 +435,13 @@ ListenerRule ParseListenerRule(const napi_env env, const napi_value& jsObj)
 bool IsQueryRuleValid(const napi_env env, const QueryRule& rule)
 {
     auto domain = rule.GetDomain();
-    if (domain.size() > MAX_DOMAIN_LENGTH) {
+    if (!StringFilter::GetInstance().IsValidName(domain, MAX_DOMAIN_LENGTH)) {
         NapiHiSysEventUtil::ThrowErrorByRet(env, NapiInnerError::ERR_INVALID_DOMAIN_IN_QUERY_RULE);
         return false;
     }
     auto names = rule.GetEventList();
     if (std::any_of(names.begin(), names.end(), [] (auto& name) {
-        return name.size() > MAX_EVENT_NAME_LENGTH;
+        return !StringFilter::GetInstance().IsValidName(name, MAX_EVENT_NAME_LENGTH);
     })) {
         NapiHiSysEventUtil::ThrowErrorByRet(env, NapiInnerError::ERR_INVALID_EVENT_NAME_IN_QUERY_RULE);
         return false;
@@ -620,6 +622,17 @@ void NapiHiSysEventUtil::ParseHiSysEventInfo(const napi_env env, napi_value* par
     GetObjectTypeAttribute(env, param[SYS_EVENT_INFO_PARAM_INDEX], PARAMS_ATTR, info);
 }
 
+bool NapiHiSysEventUtil::HasStrParamLenOverLimit(HiSysEventInfo& info)
+{
+    return any_of(info.stringParams.begin(), info.stringParams.end(), [] (auto& item) {
+        return item.second.size() > JS_STR_PARM_LEN_LIMIT;
+    }) || any_of(info.stringArrayParams.begin(), info.stringArrayParams.end(), [] (auto& item) {
+        auto allStr = item.second;
+        return any_of(allStr.begin(), allStr.end(), [] (auto& item) {
+            return item.size() > JS_STR_PARM_LEN_LIMIT;
+        });
+    });
+}
 
 void NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(const napi_env env, const std::string& jsonStr,
     napi_value& sysEventInfo)
@@ -839,15 +852,16 @@ napi_value NapiHiSysEventUtil::CreateError(napi_env env, int32_t code, const std
     return err;
 }
 
-void NapiHiSysEventUtil::ThrowError(napi_env env, int32_t code, const std::string& msg)
+void NapiHiSysEventUtil::ThrowError(napi_env env, const int32_t code, const std::string& msg)
 {
     if (napi_throw_error(env, std::to_string(code).c_str(), msg.c_str()) != napi_ok) {
         HiLog::Error(LABEL, "failed to throw err, code=%{public}d, msg=%{public}s.", code, msg.c_str());
     }
 }
 
-std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env env, int32_t retCode)
+std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env env, const int32_t retCode)
 {
+    HiLog::Info(LABEL, "origin result code is %{public}d.", retCode);
     const std::unordered_map<int32_t, std::pair<int32_t, std::string>> errMap = {
         // common
         {ERR_NO_PERMISSION, {NapiError::ERR_PERMISSION_CHECK,
@@ -886,6 +900,7 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
         {ERR_QUERY_TOO_FREQUENTLY, {NapiError::ERR_QUERY_TOO_FREQUENTLY, "Frequency of event query is over limit"}},
         {NapiInnerError::ERR_INVALID_DOMAIN_IN_QUERY_RULE,
             {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
+        {ERR_DOMIAN_INVALID, {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
         {NapiInnerError::ERR_INVALID_EVENT_NAME_IN_QUERY_RULE,
             {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
     };
@@ -893,13 +908,13 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
         std::make_pair(NapiError::ERR_ENV_ABNORMAL, "environment is abnormal") : errMap.at(retCode);
 }
 
-napi_value NapiHiSysEventUtil::CreateErrorByRet(napi_env env, int32_t retCode)
+napi_value NapiHiSysEventUtil::CreateErrorByRet(napi_env env, const int32_t retCode)
 {
     auto detail = GetErrorDetailByRet(env, retCode);
     return CreateError(env, detail.first, detail.second);
 }
 
-void NapiHiSysEventUtil::ThrowErrorByRet(napi_env env, int32_t retCode)
+void NapiHiSysEventUtil::ThrowErrorByRet(napi_env env, const int32_t retCode)
 {
     auto detail = GetErrorDetailByRet(env, retCode);
     ThrowError(env, detail.first, detail.second);

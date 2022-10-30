@@ -39,6 +39,7 @@ public:
 
 public:
     static void ParseHiSysEventInfo(const napi_env env, napi_value* param, size_t paramNum, HiSysEventInfo& info);
+    static bool HasStrParamLenOverLimit(HiSysEventInfo& info);
     static void CreateHiSysEventInfoJsObject(const napi_env env, const std::string& eventDetail,
         napi_value& sysEventInfo);
     static void AppendStringPropertyToJsObject(const napi_env env, const std::string& key,
@@ -62,9 +63,9 @@ public:
 public:
     static void ThrowParamMandatoryError(napi_env env, const std::string paramName);
     static void ThrowParamTypeError(napi_env env, const std::string paramName, std::string paramType);
-    static napi_value CreateError(napi_env env, int32_t code, const std::string& msg);
-    static napi_value CreateErrorByRet(napi_env env, int32_t retCode);
-    static void ThrowErrorByRet(napi_env env, int32_t retCode);
+    static napi_value CreateError(napi_env env, const int32_t code, const std::string& msg);
+    static napi_value CreateErrorByRet(napi_env env, const int32_t retCode);
+    static void ThrowErrorByRet(napi_env env, const int32_t retCode);
 
 public:
     template<typename T>

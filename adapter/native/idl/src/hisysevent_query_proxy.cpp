@@ -15,9 +15,7 @@
 
 #include "hisysevent_query_proxy.h"
 
-#include <vector>
-
-#include "string_convertor.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -27,7 +25,7 @@ void HiSysEventQueryProxy::OnQuery(const ::std::vector<std::u16string>& sysEvent
     if (queryCallback != nullptr) {
         std::vector<std::string> destSysEvents;
         for_each(sysEvents.cbegin(), sysEvents.cend(), [&destSysEvents](const std::u16string& sysEvent) {
-            destSysEvents.emplace_back(U16String2String(sysEvent));
+            destSysEvents.emplace_back(Str16ToStr8(sysEvent));
         });
         queryCallback->OnQuery(destSysEvents, seq);
     }
