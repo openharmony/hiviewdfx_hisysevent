@@ -19,7 +19,6 @@
 #include <string>
 
 #include "hisysevent_listener.h"
-
 #include "hisysevent_json_decorator.h"
 
 namespace OHOS {

@@ -27,19 +27,23 @@
 
 namespace OHOS {
 namespace HiviewDFX {
+using TaskQueue = std::queue<std::tuple<CallbackContext*, CALLBACK_FUNC, RELEASE_FUNC>>;
 class JsCallbackManager final {
 public:
     explicit JsCallbackManager() {}
 public:
     void Add(CallbackContext* context, CALLBACK_FUNC callback, RELEASE_FUNC release = nullptr);
+    void Release();
 
 private:
     void ImmediateRun(bool needPop = false);
+    void Clear(TaskQueue& tasks);
 
 private:
     std::atomic<bool> inCalling = false;
+    std::atomic<bool> IsReleased = false;
     std::mutex managerMutex;
-    std::queue<std::tuple<CallbackContext*, CALLBACK_FUNC, RELEASE_FUNC>> jsCallbacks;
+    TaskQueue jsCallbacks;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

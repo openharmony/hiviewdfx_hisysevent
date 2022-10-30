@@ -554,7 +554,7 @@ private:
 // macro interface
 #define HiSysEventWrite(domain, eventName, type, ...) \
 ({ \
-    int ret = ERR_DOMAIN_MASKED; \
+    int ret = OHOS::HiviewDFX::ERR_DOMAIN_MASKED; \
     if constexpr (!OHOS::HiviewDFX::isMasked<domain>) { \
         ret = OHOS::HiviewDFX::HiSysEvent::Write<domain>(__FUNCTION__, __LINE__, \
             eventName, type, ##__VA_ARGS__); \
