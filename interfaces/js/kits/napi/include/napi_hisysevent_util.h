@@ -39,6 +39,7 @@ public:
 
 public:
     static void ParseHiSysEventInfo(const napi_env env, napi_value* param, size_t paramNum, HiSysEventInfo& info);
+    static bool HasStrParamLenOverLimit(HiSysEventInfo& info);
     static void CreateHiSysEventInfoJsObject(const napi_env env, const std::string& eventDetail,
         napi_value& sysEventInfo);
     static void AppendStringPropertyToJsObject(const napi_env env, const std::string& key,

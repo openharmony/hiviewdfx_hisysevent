@@ -539,25 +539,29 @@ describe('hiSysEventJsUnitTest', function () {
      */
      it('hiSysEventJsUnitTest010', 0, async function (done) {
         console.info('hiSysEventJsUnitTest010 start')
+        let params = {
+            PID: 1,
+            UID: 1,
+            PACKAGE_NAME: "com.huawei.testHiSysEvent",
+            PROCESS_NAME: "just a testcase",
+            MSG: "no msg."
+        }
+        for (let i = 0; i < 40; i++) {
+            params[`bundle${i}`] = Array.from({length: 10 * 1024}).join("ohos")
+        }
         try {
             hiSysEvent.write({
                 domain: "RELIABILITY",
                 name: "STACK",
                 eventType: hiSysEvent.EventType.FAULT,
-                params: {
-                    PID: 1,
-                    UID: 1,
-                    PACKAGE_NAME: "com.huawei.testHiSysEvent",
-                    PROCESS_NAME: Array.from({length: 384 * 1024}).join("ohos"),
-                    MSG: "no msg."
-                }
+                params: params,
             }, (err, val) => {
                 if (err) {
                     console.error(`in hiSysEventJsUnitTest010 test callback: err.code = ${err.code}, error msg is ${err.message}`)
                     expect(err.code == 11200004).assertTrue()
                 } else {
                     console.info(`in hiSysEventJsUnitTest010 test callback: result = ${val}`)
-                    expect(true).assertTrue()
+                    expect(false).assertTrue()
                 }
                 console.info('hiSysEventJsUnitTest010 end')
                 done()
@@ -624,7 +628,7 @@ describe('hiSysEventJsUnitTest', function () {
                     PID: 1,
                     UID: 1,
                     PACKAGE_NAME: "com.huawei.testHiSysEvent",
-                    PROCESS_NAME: Array.from({length: 256 * 1024}).join("ohos"),
+                    PROCESS_NAME: Array.from({length: 10 * 1024 + 10}).join("ohos"),
                     MSG: "no msg."
                 }
             }, (err, val) => {
@@ -633,7 +637,7 @@ describe('hiSysEventJsUnitTest', function () {
                     expect(err.code == 11200052).assertTrue()
                 } else {
                     console.info(`in hiSysEventJsUnitTest012 test callback: result = ${val}`)
-                    expect(true).assertTrue()
+                    expect(false).assertTrue()
                 }
                 console.info('hiSysEventJsUnitTest012 end')
                 done()
