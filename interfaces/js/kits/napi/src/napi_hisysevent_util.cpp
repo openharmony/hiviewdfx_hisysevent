@@ -26,7 +26,8 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_UTIL" };
-constexpr uint32_t BUF_SIZE = 10240;
+constexpr uint32_t JS_STR_PARM_LEN_LIMIT = 1024 * 10; // 10k
+constexpr uint32_t BUF_SIZE = 1024 * 11; // 11k
 constexpr int SYS_EVENT_INFO_PARAM_INDEX = 0;
 constexpr long long DEFAULT_TIME_STAMP = -1;
 constexpr int32_t DEFAULT_MAX_EVENTS = 1000;
@@ -621,6 +622,17 @@ void NapiHiSysEventUtil::ParseHiSysEventInfo(const napi_env env, napi_value* par
     GetObjectTypeAttribute(env, param[SYS_EVENT_INFO_PARAM_INDEX], PARAMS_ATTR, info);
 }
 
+bool NapiHiSysEventUtil::HasStrParamLenOverLimit(HiSysEventInfo& info)
+{
+    return any_of(info.stringParams.begin(), info.stringParams.end(), [] (auto& item) {
+        return item.second.size() > JS_STR_PARM_LEN_LIMIT;
+    }) || any_of(info.stringArrayParams.begin(), info.stringArrayParams.end(), [] (auto& item) {
+        auto allStr = item.second;
+        return any_of(allStr.begin(), allStr.end(), [] (auto& item) {
+            return item.size() > JS_STR_PARM_LEN_LIMIT;
+        });
+    });
+}
 
 void NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(const napi_env env, const std::string& jsonStr,
     napi_value& sysEventInfo)
