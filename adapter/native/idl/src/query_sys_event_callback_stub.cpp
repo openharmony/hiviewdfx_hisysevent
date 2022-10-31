@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#include "ash_mem_utils.h"
 #include "errors.h"
 #include "hilog/log.h"
 #include "ipc_object_stub.h"
@@ -40,7 +41,7 @@ int32_t QuerySysEventCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel&
     switch (code) {
         case ON_QUERY: {
             std::vector<std::u16string> sysEvent;
-            ret = data.ReadString16Vector(&sysEvent);
+            ret = AshMemUtils::ReadBulkData(data, sysEvent);
             if (!ret) {
                 HiLog::Error(LABEL, "parcel read sys event failed.");
                 return ERR_FLATTEN_OBJECT;

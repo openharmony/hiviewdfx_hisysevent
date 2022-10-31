@@ -42,16 +42,19 @@ void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* ev
         [] (napi_env env, napi_status status, void* data) {
             HiSysEventAsyncContext* eventAsyncContext = (HiSysEventAsyncContext*)data;
             napi_value results[RET_SIZE] = {0};
-            if (eventAsyncContext->eventWroteResult == SUCCESS) {
+            auto isNormalWrote = eventAsyncContext->eventWroteResult == SUCCESS &&
+                !NapiHiSysEventUtil::HasStrParamLenOverLimit(eventAsyncContext->eventInfo);
+            if (isNormalWrote) {
                 NapiHiSysEventUtil::CreateNull(env, results[ERR_INDEX]);
                 NapiHiSysEventUtil::CreateInt32Value(env, eventAsyncContext->eventWroteResult, results[VAL_INDEX]);
             } else {
                 NapiHiSysEventUtil::CreateNull(env, results[VAL_INDEX]);
-                results[ERR_INDEX] = NapiHiSysEventUtil::CreateErrorByRet(env, eventAsyncContext->eventWroteResult);
+                auto errorCode = eventAsyncContext->eventWroteResult == SUCCESS ? ERR_VALUE_LENGTH_TOO_LONG :
+                    eventAsyncContext->eventWroteResult;
+                results[ERR_INDEX] = NapiHiSysEventUtil::CreateErrorByRet(env, errorCode);
             }
             if (eventAsyncContext->deferred != nullptr) { // promise
-                eventAsyncContext->eventWroteResult == SUCCESS ?
-                    napi_resolve_deferred(env, eventAsyncContext->deferred, results[VAL_INDEX]) :
+                isNormalWrote ? napi_resolve_deferred(env, eventAsyncContext->deferred, results[VAL_INDEX]) :
                     napi_reject_deferred(env, eventAsyncContext->deferred, results[ERR_INDEX]);
             } else {
                 napi_value callback = nullptr;
