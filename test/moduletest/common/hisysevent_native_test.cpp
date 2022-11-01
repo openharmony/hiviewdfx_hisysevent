@@ -1388,7 +1388,7 @@ HWTEST_F(HiSysEventNativeTest, TestParseParamsFromHiSysEventRecord, TestSize.Lev
     ASSERT_TRUE(timeZone.size() >= 0);
     std::vector<std::string> paramNames;
     record.GetParamNames(paramNames);
-    ASSERT_TRUE(std::any_of(paramNames.begin(), paramNames.end(), [](auto& name) {
+    ASSERT_TRUE(std::any_of(paramNames.begin(), paramNames.end(), [] (auto& name) {
         return name == "domain_" || name == "name_" || name == "type_";
     }));
 }

@@ -39,7 +39,7 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
     context->callback = std::get<CALLBACK_FUNC_INDEX>(current);
     context->release = std::get<RELEASE_FUNC_INDEX>(current);
     uv_work_t* work = new uv_work_t();
-    work->data = (void*)context;
+    work->data = reinterpret_cast<void*>(context);
     uv_queue_work(
         loop,
         work,
@@ -48,7 +48,7 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
             if (work == nullptr) {
                 return;
             }
-            CallbackContext* context = (CallbackContext*)work->data;
+            CallbackContext* context = reinterpret_cast<CallbackContext*>(work->data);
             if (context == nullptr) {
                 DeleteWork(work);
                 return;
