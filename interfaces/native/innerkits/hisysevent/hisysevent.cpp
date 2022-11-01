@@ -308,62 +308,62 @@ void HiSysEvent::AppendArrayParam(HiSysEvent::EventBase &eventBase, const std::s
 
 void HiSysEvent::AppendBoolArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    AppendArrayParam<bool>(eventBase, param.name, (bool*)param.v.array, param.arraySize);
+    AppendArrayParam<bool>(eventBase, param.name, reinterpret_cast<bool*>(param.v.array), param.arraySize);
 }
 
 void HiSysEvent::AppendInt8ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    AppendArrayParam<int8_t>(eventBase, param.name, (int8_t*)param.v.array, param.arraySize);
+    AppendArrayParam<int8_t>(eventBase, param.name, reinterpret_cast<int8_t*>(param.v.array), param.arraySize);
 }
 
 void HiSysEvent::AppendUint8ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    AppendArrayParam<uint8_t>(eventBase, param.name, (uint8_t*)param.v.array, param.arraySize);
+    AppendArrayParam<uint8_t>(eventBase, param.name, reinterpret_cast<uint8_t*>(param.v.array), param.arraySize);
 }
 
 void HiSysEvent::AppendInt16ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    AppendArrayParam<int16_t>(eventBase, param.name, (int16_t*)param.v.array, param.arraySize);
+    AppendArrayParam<int16_t>(eventBase, param.name, reinterpret_cast<int16_t*>(param.v.array), param.arraySize);
 }
 
 void HiSysEvent::AppendUint16ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    AppendArrayParam<uint16_t>(eventBase, param.name, (uint16_t*)param.v.array, param.arraySize);
+    AppendArrayParam<uint16_t>(eventBase, param.name, reinterpret_cast<uint16_t*>(param.v.array), param.arraySize);
 }
 
 void HiSysEvent::AppendInt32ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    AppendArrayParam<int32_t>(eventBase, param.name, (int32_t*)param.v.array, param.arraySize);
+    AppendArrayParam<int32_t>(eventBase, param.name, reinterpret_cast<int32_t*>(param.v.array), param.arraySize);
 }
 
 void HiSysEvent::AppendUint32ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    AppendArrayParam<uint32_t>(eventBase, param.name, (uint32_t*)param.v.array, param.arraySize);
+    AppendArrayParam<uint32_t>(eventBase, param.name, reinterpret_cast<uint32_t*>(param.v.array), param.arraySize);
 }
 
 void HiSysEvent::AppendInt64ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    AppendArrayParam<int64_t>(eventBase, param.name, (int64_t*)param.v.array, param.arraySize);
+    AppendArrayParam<int64_t>(eventBase, param.name, reinterpret_cast<int64_t*>(param.v.array), param.arraySize);
 }
 
 void HiSysEvent::AppendUint64ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    AppendArrayParam<uint64_t>(eventBase, param.name, (uint64_t*)param.v.array, param.arraySize);
+    AppendArrayParam<uint64_t>(eventBase, param.name, reinterpret_cast<uint64_t*>(param.v.array), param.arraySize);
 }
 
 void HiSysEvent::AppendFloatArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    AppendArrayParam<float>(eventBase, param.name, (float*)param.v.array, param.arraySize);
+    AppendArrayParam<float>(eventBase, param.name, reinterpret_cast<float*>(param.v.array), param.arraySize);
 }
 
 void HiSysEvent::AppendDoubleArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    AppendArrayParam<double>(eventBase, param.name, (double*)param.v.array, param.arraySize);
+    AppendArrayParam<double>(eventBase, param.name, reinterpret_cast<double*>(param.v.array), param.arraySize);
 }
 
 void HiSysEvent::AppendStringArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param)
 {
-    auto array = (char**)param.v.array;
+    auto array = reinterpret_cast<char**>(param.v.array);
     if (array == nullptr) {
         eventBase.retCode_ = ERR_VALUE_INVALID;
         return;
