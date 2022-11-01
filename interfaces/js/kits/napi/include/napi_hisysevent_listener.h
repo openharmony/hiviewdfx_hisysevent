@@ -37,6 +37,9 @@ public:
     }
     virtual ~NapiHiSysEventListener()
     {
+        if (jsCallbackManager != nullptr) {
+            jsCallbackManager->Release();
+        }
         if (callbackContext->threadId == syscall(SYS_gettid)) {
             napi_delete_reference(callbackContext->env, callbackContext->ref);
         }

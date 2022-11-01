@@ -29,7 +29,6 @@ void DeleteWork(uv_work_t* work)
 {
     if (work != nullptr) {
         delete work;
-        work = nullptr;
     }
 }
 
@@ -77,6 +76,9 @@ void JsCallbackManager::Add(CallbackContext* context, CALLBACK_FUNC callback,
     RELEASE_FUNC release)
 {
     {
+        if (IsReleased.load(std::memory_order_acquire)) {
+            return;
+        }
         std::lock_guard<std::mutex> lock(managerMutex);
         jsCallbacks.emplace(std::make_tuple(context, callback, [this, release] (pid_t threadId) {
             if (release == nullptr) {
@@ -94,28 +96,46 @@ void JsCallbackManager::Add(CallbackContext* context, CALLBACK_FUNC callback,
     ImmediateRun();
 }
 
+void JsCallbackManager::Release()
+{
+    IsReleased = true;
+    Clear(jsCallbacks);
+}
+
 void JsCallbackManager::ImmediateRun(bool needPop)
 {
-    this->inCalling = true;
+    inCalling = true;
     std::tuple<CallbackContext*, CALLBACK_FUNC, RELEASE_FUNC> current;
     CallbackContext* context;
     {
+        if (IsReleased.load(std::memory_order_acquire)) {
+            return;
+        }
         std::lock_guard<std::mutex> lock(managerMutex);
         if (needPop && !jsCallbacks.empty()) {
             jsCallbacks.pop();
         }
-        if (jsCallbacks.empty()) {
-            this->inCalling = false;
+        if (jsCallbacks.empty() && !IsReleased.load(std::memory_order_acquire)) {
+            inCalling = false;
             return;
         }
         current = jsCallbacks.front();
         context = std::get<CONTEXT_INDEX>(current);
-        if (context == nullptr) {
-            this->inCalling = false;
+        if (context == nullptr || IsReleased.load(std::memory_order_acquire)) {
+            inCalling = false;
             return;
         }
     }
+    if (IsReleased.load(std::memory_order_acquire)) {
+        return;
+    }
     RunCallback(context, current);
+}
+
+void JsCallbackManager::Clear(TaskQueue& tasks)
+{
+    TaskQueue empty;
+    swap(empty, tasks);
 }
 } // HiviewDFX
 } // OHOS
