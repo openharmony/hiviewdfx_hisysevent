@@ -34,13 +34,13 @@ void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* ev
     napi_create_async_work(
         env, nullptr, resource,
         [] (napi_env env, void* data) {
-            HiSysEventAsyncContext* eventAsyncContext = (HiSysEventAsyncContext*)data;
+            HiSysEventAsyncContext* eventAsyncContext = reinterpret_cast<HiSysEventAsyncContext*>(data);
             if (eventAsyncContext->eventWroteResult == SUCCESS) {
                 eventAsyncContext->eventWroteResult = Write(eventAsyncContext->eventInfo);
             }
         },
         [] (napi_env env, napi_status status, void* data) {
-            HiSysEventAsyncContext* eventAsyncContext = (HiSysEventAsyncContext*)data;
+            HiSysEventAsyncContext* eventAsyncContext = reinterpret_cast<HiSysEventAsyncContext*>(data);
             napi_value results[RET_SIZE] = {0};
             auto isNormalWrote = eventAsyncContext->eventWroteResult == SUCCESS &&
                 !NapiHiSysEventUtil::HasStrParamLenOverLimit(eventAsyncContext->eventInfo);
@@ -65,7 +65,7 @@ void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* ev
             }
             napi_delete_async_work(env, eventAsyncContext->asyncWork);
             delete eventAsyncContext;
-        }, (void*)eventAsyncContext, &eventAsyncContext->asyncWork);
+        }, reinterpret_cast<void*>(eventAsyncContext), &eventAsyncContext->asyncWork);
     napi_queue_async_work(env, eventAsyncContext->asyncWork);
 }
 
