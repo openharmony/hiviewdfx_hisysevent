@@ -36,16 +36,25 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
 {
     uv_loop_t* loop = nullptr;
     napi_get_uv_event_loop(context->env, &loop);
+    if (loop == nullptr) {
+        HiLog::Debug(LABEL, "failed to get uv_loop.");
+        return;
+    }
     context->callback = std::get<CALLBACK_FUNC_INDEX>(current);
     context->release = std::get<RELEASE_FUNC_INDEX>(current);
-    uv_work_t* work = new uv_work_t();
+    uv_work_t* work = new(std::nothrow) uv_work_t();
+    if (work == nullptr) {
+        HiLog::Debug(LABEL, "uv_work new failed, no memory left.");
+        return;
+    }
     work->data = reinterpret_cast<void*>(context);
     uv_queue_work(
         loop,
         work,
         [] (uv_work_t* work) {},
         [] (uv_work_t* work, int status) {
-            if (work == nullptr) {
+            if (work == nullptr || work->data == nullptr) {
+                DeleteWork(work);
                 return;
             }
             CallbackContext* context = reinterpret_cast<CallbackContext*>(work->data);
@@ -54,6 +63,10 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
                 return;
             }
             napi_handle_scope scope = nullptr;
+            if (context->env == nullptr) {
+                DeleteWork(work);
+                return;
+            }
             napi_open_handle_scope(context->env, &scope);
             if (scope == nullptr) {
                 HiLog::Debug(LABEL, "napi scope is null.");
