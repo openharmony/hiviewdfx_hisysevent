@@ -879,7 +879,7 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
         {ERR_ARRAY_TOO_MUCH, {NapiError::ERR_ARRAY_SIZE_OVER_LIMIT, "Size of array type param is over limit"}},
         // ipc common
         {ERR_SYS_EVENT_SERVICE_NOT_FOUND, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
-        {ERR_CAN_NOT_WRITE_DIESCRIPTOR, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
+        {ERR_CAN_NOT_WRITE_DESCRIPTOR, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
         {ERR_CAN_NOT_WRITE_PARCEL, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
         {ERR_CAN_NOT_WRITE_REMOTE_OBJECT, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
         {ERR_CAN_NOT_SEND_REQ, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
