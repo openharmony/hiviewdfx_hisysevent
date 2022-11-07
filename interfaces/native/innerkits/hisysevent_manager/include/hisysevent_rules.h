@@ -35,8 +35,8 @@ struct QueryArg {
 class ListenerRule {
 public:
     ListenerRule(const std::string& domain, const std::string& eventName,
-        const std::string& tag, RuleType ruleType = RuleType::WHOLE_WORD) : domain(domain),
-        eventName(eventName), tag(tag), ruleType(ruleType) {}
+        const std::string& tag, RuleType ruleType = RuleType::WHOLE_WORD, uint32_t eventType = 0) : domain(domain),
+        eventName(eventName), tag(tag), ruleType(ruleType), eventType(eventType) {}
     ListenerRule(const std::string& domain, const std::string& eventName,
         RuleType ruleType = RuleType::WHOLE_WORD) : ListenerRule(domain, eventName, "", ruleType) {}
     ListenerRule(const std::string& tag, RuleType ruleType = RuleType::WHOLE_WORD)
@@ -59,18 +59,24 @@ public:
     {
         return ruleType;
     }
+    uint32_t GetEventType() const
+    {
+        return eventType;
+    }
 
 private:
     std::string domain;
     std::string eventName;
     std::string tag;
     RuleType ruleType;
+    uint32_t eventType;
 };
 
 class QueryRule {
 public:
-    QueryRule(const std::string& domain, const std::vector<std::string>& eventList)
-        : domain(domain), eventList(eventList), ruleType(RuleType::WHOLE_WORD) {}
+    QueryRule(const std::string& domain, const std::vector<std::string>& eventList,
+        RuleType ruleType = RuleType::WHOLE_WORD, uint32_t eventType = 0) : domain(domain),
+        eventList(eventList), ruleType(ruleType), eventType(eventType) {}
 
 public:
     std::string GetDomain() const
@@ -85,11 +91,16 @@ public:
     {
         return ruleType;
     }
+    uint32_t GetEventType() const
+    {
+        return eventType;
+    }
 
 private:
     std::string domain;
     std::vector<std::string> eventList;
     RuleType ruleType;
+    uint32_t eventType;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

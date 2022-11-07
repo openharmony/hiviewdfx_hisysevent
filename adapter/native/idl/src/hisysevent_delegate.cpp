@@ -110,9 +110,9 @@ void HiSysEventDelegate::ConvertListenerRule(const std::vector<ListenerRule>& ru
 {
     for_each(rules.cbegin(), rules.cend(), [&sysRules](const ListenerRule& rule) {
         if (rule.GetTag().empty()) {
-            sysRules.emplace_back(rule.GetDomain(), rule.GetEventName(), rule.GetRuleType());
+            sysRules.emplace_back(rule.GetDomain(), rule.GetEventName(), rule.GetRuleType(), rule.GetEventType());
         } else {
-            sysRules.emplace_back(rule.GetTag(), rule.GetRuleType());
+            sysRules.emplace_back(rule.GetTag(), rule.GetRuleType(), rule.GetEventType());
         }
     });
 }
@@ -126,8 +126,7 @@ void HiSysEventDelegate::ConvertQueryRule(const std::vector<QueryRule>& rules,
         for_each(eventList.cbegin(), eventList.cend(), [&](const std::string &event) {
             events.push_back(event);
         });
-
-        sysRules.emplace_back(rule.GetDomain(), events, rule.GetRuleType());
+        sysRules.emplace_back(rule.GetDomain(), events, rule.GetRuleType(), rule.GetEventType());
     });
 }
 
