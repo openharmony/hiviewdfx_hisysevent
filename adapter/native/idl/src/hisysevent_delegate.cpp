@@ -102,7 +102,7 @@ int32_t HiSysEventDelegate::Query(const struct QueryArg& arg,
 
 HiSysEventDelegate::~HiSysEventDelegate()
 {
-    HiLog::Error(LABEL, "HiSysEventDelegate destructor");
+    HiLog::Info(LABEL, "HiSysEventDelegate destructor");
 }
 
 void HiSysEventDelegate::ConvertListenerRule(const std::vector<ListenerRule>& rules,
@@ -126,7 +126,7 @@ void HiSysEventDelegate::ConvertQueryRule(const std::vector<QueryRule>& rules,
         for_each(eventList.cbegin(), eventList.cend(), [&](const std::string &event) {
             events.push_back(event);
         });
-        sysRules.emplace_back(rule.GetDomain(), events, rule.GetRuleType(), rule.GetEventType());
+        sysRules.emplace_back(rule.GetDomain(), events, rule.GetRuleType(), rule.GetEventType(), rule.GetCondition());
     });
 }
 
