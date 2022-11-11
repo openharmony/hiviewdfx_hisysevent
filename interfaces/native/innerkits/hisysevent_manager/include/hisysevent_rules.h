@@ -75,8 +75,8 @@ private:
 class QueryRule {
 public:
     QueryRule(const std::string& domain, const std::vector<std::string>& eventList,
-        RuleType ruleType = RuleType::WHOLE_WORD, uint32_t eventType = 0) : domain(domain),
-        eventList(eventList), ruleType(ruleType), eventType(eventType) {}
+        RuleType ruleType = RuleType::WHOLE_WORD, uint32_t eventType = 0, const std::string& cond = "")
+        : domain(domain), eventList(eventList), ruleType(ruleType), eventType(eventType), condition(cond) {}
 
 public:
     std::string GetDomain() const
@@ -95,12 +95,17 @@ public:
     {
         return eventType;
     }
+    std::string GetCondition() const
+    {
+        return condition;
+    }
 
 private:
     std::string domain;
     std::vector<std::string> eventList;
     RuleType ruleType;
     uint32_t eventType;
+    std::string condition;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
