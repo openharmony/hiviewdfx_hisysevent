@@ -916,8 +916,8 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest001, TestSize.Level3)
     RecordParamDouValuesInvalidTest(record, "PARAM_STRS", expRes);
 
     // number is automatically converted to string
-    RecordParamStrValueInvalidTest(record, "PARAM_INT", 0);
-    RecordParamStrValuesInvalidTest(record, "PARAM_INTS", 0);
+    RecordParamStrValueTest(record, "PARAM_INT", "-123");
+    RecordParamStrValuesTest(record, "PARAM_INTS", {"-1", "-2", "3"});
 
     StringUtil::DeletePointer<char>(&record.jsonStr);
     HiLog::Info(LABEL, "HiSysEventMgrCRecordTest001 end");
