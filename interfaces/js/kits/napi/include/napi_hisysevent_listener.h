@@ -30,21 +30,8 @@ namespace OHOS {
 namespace HiviewDFX {
 class NapiHiSysEventListener : public HiSysEventBaseListener {
 public:
-    NapiHiSysEventListener(CallbackContext* context)
-    {
-        callbackContext = context;
-        jsCallbackManager = std::make_shared<JsCallbackManager>();
-    }
-    virtual ~NapiHiSysEventListener()
-    {
-        if (jsCallbackManager != nullptr) {
-            jsCallbackManager->Release();
-        }
-        if (callbackContext->threadId == syscall(SYS_gettid)) {
-            napi_delete_reference(callbackContext->env, callbackContext->ref);
-        }
-        delete callbackContext;
-    }
+    NapiHiSysEventListener(CallbackContext* context);
+    virtual ~NapiHiSysEventListener();
 
 public:
     virtual void OnEvent(const std::string& domain, const std::string& eventName, const int eventType,

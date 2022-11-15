@@ -28,6 +28,24 @@ constexpr size_t ON_QUERY_PARAM_COUNT = 1;
 constexpr size_t ON_QUERY_COMPLTE_COUNT = 2;
 }
 
+NapiHiSysEventQuerier::NapiHiSysEventQuerier(CallbackContext* context, ON_COMPLETE_FUNC handler)
+{
+    callbackContext = context;
+    onCompleteHandler = handler;
+    jsCallbackManager = std::make_shared<JsCallbackManager>();
+}
+
+NapiHiSysEventQuerier::~NapiHiSysEventQuerier()
+{
+    if (jsCallbackManager != nullptr) {
+        jsCallbackManager->Release();
+    }
+    if (callbackContext->threadId == syscall(SYS_gettid)) {
+        napi_delete_reference(callbackContext->env, callbackContext->ref);
+    }
+    delete callbackContext;
+}
+
 void NapiHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvents,
     const std::vector<int64_t>& seq)
 {
