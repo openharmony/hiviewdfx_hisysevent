@@ -208,7 +208,6 @@ static napi_value Query(napi_env env, napi_callback_info info)
     if (ret != NAPI_SUCCESS) {
         HiLog::Error(LABEL, "failed to query hisysevent, result code is %{public}d.", ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
-        return nullptr;
     }
     queriers[callbackContext->ref] = std::make_pair(callbackContext->threadId, querier);
     return nullptr;
