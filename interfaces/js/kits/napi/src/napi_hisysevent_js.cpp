@@ -219,8 +219,6 @@ static napi_value Query(napi_env env, napi_callback_info info)
     ret = HiSysEventBaseManager::Query(queryArg, rules, querier);
     if (ret != NAPI_SUCCESS) {
         HiLog::Error(LABEL, "failed to query hisysevent, ret is %{public}d.", ret);
-        NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
-        return val;
     }
     queriers[callbackContext->ref] = std::make_pair(callbackContext->threadId, querier);
     NapiHiSysEventUtil::CreateInt32Value(env, ret, val);
