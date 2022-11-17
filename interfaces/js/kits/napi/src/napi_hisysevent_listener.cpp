@@ -28,6 +28,23 @@ constexpr size_t ON_EVENT_PARAM_COUNT = 1;
 constexpr size_t ON_SERVICE_DIED_PARAM_COUNT = 0;
 }
 
+NapiHiSysEventListener::NapiHiSysEventListener(CallbackContext* context)
+{
+    callbackContext = context;
+    jsCallbackManager = std::make_shared<JsCallbackManager>();
+}
+
+NapiHiSysEventListener::~NapiHiSysEventListener()
+{
+    if (jsCallbackManager != nullptr) {
+        jsCallbackManager->Release();
+    }
+    if (callbackContext->threadId == syscall(SYS_gettid)) {
+        napi_delete_reference(callbackContext->env, callbackContext->ref);
+    }
+    delete callbackContext;
+}
+
 void NapiHiSysEventListener::OnEvent(const std::string& domain, const std::string& eventName, const int eventType,
     const std::string& eventDetail)
 {

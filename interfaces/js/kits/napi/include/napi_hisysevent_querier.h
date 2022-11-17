@@ -33,22 +33,8 @@ namespace HiviewDFX {
 using ON_COMPLETE_FUNC = std::function<void(const napi_env, const napi_ref)>;
 class NapiHiSysEventQuerier : public HiSysEventBaseQueryCallback {
 public:
-    NapiHiSysEventQuerier(CallbackContext* context, ON_COMPLETE_FUNC handler)
-    {
-        callbackContext = context;
-        onCompleteHandler = handler;
-        jsCallbackManager = std::make_shared<JsCallbackManager>();
-    }
-    virtual ~NapiHiSysEventQuerier()
-    {
-        if (jsCallbackManager != nullptr) {
-            jsCallbackManager->Release();
-        }
-        if (callbackContext->threadId == syscall(SYS_gettid)) {
-            napi_delete_reference(callbackContext->env, callbackContext->ref);
-        }
-        delete callbackContext;
-    }
+    NapiHiSysEventQuerier(CallbackContext* context, ON_COMPLETE_FUNC handler);
+    virtual ~NapiHiSysEventQuerier();
 
 public:
     virtual void OnQuery(const ::std::vector<std::string>& sysEvents,
