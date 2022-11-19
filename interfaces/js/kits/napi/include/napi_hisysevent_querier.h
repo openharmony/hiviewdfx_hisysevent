@@ -39,7 +39,7 @@ public:
 public:
     virtual void OnQuery(const ::std::vector<std::string>& sysEvents,
         const std::vector<int64_t>& seq) override;
-    virtual void OnComplete(int32_t reason, int32_t total) override;
+    virtual void OnComplete(int32_t reason, int32_t total, int64_t seq) override;
 
 private:
     CallbackContext* callbackContext;

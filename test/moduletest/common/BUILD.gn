@@ -71,12 +71,40 @@ ohos_moduletest("HiSysEventCTest") {
   ]
 }
 
+ohos_moduletest("HiSysEventManagerCTest") {
+  module_out_path = module_output_path
+
+  include_dirs =
+      [ "//base/hiviewdfx/hisysevent/adapter/native/idl/include/ret_code.h" ]
+
+  sources = [ "hisysevent_manager_c_test.cpp" ]
+
+  configs = [ ":hisysevent_native_test_config" ]
+
+  deps = [
+    "//base/hiviewdfx/hisysevent/frameworks/native/util:hisysevent_util",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  if (build_public_version) {
+    deps += [ "//third_party/bounds_checking_function:libsec_shared" ]
+  } else {
+    deps += [ "//third_party/bounds_checking_function:libsec_static" ]
+  }
+
+  external_deps = [
+    "hisysevent_native:libhisyseventmanager",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
+}
+
 group("moduletest") {
   testonly = true
   deps = []
 
   deps += [
     ":HiSysEventCTest",
+    ":HiSysEventManagerCTest",
     ":HiSysEventNativeTest",
   ]
 }

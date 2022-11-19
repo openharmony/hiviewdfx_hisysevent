@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+#define MAX_LENGTH_OF_PARAM_NAME 33
+
 /**
  * @brief Define the type of the param.
  */
@@ -79,7 +81,7 @@ typedef union HiSysEventParamValue HiSysEventParamValue;
  * @brief Define param struct.
  */
 struct HiSysEventParam {
-    char name[33];
+    char name[MAX_LENGTH_OF_PARAM_NAME];
     HiSysEventParamType t;
     HiSysEventParamValue v;
     size_t arraySize;

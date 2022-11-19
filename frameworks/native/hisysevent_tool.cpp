@@ -20,19 +20,19 @@
 #include <map>
 #include <unistd.h>
 
+#include "hisysevent.h"
 #include "hisysevent_tool_listener.h"
 #include "hisysevent_tool_query.h"
+
+#include "ret_code.h"
 
 using namespace std;
 
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr char ARG_SELECTION[] = "vrc:o:n:t:ls:e:m:dh";
-}
-HiSysEventTool::HiSysEventTool() : clientCmdArg {
-    false, false, "", "", "", RuleType::WHOLE_WORD,
-    false, false, -1, -1, 10000 } {}
+constexpr char ARG_SELECTION[] = "vrc:o:n:t:ls:e:m:dhg:";
+constexpr uint32_t INVALID_EVENT_TYPE = 0;
 
 RuleType GetRuleTypeFromArg(const string& fromArgs)
 {
@@ -46,6 +46,44 @@ RuleType GetRuleTypeFromArg(const string& fromArgs)
     }
     return RuleType::WHOLE_WORD;
 }
+uint32_t GetEventTypeFromArg(const string& fromArgs)
+{
+    static std::map<const string, HiSysEvent::EventType> eventTypeMap {
+        {"FAULT", HiSysEvent::EventType::FAULT},
+        {"STATISTIC", HiSysEvent::EventType::STATISTIC},
+        {"SECURITY", HiSysEvent::EventType::SECURITY},
+        {"BEHAVIOR", HiSysEvent::EventType::BEHAVIOR}
+    };
+    if (eventTypeMap.find(fromArgs) != eventTypeMap.end()) {
+        return static_cast<uint32_t>(eventTypeMap[fromArgs]);
+    }
+    return INVALID_EVENT_TYPE;
+}
+
+std::string GetErrorDescription(int32_t errCode)
+{
+    std::map<int32_t, std::string> errMap = {
+        {ERR_SYS_EVENT_SERVICE_NOT_FOUND, "service not found."},
+        {ERR_PARCEL_DATA_IS_NULL, "parcel data is null."},
+        {ERR_REMOTE_SERVICE_IS_NULL, "remote service is null."},
+        {ERR_CAN_NOT_WRITE_DESCRIPTOR, "descriptor wrote failed."},
+        {ERR_CAN_NOT_WRITE_PARCEL, "parcel wrote failed."},
+        {ERR_CAN_NOT_WRITE_REMOTE_OBJECT, "remote object wrote failed."},
+        {ERR_CAN_NOT_SEND_REQ, "request sent failed."},
+        {ERR_CAN_NOT_READ_PARCEL, "parcel read failed."},
+        {ERR_ADD_DEATH_RECIPIENT, "add death recipient failed."},
+        {ERR_QUERY_RULE_INVALID, "invalid query rule."},
+        {ERR_TOO_MANY_WATCHERS, "too many wathers subscribed."},
+        {ERR_QUERY_TOO_FREQUENTLY, "query too frequently."},
+    };
+    return errMap.find(errCode) == errMap.end() ?
+        "unknown error." : errMap.at(errCode);
+}
+}
+
+HiSysEventTool::HiSysEventTool() : clientCmdArg {
+    false, false, "", "", "", RuleType::WHOLE_WORD,
+    false, false, -1, -1, 10000, 0} {}
 
 bool HiSysEventTool::ParseCmdLine(int argc, char** argv)
 {
@@ -124,6 +162,9 @@ void HiSysEventTool::HandleInput(int argc, char** argv, const char* selection)
             case 'd':
                 clientCmdArg.isDebug = true;
                 break;
+            case 'g':
+                clientCmdArg.eventType = GetEventTypeFromArg(optarg);
+                break;
             case 'h':
                 DoCmdHelp();
                 _exit(0);
@@ -137,14 +178,20 @@ void HiSysEventTool::HandleInput(int argc, char** argv, const char* selection)
 void HiSysEventTool::DoCmdHelp()
 {
     cout << "hisysevent [[-v] -r [-d | -c [WHOLE_WORD|PREFIX|REGULAR] -t <tag> "
-        << "| -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName> ] "
-        << "| -l [-s <time> -e <time> -m <count>]]" << endl;
+        << "| -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName> "
+        << "| -g [FAULT|STATISTIC|SECURITY|BEHAVIOR]] "
+        << "| -l [-s <time> -e <time> -m <count> -c [WHOLE_WORD] "
+        << "-g [FAULT|STATISTIC|SECURITY|BEHAVIOR]]]" << endl;
     cout << "-r    subscribe on empty domain, eventname and tag" << endl;
-    cout << "-r -c [WHOLE_WORD|PREFIX|REGULAR] -t <tag>, subscribe on tag" << endl;
-    cout << "-r -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName>, "
-        << "subscribe on domain and event name" << endl;
+    cout << "-r -c [WHOLE_WORD|PREFIX|REGULAR] -t <tag> "
+        << ", subscribe on tag" << endl;
+    cout << "-r -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName> "
+        << ", subscribe on domain and event name" << endl;
+    cout << "-r -g [FAULT|STATISTIC|SECURITY|BEHAVIOR] "
+        << ", subscribe on event type" << endl;
     cout << "-r -d set debug mode, both options must appear at the same time." << endl;
-    cout << "-l -s <begin time> -e <end time> -m <max hisysevent count>" << endl;
+    cout << "-l -s <begin time> -e <end time> -m <max hisysevent count> -c [WHOLE_WORD] "
+        << "-g [FAULT|STATISTIC|SECURITY|BEHAVIOR]" << endl;
     cout << "      get history hisysevent log, end time should not be "
         << "earlier than begin time." << endl;
     cout << "-v open valid event checking mode." << endl;
@@ -159,12 +206,12 @@ bool HiSysEventTool::DoAction()
         }
         std::vector<ListenerRule> sysRules;
         ListenerRule listenerRule(clientCmdArg.domain, clientCmdArg.eventName,
-            clientCmdArg.tag, clientCmdArg.ruleType);
+            clientCmdArg.tag, clientCmdArg.ruleType, clientCmdArg.eventType);
         sysRules.emplace_back(listenerRule);
-        auto listenerAddResult = HiSysEventManager::AddListener(toolListener, sysRules);
-        if (listenerAddResult != 0 ||
+        auto retCode = HiSysEventManager::AddListener(toolListener, sysRules);
+        if (retCode != IPC_CALL_SUCCEED ||
             (clientCmdArg.isDebug && HiSysEventManager::SetDebugMode(toolListener, true) != 0)) {
-            cout << "failed to subscribe sys event." << endl;
+            cout << "failed to subscribe system event: " << GetErrorDescription(retCode) << endl;
         }
         return true;
     }
@@ -176,14 +223,19 @@ bool HiSysEventTool::DoAction()
         }
         struct QueryArg args(clientCmdArg.beginTime, clientCmdArg.endTime, clientCmdArg.maxEvents);
         std::vector<QueryRule> queryRules;
-        if (!clientCmdArg.domain.empty() && !clientCmdArg.eventName.empty()) {
-            QueryRule rule(clientCmdArg.domain, { clientCmdArg.eventName });
+        if (clientCmdArg.ruleType != RuleType::WHOLE_WORD) {
+            cout << "only \"-c WHOLE_WORD\" supported with \"hisysevent -l\" cmd." << endl;
+            return false;
+        }
+        if (!clientCmdArg.domain.empty() || !clientCmdArg.eventName.empty() ||
+            clientCmdArg.eventType != INVALID_EVENT_TYPE) {
+            QueryRule rule(clientCmdArg.domain, { clientCmdArg.eventName },
+                clientCmdArg.ruleType, clientCmdArg.eventType);
             queryRules.push_back(rule);
         }
-        auto queryRet = HiSysEventManager::Query(args, queryRules, queryCallBack);
-        if (queryRet != 0) {
-            cout << "some errors happened when querying sys event, error code: \033[31m" << queryRet
-                << "\033[0m." << endl;
+        auto retCode = HiSysEventManager::Query(args, queryRules, queryCallBack);
+        if (retCode != IPC_CALL_SUCCEED) {
+            cout << "failed to query system event: " << GetErrorDescription(retCode) << endl;
         }
         return true;
     }

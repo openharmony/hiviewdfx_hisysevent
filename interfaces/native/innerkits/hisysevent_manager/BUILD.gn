@@ -29,7 +29,10 @@ ohos_shared_library("libhisyseventmanager") {
   sources = [
     "hisysevent_base_manager.cpp",
     "hisysevent_manager.cpp",
+    "hisysevent_manager_c.cpp",
+    "hisysevent_query_callback_c.cpp",
     "hisysevent_record.cpp",
+    "hisysevent_record_c.cpp",
   ]
 
   output_name = "libhisyseventmanager"
@@ -46,6 +49,7 @@ ohos_shared_library("libhisyseventmanager") {
   deps = [
     "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_client",
     "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_service_gen_src_client",
+    "//base/hiviewdfx/hisysevent/frameworks/native/util:hisysevent_util",
   ]
 
   public_deps = [ "//third_party/jsoncpp:jsoncpp" ]

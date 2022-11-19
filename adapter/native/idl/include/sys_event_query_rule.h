@@ -30,8 +30,8 @@ class SysEventQueryRule : public Parcelable {
 public:
     SysEventQueryRule() {};
     SysEventQueryRule(const std::string& domain, const std::vector<std::string>& events,
-        uint32_t ruleType = RuleType::WHOLE_WORD)
-        : domain(domain), eventList(events), ruleType(ruleType) {};
+        uint32_t ruleType = RuleType::WHOLE_WORD, uint32_t eventType = 0, const std::string& cond = "")
+        : domain(domain), eventList(events), ruleType(ruleType), eventType(eventType), condition(cond) {};
     ~SysEventQueryRule() {}
 
     bool Marshalling(Parcel& parcel) const override;
@@ -40,6 +40,8 @@ public:
     std::string domain;
     std::vector<std::string> eventList;
     uint32_t ruleType = RuleType::WHOLE_WORD;
+    uint32_t eventType = 0;
+    std::string condition;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
