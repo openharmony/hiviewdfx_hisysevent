@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,49 +13,49 @@
  * limitations under the License.
  */
 
-#include "sys_event_rule.h"
+#include "query_argument.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-bool SysEventRule::Marshalling(Parcel& parcel) const
+bool QueryArgument::Marshalling(Parcel& parcel) const
 {
-    if (!parcel.WriteString(domain)) {
+    if (!parcel.WriteInt64(beginTime)) {
         return false;
     }
-    if (!parcel.WriteString(eventName)) {
+    if (!parcel.WriteInt64(endTime)) {
         return false;
     }
-    if (!parcel.WriteString(tag)) {
+    if (!parcel.WriteInt32(maxEvents)) {
         return false;
     }
-    if (!parcel.WriteUint32(ruleType)) {
+    if (!parcel.WriteInt64(fromSeq)) {
         return false;
     }
-    if (!parcel.WriteUint32(eventType)) {
+    if (!parcel.WriteInt64(toSeq)) {
         return false;
     }
     return true;
 }
 
-SysEventRule* SysEventRule::Unmarshalling(Parcel& parcel)
+QueryArgument* QueryArgument::Unmarshalling(Parcel& parcel)
 {
-    SysEventRule* ret = new(std::nothrow) SysEventRule();
+    QueryArgument* ret = new(std::nothrow) QueryArgument();
     if (ret == nullptr) {
         return ret;
     }
-    if (!parcel.ReadString(ret->domain)) {
+    if (!parcel.ReadInt64(ret->beginTime)) {
         goto error;
     }
-    if (!parcel.ReadString(ret->eventName)) {
+    if (!parcel.ReadInt64(ret->endTime)) {
         goto error;
     }
-    if (!parcel.ReadString(ret->tag)) {
+    if (!parcel.ReadInt32(ret->maxEvents)) {
         goto error;
     }
-    if (!parcel.ReadUint32(ret->ruleType)) {
+    if (!parcel.ReadInt64(ret->fromSeq)) {
         goto error;
     }
-    if (!parcel.ReadUint32(ret->eventType)) {
+    if (!parcel.ReadInt64(ret->toSeq)) {
         goto error;
     }
     return ret;

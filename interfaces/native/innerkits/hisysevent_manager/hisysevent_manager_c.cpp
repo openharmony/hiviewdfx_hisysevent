@@ -27,7 +27,7 @@ using OHOS::HiviewDFX::HiSysEventBaseQueryCallback;
 using QueryArgCls = OHOS::HiviewDFX::QueryArg;
 using QueryRuleCls = OHOS::HiviewDFX::QueryRule;
 using OHOS::HiviewDFX::RuleType::WHOLE_WORD;
-using OHOS::HiviewDFX::ERR_DOMIAN_INVALID;
+using OHOS::HiviewDFX::ERR_QUERY_RULE_INVALID;
 
 int HiSysEventQuery(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], size_t ruleSize,
     HiSysEventQueryCallback& callback)
@@ -35,7 +35,7 @@ int HiSysEventQuery(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], 
     std::vector<QueryRuleCls> queryRules;
     for (size_t i = 0; i < ruleSize; ++i) {
         if (strlen(rules[i].domain) == 0 || rules[i].eventListSize == 0) {
-            return ERR_DOMIAN_INVALID;
+            return ERR_QUERY_RULE_INVALID;
         }
         std::vector<std::string> eventList;
         for (size_t j = 0; j < rules[i].eventListSize; ++j) {

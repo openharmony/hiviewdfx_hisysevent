@@ -15,6 +15,8 @@
 
 #include "napi_hisysevent_util.h"
 
+#include <cinttypes>
+
 #include "def.h"
 #include "hilog/log.h"
 #include "json/json.h"
@@ -30,6 +32,7 @@ constexpr uint32_t JS_STR_PARM_LEN_LIMIT = 1024 * 10; // 10k
 constexpr uint32_t BUF_SIZE = 1024 * 11; // 11k
 constexpr int SYS_EVENT_INFO_PARAM_INDEX = 0;
 constexpr long long DEFAULT_TIME_STAMP = -1;
+constexpr long long DEFAULT_SEQ = 0;
 constexpr int32_t DEFAULT_MAX_EVENTS = 1000;
 constexpr char PARAMS_ATTR[] = "params";
 constexpr char TAG_ATTR[] = "tag";
@@ -37,6 +40,8 @@ constexpr char RULE_TYPE_ATTR[] = "ruleType";
 constexpr char BEGIN_TIME_ATTR[] = "beginTime";
 constexpr char END_TIME_ATTR[] = "endTime";
 constexpr char MAX_EVENTS_ATTR[] = "maxEvents";
+constexpr char BEGIN_SEQ_ATTR[] = "fromSeq";
+constexpr char END_SEQ_ATTR[] = "toSeq";
 constexpr char NAMES_ATTR[] = "names";
 constexpr char DOMAIN__KEY[] = "domain_";
 constexpr char NAME__KEY[] = "name_";
@@ -781,6 +786,10 @@ int32_t NapiHiSysEventUtil::ParseQueryArg(const napi_env env, napi_value& jsObj,
     HiLog::Debug(LABEL, "queryArg.endTime is %{public}lld.", queryArg.endTime);
     queryArg.maxEvents = GetInt32TypeAttribute(env, jsObj, MAX_EVENTS_ATTR, DEFAULT_MAX_EVENTS);
     HiLog::Debug(LABEL, "queryArg.maxEvents is %{public}d.", queryArg.maxEvents);
+    queryArg.fromSeq = GetLonglongTypeAttribute(env, jsObj, BEGIN_SEQ_ATTR, DEFAULT_SEQ);
+    HiLog::Debug(LABEL, "queryArg.fromSeq is %{public}lld.", queryArg.fromSeq);
+    queryArg.toSeq = GetLonglongTypeAttribute(env, jsObj, END_SEQ_ATTR, DEFAULT_SEQ);
+    HiLog::Debug(LABEL, "queryArg.endSeq is %{public}lld.", queryArg.toSeq);
     return NAPI_SUCCESS;
 }
 
@@ -804,7 +813,7 @@ void NapiHiSysEventUtil::CreateInt32Value(const napi_env env, int32_t value, nap
 void NapiHiSysEventUtil::CreateInt64Value(const napi_env env, int64_t value, napi_value& ret)
 {
     napi_status status = napi_create_bigint_int64(env, value, &ret);
-    HiLog::Debug(LABEL, "create napi value of int64_t type, value is %{public}s.", std::to_string(value).c_str());
+    HiLog::Debug(LABEL, "create napi value of int64_t type, value is %{public}" PRId64 ".", value);
     if (status != napi_ok) {
         HiLog::Error(LABEL, "failed to create napi value of int64_t type.");
     }
@@ -813,7 +822,7 @@ void NapiHiSysEventUtil::CreateInt64Value(const napi_env env, int64_t value, nap
 void NapiHiSysEventUtil::CreateUInt64Value(const napi_env env, uint64_t value, napi_value& ret)
 {
     napi_status status = napi_create_bigint_uint64(env, value, &ret);
-    HiLog::Debug(LABEL, "create napi value of uint64_t type, value is %{public}s.", std::to_string(value).c_str());
+    HiLog::Debug(LABEL, "create napi value of uint64_t type, value is %{public}" PRIu64 ".", value);
     if (status != napi_ok) {
         HiLog::Error(LABEL, "failed to create napi value of uint64_t type.");
     }
@@ -900,7 +909,7 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
         {ERR_QUERY_TOO_FREQUENTLY, {NapiError::ERR_QUERY_TOO_FREQUENTLY, "Frequency of event query is over limit"}},
         {NapiInnerError::ERR_INVALID_DOMAIN_IN_QUERY_RULE,
             {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
-        {ERR_DOMIAN_INVALID, {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
+        {ERR_QUERY_RULE_INVALID, {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
         {NapiInnerError::ERR_INVALID_EVENT_NAME_IN_QUERY_RULE,
             {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
     };

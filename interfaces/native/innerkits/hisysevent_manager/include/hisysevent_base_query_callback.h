@@ -32,7 +32,7 @@ public:
 
 public:
     virtual void OnQuery(const ::std::vector<std::string>& sysEvents,
-        const std::vector<int64_t>& seq)
+        const std::vector<int64_t>& seqs)
     {
         if (callback != nullptr) {
             auto records = std::make_shared<std::vector<HiSysEventRecord>>();
@@ -48,6 +48,11 @@ public:
         if (callback != nullptr) {
             callback->OnComplete(reason, total);
         }
+    }
+
+    virtual void OnComplete(int32_t reason, int32_t total, int64_t seq)
+    {
+        OnComplete(reason, total);
     }
 
 private:

@@ -31,10 +31,10 @@ void HiSysEventQueryProxy::OnQuery(const ::std::vector<std::u16string>& sysEvent
     }
 }
 
-void HiSysEventQueryProxy::OnComplete(int32_t reason, int32_t total)
+void HiSysEventQueryProxy::OnComplete(int32_t reason, int32_t total, int64_t seq)
 {
     if (queryCallback != nullptr) {
-        queryCallback->OnComplete(reason, total);
+        queryCallback->OnComplete(reason, total, seq);
     }
 }
 } // namespace HiviewDFX
