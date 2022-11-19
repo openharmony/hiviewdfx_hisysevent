@@ -72,7 +72,7 @@ std::string GetErrorDescription(int32_t errCode)
         {ERR_CAN_NOT_SEND_REQ, "request sent failed."},
         {ERR_CAN_NOT_READ_PARCEL, "parcel read failed."},
         {ERR_ADD_DEATH_RECIPIENT, "add death recipient failed."},
-        {ERR_DOMIAN_INVALID, "invalid arguments."},
+        {ERR_QUERY_RULE_INVALID, "invalid query rule."},
         {ERR_TOO_MANY_WATCHERS, "too many wathers subscribed."},
         {ERR_QUERY_TOO_FREQUENTLY, "query too frequently."},
     };

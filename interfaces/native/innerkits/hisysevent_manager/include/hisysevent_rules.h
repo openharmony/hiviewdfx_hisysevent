@@ -27,8 +27,11 @@ struct QueryArg {
     long long beginTime;
     long long endTime;
     int maxEvents;
-    QueryArg(const long long begin, const long long end, const int max)
-        : beginTime(begin), endTime(end), maxEvents(max) {}
+    long long fromSeq;
+    long long toSeq;
+    QueryArg(const long long beginTime = -1, const long long endTime = -1, const int maxEvents = -1,
+        const long long fromSeq = -1, const long long toSeq = -1)
+        : beginTime(beginTime), endTime(endTime), maxEvents(maxEvents), fromSeq(fromSeq), toSeq(toSeq) {}
     QueryArg() {}
 };
 

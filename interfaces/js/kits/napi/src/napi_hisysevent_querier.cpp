@@ -25,7 +25,7 @@ constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_QUERIER" };
 constexpr char ON_QUERY_ATTR[] = "onQuery";
 constexpr char ON_COMPLETE_ATTR[] = "onComplete";
 constexpr size_t ON_QUERY_PARAM_COUNT = 1;
-constexpr size_t ON_QUERY_COMPLTE_COUNT = 2;
+constexpr size_t ON_QUERY_COMPLTE_COUNT = 3;
 }
 
 NapiHiSysEventQuerier::NapiHiSysEventQuerier(CallbackContext* context, ON_COMPLETE_FUNC handler)
@@ -70,10 +70,10 @@ void NapiHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvents,
         });
 }
 
-void NapiHiSysEventQuerier::OnComplete(int32_t reason, int32_t total)
+void NapiHiSysEventQuerier::OnComplete(int32_t reason, int32_t total, int64_t seq)
 {
     jsCallbackManager->Add(callbackContext,
-        [this, reason, total] (const napi_env env, const napi_ref ref, pid_t threadId) {
+        [this, reason, total, seq] (const napi_env env, const napi_ref ref, pid_t threadId) {
             if (threadId != syscall(SYS_gettid)) {
                 return;
             }
@@ -81,7 +81,9 @@ void NapiHiSysEventQuerier::OnComplete(int32_t reason, int32_t total)
             NapiHiSysEventUtil::CreateInt32Value(env, reason, reasonJsParam);
             napi_value totalJsParam = nullptr;
             NapiHiSysEventUtil::CreateInt32Value(env, total, totalJsParam);
-            napi_value argv[ON_QUERY_COMPLTE_COUNT] = {reasonJsParam, totalJsParam};
+            napi_value seqJsParm = nullptr;
+            NapiHiSysEventUtil::CreateInt64Value(env, seq, seqJsParm);
+            napi_value argv[ON_QUERY_COMPLTE_COUNT] = {reasonJsParam, totalJsParam, seqJsParm};
             napi_value querier = nullptr;
             napi_get_reference_value(env, ref, &querier);
             napi_value OnComplete = NapiHiSysEventUtil::GetPropertyByName(env, querier, ON_COMPLETE_ATTR);

@@ -667,7 +667,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest012, TestSize.Level3)
     HiSysEventQueryCallback callback;
     InitCallck(callback);
     auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
-    ASSERT_EQ(res, ERR_DOMIAN_INVALID);
+    ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest012 end");
 }
 
@@ -696,7 +696,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest013, TestSize.Level3)
     HiSysEventQueryCallback callback;
     InitCallck(callback);
     auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
-    ASSERT_EQ(res, ERR_DOMIAN_INVALID);
+    ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest013 end");
 }
 
@@ -728,7 +728,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest014, TestSize.Level3)
     HiSysEventQueryCallback callback;
     InitCallck(callback);
     auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
-    ASSERT_EQ(res, ERR_DOMIAN_INVALID);
+    ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest014 end");
 }
@@ -761,7 +761,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest015, TestSize.Level3)
     HiSysEventQueryCallback callback;
     InitCallck(callback);
     auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
-    ASSERT_EQ(res, ERR_DOMIAN_INVALID);
+    ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest015 end");
 }
@@ -793,7 +793,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest016, TestSize.Level3)
     HiSysEventQueryCallback callback;
     InitCallck(callback);
     auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
-    ASSERT_EQ(res, ERR_DOMIAN_INVALID);
+    ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest016 end");
 }

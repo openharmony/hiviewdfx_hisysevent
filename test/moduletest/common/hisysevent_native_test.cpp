@@ -1444,3 +1444,44 @@ HWTEST_F(HiSysEventNativeTest, TestParseWrongTypeParamsFromUninitializedHiSysEve
     ret = record.GetParamValue("DOUBLE_T_NOT_EXIST", doubleTypeParam2);
     ASSERT_TRUE(ret == ERR_KEY_NOT_EXIST);
 }
+
+/**
+ * @tc.name: TestHiSysEventManagerQueryWithInvalidQueryRules001
+ * @tc.desc: Query with query rules which contains empty domain
+ * @tc.type: FUNC
+ * @tc.require: issueI5L2RV
+ */
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithInvalidQueryRules001, TestSize.Level1)
+{
+    auto querier = std::make_shared<Querier>();
+    long long defaultTimeStap = -1;
+    int queryCount = 10;
+    struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
+    std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
+    std::vector<std::string> eventNames {"EVENT_NAME"};
+    OHOS::HiviewDFX::QueryRule rule("", eventNames); // empty domain
+    queryRules.emplace_back(rule);
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_QUERY_RULE_INVALID);
+}
+
+/**
+ * @tc.name: TestHiSysEventManagerQueryWithInvalidQueryRules002
+ * @tc.desc: Query with query rules which contains empty event names
+ * @tc.type: FUNC
+ * @tc.require: issueI5L2RV
+ */
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithInvalidQueryRules002, TestSize.Level1)
+{
+    auto querier = std::make_shared<Querier>();
+    long long defaultTimeStap = -1;
+    int queryCount = 10;
+    struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
+    std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
+    std::vector<std::string> eventNames; // empty event name
+    OHOS::HiviewDFX::QueryRule rule("DOMAIN", eventNames);
+    queryRules.emplace_back(rule);
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_QUERY_RULE_INVALID);
+}
+

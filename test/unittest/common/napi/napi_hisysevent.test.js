@@ -727,4 +727,100 @@ describe('hiSysEventJsUnitTest', function () {
             done()
         }
     })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest015
+     * @tc.desc: Test hisysevent query with sequence
+     * @tc.type: FUNC
+     */
+    it('hiSysEventJsUnitTest015', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest015 start')
+        try {
+            hiSysEvent.query({
+                maxEvents: 10000,
+                fromSeq: 100,
+                toSeq: 1000,
+            }, [{
+                domain: "AAFWK",
+                names: ["CONNECT_SERVICE"],
+            }], {
+                onQuery: function (infos) {
+                    console.info(`hiSysEventJsUnitTest015: onQuery...`)
+                    expect(infos.length >= 0).assertTrue()
+                    console.info(`hiSysEventJsUnitTest015: infos.size is ${infos.length}`)
+                    if (infos instanceof Array) {
+                        for (let i = 0; i < infos.length; i++) {
+                            let item = infos[i];
+                            console.info(`hiSysEventJsUnitTest015: domain is ${item.domain}, name is ${item.name}, eventType is ${item.eventType}`)
+                            if (item.params instanceof Object) {
+                                for (const key in item.params) {
+                                    console.info(`hiSysEventJsUnitTest015: ${key}: ${item.params[key]}`)
+                                }
+                            }
+                        }
+                    }
+                },
+                onComplete: function(reason, total, seq) {
+                    console.info(`hiSysEventJsUnitTest015: onComplete...`)
+                    console.info(`hiSysEventJsUnitTest015: reason is ${reason}, total is ${total}, seq is ${seq}`)
+                    expect(true).assertTrue()
+                    console.info(`hiSysEventJsUnitTest015 end`)
+                    done()
+                }
+            })
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest015 delay > error code: ${err.code}, error msg: ${err.message}`)
+            expect(err.code == 201).assertTrue()
+            console.info('hiSysEventJsUnitTest015 end')
+            done()
+        }
+    })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest016
+     * @tc.desc: Test hisysevent get max sequence
+     * @tc.type: FUNC
+     */
+    it('hiSysEventJsUnitTest016', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest016 start')
+        try {
+            hiSysEvent.query({
+                maxEvents: 0,
+                fromSeq: 0,
+                toSeq: 1000,
+            }, [{
+                domain: "AAFWK",
+                names: ["CONNECT_SERVICE"],
+            }], {
+                onQuery: function (infos) {
+                    console.info(`hiSysEventJsUnitTest016: onQuery...`)
+                    expect(infos.length >= 0).assertTrue()
+                    console.info(`hiSysEventJsUnitTest016: infos.size is ${infos.length}`)
+                    if (infos instanceof Array) {
+                        for (let i = 0; i < infos.length; i++) {
+                            let item = infos[i];
+                            console.info(`hiSysEventJsUnitTest016: domain is ${item.domain}, name is ${item.name}, eventType is ${item.eventType}`)
+                            if (item.params instanceof Object) {
+                                for (const key in item.params) {
+                                    console.info(`hiSysEventJsUnitTest016: ${key}: ${item.params[key]}`)
+                                }
+                            }
+                        }
+                    }
+                },
+                onComplete: function(reason, total, seq) {
+                    console.info(`hiSysEventJsUnitTest016: onComplete...`)
+                    console.info(`hiSysEventJsUnitTest016: reason is ${reason}, total is ${total}, seq is ${seq}`)
+                    expect(true).assertTrue()
+                    console.info(`hiSysEventJsUnitTest016 end`)
+                    done()
+                }
+            })
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest016 delay > error code: ${err.code}, error msg: ${err.message}`)
+            expect(err.code == 201).assertTrue()
+            console.info('hiSysEventJsUnitTest016 end')
+            done()
+        }
+    })
 });

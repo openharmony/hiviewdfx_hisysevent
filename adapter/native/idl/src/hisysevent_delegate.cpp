@@ -21,6 +21,7 @@
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "query_argument.h"
 #include "ret_code.h"
 #include "sys_event_service_proxy.h"
 #include "system_ability_definition.h"
@@ -97,7 +98,8 @@ int32_t HiSysEventDelegate::Query(const struct QueryArg& arg,
         new OHOS::HiviewDFX::HiSysEventQueryProxy(callback);
 
     SysEventServiceProxy sysEventService(service);
-    return sysEventService.Query(arg.beginTime, arg.endTime, arg.maxEvents, hospRules, spCallBack);
+    QueryArgument queryArgument(arg.beginTime, arg.endTime, arg.maxEvents, arg.fromSeq, arg.toSeq);
+    return sysEventService.Query(queryArgument, hospRules, spCallBack);
 }
 
 HiSysEventDelegate::~HiSysEventDelegate()
