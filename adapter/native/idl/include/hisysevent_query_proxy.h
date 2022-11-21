@@ -33,7 +33,7 @@ public:
 public:
     void OnQuery(const ::std::vector<std::u16string>& sysEvent,
         const ::std::vector<int64_t>& seq) override;
-    void OnComplete(int32_t reason, int32_t total) override;
+    void OnComplete(int32_t reason, int32_t total, int64_t seq) override;
 
 private:
     std::shared_ptr<HiSysEventBaseQueryCallback> queryCallback;

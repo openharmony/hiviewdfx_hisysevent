@@ -35,6 +35,7 @@ struct ArgStuct {
     long long beginTime;
     long long endTime;
     int maxEvents;
+    uint32_t eventType;
 };
 
 class HiSysEventTool {
