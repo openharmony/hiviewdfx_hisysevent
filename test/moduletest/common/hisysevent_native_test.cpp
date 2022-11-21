@@ -30,6 +30,7 @@
 #include "def.h"
 #include "hisysevent.h"
 #include "hisysevent_base_manager.h"
+#include "hisysevent_delegate.h"
 #include "hisysevent_manager.h"
 #include "hisysevent_record.h"
 #include "hisysevent_query_callback.h"
@@ -127,6 +128,88 @@ void HiSysEventNativeTest::SetUp(void)
 
 void HiSysEventNativeTest::TearDown(void)
 {
+}
+
+/**
+ * @tc.name: TestHiSysEventManagerQueryWithInvalidQueryRules001
+ * @tc.desc: Query with query rules which contains empty domain
+ * @tc.type: FUNC
+ * @tc.require: issueI62B10
+ */
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithInvalidQueryRules001, TestSize.Level1)
+{
+    sleep(1);
+    auto querier = std::make_shared<Querier>();
+    long long defaultTimeStap = -1;
+    int queryCount = 10;
+    struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
+    std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
+    std::vector<std::string> eventNames {"EVENT_NAME"};
+    OHOS::HiviewDFX::QueryRule rule("", eventNames); // empty domain
+    queryRules.emplace_back(rule);
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
+    // only process with root or shell uid return OHOS::HiviewDFX::IPC_CALL_SUCCEED
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_QUERY_RULE_INVALID || ret == OHOS::HiviewDFX::IPC_CALL_SUCCEED);
+}
+
+/**
+ * @tc.name: TestHiSysEventManagerQueryWithInvalidQueryRules002
+ * @tc.desc: Query with query rules which contains empty event names
+ * @tc.type: FUNC
+ * @tc.require: issueI62B10
+ */
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithInvalidQueryRules002, TestSize.Level1)
+{
+    sleep(1);
+    auto querier = std::make_shared<Querier>();
+    long long defaultTimeStap = -1;
+    int queryCount = 10;
+    struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
+    std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
+    std::vector<std::string> eventNames; // empty event name
+    OHOS::HiviewDFX::QueryRule rule("DOMAIN", eventNames);
+    queryRules.emplace_back(rule);
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
+    // only process with root or shell uid return OHOS::HiviewDFX::IPC_CALL_SUCCEED
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_QUERY_RULE_INVALID || ret == OHOS::HiviewDFX::IPC_CALL_SUCCEED);
+}
+
+/**
+ * @tc.name: TestSubscribeSysEventByTag
+ * @tc.desc: Subscribe sysevent by event tag
+ * @tc.type: FUNC
+ * @tc.require: issueI62B10
+ */
+HWTEST_F(HiSysEventNativeTest, TestSubscribeSysEventByTag, TestSize.Level1)
+{
+    auto watcher = std::make_shared<Watcher>();
+    OHOS::HiviewDFX::ListenerRule listenerRule("DOMAIN", "EVENT_NAME", "TAG", OHOS::HiviewDFX::RuleType::WHOLE_WORD);
+    std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
+    sysRules.emplace_back(listenerRule);
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
+    ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
+    ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(watcher);
+    ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
+}
+
+/**
+ * @tc.name: TestHiSysEventDelegateApisWithInvalidInstance
+ * @tc.desc: Call SetDebugMode/Removelistener with a invalid HiSysEventDelegate instance
+ * @tc.type: FUNC
+ * @tc.require: issueI62B10
+ */
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventDelegateApisWithInvalidInstance, TestSize.Level1)
+{
+    std::shared_ptr<OHOS::HiviewDFX::HiSysEventDelegate> delegate =
+        std::make_shared<OHOS::HiviewDFX::HiSysEventDelegate>();
+    std::thread t([delegate] () {
+        delegate->BinderFunc();
+    });
+    t.detach();
+    auto ret = delegate->RemoveListener(nullptr);
+    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ret = delegate->SetDebugMode(nullptr, true);
+    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
 }
 
 /**
@@ -1443,45 +1526,5 @@ HWTEST_F(HiSysEventNativeTest, TestParseWrongTypeParamsFromUninitializedHiSysEve
     double doubleTypeParam2 = 0;
     ret = record.GetParamValue("DOUBLE_T_NOT_EXIST", doubleTypeParam2);
     ASSERT_TRUE(ret == ERR_KEY_NOT_EXIST);
-}
-
-/**
- * @tc.name: TestHiSysEventManagerQueryWithInvalidQueryRules001
- * @tc.desc: Query with query rules which contains empty domain
- * @tc.type: FUNC
- * @tc.require: issueI5L2RV
- */
-HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithInvalidQueryRules001, TestSize.Level1)
-{
-    auto querier = std::make_shared<Querier>();
-    long long defaultTimeStap = -1;
-    int queryCount = 10;
-    struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
-    std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
-    std::vector<std::string> eventNames {"EVENT_NAME"};
-    OHOS::HiviewDFX::QueryRule rule("", eventNames); // empty domain
-    queryRules.emplace_back(rule);
-    auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_QUERY_RULE_INVALID);
-}
-
-/**
- * @tc.name: TestHiSysEventManagerQueryWithInvalidQueryRules002
- * @tc.desc: Query with query rules which contains empty event names
- * @tc.type: FUNC
- * @tc.require: issueI5L2RV
- */
-HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithInvalidQueryRules002, TestSize.Level1)
-{
-    auto querier = std::make_shared<Querier>();
-    long long defaultTimeStap = -1;
-    int queryCount = 10;
-    struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
-    std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
-    std::vector<std::string> eventNames; // empty event name
-    OHOS::HiviewDFX::QueryRule rule("DOMAIN", eventNames);
-    queryRules.emplace_back(rule);
-    auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_QUERY_RULE_INVALID);
 }
 
