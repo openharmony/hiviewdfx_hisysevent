@@ -30,7 +30,6 @@
 #include "def.h"
 #include "hisysevent.h"
 #include "hisysevent_base_manager.h"
-#include "hisysevent_delegate.h"
 #include "hisysevent_manager.h"
 #include "hisysevent_record.h"
 #include "hisysevent_query_callback.h"
@@ -190,26 +189,6 @@ HWTEST_F(HiSysEventNativeTest, TestSubscribeSysEventByTag, TestSize.Level1)
     ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
     ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(watcher);
     ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
-}
-
-/**
- * @tc.name: TestHiSysEventDelegateApisWithInvalidInstance
- * @tc.desc: Call SetDebugMode/Removelistener with a invalid HiSysEventDelegate instance
- * @tc.type: FUNC
- * @tc.require: issueI62B10
- */
-HWTEST_F(HiSysEventNativeTest, TestHiSysEventDelegateApisWithInvalidInstance, TestSize.Level1)
-{
-    std::shared_ptr<OHOS::HiviewDFX::HiSysEventDelegate> delegate =
-        std::make_shared<OHOS::HiviewDFX::HiSysEventDelegate>();
-    std::thread t([delegate] () {
-        delegate->BinderFunc();
-    });
-    t.detach();
-    auto ret = delegate->RemoveListener(nullptr);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
-    ret = delegate->SetDebugMode(nullptr, true);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
 }
 
 /**
