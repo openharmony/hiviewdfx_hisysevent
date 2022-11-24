@@ -78,11 +78,14 @@ public:
         static constexpr char ACE[] = "ACE";
         static constexpr char AI[] = "AI";
         static constexpr char APPEXECFWK[] = "APPEXECFWK";
+        static constexpr char AUDIO[] = "AUDIO";
         static constexpr char AV_SESSION[] = "AV_SESSION";
         static constexpr char BARRIER_FREE[] = "BARRIERFREE";
         static constexpr char BIOMETRICS[] = "BIOMETRICS";
         static constexpr char BLUETOOTH[] = "BLUETOOTH";
         static constexpr char BUNDLE_MANAGER[] = "BUNDLE_MANAGER";
+        static constexpr char CAMERA[] = "CAMERA";
+        static constexpr char CAST_ENGINE[] = "CASTENGINE";
         static constexpr char CCRUNTIME[] = "CCRUNTIME";
         static constexpr char CERT_MANAGER[] = "CERT_MANAGER";
         static constexpr char COMMONEVENT[] = "COMMONEVENT";
@@ -100,13 +103,13 @@ public:
         static constexpr char DISTRIBUTED_INPUT[] = "DISTINPUT";
         static constexpr char DISTRIBUTED_SCHEDULE[] = "DISTSCHEDULE";
         static constexpr char DISTRIBUTED_SCREEN[] = "DISTSCREEN";
-        static constexpr char DLP[] = "DLP";
         static constexpr char DLP_CRE_SERVICE[] = "DLP_CRE_SERVICE";
+        static constexpr char DLP[] = "DLP";
         static constexpr char DSLM[] = "DSLM";
         static constexpr char DSOFTBUS[] = "DSOFTBUS";
-        static constexpr char GLOBAL[] = "GLOBAL";
         static constexpr char GLOBAL_I18N[] = "GLOBAL_I18N";
         static constexpr char GLOBAL_RESMGR[] = "GLOBAL_RESMGR";
+        static constexpr char GLOBAL[] = "GLOBAL";
         static constexpr char GRAPHIC[] = "GRAPHIC";
         static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
         static constexpr char HUKS[] = "HUKS";
@@ -114,6 +117,7 @@ public:
         static constexpr char INPUTMETHOD[] = "INPUTMETHOD";
         static constexpr char INTELLI_ACCESSORIES[] = "INTELLIACC";
         static constexpr char INTELLI_TV[] = "INTELLITV";
+        static constexpr char ISHARE[] = "ISHARE";
         static constexpr char IVI_HARDWARE[] = "IVIHARDWARE";
         static constexpr char LOCATION[] = "LOCATION";
         static constexpr char MEDICAL_SENSOR[] = "MEDICAL_SENSOR";
@@ -127,6 +131,7 @@ public:
         static constexpr char POWERMGR[] = "POWERMGR";
         static constexpr char REQUEST[] = "REQUEST";
         static constexpr char ROUTER[] = "ROUTER";
+        static constexpr char RSS[] = "RSS";
         static constexpr char SAMGR[] = "SAMGR";
         static constexpr char SECURITY_GUARD[] = "SECURITY_GUARD";
         static constexpr char SENSOR[] = "SENSOR";
@@ -137,14 +142,13 @@ public:
         static constexpr char TIME[] = "TIME";
         static constexpr char UPDATE[] = "UPDATE";
         static constexpr char USB[] = "USB";
-        static constexpr char USERIAM_PIN[] = "USERIAM_PIN";
         static constexpr char USERIAM_FWK[] = "USERIAM_FWK";
-        static constexpr char WEARABLE[] = "WEARABLE";
+        static constexpr char USERIAM_PIN[] = "USERIAM_PIN";
         static constexpr char WEARABLE_HARDWARE[] = "WEARABLEHW";
+        static constexpr char WEARABLE[] = "WEARABLE";
         static constexpr char WEBVIEW[] = "WEBVIEW";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
-        static constexpr char CAST_ENGINE[] = "CASTENGINE";
-        static constexpr char ISHARE[] = "ISHARE";
+        static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
         static constexpr char OTHERS[] = "OTHERS";
     };
 
