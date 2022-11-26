@@ -36,6 +36,7 @@ constexpr size_t MAX_LEN_OF_NAME = 32;
 constexpr char TEST_DOMAIN[] = "HIVIEWDFX";
 constexpr char TEST_NAME[] = "PLUGIN_LOAD";
 constexpr uint32_t QUERY_INTERVAL_TIME = 2;
+constexpr int ERR_NULL = -1;
 
 int64_t GetMilliseconds()
 {
@@ -992,3 +993,71 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest003, TestSize.Level3)
     StringUtil::DeletePointer<char>(&record.jsonStr);
     HiLog::Info(LABEL, "HiSysEventMgrCRecordTest003 end");
 }
+
+/**
+ * @tc.name: HiSysEventRecordCTest001
+ * @tc.desc: Test apis of HisysventRecordC
+ * @tc.type: FUNC
+ * @tc.require: issueI62WJT
+ */
+HWTEST_F(HiSysEventManagerCTest, HiSysEventRecordCTest001, TestSize.Level3)
+{
+    struct HiSysEventRecord record;
+    char*** testp = nullptr;
+    size_t len = 0;
+    OH_HiSysEvent_GetParamNames(record, testp, len);
+    ASSERT_TRUE(true);
+    int64_t value1;
+    auto ret = OH_HiSysEvent_GetParamInt64Value(record, "KEY", value1);
+    ASSERT_TRUE(ret == ERR_NULL);
+    ret = OH_HiSysEvent_GetParamInt64Value(record, nullptr, value1);
+    ASSERT_TRUE(ret == ERR_NULL);
+    uint64_t value2;
+    ret = OH_HiSysEvent_GetParamUint64Value(record, "KEY", value2);
+    ASSERT_TRUE(ret == ERR_NULL);
+    ret = OH_HiSysEvent_GetParamUint64Value(record, nullptr, value2);
+    ASSERT_TRUE(ret == ERR_NULL);
+    double value3;
+    ret = OH_HiSysEvent_GetParamDoubleValue(record, "KEY", value3);
+    ASSERT_TRUE(ret == ERR_NULL);
+    ret = OH_HiSysEvent_GetParamDoubleValue(record, nullptr, value3);
+    ASSERT_TRUE(ret == ERR_NULL);
+    char value4[100];
+    char* value4p = value4;
+    char** value4pp = &value4p;
+    ret = OH_HiSysEvent_GetParamStringValue(record, "KEY", value4pp);
+    ASSERT_TRUE(ret == ERR_NULL);
+    ret = OH_HiSysEvent_GetParamStringValue(record, nullptr, value4pp);
+    ASSERT_TRUE(ret == ERR_NULL);
+    size_t dataLen;
+    int64_t value5[10];
+    int64_t* value5p = value5;
+    int64_t** value5pp = &value5p;
+    ret = OH_HiSysEvent_GetParamInt64Values(record, "KEY", value5pp, dataLen);
+    ASSERT_TRUE(ret == ERR_NULL);
+    ret = OH_HiSysEvent_GetParamInt64Values(record, nullptr, value5pp, dataLen);
+    ASSERT_TRUE(ret == ERR_NULL);
+    uint64_t value6[10];
+    uint64_t* value6p = value6;
+    uint64_t** value6pp = &value6p;
+    ret = OH_HiSysEvent_GetParamUint64Values(record, "KEY", value6pp, dataLen);
+    ASSERT_TRUE(ret == ERR_NULL);
+    ret = OH_HiSysEvent_GetParamUint64Values(record, nullptr, value6pp, dataLen);
+    ASSERT_TRUE(ret == ERR_NULL);
+    double value7[10];
+    double* value7p = value7;
+    double** value7pp = &value7p;
+    ret = OH_HiSysEvent_GetParamDoubleValues(record, "KEY", value7pp, dataLen);
+    ASSERT_TRUE(ret == ERR_NULL);
+    ret = OH_HiSysEvent_GetParamDoubleValues(record, nullptr, value7pp, dataLen);
+    ASSERT_TRUE(ret == ERR_NULL);
+    char v3[10][100] {};
+    char* dest3p = v3[0];
+    char** dest3pp = &dest3p;
+    char*** dest3ppp = &dest3pp;
+    ret = OH_HiSysEvent_GetParamStringValues(record, "KEY", dest3ppp, dataLen);
+    ASSERT_TRUE(ret == ERR_NULL);
+    ret = OH_HiSysEvent_GetParamStringValues(record, nullptr, dest3ppp, dataLen);
+    ASSERT_TRUE(ret == ERR_NULL);
+}
+
