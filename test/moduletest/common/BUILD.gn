@@ -31,6 +31,7 @@ ohos_moduletest("HiSysEventAdapterNativeTest") {
   deps = [
     "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_client",
     "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_service_gen_src_client",
+    "//base/hiviewdfx/hisysevent/frameworks/native/util:hisysevent_util",
     "//third_party/googletest:gtest_main",
   ]
 
