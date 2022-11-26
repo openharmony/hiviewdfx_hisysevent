@@ -31,14 +31,91 @@
 #include "hisysevent_base_listener.h"
 #include "hisysevent_delegate.h"
 #include "hisysevent_rules.h"
+#include "iquery_sys_event_callback.h"
 #include "query_argument.h"
+#include "query_sys_event_callback_proxy.h"
+#include "query_sys_event_callback_stub.h"
 #include "ret_code.h"
 #include "string_ex.h"
+#include "string_util.h"
+#include "sys_event_callback_proxy.h"
+#include "sys_event_callback_stub.h"
+#include "sys_event_service_proxy.h"
+#include "sys_event_service_stub.h"
 
 
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::HiviewDFX;
+
+namespace {
+class QuerySysEventCallbackStubTest : public QuerySysEventCallbackStub {
+public:
+    QuerySysEventCallbackStubTest() {}
+    virtual ~QuerySysEventCallbackStubTest() {}
+
+    void OnQuery(const std::vector<std::u16string>& sysEvent, const std::vector<int64_t>& seq) {}
+    void OnComplete(int32_t reason, int32_t total, int64_t seq) {}
+
+public:
+    enum Code {
+        DEFAULT = -1,
+        ON_QUERY = 0,
+        ON_COMPLETE,
+    };
+};
+
+class SysEventCallbackStubTest : public SysEventCallbackStub {
+public:
+    SysEventCallbackStubTest() {}
+    virtual ~SysEventCallbackStubTest() {}
+
+    void Handle(const std::u16string& domain, const std::u16string& eventName, uint32_t eventType,
+        const std::u16string& eventDetail) {}
+
+public:
+    enum Code {
+        DEFAULT = -1,
+        HANDLE = 0,
+    };
+};
+
+class SysEventServiceStubTest : public SysEventServiceStub {
+public:
+    SysEventServiceStubTest() {}
+    virtual ~SysEventServiceStubTest() {}
+
+    int32_t AddListener(const std::vector<SysEventRule>& rules, const sptr<ISysEventCallback>& callback)
+    {
+        return 0;
+    }
+
+    int32_t RemoveListener(const sptr<ISysEventCallback>& callback)
+    {
+        return 0;
+    }
+
+    int32_t Query(const QueryArgument& queryArgument, const std::vector<SysEventQueryRule>& rules,
+        const sptr<IQuerySysEventCallback>& callback)
+    {
+        return 0;
+    }
+
+    int32_t SetDebugMode(const sptr<ISysEventCallback>& callback, bool mode)
+    {
+        return 0;
+    }
+
+public:
+    enum Code {
+        DEFAULT = -1,
+        ADD_SYS_EVENT_LISTENER = 0,
+        REMOVE_SYS_EVENT_LISTENER,
+        QUERY_SYS_EVENT,
+        SET_DEBUG_MODE
+    };
+};
+}
 
 class HiSysEventAdapterNativeTest : public testing::Test {
 public:
@@ -77,12 +154,13 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestAshMemory, TestSize.Level1)
         Str8ToStr16(std::string("0")),
         Str8ToStr16(std::string("1")),
     };
-    AshMemUtils::WriteBulkData(data, src);
+    auto ret = AshMemUtils::WriteBulkData(data, src);
+    ASSERT_TRUE(ret);
     std::vector<std::u16string> dest;
-    AshMemUtils::ReadBulkData(data, dest);
+    ret = AshMemUtils::ReadBulkData(data, dest);
+    ASSERT_TRUE(ret);
     ASSERT_TRUE(src.size() == dest.size());
-    ASSERT_TRUE(Str16ToStr8(dest[0]) == "0" &&
-        Str16ToStr8(dest[1]) == "1");
+    ASSERT_TRUE(Str16ToStr8(dest[0]) == "0" && Str16ToStr8(dest[1]) == "1");
 }
 
 /**
@@ -126,4 +204,180 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestHiSysEventDelegateApisWithInvalidInsta
     auto baseQuerier = std::make_shared<HiSysEventBaseQueryCallback>();
     ret = delegate->Query(args, queryRules, baseQuerier);
     ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
+}
+
+/**
+ * @tc.name: TestQuerySysEventCallback
+ * @tc.desc: QuerySysEventCallbackProxy/Stub test
+ * @tc.type: FUNC
+ * @tc.require: issueI62WJT
+ */
+HWTEST_F(HiSysEventAdapterNativeTest, TestQuerySysEventCallback, TestSize.Level1)
+{
+    QuerySysEventCallbackStub* querySysEventCallbackStub = new(std::nothrow) QuerySysEventCallbackStubTest();
+    MessageParcel data, reply;
+    MessageOption option;
+    querySysEventCallbackStub->OnRemoteRequest(QuerySysEventCallbackStubTest::Code::DEFAULT, data, reply, option);
+    ASSERT_TRUE(true);
+    querySysEventCallbackStub->OnRemoteRequest(QuerySysEventCallbackStubTest::Code::ON_QUERY, data, reply, option);
+    ASSERT_TRUE(true);
+    querySysEventCallbackStub->OnRemoteRequest(QuerySysEventCallbackStubTest::Code::ON_COMPLETE, data, reply, option);
+    ASSERT_TRUE(true);
+    const sptr<IRemoteObject>& impl(querySysEventCallbackStub);
+    QuerySysEventCallbackProxy proxy(impl);
+    std::vector<std::u16string> sysEvent {};
+    std::vector<int64_t> seq {};
+    proxy.OnQuery(sysEvent, seq);
+    ASSERT_TRUE(true);
+    sysEvent.emplace_back(Str8ToStr16(std::string("0")));
+    seq.emplace_back(1);
+    proxy.OnQuery(sysEvent, seq);
+    ASSERT_TRUE(true);
+    proxy.OnComplete(0, 0, 0);
+    ASSERT_TRUE(true);
+}
+
+/**
+ * @tc.name: TestSysEventCallback
+ * @tc.desc: SysEventCallbackProxy/Stub test
+ * @tc.type: FUNC
+ * @tc.require: issueI62WJT
+ */
+HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventCallback, TestSize.Level1)
+{
+    SysEventCallbackStub* sysEventCallbackStub = new(std::nothrow) SysEventCallbackStubTest();
+    MessageParcel data, reply;
+    MessageOption option;
+    sysEventCallbackStub->OnRemoteRequest(SysEventCallbackStubTest::Code::DEFAULT, data, reply, option);
+    ASSERT_TRUE(true);
+    sysEventCallbackStub->OnRemoteRequest(SysEventCallbackStubTest::Code::HANDLE, data, reply, option);
+    ASSERT_TRUE(true);
+    const sptr<IRemoteObject>& impl(sysEventCallbackStub);
+    SysEventCallbackProxy proxy(impl);
+    proxy.Handle(Str8ToStr16(std::string("DOMAIN")), Str8ToStr16(std::string("EVENT_NAME")), 0,
+        Str8ToStr16(std::string("{}")));
+    ASSERT_TRUE(true);
+}
+
+/**
+ * @tc.name: TestSysEventService
+ * @tc.desc: SysEventServiceProxy/Stub test
+ * @tc.type: FUNC
+ * @tc.require: issueI62WJT
+ */
+HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventService, TestSize.Level1)
+{
+    SysEventServiceStub* sysEventServiceStub = new(std::nothrow) SysEventServiceStubTest();
+    MessageParcel data, reply;
+    MessageOption option;
+    sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::DEFAULT, data, reply, option);
+    ASSERT_TRUE(true);
+    sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::ADD_SYS_EVENT_LISTENER, data, reply, option);
+    ASSERT_TRUE(true);
+    sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::REMOVE_SYS_EVENT_LISTENER, data, reply,
+        option);
+    ASSERT_TRUE(true);
+    sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::QUERY_SYS_EVENT, data, reply, option);
+    ASSERT_TRUE(true);
+    sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::SET_DEBUG_MODE, data, reply, option);
+    ASSERT_TRUE(true);
+    const sptr<IRemoteObject>& impl(sysEventServiceStub);
+    SysEventServiceProxy proxy(impl);
+    OHOS::HiviewDFX::SysEventRule sysEventRule("DOMAIN", "EVENT_NAME", "TAG", OHOS::HiviewDFX::RuleType::WHOLE_WORD);
+    std::vector<OHOS::HiviewDFX::SysEventRule> sysRules;
+    sysRules.emplace_back(sysEventRule);
+    const sptr<SysEventCallbackStub>& watcher(new(std::nothrow) SysEventCallbackStubTest);
+    auto ret = proxy.AddListener(sysRules, watcher);
+    ASSERT_TRUE(ret == 0);
+    ret = proxy.SetDebugMode(watcher, true);
+    ASSERT_TRUE(ret == 0);
+    ret = proxy.RemoveListener(watcher);
+    ASSERT_TRUE(ret == 0);
+    const sptr<QuerySysEventCallbackStub>& querier(new(std::nothrow) QuerySysEventCallbackStubTest);
+    long long defaultTimeStap = -1;
+    int queryCount = 10;
+    OHOS::HiviewDFX::QueryArgument args(defaultTimeStap, defaultTimeStap, queryCount);
+    std::vector<OHOS::HiviewDFX::SysEventQueryRule> queryRules;
+    std::vector<std::string> eventNames { "EVENT_NAME1", "EVENT_NAME2" };
+    OHOS::HiviewDFX::SysEventQueryRule queryRule("DOMAIN", eventNames);
+    queryRules.emplace_back(queryRule);
+    ret = proxy.Query(args, queryRules, querier);
+    ASSERT_TRUE(ret == 0);
+}
+
+/**
+ * @tc.name: MarshallingTAndUnmarshallingTest
+ * @tc.desc: Unmarshalling test
+ * @tc.type: FUNC
+ * @tc.require: issueI62WJT
+ */
+HWTEST_F(HiSysEventAdapterNativeTest, MarshallingTAndUnmarshallingTest, TestSize.Level1)
+{
+    long long defaultTimeStap = -1;
+    int queryCount = 10;
+    OHOS::HiviewDFX::QueryArgument args(defaultTimeStap, defaultTimeStap, queryCount);
+    MessageParcel parcel1;
+    auto ret = args.Marshalling(parcel1);
+    ASSERT_TRUE(ret);
+    QueryArgument* argsPtr = args.Unmarshalling(parcel1);
+    ASSERT_TRUE(argsPtr != nullptr && argsPtr->maxEvents == 10 && argsPtr->beginTime == -1);
+    OHOS::HiviewDFX::SysEventRule sysEventRule("DOMAIN", "EVENT_NAME", "TAG", OHOS::HiviewDFX::RuleType::WHOLE_WORD);
+    MessageParcel parcel2;
+    ret = sysEventRule.Marshalling(parcel2);
+    ASSERT_TRUE(ret);
+    OHOS::HiviewDFX::SysEventRule* sysEventRulePtr = sysEventRule.Unmarshalling(parcel2);
+    ASSERT_TRUE(sysEventRulePtr != nullptr && sysEventRulePtr->domain == "DOMAIN" &&
+        sysEventRulePtr->eventName == "EVENT_NAME" && sysEventRulePtr->tag == "TAG");
+
+    std::vector<std::string> eventNames { "EVENT_NAME1", "EVENT_NAME2" };
+    OHOS::HiviewDFX::SysEventQueryRule queryRule("DOMAIN", eventNames);
+    MessageParcel parcel3;
+    ret = queryRule.Marshalling(parcel3);
+    ASSERT_TRUE(ret);
+    OHOS::HiviewDFX::SysEventQueryRule* queryRulePtr = queryRule.Unmarshalling(parcel3);
+    ASSERT_TRUE(queryRulePtr != nullptr && queryRulePtr->domain == "DOMAIN" &&
+        queryRulePtr->eventList.size() == 2 && queryRulePtr->eventList[0] == "EVENT_NAME1");
+}
+
+/**
+ * @tc.name: CStringUtilTest
+ * @tc.desc: Test methods which defined in namespace StringUtil
+ * @tc.type: FUNC
+ * @tc.require: issueI62WJT
+ */
+HWTEST_F(HiSysEventAdapterNativeTest, CStringUtilTest, TestSize.Level1)
+{
+    char dest[100] {};
+    std::string src = "01234567";
+    auto ret = StringUtil::CopyCString(dest, src, 3);
+    ASSERT_TRUE(ret == -1);
+    ret = StringUtil::CopyCString(dest, src, 10);
+    ASSERT_TRUE(ret != -1);
+    char* dest2p = dest;
+    char** dest2pp = &dest2p;
+    ret = StringUtil::CreateCString(dest2pp, src, 3);
+    ASSERT_TRUE(ret == -1);
+    ret = StringUtil::CreateCString(dest2pp, src, 10);
+    ASSERT_TRUE(ret != -1);
+    ret = StringUtil::ConvertCString(src, dest2pp, 3);
+    ASSERT_TRUE(ret == -1);
+    ret = StringUtil::ConvertCString(src, dest2pp, 10);
+    ASSERT_TRUE(ret != -1);
+    char v3[10][100] {};
+    char* dest3p = v3[0];
+    char** dest3pp = &dest3p;
+    char*** dest3ppp = &dest3pp;
+    std::vector<std::string> srcs1 = {};
+    std::vector<std::string> srcs2 = {
+        "01234567",
+        "01234567",
+    };
+    size_t len;
+    ret = StringUtil::ConvertCStringVec(srcs1, dest3ppp, len);
+    ASSERT_TRUE(ret == 0 && len == 0);
+    ret = StringUtil::ConvertCStringVec(srcs2, dest3ppp, len);
+    ASSERT_TRUE(ret == 0 && len == 2);
+    char dest4[3] = {'0', '1', '2'};
+    StringUtil::MemsetSafe(reinterpret_cast<void*>(dest4), 3);
+    ASSERT_TRUE(dest4[0] == 0 && dest4[1] == 0 && dest4[2] == 0);
 }
