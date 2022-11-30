@@ -29,7 +29,10 @@
 #include "hilog/log.h"
 #include "ash_mem_utils.h"
 #include "hisysevent_base_listener.h"
+#include "hisysevent_base_query_callback.h"
 #include "hisysevent_delegate.h"
+#include "hisysevent_listener_proxy.h"
+#include "hisysevent_query_proxy.h"
 #include "hisysevent_rules.h"
 #include "iquery_sys_event_callback.h"
 #include "query_argument.h"
@@ -198,8 +201,8 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestHiSysEventDelegateApisWithInvalidInsta
     int queryCount = 10;
     struct QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
     std::vector<QueryRule> queryRules;
-    std::vector<std::string> eventNames {"EVENT_NAME"};
-    QueryRule rule("DOMAIN", eventNames);
+    std::vector<std::string> eventNames {"START_ABILITY"};
+    QueryRule rule("AAFWK", eventNames);
     queryRules.emplace_back(rule);
     auto baseQuerier = std::make_shared<HiSysEventBaseQueryCallback>();
     ret = delegate->Query(args, queryRules, baseQuerier);
@@ -380,4 +383,44 @@ HWTEST_F(HiSysEventAdapterNativeTest, CStringUtilTest, TestSize.Level1)
     char dest4[3] = {'0', '1', '2'};
     StringUtil::MemsetSafe(reinterpret_cast<void*>(dest4), 3);
     ASSERT_TRUE(dest4[0] == 0 && dest4[1] == 0 && dest4[2] == 0);
+}
+
+/**
+ * @tc.name: HiSysEventListenerProxyTest
+ * @tc.desc: Test apis of HiSysEventListenerProxy
+ * @tc.type: FUNC
+ * @tc.require: issueI62WJT
+ */
+HWTEST_F(HiSysEventAdapterNativeTest, HiSysEventListenerProxyTest, TestSize.Level1)
+{
+    auto baseListener = std::make_shared<HiSysEventBaseListener>();
+    HiSysEventListenerProxy proxy(baseListener);
+    proxy.Handle(Str8ToStr16(std::string("DOMAIN")), Str8ToStr16(std::string("EVENT_NAME")), 0,
+        Str8ToStr16(std::string("{}")));
+    auto listener = proxy.GetEventListener();
+    ASSERT_TRUE(listener != nullptr);
+    auto deathRecipient = proxy.GetCallbackDeathRecipient();
+    ASSERT_TRUE(deathRecipient != nullptr);
+    if (deathRecipient != nullptr) {
+        deathRecipient->OnRemoteDied(nullptr);
+        ASSERT_TRUE(deathRecipient->GetEventListener() != nullptr);
+    }
+}
+
+/**
+ * @tc.name: HiSysEventQueryProxyTest
+ * @tc.desc: Test apis of HiSysEventQueryProxy
+ * @tc.type: FUNC
+ * @tc.require: issueI62WJT
+ */
+HWTEST_F(HiSysEventAdapterNativeTest, HiSysEventQueryProxyTest, TestSize.Level1)
+{
+    auto baseQuerier = std::make_shared<HiSysEventBaseQueryCallback>();
+    HiSysEventQueryProxy proxy(baseQuerier);
+    std::vector<std::u16string> sysEvent {};
+    std::vector<int64_t> seq {};
+    proxy.OnQuery(sysEvent, seq);
+    ASSERT_TRUE(true);
+    proxy.OnComplete(0, 0, 0);
+    ASSERT_TRUE(true);
 }
