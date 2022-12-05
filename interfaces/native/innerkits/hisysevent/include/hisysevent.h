@@ -81,6 +81,7 @@ public:
         static constexpr char AUDIO[] = "AUDIO";
         static constexpr char AV_SESSION[] = "AV_SESSION";
         static constexpr char BARRIER_FREE[] = "BARRIERFREE";
+        static constexpr char BATTERY[] = "BATTERY";
         static constexpr char BIOMETRICS[] = "BIOMETRICS";
         static constexpr char BLUETOOTH[] = "BLUETOOTH";
         static constexpr char BUNDLE_MANAGER[] = "BUNDLE_MANAGER";
@@ -95,6 +96,7 @@ public:
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
         static constexpr char DEVICE_AUTH[] = "DEVICE_AUTH";
         static constexpr char DEVICE_PROFILE[] = "DEVICE_PROFILE";
+        static constexpr char DISPLAY[] = "DISPLAY";
         static constexpr char DISTRIBUTED_AUDIO[] = "DISTAUDIO";
         static constexpr char DISTRIBUTED_CAMERA[] = "DISTCAMERA";
         static constexpr char DISTRIBUTED_DATAMGR[] = "DISTDATAMGR";
@@ -128,6 +130,7 @@ public:
         static constexpr char NETMANAGER_STANDARD[] = "NETMANAGER";
         static constexpr char NOTIFICATION[] = "NOTIFICATION";
         static constexpr char PASTEBOARD[] = "PASTEBOARD";
+        static constexpr char POWER[] = "POWER";
         static constexpr char POWERMGR[] = "POWERMGR";
         static constexpr char REQUEST[] = "REQUEST";
         static constexpr char ROUTER[] = "ROUTER";
@@ -139,6 +142,7 @@ public:
         static constexpr char STARTUP[] = "STARTUP";
         static constexpr char TELEPHONY[] = "TELEPHONY";
         static constexpr char THEME[] = "THEME";
+        static constexpr char THERMAL[] = "THERMAL";
         static constexpr char TIME[] = "TIME";
         static constexpr char UPDATE[] = "UPDATE";
         static constexpr char USB[] = "USB";
