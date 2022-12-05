@@ -86,8 +86,8 @@ void OnQueryTest(HiSysEventRecord records[], size_t size)
     for (size_t i = 0; i < size; i++) {
         HiSysEventRecord record = records[i];
         ASSERT_EQ(strcmp(record.domain, TEST_DOMAIN), 0);
-        ASSERT_TRUE(sizeof(record.eventName) > 0);
-        ASSERT_TRUE(sizeof(record.tz) > 0);
+        ASSERT_TRUE(strlen(record.eventName) > 0);
+        ASSERT_TRUE(strlen(record.tz) > 0);
         ASSERT_TRUE(record.type > 0);
         ASSERT_TRUE(record.time > 0);
         ASSERT_TRUE(record.pid >= 0);
@@ -96,11 +96,11 @@ void OnQueryTest(HiSysEventRecord records[], size_t size)
         ASSERT_TRUE(record.traceId >= 0);
         ASSERT_TRUE(record.spandId >= 0);
         ASSERT_TRUE(record.pspanId >= 0);
-        ASSERT_TRUE(sizeof(record.level) > 0);
+        ASSERT_TRUE(strlen(record.level) > 0);
         if (record.tag != nullptr) {
-            ASSERT_TRUE(sizeof(record.tag) > 0);
+            ASSERT_TRUE(strlen(record.tag) > 0);
         }
-        ASSERT_TRUE(sizeof(record.jsonStr) > 0);
+        ASSERT_TRUE(strlen(record.jsonStr) > 0);
         RecordBaseParamPrint(record);
         HiLog::Info(LABEL, "OnQuery: event=%{public}s", record.jsonStr);
     }
