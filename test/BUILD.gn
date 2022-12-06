@@ -25,3 +25,9 @@ group("unittest") {
     deps += [ "unittest/common/napi:unittest" ]
   }
 }
+
+group("fuzztest") {
+  testonly = true
+  deps =
+      [ "fuzztest/common/hisyseventmanager_fuzzer:HiSysEventManagerFuzzTest" ]
+}
