@@ -35,14 +35,18 @@ class QuerySysEventCallbackProxy : public IRemoteProxy<IQuerySysEventCallback> {
 public:
     explicit QuerySysEventCallbackProxy(const sptr<IRemoteObject>& impl)
         : IRemoteProxy<IQuerySysEventCallback>(impl) {}
-    virtual ~QuerySysEventCallbackProxy() = default;
+    virtual ~QuerySysEventCallbackProxy();
     DISALLOW_COPY_AND_MOVE(QuerySysEventCallbackProxy);
 
     void OnQuery(const std::vector<std::u16string>& sysEvent, const std::vector<int64_t>& seq);
     void OnComplete(int32_t reason, int32_t total, int64_t seq);
 
 private:
+   void ClearAllAshMemories();
+
+private:
     static inline BrokerDelegator<QuerySysEventCallbackProxy> delegator_;
+    std::vector<sptr<Ashmem>> allAshMemories;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
