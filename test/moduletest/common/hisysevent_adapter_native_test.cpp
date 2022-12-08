@@ -158,10 +158,10 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestAshMemory, TestSize.Level1)
         Str8ToStr16(std::string("1")),
     };
     auto ret = AshMemUtils::WriteBulkData(data, src);
-    ASSERT_TRUE(ret);
+    ASSERT_TRUE(ret != nullptr);
     std::vector<std::u16string> dest;
-    ret = AshMemUtils::ReadBulkData(data, dest);
-    ASSERT_TRUE(ret);
+    auto ret1 = AshMemUtils::ReadBulkData(data, dest);
+    ASSERT_TRUE(ret1);
     ASSERT_TRUE(src.size() == dest.size());
     ASSERT_TRUE(Str16ToStr8(dest[0]) == "0" && Str16ToStr8(dest[1]) == "1");
 }
