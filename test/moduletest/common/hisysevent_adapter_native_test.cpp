@@ -52,6 +52,21 @@ using namespace OHOS;
 using namespace OHOS::HiviewDFX;
 
 namespace {
+constexpr char ASH_MEM_NAME[] = "TestSharedMemory";
+constexpr int32_t ASH_MEM_SIZE = 1024 * 2; // 2K
+
+sptr<Ashmem> GetAshmem()
+{
+    auto ashmem = Ashmem::CreateAshmem(ASH_MEM_NAME, ASH_MEM_SIZE);
+    if (ashmem == nullptr) {
+        return nullptr;
+    }
+    if (!ashmem->MapReadAndWriteAshmem()) {
+        return ashmem;
+    }
+    return ashmem;
+}
+
 class QuerySysEventCallbackStubTest : public QuerySysEventCallbackStub {
 public:
     QuerySysEventCallbackStubTest() {}
@@ -164,6 +179,10 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestAshMemory, TestSize.Level1)
     ASSERT_TRUE(ret1);
     ASSERT_TRUE(src.size() == dest.size());
     ASSERT_TRUE(Str16ToStr8(dest[0]) == "0" && Str16ToStr8(dest[1]) == "1");
+    AshMemUtils::CloseAshmem(nullptr);
+    ASSERT_TRUE(true);
+    AshMemUtils::CloseAshmem(GetAshmem());
+    ASSERT_TRUE(true);
 }
 
 /**
