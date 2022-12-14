@@ -26,12 +26,12 @@ namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
 }
 
-int HiSysEventInnerWrite(const std::string& domain, const std::string& name, HiSysEventEventType type,
-    HiSysEventParam params[], size_t size)
+int HiSysEventInnerWrite(const char* func, int64_t line, const std::string& domain, const std::string& name,
+    HiSysEventEventType type, const HiSysEventParam params[], size_t size)
 {
     HiLog::Info(LABEL, "domain=%{public}s, name=%{public}s, type=%{public}d, param szie=%{public}zu",
         domain.c_str(), name.c_str(), type, size);
-    return HiSysEvent::Write(domain, name, HiSysEvent::EventType(type), params, size);
+    return HiSysEvent::Write(func, line, domain, name, HiSysEvent::EventType(type), params, size);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
@@ -40,8 +40,8 @@ int HiSysEventInnerWrite(const std::string& domain, const std::string& name, HiS
 extern "C" {
 #endif
 
-int OH_HiSysEvent_Write(const char* domain, const char* name, HiSysEventEventType type,
-    HiSysEventParam params[], size_t size)
+int HiSysEvent_Write(const char* func, int64_t line, const char* domain, const char* name,
+    HiSysEventEventType type, const HiSysEventParam params[], size_t size)
 {
     if (domain == nullptr) {
         return OHOS::HiviewDFX::ERR_DOMAIN_NAME_INVALID;
@@ -49,7 +49,7 @@ int OH_HiSysEvent_Write(const char* domain, const char* name, HiSysEventEventTyp
     if (name == nullptr) {
         return OHOS::HiviewDFX::ERR_EVENT_NAME_INVALID;
     }
-    return OHOS::HiviewDFX::HiSysEventInnerWrite(domain, name, type, params, size);
+    return OHOS::HiviewDFX::HiSysEventInnerWrite(func, line, domain, name, type, params, size);
 }
 
 #ifdef __cplusplus

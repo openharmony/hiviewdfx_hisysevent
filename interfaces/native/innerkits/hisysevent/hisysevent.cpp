@@ -168,7 +168,7 @@ void HiSysEvent::InnerWrite(HiSysEvent::EventBase &eventBase)
     }
 }
 
-void HiSysEvent::InnerWrite(EventBase &eventBase, HiSysEventParam params[], size_t size)
+void HiSysEvent::InnerWrite(EventBase &eventBase, const HiSysEventParam params[], size_t size)
 {
     if (params == nullptr || size == 0) {
         InnerWrite(eventBase);

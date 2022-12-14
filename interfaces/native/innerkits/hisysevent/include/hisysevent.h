@@ -180,6 +180,16 @@ public:
         return InnerWrite(domain, eventName, type, keyValues...);
     }
 
+    template<typename... Types>
+    static int Write(const char* func, int64_t line, const std::string &domain,
+        const std::string &eventName, EventType type, Types... keyValues)
+    {
+        if (controller.CheckLimitWritingEvent(domain.c_str(), eventName.c_str(), func, line)) {
+            return ERR_WRITE_IN_HIGH_FREQ;
+        }
+        return InnerWrite(domain, eventName, type, keyValues...);
+    }
+
     template<const char* domain, typename... Types, std::enable_if_t<!isMasked<domain>>* = nullptr>
     static int Write(const char* func, int64_t line, const std::string& eventName,
         EventType type, Types... keyValues)
@@ -513,7 +523,7 @@ private:
     static void AppendValue(EventBase &eventBase, const unsigned char item);
     static void AppendHexData(EventBase &eventBase, const std::string &key, uint64_t value);
     static void InnerWrite(EventBase &eventBase);
-    static void InnerWrite(EventBase &eventBase, HiSysEventParam params[], size_t size);
+    static void InnerWrite(EventBase &eventBase, const HiSysEventParam params[], size_t size);
     static void WritebaseInfo(EventBase &eventBase);
 
     static int CheckKey(const std::string &key);
