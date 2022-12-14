@@ -108,8 +108,11 @@ typedef enum HiSysEventEventType HiSysEventEventType;
  * @param size   the size of param list.
  * @return 0 means success, less than 0 means failure, greater than 0 means invalid params.
  */
-int OH_HiSysEvent_Write(const char* domain, const char* name, HiSysEventEventType type,
-    HiSysEventParam params[], size_t size);
+#define OH_HiSysEvent_Write(domain, name, type, params, size) \
+    HiSysEvent_Write(__FUNCTION__, __LINE__, domain, name, type, params, size)
+
+int HiSysEvent_Write(const char* func, int64_t line, const char* domain, const char* name,
+    HiSysEventEventType type, const HiSysEventParam params[], size_t size);
 
 #ifdef __cplusplus
 }
