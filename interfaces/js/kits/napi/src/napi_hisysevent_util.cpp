@@ -120,17 +120,6 @@ double ParseNumberValue(const napi_env env, const napi_value& value, double defa
     return numValue;
 }
 
-double ParseBigIntValue(const napi_env env, const napi_value& value, uint64_t defaultValue = 0)
-{
-    uint64_t bigIntValue = defaultValue;
-    bool lossless = true;
-    napi_status ret = napi_get_value_bigint_uint64(env, value, &bigIntValue, &lossless);
-    if (ret != napi_ok) {
-        HiLog::Error(LABEL, "failed to parse napi value of big int type.");
-    }
-    return static_cast<double>(bigIntValue);
-}
-
 std::string ParseStringValue(const napi_env env, const napi_value& value, std::string defaultValue = "")
 {
     char buf[BUF_SIZE] = {0};
@@ -142,6 +131,30 @@ std::string ParseStringValue(const napi_env env, const napi_value& value, std::s
     }
     std::string dest = std::string {buf};
     return dest;
+}
+
+double ParseBigIntValue(const napi_env env, const napi_value& value, double defaultValue = 0.0)
+{
+    std::string strFormat = ParseStringValue(env, value);
+    if (strFormat.empty()) {
+        return defaultValue;
+    }
+    bool lossless = true;
+    napi_status status;
+    double ret = defaultValue;
+    if (strFormat[0] == '-') {
+        int64_t int64Value = static_cast<int64_t>(defaultValue);
+        status = napi_get_value_bigint_int64(env, value, &int64Value, &lossless);
+        ret = static_cast<double>(int64Value);
+    } else {
+        uint64_t uint64Value = static_cast<uint64_t>(defaultValue);
+        status = napi_get_value_bigint_uint64(env, value, &uint64Value, &lossless);
+        ret = static_cast<double>(uint64Value);
+    }
+    if (status != napi_ok) {
+        HiLog::Error(LABEL, "failed to parse napi value of big int type.");
+    }
+    return ret;
 }
 
 std::string GetTagAttribute(const napi_env env, const napi_value& object, std::string defaultValue = "")
@@ -350,7 +363,7 @@ void AddParamToEventInfo(const napi_env env, HiSysEventInfo& info, const std::st
             info.stringParams[key] = ParseStringValue(env, value);
             break;
         case napi_valuetype::napi_bigint:
-            info.boolParams[key] = ParseBigIntValue(env, value);
+            info.doubleParams[key] = ParseBigIntValue(env, value);
             break;
         default:
             break;
@@ -537,38 +550,39 @@ void CreateUint32Value(const napi_env env, uint32_t value, napi_value& val)
     }
 }
 
-void CreateParamItemTypeValue(const napi_env env, Json::Value& jsonValue, napi_value& value)
+bool CreateParamItemTypeValue(const napi_env env, Json::Value& jsonValue, napi_value& value)
 {
     if (jsonValue.isBool()) {
         CreateBoolValue(env, jsonValue.asBool(), value);
-        return;
+        return true;
     }
     if (jsonValue.isInt()) {
         NapiHiSysEventUtil::CreateInt32Value(env, static_cast<int32_t>(jsonValue.asInt()), value);
-        return;
+        return true;
     }
     if (jsonValue.isUInt()) {
         CreateUint32Value(env, static_cast<uint32_t>(jsonValue.asUInt()), value);
-        return;
+        return true;
     }
 #ifdef JSON_HAS_INT64
     if (jsonValue.isInt64() && jsonValue.type() != Json::ValueType::uintValue) {
         NapiHiSysEventUtil::CreateInt64Value(env, jsonValue.asInt64(), value);
-        return;
+        return true;
     }
     if (jsonValue.isUInt64() && jsonValue.type() != Json::ValueType::intValue) {
         NapiHiSysEventUtil::CreateUInt64Value(env, jsonValue.asUInt64(), value);
-        return;
+        return true;
     }
 #endif
     if (jsonValue.isDouble()) {
         CreateDoubleValue(env, jsonValue.asDouble(), value);
-        return;
+        return true;
     }
     if (jsonValue.isString()) {
         NapiHiSysEventUtil::CreateStringValue(env, jsonValue.asString(), value);
-        return;
+        return true;
     }
+    return false;
 }
 
 void AppendArrayParams(const napi_env env, napi_value& params, const std::string& key, Json::Value& value)
@@ -578,7 +592,9 @@ void AppendArrayParams(const napi_env env, napi_value& params, const std::string
     napi_create_array_with_length(env, len, &array);
     for (size_t i = 0; i < len; i++) {
         napi_value item;
-        CreateParamItemTypeValue(env, value[static_cast<int>(i)], item);
+        if (!CreateParamItemTypeValue(env, value[static_cast<int>(i)], item)) {
+            continue;
+        }
         napi_set_element(env, array, i, item);
     }
     SetNamedProperty(env, params, key, array);
@@ -591,7 +607,9 @@ void AppendParamsInfo(const napi_env env, napi_value& params, const std::string&
         return;
     }
     napi_value property = nullptr;
-    CreateParamItemTypeValue(env, jsonValue, property);
+    if (!CreateParamItemTypeValue(env, jsonValue, property)) {
+        return;
+    }
     SetNamedProperty(env, params, key, property);
 }
 }

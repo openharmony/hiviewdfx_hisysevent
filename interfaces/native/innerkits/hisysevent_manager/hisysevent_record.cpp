@@ -22,6 +22,32 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_RECORD" };
+constexpr int DEFAULT_INT_VAL = 0;
+constexpr uint64_t DEFAULT_UINT64_VAL = 0;
+constexpr int64_t DEFAULT_INT64_VAL = 0;
+constexpr double DEFAULT_DOUBLE_VAL = 0.0;
+constexpr double DOUBLE_CONVERT_FACTOR = 2.0;
+constexpr Json::UInt64 BIT = 2;
+constexpr Json::UInt64 BIT_AND_VAL = 1;
+
+#if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
+template <typename T, typename U>
+static inline bool InValidRange(double d, T min, U max) {
+  return d >= static_cast<double>(min) && d <= static_cast<double>(max);
+}
+#else
+static inline double int64ToDouble(Json::UInt64 value) {
+  return static_cast<double>(Json::Int64(value / BIT)) * DOUBLE_CONVERT_FACTOR +
+         static_cast<double>(Json::Int64(value & BIT_AND_VAL));
+}
+template <typename T> static inline double int64ToDouble(T value) {
+  return static_cast<double>(value);
+}
+template <typename T, typename U>
+static inline bool InValidRange(double d, T min, U max) {
+  return d >= int64ToDouble(min) && d <= int64ToDouble(max);
+}
+#endif
 }
 
 std::string HiSysEventRecord::GetDomain() const
@@ -319,90 +345,161 @@ bool HiSysEventValue::HasInitialized() const
 
 void HiSysEventValue::GetParamNames(std::vector<std::string>& params) const
 {
+    if (!hasInitialized_ || (jsonVal_.type() != Json::ValueType::nullValue &&
+        jsonVal_.type() != Json::ValueType::objectValue)) {
+        return;
+    }
     params = jsonVal_.getMemberNames();
 }
 
 bool HiSysEventValue::IsArray() const
 {
+    if (!hasInitialized_) {
+        return false;
+    }
     return jsonVal_.isArray();
 }
 
 bool HiSysEventValue::IsMember(const std::string key) const
 {
+    if (!hasInitialized_) {
+        return false;
+    }
     return jsonVal_.isMember(key);
 }
 
 bool HiSysEventValue::IsInt64() const
 {
+    if (!hasInitialized_) {
+        return false;
+    }
     return jsonVal_.isInt64();
 }
 
 bool HiSysEventValue::IsUInt64() const
 {
+    if (!hasInitialized_) {
+        return false;
+    }
     return jsonVal_.isUInt64();
 }
 
 bool HiSysEventValue::IsDouble() const
 {
+    if (!hasInitialized_) {
+        return false;
+    }
     return jsonVal_.isDouble();
 }
 
 bool HiSysEventValue::IsString() const
 {
+    if (!hasInitialized_) {
+        return false;
+    }
     return jsonVal_.isString();
 }
 
 bool HiSysEventValue::IsBool() const
 {
+    if (!hasInitialized_) {
+        return false;
+    }
     return jsonVal_.isBool();
 }
 
 bool HiSysEventValue::IsNull() const
 {
+    if (!hasInitialized_) {
+        return false;
+    }
     return jsonVal_.isNull();
 }
 
 bool HiSysEventValue::IsNumeric() const
 {
+    if (!hasInitialized_) {
+        return false;
+    }
     return jsonVal_.isNumeric();
 }
 
 Json::Value HiSysEventValue::Index(const int index) const
 {
+    if (!hasInitialized_ || index < 0 ||
+        (jsonVal_.type() != Json::ValueType::nullValue &&
+        jsonVal_.type() != Json::ValueType::arrayValue)) {
+        return Json::Value(Json::ValueType::nullValue);
+    }
     return jsonVal_[index];
 }
 Json::Value HiSysEventValue::GetParamValue(const std::string& key) const
 {
+    if (!hasInitialized_) {
+        return Json::Value(Json::ValueType::nullValue);
+    }
     return jsonVal_[key];
 }
 
 int HiSysEventValue::Size() const
 {
+    if (!hasInitialized_) {
+        return DEFAULT_INT_VAL;
+    }
     return jsonVal_.size();
 }
 
 int64_t HiSysEventValue::AsInt64() const
 {
+#ifdef JSON_HAS_INT64
+    if (!hasInitialized_ ||
+        (jsonVal_.type() == Json::ValueType::uintValue && !jsonVal_.isInt64()) ||
+        (jsonVal_.type() == Json::ValueType::realValue &&
+        !InValidRange(jsonVal_.asDouble(), Json::Value::minInt64, Json::Value::maxInt64))) {
+        return DEFAULT_INT64_VAL;
+    }
     return jsonVal_.asInt64();
+#else
+    return DEFAULT_INT64_VAL;
+#endif
 }
 
 uint64_t HiSysEventValue::AsUInt64() const
 {
+#ifdef JSON_HAS_INT64
+    if (!hasInitialized_ ||
+        (jsonVal_.type() == Json::ValueType::intValue && !jsonVal_.isUInt64()) ||
+        (jsonVal_.type() == Json::ValueType::realValue &&
+        !InValidRange(jsonVal_.asDouble(), 0, Json::Value::maxUInt64))) {
+        return DEFAULT_UINT64_VAL;
+    }
     return jsonVal_.asUInt64();
+#else
+    return DEFAULT_UINT64_VAL;
+#endif
 }
 
 double HiSysEventValue::AsDouble() const
 {
+    if (!hasInitialized_) {
+        return DEFAULT_DOUBLE_VAL;
+    }
     return jsonVal_.asDouble();
 }
 
 std::string HiSysEventValue::AsString() const
 {
+    if (!hasInitialized_) {
+        return "";
+    }
     return jsonVal_.asString();
 }
 
 Json::ValueType HiSysEventValue::Type() const
 {
+    if (!hasInitialized_) {
+        return Json::ValueType::nullValue;
+    }
     return jsonVal_.type();
 }
 } // HiviewDFX

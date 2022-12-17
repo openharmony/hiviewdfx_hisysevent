@@ -28,7 +28,7 @@ public:
     {
         ParseJsonStr(jsonStr);
     }
-    HiSysEventValue(Json::Value jsonVal): jsonVal_(jsonVal) {}
+    HiSysEventValue(Json::Value jsonVal): jsonVal_(jsonVal), hasInitialized_(true) {}
     ~HiSysEventValue() {}
 
 public:
