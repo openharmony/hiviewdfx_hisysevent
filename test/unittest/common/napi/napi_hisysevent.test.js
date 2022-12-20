@@ -823,4 +823,42 @@ describe('hiSysEventJsUnitTest', function () {
             done()
         }
     })
+
+    /**
+     * @tc.name: hiSysEventJsUnitTest017
+     * @tc.desc: Test writing sysevents more than 10 times in 5 seconds
+     * @tc.type: FUNC
+     */
+    it('hiSysEventJsUnitTest017', 0, async function (done) {
+        console.info('hiSysEventJsUnitTest017 start')
+        try {
+            for (let index = 0; index < 12; index++) {
+                hiSysEvent.write({
+                    domain: "USERIAM_PIN",
+                    name: "USERIAM_TEMPLATE_CHANGE",
+                    eventType: hiSysEvent.EventType.SECURITY,
+                    params: {
+                        PID: 1,
+                        UID: 1,
+                        PACKAGE_NAME: "com.huawei.testHiSysEvent",
+                        PROCESS_NAME: "hiview js test suite",
+                    }
+                }, (err, val) => {
+                    if (err) {
+                        console.error(`in hiSysEventJsUnitTest017 test callback: err.code = ${err.code}, error msg is ${err.message}`)
+                        expect(err.code == 11200003).assertTrue()
+                        console.info('hiSysEventJsUnitTest017 end')
+                        done()
+                    } else {
+                        console.info(`in hiSysEventJsUnitTest017 test callback: result = ${val}`)
+                    }
+                })
+            }
+        } catch (err) {
+            console.error(`hiSysEventJsUnitTest017 > error code: ${err.code}, error msg: ${err.message}`)
+            expect(false).assertTrue()
+            console.info('hiSysEventJsUnitTest017 end')
+            done()
+        }
+    })
 });

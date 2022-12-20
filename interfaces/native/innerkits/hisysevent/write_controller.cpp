@@ -68,7 +68,7 @@ bool WriteController::CheckLimitWritingEvent(const char* domain, const char* eve
 std::string WriteController::ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line) const
 {
     std::stringstream ss;
-    ss << eventName << STR_CONCAT << static_cast<const void*>(func) << STR_CONCAT << line;
+    ss << eventName << STR_CONCAT << std::string(func) << STR_CONCAT << line;
     std::string concaStr = ss.str();
     ss.clear();
     return concaStr;

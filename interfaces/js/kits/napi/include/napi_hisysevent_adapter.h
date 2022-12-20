@@ -23,9 +23,11 @@
 #include "hisysevent.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "write_controller.h"
 
 namespace OHOS {
 namespace HiviewDFX {
+using JsCallerInfo = std::pair<std::string, int64_t>;
 using HiSysEventInfo = struct HiSysEventInfo {
     std::string domain;
     std::string name;
@@ -45,13 +47,16 @@ using HiSysEventAsyncContext = struct HiSysEventAsyncContext {
     napi_ref callback;
     HiSysEventInfo eventInfo;
     int eventWroteResult;
+    JsCallerInfo jsCallerInfo;
 };
 
 class NapiHiSysEventAdapter {
 public:
     static void Write(const napi_env env, HiSysEventAsyncContext* eventAsyncContext);
+    static void ParseJsCallerInfo(const napi_env env, JsCallerInfo& callerInfo);
 
 private:
+    static void CheckThenWriteSysEvent(WriteController& controller, HiSysEventAsyncContext* eventAsyncContext);
     static void InnerWrite(HiSysEvent::EventBase& eventBase, const HiSysEventInfo& eventInfo);
     static int Write(const HiSysEventInfo& eventInfo);
 
