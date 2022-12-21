@@ -15,16 +15,125 @@
 
 #include "napi_hisysevent_adapter.h"
 
+#include <cctype>
+
 #include "def.h"
+#include "hilog/log.h"
 #include "napi_hisysevent_util.h"
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
+constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_ADAPTER" };
 constexpr size_t ERR_INDEX = 0;
 constexpr size_t VAL_INDEX = 1;
 constexpr size_t RET_SIZE = 2;
+constexpr int64_t DEFAULT_LINE_NUM = -1;
 constexpr char FUNC_SOURCE_NAME[] = "JSHiSysEventWrite";
+constexpr int FUNC_NAME_INDEX = 1;
+constexpr int LINE_INFO_INDEX = 2;
+constexpr int LINE_INDEX = 1;
+constexpr char CALL_FUNC_INFO_DELIMITER = ' ';
+constexpr char CALL_LINE_INFO_DELIMITER= ':';
+constexpr char PATH_DELIMITER = '/';
+
+bool IsUninitializedJsCallerInfo(const JsCallerInfo& info)
+{
+    return info.first.empty() || info.second == DEFAULT_LINE_NUM;
+}
+
+void Split(const std::string& origin, char delimiter, std::vector<std::string>& ret)
+{
+    std::string::size_type start = 0;
+    std::string::size_type end = origin.find(delimiter);
+    while (end != std::string::npos) {
+        if (end == start) {
+            start++;
+            end = origin.find(delimiter, start);
+            continue;
+        }
+        ret.emplace_back(origin.substr(start, end - start));
+        start = end + 1;
+        end = origin.find(delimiter, start);
+    }
+    if (start != origin.length()) {
+        ret.emplace_back(origin.substr(start));
+    }
+}
+
+void ParseCallerInfoFromStackTrace(const std::string& stackTrace, JsCallerInfo& callerInfo)
+{
+    if (stackTrace.empty()) {
+        HiLog::Error(LABEL, "js stack trace is invalid.");
+        return;
+    }
+    std::vector<std::string> callInfos;
+    Split(stackTrace, CALL_FUNC_INFO_DELIMITER, callInfos);
+    if (callInfos.size() <= FUNC_NAME_INDEX) {
+        HiLog::Error(LABEL, "js function name parsed failed.");
+        return;
+    }
+    callerInfo.first = callInfos[FUNC_NAME_INDEX];
+    if (callInfos.size() <= LINE_INFO_INDEX) {
+        HiLog::Error(LABEL, "js function line info parsed failed.");
+        return;
+    }
+    std::string callInfo = callInfos[LINE_INFO_INDEX];
+    std::vector<std::string> lineInfos;
+    Split(callInfo, CALL_LINE_INFO_DELIMITER, lineInfos);
+    if (lineInfos.size() <= LINE_INDEX) {
+        HiLog::Error(LABEL, "js function line number parsed failed.");
+        return;
+    }
+    if (callerInfo.first == "anonymous") {
+        auto fileName = lineInfos[LINE_INDEX - 1];
+        auto pos = fileName.find_last_of(PATH_DELIMITER);
+        callerInfo.first = (pos == std::string::npos) ? fileName : fileName.substr(++pos);
+    }
+    auto lineInfo = lineInfos[LINE_INDEX];
+    if (std::any_of(lineInfo.begin(), lineInfo.end(), [] (auto& c) {
+        return !isdigit(c);
+    })) {
+        callerInfo.second = DEFAULT_LINE_NUM;
+        return;
+    }
+    callerInfo.second = static_cast<int64_t>(std::stoll(lineInfos[LINE_INDEX]));
+}
+}
+
+void NapiHiSysEventAdapter::ParseJsCallerInfo(const napi_env env, JsCallerInfo& callerInfo)
+{
+    NativeEngine* engine = reinterpret_cast<NativeEngine*>(env);
+    std::string stackTrace;
+    if (!engine->BuildJsStackTrace(stackTrace)) {
+        HiLog::Error(LABEL, "js stack trace build failed.");
+        return;
+    }
+    ParseCallerInfoFromStackTrace(stackTrace, callerInfo);
+}
+
+void NapiHiSysEventAdapter::CheckThenWriteSysEvent(WriteController& controller,
+    HiSysEventAsyncContext* eventAsyncContext)
+{
+    if (eventAsyncContext == nullptr) {
+        return;
+    }
+    if (eventAsyncContext->eventWroteResult != SUCCESS) {
+        return;
+    }
+    auto eventInfo = eventAsyncContext->eventInfo;
+    auto jsCallerInfo = eventAsyncContext->jsCallerInfo;
+    if (IsUninitializedJsCallerInfo(jsCallerInfo)) {
+        eventAsyncContext->eventWroteResult = Write(eventInfo);
+        return;
+    }
+    if (controller.CheckLimitWritingEvent(eventInfo.domain.c_str(), eventInfo.name.c_str(),
+        jsCallerInfo.first.c_str(), jsCallerInfo.second)) {
+        eventAsyncContext->eventWroteResult = ERR_WRITE_IN_HIGH_FREQ;
+        return;
+    }
+    eventAsyncContext->eventWroteResult = Write(eventInfo);
 }
 
 void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* eventAsyncContext)
@@ -35,9 +144,7 @@ void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* ev
         env, nullptr, resource,
         [] (napi_env env, void* data) {
             HiSysEventAsyncContext* eventAsyncContext = reinterpret_cast<HiSysEventAsyncContext*>(data);
-            if (eventAsyncContext->eventWroteResult == SUCCESS) {
-                eventAsyncContext->eventWroteResult = Write(eventAsyncContext->eventInfo);
-            }
+            CheckThenWriteSysEvent(HiSysEvent::controller, eventAsyncContext);
         },
         [] (napi_env env, napi_status status, void* data) {
             HiSysEventAsyncContext* eventAsyncContext = reinterpret_cast<HiSysEventAsyncContext*>(data);

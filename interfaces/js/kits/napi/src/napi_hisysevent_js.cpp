@@ -78,6 +78,7 @@ static napi_value Write(napi_env env, napi_callback_info info)
         return val;
     }
     NapiHiSysEventUtil::ParseHiSysEventInfo(env, params, paramNum, asyncContext->eventInfo);
+    NapiHiSysEventAdapter::ParseJsCallerInfo(env, asyncContext->jsCallerInfo);
     asyncContext->eventWroteResult = SUCCESS;
     // set callback function if it exists
     if (paramNum == WRITE_FUNC_MAX_PARAM_NUM) {
