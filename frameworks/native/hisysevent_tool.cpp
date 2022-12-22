@@ -81,9 +81,9 @@ std::string GetErrorDescription(int32_t errCode)
 }
 }
 
-HiSysEventTool::HiSysEventTool() : clientCmdArg {
+HiSysEventTool::HiSysEventTool(bool autoExit) : clientCmdArg {
     false, false, "", "", "", RuleType::WHOLE_WORD,
-    false, false, -1, -1, 10000, 0} {}
+    false, false, -1, -1, 10000, 0}, autoExit(autoExit) {}
 
 bool HiSysEventTool::ParseCmdLine(int argc, char** argv)
 {
@@ -167,7 +167,9 @@ void HiSysEventTool::HandleInput(int argc, char** argv, const char* selection)
                 break;
             case 'h':
                 DoCmdHelp();
-                _exit(0);
+                if (autoExit) {
+                    _exit(0);
+                }
                 break;
             default:
                 break;
@@ -217,7 +219,7 @@ bool HiSysEventTool::DoAction()
     }
 
     if (clientCmdArg.history) {
-        auto queryCallBack = std::make_shared<HiSysEventToolQuery>(clientCmdArg.checkValidEvent);
+        auto queryCallBack = std::make_shared<HiSysEventToolQuery>(clientCmdArg.checkValidEvent, autoExit);
         if (queryCallBack == nullptr) {
             return false;
         }

@@ -25,7 +25,7 @@ namespace OHOS {
 namespace HiviewDFX {
 static constexpr size_t DEFAULT_CACHE_CAPACITY = 30;
 
-// init writing controll period
+// init writing control period
 #ifndef HISYSEVENT_PERIOD
 #define HISYSEVENT_PERIOD 5
 #endif
