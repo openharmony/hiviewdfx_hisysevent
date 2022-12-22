@@ -11,7 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/hiviewdfx/hiview/hiview.gni")
 import("//build/ohos.gni")
 
 group("hisyseventcat_package") {
@@ -58,4 +57,9 @@ ohos_executable("hisysevent") {
 
   part_name = "hisysevent_native"
   subsystem_name = "hiviewdfx"
+}
+
+group("unittest") {
+  testonly = true
+  deps = [ "test:unittest" ]
 }

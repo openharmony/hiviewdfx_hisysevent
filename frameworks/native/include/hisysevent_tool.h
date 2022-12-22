@@ -40,7 +40,7 @@ struct ArgStuct {
 
 class HiSysEventTool {
 public:
-    HiSysEventTool();
+    HiSysEventTool(bool autoExit = true);
     ~HiSysEventTool() {}
 
 public:
@@ -56,6 +56,7 @@ private:
 
 private:
     struct ArgStuct clientCmdArg;
+    bool autoExit = true;
     std::condition_variable condvClient;
     std::mutex mutexClient;
 };

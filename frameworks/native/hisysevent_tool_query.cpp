@@ -44,6 +44,9 @@ void HiSysEventToolQuery::OnQuery(std::shared_ptr<std::vector<HiSysEventRecord>>
 
 void HiSysEventToolQuery::OnComplete(int32_t reason, int32_t total)
 {
+    if (!autoExit) {
+        return;
+    }
     exit(0);
 }
 } // namespace HiviewDFX
