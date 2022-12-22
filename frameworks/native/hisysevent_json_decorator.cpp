@@ -40,7 +40,7 @@ constexpr int NAME_INDEX = 2;
 const char* INNER_BUILD_KEYS[] = {
     "__BASE", "domain_", "name_", "type_", "level_", "tag_",
     "time_", "tz_", "pid_", "tid_", "uid_", "traceid_",
-    "id_", "spanid_", "pspanid_", "trace_flag_", "info_" };
+    "id_", "spanid_", "pspanid_", "trace_flag_", "info_", "seq_" };
 const std::string VALID_LEVELS[] = { "CRITICAL", "MINOR" };
 const std::map<std::string, int> EVENT_TYPE_MAP = {{"FAULT", 1}, {"STATISTIC", 2}, {"SECURITY", 3}, {"BEHAVIOR", 4} };
 }

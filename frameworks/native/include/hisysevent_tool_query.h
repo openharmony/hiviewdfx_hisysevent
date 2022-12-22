@@ -26,14 +26,16 @@ namespace OHOS {
 namespace HiviewDFX {
 class HiSysEventToolQuery : public OHOS::HiviewDFX::HiSysEventQueryCallback {
 public:
-    HiSysEventToolQuery(bool checkValidEvent)
-        : checkValidEvent(checkValidEvent), eventJsonDecorator(std::make_shared<HiSysEventJsonDecorator>()) {}
+    HiSysEventToolQuery(bool checkValidEvent, bool autoExit = true)
+        : checkValidEvent(checkValidEvent), autoExit(autoExit),
+        eventJsonDecorator(std::make_shared<HiSysEventJsonDecorator>()) {}
     void OnQuery(std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents);
     void OnComplete(int32_t reason, int32_t total);
     virtual ~HiSysEventToolQuery() {}
 
 private:
     bool checkValidEvent;
+    bool autoExit;
     std::shared_ptr<HiSysEventJsonDecorator> eventJsonDecorator;
 };
 } // namespace HiviewDFX
