@@ -19,10 +19,12 @@
 
 #include "def.h"
 #include "hilog/log.h"
+#include "ipc_skeleton.h"
 #include "json/json.h"
 #include "ret_code.h"
 #include "ret_def.h"
 #include "stringfilter.h"
+#include "tokenid_kit.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -866,6 +868,12 @@ void NapiHiSysEventUtil::ThrowParamTypeError(napi_env env, const std::string par
         + paramType + ".");
 }
 
+void NapiHiSysEventUtil::ThrowSystemAppPermissionError(napi_env env)
+{
+    ThrowError(env, NapiError::ERR_NON_SYS_APP_PERMISSION, "Permission denied. "
+        "System api can be invoked only by system applications.");
+}
+
 napi_value NapiHiSysEventUtil::CreateError(napi_env env, int32_t code, const std::string& msg)
 {
     napi_value err = nullptr;
@@ -945,6 +953,12 @@ void NapiHiSysEventUtil::ThrowErrorByRet(napi_env env, const int32_t retCode)
 {
     auto detail = GetErrorDetailByRet(env, retCode);
     ThrowError(env, detail.first, detail.second);
+}
+
+bool NapiHiSysEventUtil::IsSystemAppCall()
+{
+    uint64_t tokenId = IPCSkeleton::GetCallingFullTokenID();
+    return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(tokenId);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

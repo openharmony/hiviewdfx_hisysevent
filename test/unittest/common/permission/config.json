@@ -1,0 +1,66 @@
+{
+    "app": {
+      "bundleName": "com.ohos.hiSysEventPermissionJsTest",
+      "vendor": "ohos",
+      "version": {
+        "code": 2,
+        "name": "2.0.0"
+      },
+      "apiVersion": {
+        "compatible": 4,
+        "target": 7
+      }
+    },
+    "deviceConfig": {},
+    "module": {
+      "package": "com.ohos.hiSysEventPermissionJsTest",
+      "name": ".MyApplication",
+      "deviceType": [
+        "default",
+        "tablet"
+      ],
+      "distro": {
+        "deliveryWithInstall": true,
+        "moduleName": "entry",
+        "moduleType": "entry"
+      },
+      "reqPermissions": [
+        {
+          "name": "ohos.permission.READ_DFX_SYSEVENT"
+        }
+      ],
+      "abilities": [
+        {
+          "visible": true,
+          "skills": [
+            {
+              "entities": [
+                "entity.system.home"
+              ],
+              "actions": [
+                "action.system.home"
+              ]
+            }
+          ],
+          "name": "com.ohos.hiSysEventPermissionJsTest.MainAbility",
+          "icon": "$media:icon",
+          "description": "$string:mainability_description",
+          "label": "MyApplication",
+          "type": "page",
+          "launchType": "standard"
+        }
+      ],
+      "js": [
+        {
+          "pages": [
+            "pages/index/index"
+          ],
+          "name": "default",
+          "window": {
+            "designWidth": 720,
+            "autoDesignWidth": false
+          }
+        }
+      ]
+    }
+  }

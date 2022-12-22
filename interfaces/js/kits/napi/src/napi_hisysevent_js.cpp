@@ -54,6 +54,10 @@ std::unordered_map<napi_ref, NAPI_QUERIER_PAIR> queriers;
 
 static napi_value Write(napi_env env, napi_callback_info info)
 {
+    if (!NapiHiSysEventUtil::IsSystemAppCall()) {
+        NapiHiSysEventUtil::ThrowSystemAppPermissionError(env);
+        return nullptr;
+    }
     size_t paramNum = WRITE_FUNC_MAX_PARAM_NUM;
     napi_value params[WRITE_FUNC_MAX_PARAM_NUM] = {0};
     napi_value thisArg = nullptr;
@@ -102,6 +106,10 @@ static napi_value Write(napi_env env, napi_callback_info info)
 
 static napi_value AddWatcher(napi_env env, napi_callback_info info)
 {
+    if (!NapiHiSysEventUtil::IsSystemAppCall()) {
+        NapiHiSysEventUtil::ThrowSystemAppPermissionError(env);
+        return nullptr;
+    }
     size_t paramNum = ADD_LISTENER_FUNC_MAX_PARAM_NUM;
     napi_value params[ADD_LISTENER_FUNC_MAX_PARAM_NUM] = {0};
     napi_value thisArg = nullptr;
@@ -137,6 +145,10 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
 
 static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
 {
+    if (!NapiHiSysEventUtil::IsSystemAppCall()) {
+        NapiHiSysEventUtil::ThrowSystemAppPermissionError(env);
+        return nullptr;
+    }
     size_t paramNum = REMOVE_LISTENER_FUNC_MAX_PARAM_NUM;
     napi_value params[REMOVE_LISTENER_FUNC_MAX_PARAM_NUM] = {0};
     napi_value thisArg = nullptr;
@@ -165,6 +177,10 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
 
 static napi_value Query(napi_env env, napi_callback_info info)
 {
+    if (!NapiHiSysEventUtil::IsSystemAppCall()) {
+        NapiHiSysEventUtil::ThrowSystemAppPermissionError(env);
+        return nullptr;
+    }
     size_t paramNum = QUERY_FUNC_MAX_PARAM_NUM;
     napi_value params[QUERY_FUNC_MAX_PARAM_NUM] = {0};
     napi_value thisArg = nullptr;
