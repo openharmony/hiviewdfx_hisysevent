@@ -21,6 +21,7 @@ namespace HiviewDFX {
 namespace NapiError {
 // common api error
 constexpr int32_t ERR_PERMISSION_CHECK = 201;
+constexpr int32_t ERR_NON_SYS_APP_PERMISSION = 202;
 constexpr int32_t ERR_PARAM_CHECK = 401;
 
 constexpr int32_t ERR_UNKNOWN = 11200000;

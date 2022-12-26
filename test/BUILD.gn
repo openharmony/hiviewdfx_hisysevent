@@ -23,7 +23,8 @@ group("unittest") {
   deps = []
   if (support_jsapi) {
     deps += [
-      "unittest/common/napi:unittest",
+      "unittest/common/napi:HiSysEventJsTest",
+      "unittest/common/permission:HiSysEventPermissionJsTest",
       "//base/hiviewdfx/hisysevent/frameworks/native:unittest",
     ]
   }
