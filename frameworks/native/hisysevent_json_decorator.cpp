@@ -237,21 +237,5 @@ bool HiSysEventJsonDecorator::JudgeDataType(const std::string &dataType, const J
         return false;
     }
 }
-
-std::string HiSysEventJsonDecorator::TranslateJsonToStr(const Json::Value& json)
-{
-#ifdef JSONCPP_VERSION_STRING
-    Json::StreamWriterBuilder builder;
-    std::ostringstream os;
-    builder.settings_["indentation"] = "";
-    builder.settings_["emitUTF8"] = true;
-    std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-    writer->write(json, &os);
-    return os.str();
-#else
-    Json::FastWriter writer;
-    return writer.write(json);
-#endif
-}
 } // namespace HiviewDFX
 } // namespace OHOS
