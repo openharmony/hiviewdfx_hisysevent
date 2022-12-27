@@ -50,7 +50,6 @@ private:
     std::string Decorate(Validity validity, std::string& key, std::string& value);
     std::string DecorateJsonStr(const std::string& standard, DecorateMarks marks);
     bool JudgeDataType(const std::string& dataType, const Json::Value& eventJson);
-    std::string TranslateJsonToStr(const Json::Value& json);
 
 private:
     Json::Value root;
