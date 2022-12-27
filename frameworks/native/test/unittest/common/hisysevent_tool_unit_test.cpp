@@ -140,6 +140,13 @@ HWTEST_F(HiSysEventToolUnitTest, HiSysEventToolUnitTest003, testing::ext::TestSi
     HiSysEventRecord record2(origin2);
     ret = decorator.DecorateEventJsonStr(record2);
     ASSERT_TRUE(ret.find("\033[31m") == string::npos);
+    constexpr char origin3[] = "{\"domain_\":\"USERIAM_PIN\",\"name_\":\"USERIAM_TEMPLATE_CHANGE\",\"type_\":3,"
+        "\"time_\":1502965663170,\"tz_\":\"+0800\",\"pid_\":1710,\"tid_\":1747,"
+        "\"uid_\":20010037,\"CHANGE_TYPE\":\"hiview js test suite\",\"level_\":\"CRITICAL\","
+        "\"id_\":\"14645518577780955344\",\"info_\":\"\",\"seq_\":357}";
+    HiSysEventRecord record3(origin3);
+    ret = decorator.DecorateEventJsonStr(record3);
+    ASSERT_TRUE(ret.find("\033[31m") != string::npos);
 }
 
 /**
@@ -358,6 +365,29 @@ HWTEST_F(HiSysEventToolUnitTest, HiSysEventToolUnitTest012, testing::ext::TestSi
     };
     optind = ARGV_START_INDEX;
     RunCmds(tool, argc, const_cast<char**>(argv));
+}
+
+/**
+ * @tc.name: HiSysEventToolUnitTest013
+ * @tc.desc: Test APIs of class HiSysEventJsonDecorator
+ * @tc.type: FUNC
+ * @tc.require: issueI66JWR
+ */
+HWTEST_F(HiSysEventToolUnitTest, HiSysEventToolUnitTest013, testing::ext::TestSize.Level3)
+{
+    HiSysEventJsonDecorator decorator;
+    constexpr char origin0[] = "";
+    HiSysEventRecord record0(origin0);
+    auto ret = decorator.DecorateEventJsonStr(record0);
+    ASSERT_TRUE(ret.empty());
+    constexpr char origin1[] = "{\"domain_\":\"UNKNOWN_DOMAIN\"}";
+    HiSysEventRecord record1(origin1);
+    ret = decorator.DecorateEventJsonStr(record1);
+    ASSERT_EQ(ret, std::string(origin1));
+    constexpr char origin2[] = "{\"domain_\":\"USERIAM_PIN\",\"name_\":\"UNKNOWN_EVENTNAME\",\"type_\":3}";
+    HiSysEventRecord record2(origin2);
+    ret = decorator.DecorateEventJsonStr(record2);
+    ASSERT_EQ(ret, std::string(origin2));
 }
 } // HiviewDFX
 } // OHOS
