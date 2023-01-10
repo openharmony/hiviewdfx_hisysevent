@@ -389,5 +389,49 @@ HWTEST_F(HiSysEventToolUnitTest, HiSysEventToolUnitTest013, testing::ext::TestSi
     ret = decorator.DecorateEventJsonStr(record2);
     ASSERT_EQ(ret, std::string(origin2));
 }
+
+/**
+ * @tc.name: HiSysEventToolUnitTest014
+ * @tc.desc: Test query hisysevents by valid formatted timestamp
+ * @tc.type: FUNC
+ * @tc.require: issueI68VXJ
+ */
+HWTEST_F(HiSysEventToolUnitTest, HiSysEventToolUnitTest014, testing::ext::TestSize.Level3)
+{
+    auto tool = std::make_shared<HiSysEventTool>(false);
+    constexpr int argc = 6;
+    const char* argv[] = {
+        "hisysevent",
+        "-l",
+        "-S",
+        "2023-01-05 10:28:33",
+        "-E",
+        "2023-01-05 10:29:33",
+    };
+    optind = ARGV_START_INDEX;
+    RunCmds(tool, argc, const_cast<char**>(argv));
+}
+
+/**
+ * @tc.name: HiSysEventToolUnitTest015
+ * @tc.desc: Test query hisysevents by invalid formatted timestamp
+ * @tc.type: FUNC
+ * @tc.require: issueI68VXJ
+ */
+HWTEST_F(HiSysEventToolUnitTest, HiSysEventToolUnitTest015, testing::ext::TestSize.Level3)
+{
+    auto tool = std::make_shared<HiSysEventTool>(false);
+    constexpr int argc = 6;
+    const char* argv[] = {
+        "hisysevent",
+        "-l",
+        "-S",
+        "2023-00-00 10:70:33",
+        "-E",
+        "2023-00-00 10:70:70",
+    };
+    optind = ARGV_START_INDEX;
+    RunCmds(tool, argc, const_cast<char**>(argv));
+}
 } // HiviewDFX
 } // OHOS
