@@ -16,6 +16,8 @@
 #ifndef HISYSEVENT_TOOL_H
 #define HISYSEVENT_TOOL_H
 
+#include <functional>
+#include <map>
 #include <string>
 #include <thread>
 
@@ -38,6 +40,8 @@ struct ArgStuct {
     uint32_t eventType;
 };
 
+using OptHandler = std::function<void(struct ArgStuct&, const char*)>;
+
 class HiSysEventTool {
 public:
     HiSysEventTool(bool autoExit = true);
@@ -59,6 +63,7 @@ private:
     bool autoExit = true;
     std::condition_variable condvClient;
     std::mutex mutexClient;
+    std::map<int, OptHandler> optHandlers;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
