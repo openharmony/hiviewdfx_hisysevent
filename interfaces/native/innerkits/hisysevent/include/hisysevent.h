@@ -109,6 +109,7 @@ public:
         static constexpr char DLP[] = "DLP";
         static constexpr char DSLM[] = "DSLM";
         static constexpr char DSOFTBUS[] = "DSOFTBUS";
+        static constexpr char FRAMEWORK[] = "FRAMEWORK";
         static constexpr char GLOBAL_I18N[] = "GLOBAL_I18N";
         static constexpr char GLOBAL_RESMGR[] = "GLOBAL_RESMGR";
         static constexpr char GLOBAL[] = "GLOBAL";
@@ -132,6 +133,7 @@ public:
         static constexpr char PASTEBOARD[] = "PASTEBOARD";
         static constexpr char POWER[] = "POWER";
         static constexpr char POWERMGR[] = "POWERMGR";
+        static constexpr char RELIABILITY[] = "RELIABILITY";
         static constexpr char REQUEST[] = "REQUEST";
         static constexpr char ROUTER[] = "ROUTER";
         static constexpr char RSS[] = "RSS";
