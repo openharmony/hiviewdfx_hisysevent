@@ -569,12 +569,12 @@ private:
 // macro interface
 #define HiSysEventWrite(domain, eventName, type, ...) \
 ({ \
-    int ret = OHOS::HiviewDFX::ERR_DOMAIN_MASKED; \
+    int hiSysEventWriteRet2023___ = OHOS::HiviewDFX::ERR_DOMAIN_MASKED; \
     if constexpr (!OHOS::HiviewDFX::isMasked<domain>) { \
-        ret = OHOS::HiviewDFX::HiSysEvent::Write<domain>(__FUNCTION__, __LINE__, \
+        hiSysEventWriteRet2023___ = OHOS::HiviewDFX::HiSysEvent::Write<domain>(__FUNCTION__, __LINE__, \
             eventName, type, ##__VA_ARGS__); \
     } \
-    ret; \
+    hiSysEventWriteRet2023___; \
 })
 } // namespace HiviewDFX
 } // namespace OHOS
