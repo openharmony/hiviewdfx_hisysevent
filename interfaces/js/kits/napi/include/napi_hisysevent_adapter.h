@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -56,7 +56,7 @@ public:
     static void ParseJsCallerInfo(const napi_env env, JsCallerInfo& callerInfo);
 
 private:
-    static void CheckThenWriteSysEvent(WriteController& controller, HiSysEventAsyncContext* eventAsyncContext);
+    static void CheckThenWriteSysEvent(HiSysEventAsyncContext* eventAsyncContext);
     static void InnerWrite(HiSysEvent::EventBase& eventBase, const HiSysEventInfo& eventInfo);
     static int Write(const HiSysEventInfo& eventInfo);
 

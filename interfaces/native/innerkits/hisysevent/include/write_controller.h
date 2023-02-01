@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,16 +24,13 @@
 namespace OHOS {
 namespace HiviewDFX {
 static constexpr size_t DEFAULT_CACHE_CAPACITY = 30;
+static constexpr size_t HISYSEVENT_DEFAULT_PERIOD = 5;
+static constexpr size_t HISYSEVENT_DEFAULT_THRESHOLD = 10;
 
-// init writing control period
-#ifndef HISYSEVENT_PERIOD
-#define HISYSEVENT_PERIOD 5
-#endif
-
-// init writing control threshold
-#ifndef HISYSEVENT_THRESHOLD
-#define HISYSEVENT_THRESHOLD 10
-#endif
+using ControlParam = struct {
+    size_t period;
+    size_t threshold;
+};
 
 template<typename K, typename V>
 class LruCache {
@@ -90,27 +87,27 @@ private:
 
 class WriteController {
 public:
-    bool CheckLimitWritingEvent(const char* domain, const char* eventName,
+    bool CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
         const char* func, int64_t line);
 
 private:
-struct EventLimitStat {
-    uint8_t count;
-    timeval begin;
+    struct EventLimitStat {
+        size_t count;
+        timeval begin;
 
-public:
-    EventLimitStat()
-    {
-        count = 0;
-        gettimeofday(&begin, nullptr);
-    }
+    public:
+        EventLimitStat()
+        {
+            count = 0;
+            gettimeofday(&begin, nullptr);
+        }
 
-public:
-    bool IsValid()
-    {
-        return count > 0;
-    }
-};
+    public:
+        bool IsValid()
+        {
+            return count > 0;
+        }
+    };
 
 private:
     std::string ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line) const;
