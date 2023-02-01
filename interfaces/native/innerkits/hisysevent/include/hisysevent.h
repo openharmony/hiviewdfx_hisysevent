@@ -83,6 +83,7 @@ public:
         static constexpr char BIOMETRICS[] = "BIOMETRICS";
         static constexpr char BLUETOOTH[] = "BLUETOOTH";
         static constexpr char BUNDLE_MANAGER[] = "BUNDLE_MANAGER";
+        static constexpr char CAST_ENGINE[] = "CASTENGINE";
         static constexpr char CCRUNTIME[] = "CCRUNTIME";
         static constexpr char CERT_MANAGER[] = "CERT_MANAGER";
         static constexpr char COMMONEVENT[] = "COMMONEVENT";
@@ -114,6 +115,7 @@ public:
         static constexpr char INPUTMETHOD[] = "INPUTMETHOD";
         static constexpr char INTELLI_ACCESSORIES[] = "INTELLIACC";
         static constexpr char INTELLI_TV[] = "INTELLITV";
+        static constexpr char ISHARE[] = "ISHARE";
         static constexpr char IVI_HARDWARE[] = "IVIHARDWARE";
         static constexpr char LOCATION[] = "LOCATION";
         static constexpr char MEDICAL_SENSOR[] = "MEDICAL_SENSOR";
