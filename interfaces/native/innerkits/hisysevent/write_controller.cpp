@@ -36,7 +36,7 @@ constexpr char STR_CONCAT = '_';
 bool WriteController::CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
     const char* func, int64_t line)
 {
-    HiLog::Debug(LABEL, "{ .period = [%{public}u, .threshold = %{public}u}", param.period, param.threshold);
+    HiLog::Debug(LABEL, "{ .period = [%{public}zu, .threshold = %{public}zu}", param.period, param.threshold);
     std::lock_guard<std::mutex> lock(lmtMutex);
     std::string key = ConcatenateInfoAsKey(eventName, func, line);
     EventLimitStat stat = lruCache.Get(key);
@@ -47,7 +47,7 @@ bool WriteController::CheckLimitWritingEvent(const ControlParam& param, const ch
     }
     timeval cur;
     gettimeofday(&cur, nullptr);
-    if (stat.begin.tv_sec + param.period < cur.tv_sec) {
+    if (stat.begin.tv_sec + static_cast<time_t>(param.period) < cur.tv_sec) {
         stat.count = 1;
         stat.begin = cur;
         lruCache.Put(key, stat);
@@ -59,7 +59,7 @@ bool WriteController::CheckLimitWritingEvent(const ControlParam& param, const ch
         return false;
     }
     lruCache.Put(key, stat);
-    HiLog::Error(LABEL, "[%{public}lld, %{public}lld] discard %{public}u event(s) "
+    HiLog::Error(LABEL, "[%{public}lld, %{public}lld] discard %{public}zu event(s) "
         "with domain %{public}s and name %{public}s which wrote in function %{public}s.",
         static_cast<long long>(stat.begin.tv_sec), static_cast<long long>(cur.tv_sec),
         stat.count - param.threshold, domain, eventName, func);
