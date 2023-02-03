@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
+#include "hisysevent_native_test.h"
 
 #include <iosfwd>
 #include <string>
@@ -95,14 +95,6 @@ public:
     }
 };
 }
-
-class HiSysEventNativeTest : public testing::Test {
-public:
-    static void SetUpTestCase(void);
-    static void TearDownTestCase(void);
-    void SetUp();
-    void TearDown();
-};
 
 static bool WrapSysEventWriteAssertion(int32_t ret, bool cond)
 {
@@ -978,7 +970,7 @@ HWTEST_F(HiSysEventNativeTest, TestDefensingHiSysEventStorm, TestSize.Level1)
     int writeCount = 12;
     for (int i = 0; i < writeCount; i++) {
         auto result = WriteSysEventByMarcoInterface();
-        if (i <= 10) {
+        if (i < HISYSEVENT_THRESHOLD) {
             ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == 0));
         } else {
             ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::ERR_WRITE_IN_HIGH_FREQ));
