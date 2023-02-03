@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -113,8 +113,7 @@ void NapiHiSysEventAdapter::ParseJsCallerInfo(const napi_env env, JsCallerInfo& 
     ParseCallerInfoFromStackTrace(stackTrace, callerInfo);
 }
 
-void NapiHiSysEventAdapter::CheckThenWriteSysEvent(WriteController& controller,
-    HiSysEventAsyncContext* eventAsyncContext)
+void NapiHiSysEventAdapter::CheckThenWriteSysEvent(HiSysEventAsyncContext* eventAsyncContext)
 {
     if (eventAsyncContext == nullptr) {
         return;
@@ -128,7 +127,11 @@ void NapiHiSysEventAdapter::CheckThenWriteSysEvent(WriteController& controller,
         eventAsyncContext->eventWroteResult = Write(eventInfo);
         return;
     }
-    if (controller.CheckLimitWritingEvent(eventInfo.domain.c_str(), eventInfo.name.c_str(),
+    ControlParam param {
+        .period = HISYSEVENT_DEFAULT_PERIOD,
+        .threshold = HISYSEVENT_DEFAULT_THRESHOLD,
+    };
+    if (HiSysEvent::controller.CheckLimitWritingEvent(param, eventInfo.domain.c_str(), eventInfo.name.c_str(),
         jsCallerInfo.first.c_str(), jsCallerInfo.second)) {
         eventAsyncContext->eventWroteResult = ERR_WRITE_IN_HIGH_FREQ;
         return;
@@ -144,7 +147,7 @@ void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* ev
         env, nullptr, resource,
         [] (napi_env env, void* data) {
             HiSysEventAsyncContext* eventAsyncContext = reinterpret_cast<HiSysEventAsyncContext*>(data);
-            CheckThenWriteSysEvent(HiSysEvent::controller, eventAsyncContext);
+            CheckThenWriteSysEvent(eventAsyncContext);
         },
         [] (napi_env env, napi_status status, void* data) {
             HiSysEventAsyncContext* eventAsyncContext = reinterpret_cast<HiSysEventAsyncContext*>(data);
