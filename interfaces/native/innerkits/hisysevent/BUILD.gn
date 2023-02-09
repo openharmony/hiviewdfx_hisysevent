@@ -42,6 +42,11 @@ ohos_shared_library("libhisysevent") {
   part_name = "hisysevent_native"
   subsystem_name = "hiviewdfx"
 
+  innerapi_tags = [
+    "chipsetsdk",
+    "platformsdk",
+  ]
+
   external_deps = [
     "hilog_native:libhilog",
     "hitrace_native:libhitracechain",
