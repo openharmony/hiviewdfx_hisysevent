@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -176,7 +176,19 @@ public:
     static int Write(const char* func, int64_t line, const std::string& eventName,
         EventType type, Types... keyValues)
     {
-        if (controller.CheckLimitWritingEvent(domain, eventName.c_str(), func, line)) {
+        ControlParam param {
+#ifdef HISYSEVENT_PERIOD
+            .period = HISYSEVENT_PERIOD,
+#else
+            .period = HISYSEVENT_DEFAULT_PERIOD,
+#endif
+#ifdef HISYSEVENT_THRESHOLD
+            .threshold = HISYSEVENT_THRESHOLD,
+#else
+            .threshold = HISYSEVENT_DEFAULT_THRESHOLD,
+#endif
+        };
+        if (controller.CheckLimitWritingEvent(param, domain, eventName.c_str(), func, line)) {
             return ERR_WRITE_IN_HIGH_FREQ;
         }
         return InnerWrite(std::string(domain), eventName, type, keyValues...);
