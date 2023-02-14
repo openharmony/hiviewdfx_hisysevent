@@ -68,6 +68,7 @@ inline static constexpr bool isMasked = IsMaskedCvt<domain, DOMAIN_MASKS_DEF>::v
 class HiSysEvent {
 public:
     friend class NapiHiSysEventAdapter;
+
     // system event domain list
     class Domain {
     public:
@@ -166,22 +167,6 @@ public:
     };
 
 public:
-    /**
-     * @deprecated
-     * @brief write system event
-     * @param domain    system event domain name
-     * @param eventName system event name
-     * @param type      system event type
-     * @param keyValues system event parameter name or value
-     * @return 0 success, other fail
-     */
-    template<typename... Types>
-    static int Write(const std::string &domain, const std::string &eventName,
-        EventType type, Types... keyValues)
-    {
-        return InnerWrite(domain, eventName, type, keyValues...);
-    }
-
     template<typename... Types>
     static int Write(const char* func, int64_t line, const std::string &domain,
         const std::string &eventName, EventType type, Types... keyValues)
