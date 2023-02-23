@@ -118,6 +118,7 @@ public:
         static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
         static constexpr char HUKS[] = "HUKS";
         static constexpr char IAWARE[] = "IAWARE";
+        static constexpr char IMS_UT[] = "IMS_UT";
         static constexpr char INPUTMETHOD[] = "INPUTMETHOD";
         static constexpr char INTELLI_ACCESSORIES[] = "INTELLIACC";
         static constexpr char INTELLI_TV[] = "INTELLITV";
