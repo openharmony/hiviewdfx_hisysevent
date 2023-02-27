@@ -130,7 +130,7 @@ void QueryTestWithCondition(const std::string& cond)
     HiSysEventQueryCallback callback;
     InitCallck(callback);
 
-    auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
     StringUtil::DeletePointer<char>(&rule.condition);
 }
@@ -152,7 +152,7 @@ void RecordParamNameTest(const HiSysEventRecord& record, const std::map<std::str
 {
     char** params = nullptr;
     size_t len = 0;
-    OH_HiSysEvent_GetParamNames(record, &params, len);
+    OH_HiSysEvent_GetParamNames(&record, &params, &len);
     ASSERT_EQ(len, recordData.size());
     for (size_t i = 0; i < len; i++) {
         HiLog::Debug(LABEL, "param[%{public}zu]=%{public}s", i, params[i]);
@@ -164,7 +164,7 @@ void RecordParamNameTest(const HiSysEventRecord& record, const std::map<std::str
 void RecordParamIntValueTest(const HiSysEventRecord& record, const std::string& name, int64_t value)
 {
     int64_t testValue = 0;
-    int res = OH_HiSysEvent_GetParamInt64Value(record, name.c_str(), testValue);
+    int res = OH_HiSysEvent_GetParamInt64Value(&record, name.c_str(), &testValue);
     ASSERT_EQ(res, 0);
     ASSERT_EQ(testValue, value);
 }
@@ -172,7 +172,7 @@ void RecordParamIntValueTest(const HiSysEventRecord& record, const std::string& 
 void RecordParamUintValueTest(const HiSysEventRecord& record, const std::string& name, uint64_t value)
 {
     uint64_t testValue = 0;
-    int res = OH_HiSysEvent_GetParamUint64Value(record, name.c_str(), testValue);
+    int res = OH_HiSysEvent_GetParamUint64Value(&record, name.c_str(), &testValue);
     ASSERT_EQ(res, 0);
     ASSERT_EQ(testValue, value);
 }
@@ -180,7 +180,7 @@ void RecordParamUintValueTest(const HiSysEventRecord& record, const std::string&
 void RecordParamDouValueTest(const HiSysEventRecord& record, const std::string& name, double value)
 {
     double testValue = 0;
-    int res = OH_HiSysEvent_GetParamDoubleValue(record, name.c_str(), testValue);
+    int res = OH_HiSysEvent_GetParamDoubleValue(&record, name.c_str(), &testValue);
     ASSERT_EQ(res, 0);
     ASSERT_EQ(testValue, value);
 }
@@ -188,7 +188,7 @@ void RecordParamDouValueTest(const HiSysEventRecord& record, const std::string& 
 void RecordParamStrValueTest(const HiSysEventRecord& record, const std::string& name, const std::string& value)
 {
     char* testValue = nullptr;
-    int res = OH_HiSysEvent_GetParamStringValue(record, name.c_str(), &testValue);
+    int res = OH_HiSysEvent_GetParamStringValue(&record, name.c_str(), &testValue);
     ASSERT_EQ(res, 0);
     ASSERT_EQ(strcmp(testValue, value.c_str()), 0);
     StringUtil::DeletePointer<char>(&testValue);
@@ -199,7 +199,7 @@ void RecordParamIntValuesTest(const HiSysEventRecord& record, const std::string&
 {
     int64_t* testValues = nullptr;
     size_t len = 0;
-    int res = OH_HiSysEvent_GetParamInt64Values(record, name.c_str(), &testValues, len);
+    int res = OH_HiSysEvent_GetParamInt64Values(&record, name.c_str(), &testValues, &len);
     ASSERT_EQ(res, 0);
     ASSERT_EQ(values.size(), len);
     for (size_t i = 0; i < len; i++) {
@@ -213,7 +213,7 @@ void RecordParamUintValuesTest(const HiSysEventRecord& record, const std::string
 {
     uint64_t* testValues = nullptr;
     size_t len = 0;
-    int res = OH_HiSysEvent_GetParamUint64Values(record, name.c_str(), &testValues, len);
+    int res = OH_HiSysEvent_GetParamUint64Values(&record, name.c_str(), &testValues, &len);
     ASSERT_EQ(res, 0);
     ASSERT_EQ(values.size(), len);
     for (size_t i = 0; i < len; i++) {
@@ -227,7 +227,7 @@ void RecordParamDouValuesTest(const HiSysEventRecord& record, const std::string&
 {
     double* testValues = nullptr;
     size_t len = 0;
-    int res = OH_HiSysEvent_GetParamDoubleValues(record, name.c_str(), &testValues, len);
+    int res = OH_HiSysEvent_GetParamDoubleValues(&record, name.c_str(), &testValues, &len);
     ASSERT_EQ(res, 0);
     ASSERT_EQ(values.size(), len);
     for (size_t i = 0; i < len; i++) {
@@ -241,7 +241,7 @@ void RecordParamStrValuesTest(const HiSysEventRecord& record, const std::string&
 {
     char** testValues = nullptr;
     size_t len = 0;
-    int res = OH_HiSysEvent_GetParamStringValues(record, name.c_str(), &testValues, len);
+    int res = OH_HiSysEvent_GetParamStringValues(&record, name.c_str(), &testValues, &len);
     ASSERT_EQ(res, 0);
     for (size_t i = 0; i < len; i++) {
         ASSERT_EQ(strcmp(testValues[i], values[i].c_str()), 0);
@@ -253,35 +253,35 @@ void RecordParamNameInvalidTest(const HiSysEventRecord& record)
 {
     char** params = nullptr;
     size_t len = 0;
-    OH_HiSysEvent_GetParamNames(record, &params, len);
+    OH_HiSysEvent_GetParamNames(&record, &params, &len);
     ASSERT_EQ(len, 0);
 }
 
 void RecordParamIntValueInvalidTest(const HiSysEventRecord& record, const std::string& name, int expRes)
 {
     int64_t testValue = 0;
-    int res = OH_HiSysEvent_GetParamInt64Value(record, name.c_str(), testValue);
+    int res = OH_HiSysEvent_GetParamInt64Value(&record, name.c_str(), &testValue);
     ASSERT_EQ(res, expRes);
 }
 
 void RecordParamUintValueInvalidTest(const HiSysEventRecord& record, const std::string& name, int expRes)
 {
     uint64_t testValue = 0;
-    int res = OH_HiSysEvent_GetParamUint64Value(record, name.c_str(), testValue);
+    int res = OH_HiSysEvent_GetParamUint64Value(&record, name.c_str(), &testValue);
     ASSERT_EQ(res, expRes);
 }
 
 void RecordParamDouValueInvalidTest(const HiSysEventRecord& record, const std::string& name, int expRes)
 {
     double testValue = 0;
-    int res = OH_HiSysEvent_GetParamDoubleValue(record, name.c_str(), testValue);
+    int res = OH_HiSysEvent_GetParamDoubleValue(&record, name.c_str(), &testValue);
     ASSERT_EQ(res, expRes);
 }
 
 void RecordParamStrValueInvalidTest(const HiSysEventRecord& record, const std::string& name, int expRes)
 {
     char* testValue = nullptr;
-    int res = OH_HiSysEvent_GetParamStringValue(record, name.c_str(), &testValue);
+    int res = OH_HiSysEvent_GetParamStringValue(&record, name.c_str(), &testValue);
     ASSERT_EQ(res, expRes);
 }
 
@@ -289,7 +289,7 @@ void RecordParamIntValuesInvalidTest(const HiSysEventRecord& record, const std::
 {
     int64_t* testValues = nullptr;
     size_t len = 0;
-    int res = OH_HiSysEvent_GetParamInt64Values(record, name.c_str(), &testValues, len);
+    int res = OH_HiSysEvent_GetParamInt64Values(&record, name.c_str(), &testValues, &len);
     ASSERT_EQ(res, expRes);
 }
 
@@ -297,7 +297,7 @@ void RecordParamUintValuesInvalidTest(const HiSysEventRecord& record, const std:
 {
     uint64_t* testValues = nullptr;
     size_t len = 0;
-    int res = OH_HiSysEvent_GetParamUint64Values(record, name.c_str(), &testValues, len);
+    int res = OH_HiSysEvent_GetParamUint64Values(&record, name.c_str(), &testValues, &len);
     ASSERT_EQ(res, expRes);
 }
 
@@ -305,7 +305,7 @@ void RecordParamDouValuesInvalidTest(const HiSysEventRecord& record, const std::
 {
     double* testValues = nullptr;
     size_t len = 0;
-    int res = OH_HiSysEvent_GetParamDoubleValues(record, name.c_str(), &testValues, len);
+    int res = OH_HiSysEvent_GetParamDoubleValues(&record, name.c_str(), &testValues, &len);
     ASSERT_EQ(res, expRes);
 }
 
@@ -313,7 +313,7 @@ void RecordParamStrValuesInvalidTest(const HiSysEventRecord& record, const std::
 {
     char** testValues = nullptr;
     size_t len = 0;
-    int res = OH_HiSysEvent_GetParamStringValues(record, name.c_str(), &testValues, len);
+    int res = OH_HiSysEvent_GetParamStringValues(&record, name.c_str(), &testValues, &len);
     ASSERT_EQ(res, expRes);
 }
 }
@@ -355,7 +355,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest001, TestSize.Level3)
     HiSysEventQueryCallback callback;
     InitCallck(callback);
 
-    auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest001 end");
 }
@@ -515,7 +515,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest008, TestSize.Level3)
     HiSysEventQueryCallback callback;
     InitCallck(callback);
 
-    auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest008 end");
 }
@@ -588,7 +588,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest010, TestSize.Level3)
     HiSysEventQueryCallback callback;
     InitCallck(callback);
 
-    auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
     StringUtil::DeletePointer<char>(&rule1.condition);
     StringUtil::DeletePointer<char>(&rule2.condition);
@@ -667,7 +667,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest012, TestSize.Level3)
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
     InitCallck(callback);
-    auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest012 end");
 }
@@ -696,7 +696,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest013, TestSize.Level3)
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
     InitCallck(callback);
-    auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest013 end");
 }
@@ -728,7 +728,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest014, TestSize.Level3)
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
     InitCallck(callback);
-    auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest014 end");
@@ -761,7 +761,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest015, TestSize.Level3)
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
     InitCallck(callback);
-    auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest015 end");
@@ -793,7 +793,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest016, TestSize.Level3)
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
     InitCallck(callback);
-    auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest016 end");
@@ -825,9 +825,9 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest017, TestSize.Level3)
     HiSysEventQueryCallback callback;
     InitCallck(callback);
 
-    auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
-    res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_TOO_FREQUENTLY);
 
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest017 end");
@@ -859,7 +859,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest018, TestSize.Level3)
     HiSysEventQueryCallback callback;
     InitCallck(callback);
 
-    auto res = OH_HiSysEvent_Query(arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), callback);
+    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_TOO_MANY_QUERY_RULES);
 
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest018 end");
@@ -1005,59 +1005,59 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventRecordCTest001, TestSize.Level3)
     struct HiSysEventRecord record;
     char*** testp = nullptr;
     size_t len = 0;
-    OH_HiSysEvent_GetParamNames(record, testp, len);
+    OH_HiSysEvent_GetParamNames(&record, testp, &len);
     ASSERT_TRUE(true);
     int64_t value1;
-    auto ret = OH_HiSysEvent_GetParamInt64Value(record, "KEY", value1);
+    auto ret = OH_HiSysEvent_GetParamInt64Value(&record, "KEY", &value1);
     ASSERT_TRUE(ret == ERR_NULL);
-    ret = OH_HiSysEvent_GetParamInt64Value(record, nullptr, value1);
+    ret = OH_HiSysEvent_GetParamInt64Value(&record, nullptr, &value1);
     ASSERT_TRUE(ret == ERR_NULL);
     uint64_t value2;
-    ret = OH_HiSysEvent_GetParamUint64Value(record, "KEY", value2);
+    ret = OH_HiSysEvent_GetParamUint64Value(&record, "KEY", &value2);
     ASSERT_TRUE(ret == ERR_NULL);
-    ret = OH_HiSysEvent_GetParamUint64Value(record, nullptr, value2);
+    ret = OH_HiSysEvent_GetParamUint64Value(&record, nullptr, &value2);
     ASSERT_TRUE(ret == ERR_NULL);
     double value3;
-    ret = OH_HiSysEvent_GetParamDoubleValue(record, "KEY", value3);
+    ret = OH_HiSysEvent_GetParamDoubleValue(&record, "KEY", &value3);
     ASSERT_TRUE(ret == ERR_NULL);
-    ret = OH_HiSysEvent_GetParamDoubleValue(record, nullptr, value3);
+    ret = OH_HiSysEvent_GetParamDoubleValue(&record, nullptr, &value3);
     ASSERT_TRUE(ret == ERR_NULL);
     char value4[100];
     char* value4p = value4;
     char** value4pp = &value4p;
-    ret = OH_HiSysEvent_GetParamStringValue(record, "KEY", value4pp);
+    ret = OH_HiSysEvent_GetParamStringValue(&record, "KEY", value4pp);
     ASSERT_TRUE(ret == ERR_NULL);
-    ret = OH_HiSysEvent_GetParamStringValue(record, nullptr, value4pp);
+    ret = OH_HiSysEvent_GetParamStringValue(&record, nullptr, value4pp);
     ASSERT_TRUE(ret == ERR_NULL);
     size_t dataLen;
     int64_t value5[10];
     int64_t* value5p = value5;
     int64_t** value5pp = &value5p;
-    ret = OH_HiSysEvent_GetParamInt64Values(record, "KEY", value5pp, dataLen);
+    ret = OH_HiSysEvent_GetParamInt64Values(&record, "KEY", value5pp, &dataLen);
     ASSERT_TRUE(ret == ERR_NULL);
-    ret = OH_HiSysEvent_GetParamInt64Values(record, nullptr, value5pp, dataLen);
+    ret = OH_HiSysEvent_GetParamInt64Values(&record, nullptr, value5pp, &dataLen);
     ASSERT_TRUE(ret == ERR_NULL);
     uint64_t value6[10];
     uint64_t* value6p = value6;
     uint64_t** value6pp = &value6p;
-    ret = OH_HiSysEvent_GetParamUint64Values(record, "KEY", value6pp, dataLen);
+    ret = OH_HiSysEvent_GetParamUint64Values(&record, "KEY", value6pp, &dataLen);
     ASSERT_TRUE(ret == ERR_NULL);
-    ret = OH_HiSysEvent_GetParamUint64Values(record, nullptr, value6pp, dataLen);
+    ret = OH_HiSysEvent_GetParamUint64Values(&record, nullptr, value6pp, &dataLen);
     ASSERT_TRUE(ret == ERR_NULL);
     double value7[10];
     double* value7p = value7;
     double** value7pp = &value7p;
-    ret = OH_HiSysEvent_GetParamDoubleValues(record, "KEY", value7pp, dataLen);
+    ret = OH_HiSysEvent_GetParamDoubleValues(&record, "KEY", value7pp, &dataLen);
     ASSERT_TRUE(ret == ERR_NULL);
-    ret = OH_HiSysEvent_GetParamDoubleValues(record, nullptr, value7pp, dataLen);
+    ret = OH_HiSysEvent_GetParamDoubleValues(&record, nullptr, value7pp, &dataLen);
     ASSERT_TRUE(ret == ERR_NULL);
     char v3[10][100] {};
     char* dest3p = v3[0];
     char** dest3pp = &dest3p;
     char*** dest3ppp = &dest3pp;
-    ret = OH_HiSysEvent_GetParamStringValues(record, "KEY", dest3ppp, dataLen);
+    ret = OH_HiSysEvent_GetParamStringValues(&record, "KEY", dest3ppp, &dataLen);
     ASSERT_TRUE(ret == ERR_NULL);
-    ret = OH_HiSysEvent_GetParamStringValues(record, nullptr, dest3ppp, dataLen);
+    ret = OH_HiSysEvent_GetParamStringValues(&record, nullptr, dest3ppp, &dataLen);
     ASSERT_TRUE(ret == ERR_NULL);
 }
 

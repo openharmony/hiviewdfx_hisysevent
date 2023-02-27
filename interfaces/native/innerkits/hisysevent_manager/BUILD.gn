@@ -28,11 +28,13 @@ config("hisyseventmanager_config") {
 ohos_shared_library("libhisyseventmanager") {
   sources = [
     "hisysevent_base_manager.cpp",
+    "hisysevent_listener_c.cpp",
     "hisysevent_manager.cpp",
     "hisysevent_manager_c.cpp",
     "hisysevent_query_callback_c.cpp",
     "hisysevent_record.cpp",
     "hisysevent_record_c.cpp",
+    "hisysevent_record_convertor.cpp",
   ]
 
   output_name = "libhisyseventmanager"
