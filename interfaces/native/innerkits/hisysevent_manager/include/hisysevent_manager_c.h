@@ -22,6 +22,7 @@ extern "C" {
 #endif
 
 #define MAX_NUMBER_OF_EVENT_LIST 10
+#define MAX_NUMBER_OF_WATCH_EVENT_LIST 20
 
 /**
  * @brief Define the argument of the query.
@@ -48,7 +49,7 @@ typedef struct HiSysEventQueryRule HiSysEventQueryRule;
  * @brief Define the callback of the query.
  */
 struct HiSysEventQueryCallback {
-    void (*OnQuery)(HiSysEventRecord records[], size_t size);
+    void (*OnQuery)(HiSysEventRecordC records[], size_t size);
     void (*OnComplete)(int32_t reason, int32_t total);
 };
 typedef struct HiSysEventQueryCallback HiSysEventQueryCallback;
@@ -61,8 +62,42 @@ typedef struct HiSysEventQueryCallback HiSysEventQueryCallback;
  * @param callback callback of query.
  * @return 0 means success, others means failure.
  */
-int OH_HiSysEvent_Query(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], size_t ruleSize,
-    HiSysEventQueryCallback& callback);
+int OH_HiSysEvent_Query(const HiSysEventQueryArg* arg, HiSysEventQueryRule rules[], size_t ruleSize,
+    HiSysEventQueryCallback* callback);
+
+/**
+ * @brief Define the rule of the watcher.
+ */
+struct HiSysEventWatchRule {
+    char domain[MAX_LENGTH_OF_EVENT_DOMAIN];
+    char name[MAX_LENGTH_OF_EVENT_NAME];
+    char tag[MAX_LENGTH_OF_EVENT_TAG];
+    int ruleType;
+    int eventType;
+};
+typedef struct HiSysEventWatchRule HiSysEventWatchRule;
+
+struct HiSysEventWatcher {
+    void (*OnEvent) (HiSysEventRecordC record);
+    void (*OnServiceDied) ();
+};
+typedef struct HiSysEventWatcher HiSysEventWatcher;
+
+/**
+ * @brief Add a watcher on event writing.
+ * @param rules    rules for watcher.
+ * @param ruleSize size of watch rules.
+ * @param watcher  event watcher.
+ * @return 0 means success, others means failure.
+ */
+int OH_HiSysEvent_Add_Watcher(HiSysEventWatcher* watcher, HiSysEventWatchRule rules[], size_t ruleSize);
+
+/**
+ * @brief Remove a watcher.
+ * @param watcher event watcher.
+ * @return 0 means success, others means failure.
+ */
+int OH_HiSysEvent_Remove_Watcher(HiSysEventWatcher* watcher);
 
 #ifdef __cplusplus
 }

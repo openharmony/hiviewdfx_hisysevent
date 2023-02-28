@@ -23,7 +23,7 @@ using HiSysEventRecordCls = OHOS::HiviewDFX::HiSysEventRecord;
 constexpr int ERR_NULL = -1;
 
 template <typename T>
-int GetParamValue(const HiSysEventRecord& record, const char* name, T& value)
+int GetParamValue(const HiSysEventRecordC& record, const char* name, T& value)
 {
     if (record.jsonStr == nullptr || name == nullptr) {
         return ERR_NULL;
@@ -32,7 +32,7 @@ int GetParamValue(const HiSysEventRecord& record, const char* name, T& value)
     return recordObj.GetParamValue(name, value);
 }
 
-int GetParamValue(const HiSysEventRecord& record, const char* name, char** value)
+int GetParamValue(const HiSysEventRecordC& record, const char* name, char** value)
 {
     if (record.jsonStr == nullptr || name == nullptr) {
         return ERR_NULL;
@@ -46,7 +46,7 @@ int GetParamValue(const HiSysEventRecord& record, const char* name, char** value
 }
 
 template <typename T>
-int GetParamValues(const HiSysEventRecord& record, const char* name, T** value, size_t& len)
+int GetParamValues(const HiSysEventRecordC& record, const char* name, T** value, size_t& len)
 {
     if (record.jsonStr == nullptr || name == nullptr) {
         return ERR_NULL;
@@ -68,7 +68,7 @@ int GetParamValues(const HiSysEventRecord& record, const char* name, T** value, 
     return 0;
 }
 
-int GetParamValues(const HiSysEventRecord& record, const char* name, char*** value, size_t& len)
+int GetParamValues(const HiSysEventRecordC& record, const char* name, char*** value, size_t& len)
 {
     if (record.jsonStr == nullptr || name == nullptr) {
         return ERR_NULL;
@@ -84,7 +84,7 @@ int GetParamValues(const HiSysEventRecord& record, const char* name, char*** val
     return OHOS::HiviewDFX::StringUtil::ConvertCStringVec(dataVec, value, len);
 }
 
-int GetParamNames(const HiSysEventRecord& record, char*** names, size_t& len)
+int GetParamNames(const HiSysEventRecordC& record, char*** names, size_t& len)
 {
     if (record.jsonStr == nullptr) {
         return ERR_NULL;
@@ -98,42 +98,42 @@ int GetParamNames(const HiSysEventRecord& record, char*** names, size_t& len)
     return OHOS::HiviewDFX::StringUtil::ConvertCStringVec(dataVec, names, len);
 }
 
-int GetParamInt64Value(const HiSysEventRecord& record, const char* name, int64_t& value)
+int GetParamInt64Value(const HiSysEventRecordC& record, const char* name, int64_t& value)
 {
     return GetParamValue<int64_t>(record, name, value);
 }
 
-int GetParamUint64Value(const HiSysEventRecord& record, const char* name, uint64_t& value)
+int GetParamUint64Value(const HiSysEventRecordC& record, const char* name, uint64_t& value)
 {
     return GetParamValue<uint64_t>(record, name, value);
 }
 
-int GetParamDoubleValue(const HiSysEventRecord& record, const char* name, double& value)
+int GetParamDoubleValue(const HiSysEventRecordC& record, const char* name, double& value)
 {
     return GetParamValue<double>(record, name, value);
 }
 
-int GetParamStringValue(const HiSysEventRecord& record, const char* name, char** value)
+int GetParamStringValue(const HiSysEventRecordC& record, const char* name, char** value)
 {
     return GetParamValue(record, name, value);
 }
 
-int GetParamInt64Values(const HiSysEventRecord& record, const char* name, int64_t** value, size_t& len)
+int GetParamInt64Values(const HiSysEventRecordC& record, const char* name, int64_t** value, size_t& len)
 {
     return GetParamValues<int64_t>(record, name, value, len);
 }
 
-int GetParamUint64Values(const HiSysEventRecord& record, const char* name, uint64_t** value, size_t& len)
+int GetParamUint64Values(const HiSysEventRecordC& record, const char* name, uint64_t** value, size_t& len)
 {
     return GetParamValues<uint64_t>(record, name, value, len);
 }
 
-int GetParamDoubleValues(const HiSysEventRecord& record, const char* name, double** value, size_t& len)
+int GetParamDoubleValues(const HiSysEventRecordC& record, const char* name, double** value, size_t& len)
 {
     return GetParamValues<double>(record, name, value, len);
 }
 
-int GetParamStringValues(const HiSysEventRecord& record, const char* name, char*** value, size_t& len)
+int GetParamStringValues(const HiSysEventRecordC& record, const char* name, char*** value, size_t& len)
 {
     return GetParamValues(record, name, value, len);
 }
@@ -143,49 +143,49 @@ int GetParamStringValues(const HiSysEventRecord& record, const char* name, char*
 extern "C" {
 #endif
 
-void OH_HiSysEvent_GetParamNames(const HiSysEventRecord& record, char*** names, size_t& len)
+void OH_HiSysEvent_GetParamNames(const HiSysEventRecordC* record, char*** names, size_t* len)
 {
-    GetParamNames(record, names, len);
+    GetParamNames(*record, names, *len);
 }
 
-int OH_HiSysEvent_GetParamInt64Value(const HiSysEventRecord& record, const char* name, int64_t& value)
+int OH_HiSysEvent_GetParamInt64Value(const HiSysEventRecordC* record, const char* name, int64_t* value)
 {
-    return GetParamInt64Value(record, name, value);
+    return GetParamInt64Value(*record, name, *value);
 }
 
-int OH_HiSysEvent_GetParamUint64Value(const HiSysEventRecord& record, const char* name, uint64_t& value)
+int OH_HiSysEvent_GetParamUint64Value(const HiSysEventRecordC* record, const char* name, uint64_t* value)
 {
-    return GetParamUint64Value(record, name, value);
+    return GetParamUint64Value(*record, name, *value);
 }
 
-int OH_HiSysEvent_GetParamDoubleValue(const HiSysEventRecord& record, const char* name, double& value)
+int OH_HiSysEvent_GetParamDoubleValue(const HiSysEventRecordC* record, const char* name, double* value)
 {
-    return GetParamDoubleValue(record, name, value);
+    return GetParamDoubleValue(*record, name, *value);
 }
 
-int OH_HiSysEvent_GetParamStringValue(const HiSysEventRecord& record, const char* name, char** value)
+int OH_HiSysEvent_GetParamStringValue(const HiSysEventRecordC* record, const char* name, char** value)
 {
-    return GetParamStringValue(record, name, value);
+    return GetParamStringValue(*record, name, value);
 }
 
-int OH_HiSysEvent_GetParamInt64Values(const HiSysEventRecord& record, const char* name, int64_t** value, size_t& len)
+int OH_HiSysEvent_GetParamInt64Values(const HiSysEventRecordC* record, const char* name, int64_t** value, size_t* len)
 {
-    return GetParamInt64Values(record, name, value, len);
+    return GetParamInt64Values(*record, name, value, *len);
 }
 
-int OH_HiSysEvent_GetParamUint64Values(const HiSysEventRecord& record, const char* name, uint64_t** value, size_t& len)
+int OH_HiSysEvent_GetParamUint64Values(const HiSysEventRecordC* record, const char* name, uint64_t** value, size_t* len)
 {
-    return GetParamUint64Values(record, name, value, len);
+    return GetParamUint64Values(*record, name, value, *len);
 }
 
-int OH_HiSysEvent_GetParamDoubleValues(const HiSysEventRecord& record, const char* name, double** value, size_t& len)
+int OH_HiSysEvent_GetParamDoubleValues(const HiSysEventRecordC* record, const char* name, double** value, size_t* len)
 {
-    return GetParamDoubleValues(record, name, value, len);
+    return GetParamDoubleValues(*record, name, value, *len);
 }
 
-int OH_HiSysEvent_GetParamStringValues(const HiSysEventRecord& record, const char* name, char*** value, size_t& len)
+int OH_HiSysEvent_GetParamStringValues(const HiSysEventRecordC* record, const char* name, char*** value, size_t* len)
 {
-    return GetParamStringValues(record, name, value, len);
+    return GetParamStringValues(*record, name, value, *len);
 }
 #ifdef __cplusplus
 }

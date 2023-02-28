@@ -28,6 +28,9 @@ group("unittest") {
       "//base/hiviewdfx/hisysevent/frameworks/native:unittest",
     ]
   }
+  if (product_name == "rk3568" && target_cpu == "arm64") {
+    deps += [ "unittest/rust:rust_hisysevent_test" ]
+  }
 }
 
 group("fuzztest") {

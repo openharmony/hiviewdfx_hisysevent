@@ -16,10 +16,14 @@
 #include "hisysevent_manager_c.h"
 
 #include <string>
+#include <map>
 
 #include "hisysevent_base_manager.h"
+#include "hisysevent_listener_c.h"
 #include "hisysevent_query_callback_c.h"
 #include "ret_code.h"
+
+#include <cinttypes>
 
 namespace {
 using OHOS::HiviewDFX::HiSysEventBaseManager;
@@ -28,6 +32,13 @@ using QueryArgCls = OHOS::HiviewDFX::QueryArg;
 using QueryRuleCls = OHOS::HiviewDFX::QueryRule;
 using OHOS::HiviewDFX::RuleType::WHOLE_WORD;
 using OHOS::HiviewDFX::ERR_QUERY_RULE_INVALID;
+using ListenerRuleCls = OHOS::HiviewDFX::ListenerRule;
+using OHOS::HiviewDFX::HiSysEventBaseListener;
+using OHOS::HiviewDFX::IPC_CALL_SUCCEED;
+using OHOS::HiviewDFX::ERR_LISTENER_NOT_EXIST;
+using OHOS::HiviewDFX::RuleType;
+
+static std::map<std::pair<OnEventFunc, OnServiceDiedFunc>, std::shared_ptr<HiSysEventBaseListener>> watchers;
 
 int HiSysEventQuery(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], size_t ruleSize,
     HiSysEventQueryCallback& callback)
@@ -48,16 +59,57 @@ int HiSysEventQuery(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], 
     auto callbackC = std::make_shared<HiSysEventQueryCallbackC>(callback.OnQuery, callback.OnComplete);
     return HiSysEventBaseManager::Query(argCls, queryRules, std::make_shared<HiSysEventBaseQueryCallback>(callbackC));
 }
+
+int HiSysEventAddWatcher(HiSysEventWatcher& watcher, HiSysEventWatchRule rules[], size_t ruleSize)
+{
+    std::vector<ListenerRuleCls> listenerRules;
+    for (size_t i = 0; i < ruleSize; ++i) {
+        listenerRules.emplace_back(rules[i].domain, rules[i].name, rules[i].tag, RuleType(rules[i].ruleType),
+            static_cast<uint32_t>(rules[i].eventType));
+    }
+    auto listenerC = std::make_shared<HiSysEventBaseListener>(
+        std::make_shared<HiSysEventListenerC>(watcher.OnEvent, watcher.OnServiceDied));
+    auto ret = HiSysEventBaseManager::AddListener(listenerC, listenerRules);
+    if (ret != IPC_CALL_SUCCEED) {
+        return ret;
+    }
+    watchers[std::make_pair(watcher.OnEvent, watcher.OnServiceDied)] = listenerC;
+    return ret;
+}
+
+int HiSysEventRemoveWatcher(HiSysEventWatcher& watcher)
+{
+    auto watcherKey = std::make_pair(watcher.OnEvent, watcher.OnServiceDied);
+    auto watcherIter = watchers.find(watcherKey);
+    if (watcherIter == watchers.end()) {
+        return ERR_LISTENER_NOT_EXIST;
+    }
+    auto ret = HiSysEventBaseManager::RemoveListener(watcherIter->second);
+    if (ret == IPC_CALL_SUCCEED) {
+        watchers.erase(watcherIter->first);
+    }
+    return ret;
+}
 }
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int OH_HiSysEvent_Query(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], size_t ruleSize,
-    HiSysEventQueryCallback& callback)
+int OH_HiSysEvent_Query(const HiSysEventQueryArg* arg, HiSysEventQueryRule rules[], size_t ruleSize,
+    HiSysEventQueryCallback* callback)
 {
-    return HiSysEventQuery(arg, rules, ruleSize, callback);
+    return HiSysEventQuery(*arg, rules, ruleSize, *callback);
+}
+
+int OH_HiSysEvent_Add_Watcher(HiSysEventWatcher* watcher, HiSysEventWatchRule rules[], size_t ruleSize)
+{
+    return HiSysEventAddWatcher(*watcher, rules, ruleSize);
+}
+
+int OH_HiSysEvent_Remove_Watcher(HiSysEventWatcher* watcher)
+{
+    return HiSysEventRemoveWatcher(*watcher);
 }
 
 #ifdef __cplusplus
