@@ -16,6 +16,7 @@
 #include "hisysevent_record_convertor.h"
 
 #include "hilog/log.h"
+#include "hisysevent_record_c.h"
 #include "string_util.h"
 
 namespace OHOS {
@@ -27,20 +28,20 @@ using OHOS::HiviewDFX::HiLog;
 
 int HiSysEventRecordConvertor::ConvertDomain(const HiSysEventRecordCls& recordObj, HiSysEventRecordC& recordStruct)
 {
-    constexpr size_t maxLen = 16;
-    return OHOS::HiviewDFX::StringUtil::CopyCString(recordStruct.domain, recordObj.GetDomain(), maxLen);
+    return OHOS::HiviewDFX::StringUtil::CopyCString(recordStruct.domain, recordObj.GetDomain(),
+        MAX_LENGTH_OF_EVENT_DOMAIN - 1);
 }
 
 int HiSysEventRecordConvertor::ConvertEventName(const HiSysEventRecordCls& recordObj, HiSysEventRecordC& recordStruct)
 {
-    constexpr size_t maxLen = 32;
-    return OHOS::HiviewDFX::StringUtil::CopyCString(recordStruct.eventName, recordObj.GetEventName(), maxLen);
+    return OHOS::HiviewDFX::StringUtil::CopyCString(recordStruct.eventName, recordObj.GetEventName(),
+        MAX_LENGTH_OF_EVENT_NAME - 1);
 }
 
 int HiSysEventRecordConvertor::ConvertTimeZone(const HiSysEventRecordCls& recordObj, HiSysEventRecordC& recordStruct)
 {
-    constexpr size_t maxLen = 5;
-    return OHOS::HiviewDFX::StringUtil::CopyCString(recordStruct.tz, recordObj.GetTimeZone(), maxLen);
+    return OHOS::HiviewDFX::StringUtil::CopyCString(recordStruct.tz, recordObj.GetTimeZone(),
+        MAX_LENGTH_OF_TIME_ZONE - 1);
 }
 
 int HiSysEventRecordConvertor::ConvertLevel(const HiSysEventRecordCls& recordObj, HiSysEventRecordC& recordStruct)
@@ -87,17 +88,16 @@ void HiSysEventRecordConvertor::DeleteRecords(HiSysEventRecordC** records, size_
 int HiSysEventRecordConvertor::ConvertRecord(const HiSysEventRecordCls& recordObj, HiSysEventRecordC& recordStruct)
 {
     if (int res = ConvertDomain(recordObj, recordStruct); res != 0) {
-        HiLog::Error(LABEL, "failed to covert domain=%{public}s",  recordObj.GetDomain().c_str());
         return res;
     }
     if (int res = ConvertEventName(recordObj, recordStruct); res != 0) {
-        HiLog::Error(LABEL, "failed to covert name=%{public}s",  recordObj.GetEventName().c_str());
+        HiLog::Error(LABEL, "Failed to covert name=%{public}s",  recordObj.GetEventName().c_str());
         return res;
     }
     recordStruct.type = HiSysEventEventType(recordObj.GetEventType());
     recordStruct.time = recordObj.GetTime();
     if (int res = ConvertTimeZone(recordObj, recordStruct); res != 0) {
-        HiLog::Error(LABEL, "failed to covert tz=%{public}s",  recordObj.GetTimeZone().c_str());
+        HiLog::Error(LABEL, "Failed to covert tz=%{public}s",  recordObj.GetTimeZone().c_str());
         return res;
     }
     recordStruct.pid = recordObj.GetPid();
@@ -108,15 +108,15 @@ int HiSysEventRecordConvertor::ConvertRecord(const HiSysEventRecordCls& recordOb
     recordStruct.pspanId = recordObj.GetPspanId();
     recordStruct.traceFlag = recordObj.GetTraceFlag();
     if (int res = ConvertLevel(recordObj, recordStruct); res != 0) {
-        HiLog::Error(LABEL, "failed to covert level=%{public}s",  recordObj.GetLevel().c_str());
+        HiLog::Error(LABEL, "Failed to covert level=%{public}s",  recordObj.GetLevel().c_str());
         return res;
     }
     if (int res = ConvertTag(recordObj, recordStruct); res != 0) {
-        HiLog::Error(LABEL, "failed to covert tag=%{public}s",  recordObj.GetTag().c_str());
+        HiLog::Error(LABEL, "Failed to covert tag=%{public}s",  recordObj.GetTag().c_str());
         return res;
     }
     if (int res = ConvertJsonStr(recordObj, recordStruct); res != 0) {
-        HiLog::Error(LABEL, "failed to covert jsonStr=%{public}s",  recordObj.AsJson().c_str());
+        HiLog::Error(LABEL, "Failed to covert jsonStr=%{public}s",  recordObj.AsJson().c_str());
         return res;
     }
     return 0;

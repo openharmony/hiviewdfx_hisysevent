@@ -22,69 +22,46 @@ mod utils;
 #[macro_use]
 pub mod macros;
 
-use sys_event_manager::{OnEvent, OnServiceDied, OnQuery, OnComplete};
-
-pub use sys_event_manager::{HiSysEventRecord, get_hisysevent_record_by_index};
+pub use sys_event_manager::{HiSysEventRecord, Querier, Watcher};
 
 pub use sys_event::{HiSysEventParam, HiSysEventParamType, HiSysEventParamValue, parse_type_len,
     build_string_arrays};
 
 /// Enumerate system event types.
+#[non_exhaustive]
 #[derive(Copy, Clone)]
 pub enum EventType {
     /// Fault event.
     Fault = 1,
 
     /// Statistic event.
-    Statistic,
+    Statistic = 2,
 
     /// Security event.
-    Security,
+    Security = 3,
 
     /// System behavior event.
-    Behavior,
-}
-
-/// Implementation for translating EventType into i32.
-impl From<EventType> for i32 {
-    fn from(src: EventType) -> i32 {
-        match src {
-            EventType::Fault => 1,
-            EventType::Statistic => 2,
-            EventType::Security => 3,
-            EventType::Behavior => 4,
-        }
-    }
+    Behavior = 4,
 }
 
 /// Write system event.
-pub fn write<const N: usize>(event_domain: &str, event_name: &str, event_type: EventType,
-    event_params: &[HiSysEventParam; N]) -> i32 {
+pub fn write(event_domain: &str, event_name: &str, event_type: EventType,
+    event_params: &[HiSysEventParam]) -> i32 {
     sys_event::write(event_domain, event_name, event_type as std::ffi::c_int, event_params)
 }
 
 /// Enumerate search system event rule type.
+#[non_exhaustive]
 #[derive(Copy, Clone)]
 pub enum RuleType {
     /// Whole word match.
     WholeWord = 1,
 
     /// Prefix match.
-    Prefix,
+    Prefix = 2,
 
     /// Regular match.
-    Regular,
-}
-
-/// Implementation for translating RuleType into i32.
-impl From<RuleType> for i32 {
-    fn from(src: RuleType) -> i32 {
-        match src {
-            RuleType::WholeWord => 1,
-            RuleType::Prefix => 2,
-            RuleType::Regular => 3,
-        }
-    }
+    Regular = 3,
 }
 
 /// Definition arguments for query system event information.
@@ -112,22 +89,8 @@ pub struct QueryRule<'a> {
     pub condition: &'a str,
 }
 
-/// This type represent to HiSysEventQueryCallbackWrapper defined in C.
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct HiSysEventQueryCallback {
-    /// Handle query result, the query result will be send in several times.
-    pub on_query: OnQuery,
-
-    /// Notify querier execute query has finished.
-    pub on_complete: OnComplete,
-}
-
-/// Alias for HiSysEventQueryCallback.
-pub type Querier = HiSysEventQueryCallback;
-
 /// Query system event.
-pub fn query<const N: usize>(query_arg: &QueryArg, query_rules: &[QueryRule; N], querier: &Querier) -> i32 {
+pub fn query(query_arg: &QueryArg, query_rules: &[QueryRule], querier: &Querier) -> i32 {
     sys_event_manager::query(query_arg, query_rules, querier)
 }
 
@@ -150,23 +113,8 @@ pub struct WatchRule<'a> {
     pub event_type: EventType,
 }
 
-/// Definition watcher for system event information.
-/// This type represent to HiSysEventWatcherWrapper defined in C.
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct HiSysEventWatcher {
-    /// Receive system event.
-    pub on_event: OnEvent,
-
-    /// Hisysevent service shutdown.
-    pub on_service_died: OnServiceDied,
-}
-
-/// Alias for HiSysEventWatcher.
-pub type Watcher = HiSysEventWatcher;
-
 /// Add watcher to watch system event.
-pub fn add_watcher<const N: usize>(watcher: &Watcher, watch_rules: &[WatchRule; N]) -> i32 {
+pub fn add_watcher(watcher: &Watcher, watch_rules: &[WatchRule]) -> i32 {
     sys_event_manager::add_watcher(watcher, watch_rules)
 }
 
@@ -174,4 +122,3 @@ pub fn add_watcher<const N: usize>(watcher: &Watcher, watch_rules: &[WatchRule; 
 pub fn remove_watcher(watcher: &Watcher) -> i32 {
     sys_event_manager::remove_watcher(watcher)
 }
-

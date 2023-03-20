@@ -26,6 +26,10 @@ extern "C" {
 
 #define MAX_NUMBER_OF_EVENT_LIST_WRAPPER 594
 
+#define STATUS_MEM_FREED 0
+#define STATUS_MEM_NEED_RECYCLE 1
+#define STATUS_NORMAL 2
+
 // rust ffi border redefinition adapts for struct HiSysEventParam.
 struct HiSysEventParamWrapper {
     char paramName[MAX_LENGTH_OF_PARAM_NAME];
@@ -43,22 +47,62 @@ struct HiSysEventQueryRuleWrapper {
 };
 typedef struct HiSysEventQueryRuleWrapper HiSysEventQueryRuleWrapper;
 
+typedef const void* OnRustCb;
+typedef void (*OnEventWrapperCb) (OnRustCb, HiSysEventRecordC);
+typedef void (*OnServiceDiedWrapperCb) (OnRustCb);
+typedef void (*OnQueryWrapperCb)(OnRustCb, HiSysEventRecordC[], size_t);
+typedef void (*OnCompleteWrapperCb)(OnRustCb, int32_t, int32_t);
+
+struct HiSysEventRustWatcherC {
+    OnRustCb onEventRustCb;
+    OnEventWrapperCb onEventWrapperCb;
+    OnRustCb onServiceDiedRustCb;
+    OnServiceDiedWrapperCb onServiceDiedWrapperCb;
+    int status;
+};
+typedef struct HiSysEventRustWatcherC HiSysEventRustWatcherC;
+
+struct HiSysEventRustQuerierC {
+    OnRustCb onQueryRustCb;
+    OnQueryWrapperCb onQueryWrapperCb;
+    OnRustCb onCompleteRustCb;
+    OnCompleteWrapperCb onCompleteWrapperCb;
+    int status;
+};
+typedef struct HiSysEventRustQuerierC HiSysEventRustQuerierC;
+
 // rust ffi border redefinition adapts for function HiSysEvent_Write.
 int HiSysEventWriteWrapper(const char* func, uint64_t line, const char* domain, const char* name,
     int type, const HiSysEventParamWrapper params[], const size_t size);
 
 // rust ffi border redefinition adapts for function OH_HiSysEvent_Add_Watcher.
-int HiSysEventAddWatcherWrapper(HiSysEventWatcher* watcher, HiSysEventWatchRule rules[], const size_t ruleSize);
+int HiSysEventAddWatcherWrapper(HiSysEventRustWatcherC* watcher, const HiSysEventWatchRule rules[],
+    const size_t ruleSize);
 
 // rust ffi border redefinition adapts for function OH_HiSysEvent_Remove_Watcher.
-int HiSysEventRemoveWatcherWrapper(HiSysEventWatcher* watcher);
+int HiSysEventRemoveWatcherWrapper(HiSysEventRustWatcherC* watcher);
 
 // rust ffi border redefinition adapts for function OH_HiSysEvent_Query.
-int HiSysEventQueryWrapper(const HiSysEventQueryArg* arg, HiSysEventQueryRuleWrapper rules[], const size_t ruleSize,
-    HiSysEventQueryCallback* callback);
+int HiSysEventQueryWrapper(HiSysEventQueryArg* arg, const HiSysEventQueryRuleWrapper rules[],
+    const size_t ruleSize, HiSysEventRustQuerierC* querier);
 
 // rust ffi border function
-HiSysEventRecordC GetHiSysEventRecordByIndexWrapper(HiSysEventRecordC records[], int total, int index);
+HiSysEventRecordC GetHiSysEventRecordByIndexWrapper(const HiSysEventRecordC records[], const uint32_t total,
+    const uint32_t index);
+
+// rust ffi border function
+HiSysEventRustWatcherC* CreateRustEventWatcher(OnRustCb onEventRustCb, OnEventWrapperCb onEventWrapperCb,
+    OnRustCb onServiceDiedRustCb, OnServiceDiedWrapperCb onServiceDiedWrapperCb);
+
+// rust ffi border function
+void RecycleRustEventWatcher(HiSysEventRustWatcherC* watcher);
+
+// rust ffi border function
+HiSysEventRustQuerierC* CreateRustEventQuerier(OnRustCb onQueryRustCb, OnQueryWrapperCb onQueryWrapperCb,
+    OnRustCb onCompleteRustCb, OnCompleteWrapperCb onCompleteWrapperCb);
+
+// rust ffi border function
+void RecycleRustEventQuerier(HiSysEventRustQuerierC* querier);
 
 #ifdef __cplusplus
 }

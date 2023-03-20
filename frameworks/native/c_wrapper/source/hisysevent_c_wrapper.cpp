@@ -15,6 +15,14 @@
 
 #include "hisysevent_c_wrapper.h"
 
+#include "securec.h"
+#include "hisysevent_record_convertor.h"
+#include "hisysevent_rust_manager.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static inline void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSysEventParam dest[], size_t size)
 {
     for (size_t i = 0; i < size; i++) {
@@ -28,49 +36,62 @@ static inline void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSys
     }
 }
 
-static inline void ConvertStringToArray(char src[], char dest[], int index)
+static void SplitStringToArray(const char src[], size_t srcMaxLen, char dest[][MAX_LENGTH_OF_EVENT_NAME],
+    size_t destSize)
 {
-    int begin = index - 1;
-    int end = index;
-    int pos = 0;
-    int cur = 0;
-    int beginPos = 0;
-    int endPos = 1;
-    while (pos != end && src[cur] != '\0') {
-        if (src[cur] != '|') {
-            cur++;
+    size_t curPos = 0; // curnt position is initialized to 0.
+    size_t destItemIndex = 0; // array item index is initialized to 0.
+    size_t sliceBegin = 0; // slice begin position is initialized to 0.
+    size_t sliceEnd = 1; // slice end position is initialized to1.
+    while (curPos < srcMaxLen && src[curPos] != '\0') {
+        if (src[curPos] != '|') {
+            curPos++;
             continue;
         }
-        pos++;
-        if (pos == begin) {
-            beginPos = cur + 1;
+        sliceEnd = curPos - 1; // slice end position set to be the position of last charactor before charactor '|'.
+        int reSliceOffset = 2; // "1|2" the offset between charactor 1 and 2 is always 2.
+        if (sliceEnd - sliceBegin + 1 > MAX_LENGTH_OF_EVENT_NAME) {
+            sliceBegin = sliceEnd + reSliceOffset; // ignore event name with invalid length.
+            curPos++;
+            continue;
         }
-        if (pos == end) {
-            endPos = cur - 1;
+        if (memcpy_s(dest[destItemIndex], sliceEnd - sliceBegin + 1, src + sliceBegin,
+            sliceEnd - sliceBegin + 1) != EOK) {
+            sliceBegin = sliceEnd + reSliceOffset;
+            curPos++;
+            continue; // item copy failed, continue to copy next one.
         }
-        cur++;
+        sliceBegin = sliceEnd + reSliceOffset;
+        curPos++;
+        destItemIndex++;
+        if (destItemIndex >= destSize) {
+            break;
+        }
     }
-    if (src[cur] == '\0') {
-        endPos = cur - 1;
+    if (curPos >= srcMaxLen || src[curPos] == '\0') {
+        sliceEnd = curPos - 1; // slice end position set to be the position of last charactor before charactor '|'.
     }
-    for (int i = 0; i < endPos - beginPos + 1; i++) {
-        dest[i] = src[beginPos + i];
+    if (destItemIndex >= destSize ||
+        sliceEnd - sliceBegin + 1 > MAX_LENGTH_OF_EVENT_NAME) {
+        return;
     }
-    dest[endPos - beginPos + 1] = '\0';
+    if (memcpy_s(dest[destItemIndex], sliceEnd - sliceBegin + 1, src + sliceBegin,
+        sliceEnd - sliceBegin + 1) != EOK) {
+        return; // item copy failed, ignore directly.
+    }
+    return;
 }
 
 static inline void ConvertQueryRuleWrapper(const HiSysEventQueryRuleWrapper src[], HiSysEventQueryRule dest[],
-    size_t size)
+    const size_t size)
 {
     for (size_t i = 0; i < size; i++) {
         HiSysEventQueryRuleWrapper wrapper = src[i];
-        for (size_t j = 0; j < MAX_LENGTH_OF_EVENT_DOMAIN && wrapper.domain[j] != '\0'; j++) {
+        for (size_t j = 0; (j < MAX_LENGTH_OF_EVENT_DOMAIN) && (wrapper.domain[j] != '\0'); j++) {
             dest[i].domain[j] = wrapper.domain[j];
         }
-        
-        for (int j = 1; j <= wrapper.eventListSize; j++) {
-            ConvertStringToArray(wrapper.eventList, dest[i].eventList[j - 1], wrapper.eventListSize);
-        }
+        SplitStringToArray(wrapper.eventList, MAX_NUMBER_OF_EVENT_LIST_WRAPPER, dest[i].eventList,
+            wrapper.eventListSize);
         dest[i].eventListSize = wrapper.eventListSize;
         dest[i].condition = wrapper.condition;
     }
@@ -84,28 +105,79 @@ int HiSysEventWriteWrapper(const char* func, uint64_t line, const char* domain, 
     return HiSysEvent_Write(func, line, domain, name, HiSysEventEventType(type), params, size);
 }
 
-int HiSysEventAddWatcherWrapper(HiSysEventWatcher* watcher, HiSysEventWatchRule rules[], const size_t ruleSize)
+int HiSysEventAddWatcherWrapper(HiSysEventRustWatcherC* watcher, const HiSysEventWatchRule rules[],
+    const size_t ruleSize)
 {
-    return OH_HiSysEvent_Add_Watcher(watcher, rules, ruleSize);
+    return OhHiSysEventAddRustWatcher(watcher, rules, ruleSize);
 }
 
-int HiSysEventRemoveWatcherWrapper(HiSysEventWatcher* watcher)
+int HiSysEventRemoveWatcherWrapper(HiSysEventRustWatcherC* watcher)
 {
-    return OH_HiSysEvent_Remove_Watcher(watcher);
+    return OhHiSysEventRemoveRustWatcher(watcher);
 }
 
-int HiSysEventQueryWrapper(const HiSysEventQueryArg* arg, HiSysEventQueryRuleWrapper queryRules[],
-    const size_t ruleSize, HiSysEventQueryCallback* callback)
+int HiSysEventQueryWrapper(HiSysEventQueryArg* arg, const HiSysEventQueryRuleWrapper queryRules[],
+    const size_t ruleSize, HiSysEventRustQuerierC* querier)
 {
     HiSysEventQueryRule rules[ruleSize];
     ConvertQueryRuleWrapper(queryRules, rules, ruleSize);
-    return OH_HiSysEvent_Query(arg, rules, ruleSize, callback);
+    return OhHiSysEventRustQuery(arg, rules, ruleSize, querier);
 }
 
-HiSysEventRecordC GetHiSysEventRecordByIndexWrapper(HiSysEventRecordC records[], int total, int index)
+HiSysEventRecordC GetHiSysEventRecordByIndexWrapper(const HiSysEventRecordC records[], const uint32_t total,
+    const uint32_t index)
 {
     if (index >= total) {
-        index = 0;
+        HiSysEventRecordC record = {};
+        return record;
     }
     return records[index];
 }
+
+HiSysEventRustWatcherC* CreateRustEventWatcher(OnRustCb onEventRustCb,
+    OnEventWrapperCb onEventWrapperCb, OnRustCb onServiceDiedRustCb,
+    OnServiceDiedWrapperCb onServiceDiedWrapperCb)
+{
+    if (onEventRustCb == nullptr || onEventWrapperCb == nullptr ||
+        onServiceDiedRustCb == nullptr || onServiceDiedWrapperCb == nullptr) {
+        return nullptr;
+    }
+    HiSysEventRustWatcherC* watcher = new(std::nothrow) HiSysEventRustWatcherC;
+    watcher->onEventRustCb = onEventRustCb;
+    watcher->onEventWrapperCb = onEventWrapperCb;
+    watcher->onServiceDiedRustCb = onServiceDiedRustCb;
+    watcher->onServiceDiedWrapperCb = onServiceDiedWrapperCb;
+    watcher->status = STATUS_NORMAL;
+    return watcher;
+}
+
+void RecycleRustEventWatcher(HiSysEventRustWatcherC* watcher)
+{
+    OhHiSysEventRecycleRustWatcher(watcher);
+}
+
+HiSysEventRustQuerierC* CreateRustEventQuerier(OnRustCb onQueryRustCb,
+    OnQueryWrapperCb onQueryWrapperCb, OnRustCb onCompleteRustCb,
+    OnCompleteWrapperCb onCompleteWrapperCb)
+{
+    if (onQueryRustCb == nullptr || onQueryWrapperCb == nullptr ||
+        onCompleteRustCb == nullptr || onCompleteWrapperCb == nullptr) {
+        return nullptr;
+    }
+    HiSysEventRustQuerierC* querier = new(std::nothrow) HiSysEventRustQuerierC;
+    querier->onQueryRustCb = onQueryRustCb;
+    querier->onQueryWrapperCb = onQueryWrapperCb;
+    querier->onCompleteRustCb = onCompleteRustCb;
+    querier->onCompleteWrapperCb = onCompleteWrapperCb;
+    querier->status = STATUS_NORMAL;
+    return querier;
+}
+
+void RecycleRustEventQuerier(HiSysEventRustQuerierC* querier)
+{
+    OhHiSysEventRecycleRustQuerier(querier);
+}
+
+#ifdef __cplusplus
+}
+#endif

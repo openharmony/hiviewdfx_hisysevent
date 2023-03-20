@@ -20,10 +20,16 @@ ohos_shared_library("hisysevent_c_wrapper") {
     "../../../interfaces/native/innerkits/hisysevent_manager/include",
   ]
 
-  sources = [ "./source/hisysevent_c_wrapper.cpp" ]
+  sources = [
+    "./source/hisysevent_c_wrapper.cpp",
+    "./source/hisysevent_rust_listener.cpp",
+    "./source/hisysevent_rust_manager.cpp",
+    "./source/hisysevent_rust_querier.cpp",
+  ]
 
   external_deps = [
     "c_utils:utils",
+    "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "hisysevent_native:libhisyseventmanager",
   ]

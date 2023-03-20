@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef HISYSEVENT_INTERFACES_NATIVE_INNERKITS_HISYSEVENT_MANAGER_INCLUDE_HISYSEVENT_MANAGER_C_H
 #define HISYSEVENT_INTERFACES_NATIVE_INNERKITS_HISYSEVENT_MANAGER_INCLUDE_HISYSEVENT_MANAGER_C_H
 
@@ -85,9 +86,9 @@ typedef struct HiSysEventWatcher HiSysEventWatcher;
 
 /**
  * @brief Add a watcher on event writing.
+ * @param watcher  event watcher.
  * @param rules    rules for watcher.
  * @param ruleSize size of watch rules.
- * @param watcher  event watcher.
  * @return 0 means success, others means failure.
  */
 int OH_HiSysEvent_Add_Watcher(HiSysEventWatcher* watcher, HiSysEventWatchRule rules[], size_t ruleSize);

@@ -16,14 +16,14 @@
 use std::ffi::{CString, c_char};
 
 /// Translate a &str to &[c_char; N].
-pub fn trans_slice_to_array<const N: usize>(src: &str, dest: &mut [c_char; N]) {
+pub fn trans_slice_to_array(src: &str, dest: &mut [c_char]) {
     let name = CString::new(src).unwrap();
     let name = name.to_bytes();
     let name_len = name.len();
-    let end = if name_len <= N {
+    let end = if name_len <= dest.len() {
         name_len
     } else {
-        N
+        dest.len()
     };
     dest[..end].copy_from_slice(&name[..end])
 }
@@ -32,13 +32,14 @@ pub fn trans_slice_to_array<const N: usize>(src: &str, dest: &mut [c_char; N]) {
 ///
 /// # Safety
 ///
+/// The memory which this pointer point to is allocated in rust end, risk under control
+///
 #[allow(dead_code)]
-pub fn free_allocated_str(ptr: *mut c_char) -> bool {
+pub fn free_allocated_str(ptr: *mut c_char) {
     if ptr.is_null() {
-        return false;
+        return;
     }
     unsafe {
-        let ret = CString::from_raw(ptr);
-        ret.to_bytes().is_empty()
+        let _ = CString::from_raw(ptr);
     }
 }

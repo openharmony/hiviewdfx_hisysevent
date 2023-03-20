@@ -17,7 +17,6 @@
 
 #include "hilog/log.h"
 #include "hisysevent_record_convertor.h"
-#include "string_util.h"
 
 namespace {
 constexpr OHOS::HiviewDFX::HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_C_QUERY" };
@@ -29,7 +28,7 @@ using OHOS::HiviewDFX::HiSysEventRecordConvertor;
 void HiSysEventQueryCallbackC::OnQuery(std::shared_ptr<std::vector<OHOS::HiviewDFX::HiSysEventRecord>> sysEvents)
 {
     if (onQuery_ == nullptr) {
-        HiLog::Error(LABEL, "the OnQuery function of the callback is null");
+        HiLog::Error(LABEL, "OnQuery callback is null");
         return;
     }
     if (sysEvents == nullptr || sysEvents->empty()) {
@@ -41,7 +40,7 @@ void HiSysEventQueryCallbackC::OnQuery(std::shared_ptr<std::vector<OHOS::HiviewD
     for (size_t i = 0; i < size; i++) {
         HiSysEventRecordConvertor::InitRecord(records[i]);
         if (HiSysEventRecordConvertor::ConvertRecord(sysEvents->at(i), records[i]) != 0) {
-            HiLog::Error(LABEL, "failed to covert record, index=%{public}zu, size=%{public}zu",  i, size);
+            HiLog::Error(LABEL, "Failed to covert record, index=%{public}zu, size=%{public}zu",  i, size);
             HiSysEventRecordConvertor::DeleteRecords(&records, i + 1); // +1 for release the current record
             return;
         }
@@ -53,7 +52,7 @@ void HiSysEventQueryCallbackC::OnQuery(std::shared_ptr<std::vector<OHOS::HiviewD
 void HiSysEventQueryCallbackC::OnComplete(int32_t reason, int32_t total)
 {
     if (onComplete_ == nullptr) {
-        HiLog::Error(LABEL, "the OnComplete function of the callback is null");
+        HiLog::Error(LABEL, "OnComplete callback is null");
         return;
     }
     onComplete_(reason, total);
