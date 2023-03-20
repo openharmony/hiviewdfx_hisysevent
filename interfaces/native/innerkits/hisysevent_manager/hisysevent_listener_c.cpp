@@ -30,11 +30,9 @@ void HiSysEventListenerC::OnEvent(std::shared_ptr<OHOS::HiviewDFX::HiSysEventRec
         HiLog::Error(LABEL, "OnEvent callback or sys event is null.");
         return;
     }
-    auto recordPtr = new(std::nothrow) HiSysEventRecordC;
-    auto record = *recordPtr;
+    HiSysEventRecordC record = {};
     HiSysEventRecordConvertor::ConvertRecord(*sysEvent, record);
     onEvent_(record);
-    HiSysEventRecordConvertor::DeleteRecord(record);
 }
 
 void HiSysEventListenerC::OnServiceDied()

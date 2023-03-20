@@ -15,8 +15,8 @@
 
 use std::ffi::{CString, c_char, c_int, c_uint, c_ulonglong};
 
-/// Length limit for the name of a param.
-pub(crate) const MAX_LENGTH_OF_PARAM_NAME: usize = 33;
+/// Length limit for the name of a HiSysEventParam.
+const MAX_LENGTH_OF_PARAM_NAME: usize = 33;
 
 /// This type represent to HiSysEventParamValue defined in C.
 #[repr(C)]
@@ -159,7 +159,7 @@ pub struct HiSysEventParam<'a> {
 /// This type represent to HiSysEventParamWrapper defined in C.
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub struct HiSysEventParamWrapper {
+struct HiSysEventParamWrapper {
     /// Param name.
     pub param_name: [c_char; MAX_LENGTH_OF_PARAM_NAME],
 
@@ -171,16 +171,6 @@ pub struct HiSysEventParamWrapper {
 
     /// Length of a param with array type.
     pub array_size: c_uint,
-}
-
-/// Translate HiSysEventParam which defined in rust into HiSysEventParamWrapper which defined in C.
-pub(crate) fn convert_param_to_wrapper<const N: usize>(src: &[HiSysEventParam; N], dest: &mut [HiSysEventParamWrapper; N]) {
-    for i in 0..N {
-        crate::utils::trans_slice_to_array(src[i].param_name, &mut dest[i].param_name);
-        dest[i].param_type = src[i].param_type as i32 as c_int;
-        dest[i].param_value = src[i].param_value;
-        dest[i].array_size = src[i].array_size as c_uint;
-    }
 }
 
 /// Parse type and length of a variable.
@@ -224,57 +214,54 @@ pub fn parse_type_len<T>(_: T) -> (&'static str, usize) {
 
 /// Build hisysevent param with string array type.
 #[allow(dead_code)]
-pub fn build_string_arrays<'a, const N: usize>(param_name: &'a str, param_value: [&'a str; N]) -> HiSysEventParam<'a> {
-    let init_wrapper = CString::new("").unwrap();
-    let mut dest = std::boxed::Box::<[*const c_char;N]>::new([
-        init_wrapper.as_ptr() as *const c_char; N
-    ]);
-    for i in 0..N {
-        let str_wrapper = CString::new(param_value[i]).unwrap();
-        dest[i] = str_wrapper.into_raw() as *const c_char;
+pub fn build_string_arrays<'a>(param_name: &'a str, str_arr: &[&'a str]) -> HiSysEventParam<'a> {
+    let mut dest: Vec<*const c_char> = vec![];
+    for &item in str_arr {
+        let str_wrapper = CString::new(item).expect("Need a valid value with &str type.");
+        dest.push(str_wrapper.into_raw() as *const c_char);
     }
     HiSysEventParam {
         param_name,
         param_type: HiSysEventParamType::ParamTypeStringArray,
         param_value: HiSysEventParamValue {
-            void_ptr_: std::boxed::Box::<[*const c_char;N]>::into_raw(dest) as *const c_int as *const (),
+            void_ptr_: std::boxed::Box::<[*const c_char]>::into_raw(dest.into_boxed_slice()) as *const c_int as *const (),
         },
-        array_size: N,
+        array_size: str_arr.len(),
     }
 }
 
 /// Write system event.
-pub fn write<const N: usize>(event_domain: &str, event_name: &str, event_type: c_int, event_params: &[HiSysEventParam; N]) -> i32 {
-    let mut param_wrappers = [
-        HiSysEventParamWrapper {
+pub(crate) fn write(event_domain: &str, event_name: &str, event_type: c_int, event_params: &[HiSysEventParam]) -> i32 {
+    let mut params_wrapper: Vec<HiSysEventParamWrapper> = vec![];
+    for i in 0..event_params.len() {
+        params_wrapper.push(HiSysEventParamWrapper {
             param_name: [0; MAX_LENGTH_OF_PARAM_NAME],
-            param_type: 0,
-            param_value: HiSysEventParamValue {
-                b_: false,
-            },
-            array_size: 0,
-        }; N];
-    convert_param_to_wrapper(event_params, &mut param_wrappers);
+            param_type: event_params[i].param_type as i32 as c_int,
+            param_value: event_params[i].param_value,
+            array_size: event_params[i].array_size as c_uint,
+        });
+        crate::utils::trans_slice_to_array(event_params[i].param_name, &mut params_wrapper[i].param_name);
+    }
+    let func = CString::new(crate::function!()).expect("Need a valid function name");
+    let domain = CString::new(event_domain).expect("Need a valid domain name");
+    let event_name = CString::new(event_name).expect("Need a valid event name");
+    // Safty: call C ffi border function, all risks are under control.
     unsafe {
-        let func = CString::new(crate::function!()).unwrap();
-        let domain = CString::new(event_domain).unwrap();
-        let event_name = CString::new(event_name).unwrap();
-        let params = &param_wrappers as *const [HiSysEventParamWrapper; N];
         HiSysEventWriteWrapper(
             func.as_ptr() as *const c_char,
             line!() as c_ulonglong,
             domain.as_ptr() as *const c_char,
             event_name.as_ptr() as *const c_char,
             event_type,
-            params as *const HiSysEventParamWrapper,
-            N as c_uint
+            params_wrapper.as_mut_ptr(),
+            event_params.len() as c_uint
         )
     }
 }
 
 extern "C" {
     /// ffi border function.
-    pub(crate) fn HiSysEventWriteWrapper(func: *const c_char, line: c_ulonglong, domain: *const c_char,
+    fn HiSysEventWriteWrapper(func: *const c_char, line: c_ulonglong, domain: *const c_char,
         name: *const c_char, event_type: c_int, params: *const HiSysEventParamWrapper,
         size: c_uint) -> c_int;
 }

@@ -23,8 +23,6 @@
 #include "hisysevent_query_callback_c.h"
 #include "ret_code.h"
 
-#include <cinttypes>
-
 namespace {
 using OHOS::HiviewDFX::HiSysEventBaseManager;
 using OHOS::HiviewDFX::HiSysEventBaseQueryCallback;

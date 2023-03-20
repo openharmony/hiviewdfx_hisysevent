@@ -13,34 +13,30 @@
  * limitations under the License.
  */
 
-#ifndef HISYSEVENT_LISTENER_C_H
-#define HISYSEVENT_LISTENER_C_H
+#ifndef HISYSEVENT_RUST_WRAPPER_LISTENER_C_H
+#define HISYSEVENT_RUST_WRAPPER_LISTENER_C_H
 
-#include <string>
+#include <mutex>
 
+#include "hisysevent_c_wrapper.h"
 #include "hisysevent_listener.h"
 #include "hisysevent_record_c.h"
 
-using OnEventFunc = void (*) (HiSysEventRecord);
-using OnServiceDiedFunc = void (*) ();
-
-class HiSysEventListenerC : public OHOS::HiviewDFX::HiSysEventListener {
+class HiSysEventRustListener : public OHOS::HiviewDFX::HiSysEventListener {
 public:
-    HiSysEventListenerC(OnEventFunc onEvent, OnServiceDiedFunc onServiceDied)
-    {
-        onEvent_ = onEvent;
-        onServiceDied_ = onServiceDied;
-    }
-
-    virtual ~HiSysEventListenerC() {}
+    HiSysEventRustListener(HiSysEventRustWatcherC* watcher);
+    ~HiSysEventRustListener();
 
 public:
-    void OnEvent(std::shared_ptr<OHOS::HiviewDFX::HiSysEventRecord> sysEvent) override;
-    void OnServiceDied() override;
+    virtual void OnEvent(std::shared_ptr<OHOS::HiviewDFX::HiSysEventRecord> sysEvent) override;
+    virtual void OnServiceDied() override;
+
+public:
+    void RecycleWatcher(HiSysEventRustWatcherC* watcher);
 
 private:
-    OnEventFunc onEvent_;
-    OnServiceDiedFunc onServiceDied_;
+    HiSysEventRustWatcherC* watcher_;
+    std::mutex listenerMutex_;
 };
 
-#endif // HISYSEVENT_LISTENER_C_H
+#endif // HISYSEVENT_RUST_WRAPPER_LISTENER_C_H

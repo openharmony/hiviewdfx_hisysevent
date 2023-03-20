@@ -15,8 +15,12 @@
 
 extern crate hisysevent;
 
-use std::ffi::{c_int, c_uint};
-use hisysevent::{EventType, HiSysEventRecord, QueryRule, Querier, QueryArg, RuleType, Watcher, WatchRule};
+use hisysevent::{EventType, HiSysEventRecord, RuleType, Watcher, WatchRule};
+use hisysevent::{QueryArg, QueryRule, Querier};
+
+const SUCCEED: i32 = 0;
+const LISTENER_NOT_EXIST: i32 = -10;
+const QUERY_CNT: i32 = 2;
 
 #[test]
 fn test_hisysevent_write_001() {
@@ -28,40 +32,16 @@ fn test_hisysevent_write_001() {
             hisysevent::build_str_param!("STRING_SINGLE", "test_hisysevent_write_001"),
             hisysevent::build_bool_param!("BOOL_SINGLE", true),
             hisysevent::build_number_param!("FLOAT_SINGLE", 4.03f32),
-            hisysevent::build_string_array_params!("STRING_ARRAY", ["STRING1", "STRING2"]),
-            hisysevent::build_array_params!("INT32_ARRAY", [8i32, 9i32]),
-            hisysevent::build_array_params!("BOOL_ARRAY", [true, false, true]),
-            hisysevent::build_array_params!("FLOAT_ARRAY", [1.55f32, 2.33f32, 4.88f32])]
+            hisysevent::build_string_array_params!("STRING_ARRAY", &["STRING1", "STRING2"]),
+            hisysevent::build_array_params!("INT32_ARRAY", &[8i32, 9i32]),
+            hisysevent::build_array_params!("BOOL_ARRAY", &[true, false, true]),
+            hisysevent::build_array_params!("FLOAT_ARRAY", &[1.55f32, 2.33f32, 4.88f32])]
     );
-    assert!(ret == 0);
-}
-
-///
-#[allow(dead_code)]
-unsafe extern "C" fn on_query_callback(_records: *const HiSysEventRecord, _size: c_uint) {
-}
-
-///
-#[allow(dead_code)]
-unsafe extern "C" fn on_complete_callback(_reason: c_int, _total: c_int) {
-}
-
-///
-#[allow(dead_code)]
-unsafe extern "C" fn on_event_callback(_record: HiSysEventRecord) {
-}
-
-///
-#[allow(dead_code)]
-unsafe extern "C" fn on_service_died_callback() {
+    assert!(ret == SUCCEED);
 }
 
 #[test]
 fn test_hisysevent_add_remove_watcher_001() {
-    let watcher = Watcher {
-        on_event: on_event_callback,
-        on_service_died: on_service_died_callback,
-    };
     let watch_rules = [
         WatchRule {
             domain: "HIVIEWDFX",
@@ -78,24 +58,36 @@ fn test_hisysevent_add_remove_watcher_001() {
             event_type: EventType::Behavior,
         }
     ];
+    // step1: construct a mut watcher.
+    let watcher = Watcher::new(|record: HiSysEventRecord| {
+        assert!(record.get_domain() == "HIVIEWDFX");
+    }, || {
+        // do nothing.
+    }).expect("Construct a watcher by Watcher::new");
+    // step2: add this watcher.
     let mut ret = hisysevent::add_watcher(&watcher, &watch_rules);
-    assert!(ret == 0);
+    assert!(ret == SUCCEED);
     ret = hisysevent::write(
         "HIVIEWDFX",
         "PLUGIN_LOAD",
         EventType::Behavior,
         &[hisysevent::build_str_param!("STRING_SINGLE", "test_hisysevent_add_remove_watcher_001")]
     );
-    assert!(ret == 0);
+    assert!(ret == SUCCEED);
     ret = hisysevent::write(
         "HIVIEWDFX",
         "PLUGIN_UNLOAD",
         EventType::Behavior,
         &[hisysevent::build_str_param!("STRING_SINGLE", "test_hisysevent_add_remove_watcher_001")]
     );
-    assert!(ret == 0);
+    assert!(ret == SUCCEED);
+    // step3: remove this watcher.
     ret = hisysevent::remove_watcher(&watcher);
-    assert!(ret == 0);
+    assert!(ret == SUCCEED);
+    // step4: recycle allocated memories of this watcher.
+    watcher.try_to_recycle();
+    ret = hisysevent::add_watcher(&watcher, &watch_rules);
+        assert!(ret == LISTENER_NOT_EXIST);
 }
 
 #[test]
@@ -107,15 +99,15 @@ fn test_hisysevent_query_001() {
         EventType::Behavior,
         &[hisysevent::build_str_param!("STRING_SINGLE", "test_hisysevent_query_001")]
     );
-    assert!(ret == 0);
+    assert!(ret == SUCCEED);
     ret = hisysevent::write(
         "HIVIEWDFX",
         "PLUGIN_UNLOAD",
         EventType::Behavior,
         &[hisysevent::build_str_param!("STRING_SINGLE", "test_hisysevent_query_001")]
     );
-    assert!(ret == 0);
-    // query event
+    assert!(ret == SUCCEED);
+    // query event.
     let query_arg = QueryArg {
         begin_time: -1,
         end_time: -1,
@@ -128,7 +120,8 @@ fn test_hisysevent_query_001() {
                 "PLUGIN_LOAD",
                 "PLUGIN_UNLOAD",
             ],
-            condition: "{\"version\":\"V1\",\"condition\":{\"and\":[{\"param\":\"NAME\",\"op\":\"=\",\"value\":\"SysEventService\"}]}}",
+            condition: "{\"version\":\"V1\",\"condition\":{\"and\":[{\"param\":\"
+                NAME\",\"op\":\"=\",\"value\":\"SysEventService\"}]}}",
         },
         QueryRule {
             domain: "HIVIEWDFX",
@@ -138,10 +131,20 @@ fn test_hisysevent_query_001() {
             condition: "",
         }
     ];
-    let querier = Querier {
-        on_query: on_query_callback,
-        on_complete: on_complete_callback,
-    };
+    // step1: construct a querier.
+    let querier = Querier::new(|records: &[HiSysEventRecord]| {
+        for item in records {
+            assert!(item.get_domain() == "HIVIEWDFX");
+        }
+    }, |reason: i32, total: i32| {
+        assert!(reason == SUCCEED);
+        assert!(total == QUERY_CNT);
+    }).expect("Construct a querier by Querier::new");
+    // step2: query.
     ret = hisysevent::query(&query_arg, &query_rules, &querier);
-    assert!(ret == 0);
+    assert!(ret == SUCCEED);
+    // step3: recycle allocated memories of this Querier.
+    querier.try_to_recycle();
+    ret = hisysevent::query(&query_arg, &query_rules, &querier);
+        assert!(ret == LISTENER_NOT_EXIST);
 }

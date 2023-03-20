@@ -21,9 +21,9 @@
 ///
 /// ```
 /// extern crate hisysevent;
-/// 
+///
 /// let func_name = hisysevent::function!();
-/// 
+///
 /// ```
 ///
 #[macro_export]
@@ -42,94 +42,94 @@ macro_rules! function {
 /// Build HiSysEventParamType with different type.
 #[macro_export]
 macro_rules! build_param_type {
-    ($type_:expr, $len_:expr) => {
-        match $type_ as &str {
+    ($param_type:expr, $param_len:expr) => {
+        match $param_type as &str {
             "bool" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::BoolArray
                 } else {
                     hisysevent::HiSysEventParamType::Bool
                 }
             }
             "i8" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::Int8Array
                 } else {
                     hisysevent::HiSysEventParamType::Int8
                 }
             }
             "u8" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::Uint8Array
                 } else {
                     hisysevent::HiSysEventParamType::Uint8
                 }
             }
             "i16" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::Int16Array
                 } else {
                     hisysevent::HiSysEventParamType::Int16
                 }
             }
             "u16" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::Uint16Array
                 } else {
                     hisysevent::HiSysEventParamType::Uint16
                 }
             }
             "i32" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::Int32Array
                 } else {
                     hisysevent::HiSysEventParamType::Int32
                 }
             }
             "u32" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::Uint32Array
                 } else {
                     hisysevent::HiSysEventParamType::Uint32
                 }
             }
             "i64" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::Int64Array
                 } else {
                     hisysevent::HiSysEventParamType::Int64
                 }
             }
             "u64" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::Uint64Array
                 } else {
                     hisysevent::HiSysEventParamType::Uint64
                 }
             }
             "f32" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::FloatArray
                 } else {
                     hisysevent::HiSysEventParamType::Float
                 }
             }
             "f64" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::DoubleArray
                 } else {
                     hisysevent::HiSysEventParamType::Double
                 }
             }
             "str" => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::ParamTypeStringArray
                 } else {
                     hisysevent::HiSysEventParamType::ParamTypeString
                 }
             }
             _ => {
-                if $len_ > 0 {
+                if $param_len > 0 {
                     hisysevent::HiSysEventParamType::BoolArray
                 } else {
                     hisysevent::HiSysEventParamType::Bool
@@ -142,16 +142,16 @@ macro_rules! build_param_type {
 /// Build array consist of HiSysEventParamValue with different type except string.
 #[macro_export]
 macro_rules! build_array_params {
-    ($param_name_:literal, $param_value_:expr) => {
+    ($param_name_:expr, $param_value_:expr) => {
         {
-            let (type_, len_) = hisysevent::parse_type_len($param_value_);
+            let (param_type, param_len) = hisysevent::parse_type_len($param_value_);
             hisysevent::HiSysEventParam {
                 param_name: $param_name_,
-                param_type: hisysevent::build_param_type!(type_, len_),
+                param_type: $crate::build_param_type!(param_type, param_len),
                 param_value: hisysevent::HiSysEventParamValue {
                     void_ptr_: $param_value_.as_ptr() as *const std::ffi::c_int as *const (),
                 },
-                array_size: len_,
+                array_size: param_len,
             }
         }
     }
@@ -160,7 +160,7 @@ macro_rules! build_array_params {
 /// Build array consist of HiSysEventParamValue with string type.
 #[macro_export]
 macro_rules! build_string_array_params {
-    ($param_name_:literal, $param_value_:expr) => {
+    ($param_name_:expr, $param_value_:expr) => {
         hisysevent::build_string_arrays($param_name_, $param_value_)
     }
 }
@@ -168,8 +168,8 @@ macro_rules! build_string_array_params {
 /// Build HiSysEventParamValue with different type except string and bool.
 #[macro_export]
 macro_rules! build_param_value {
-    ($type_:expr, $val:expr) => {
-        match $type_ as &str {
+    ($param_type:expr, $val:expr) => {
+        match $param_type as &str {
             "i8" => hisysevent::HiSysEventParamValue {
                 i8_: $val as i8,
             },
@@ -210,14 +210,14 @@ macro_rules! build_param_value {
 /// Build HiSysEventParamValue with any number type.
 #[macro_export]
 macro_rules! build_number_param {
-    ($param_name_:literal, $param_value_:expr) => {
+    ($param_name_:expr, $param_value:expr) => {
         {
-            let (type_, len_) = hisysevent::parse_type_len($param_value_);
+            let (param_type, param_len) = hisysevent::parse_type_len($param_value);
             hisysevent::HiSysEventParam {
                 param_name: $param_name_,
-                param_type:  hisysevent::build_param_type!(type_, len_),
-                param_value: hisysevent::build_param_value!(type_, $param_value_),
-                array_size: len_,
+                param_type:  $crate::build_param_type!(param_type, param_len),
+                param_value: $crate::build_param_value!(param_type, $param_value),
+                array_size: param_len,
             }
         }
     }
@@ -226,16 +226,16 @@ macro_rules! build_number_param {
 /// Build HiSysEventParamValue with bool type.
 #[macro_export]
 macro_rules! build_bool_param {
-    ($param_name_:literal, $param_value_:expr) => {
+    ($param_name_:expr, $param_value:expr) => {
         {
-            let (type_, len_) = hisysevent::parse_type_len($param_value_);
+            let (param_type, param_len) = hisysevent::parse_type_len($param_value);
             hisysevent::HiSysEventParam {
                 param_name: $param_name_,
                 param_type:  hisysevent::HiSysEventParamType::Bool,
                 param_value: hisysevent::HiSysEventParamValue {
-                    b_: $param_value_,
+                    b_: $param_value,
                 },
-                array_size: len_,
+                array_size: param_len,
             }
         }
     }
@@ -244,9 +244,9 @@ macro_rules! build_bool_param {
 /// Build HiSysEventParamValue with string type.
 #[macro_export]
 macro_rules! build_str_param {
-    ($param_name_:literal, $param_value_:expr) => {
+    ($param_name_:expr, $param_value_:expr) => {
         {
-            let (type_, len_) = hisysevent::parse_type_len($param_value_);
+            let (param_type, param_len) = hisysevent::parse_type_len($param_value_);
             hisysevent::HiSysEventParam {
                 param_name: $param_name_,
                 param_type: hisysevent::HiSysEventParamType::ParamTypeString,
@@ -256,7 +256,7 @@ macro_rules! build_str_param {
                         char_ptr_: str_wrapper.into_raw() as *const std::ffi::c_char,
                     }
                 },
-                array_size: len_,
+                array_size: param_len,
             }
         }
     }
