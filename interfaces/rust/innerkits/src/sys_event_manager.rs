@@ -33,7 +33,7 @@ const MAX_LENGTH_OF_TIME_ZONE: usize = 6;
 const MAX_NUMBER_OF_EVENT_LIST: usize = 10;
 
 /// Length limit for event list definition.
-const MAX_EVENT_LIST_LEN: usize = 594;
+const MAX_EVENT_LIST_LEN: usize = 339;
 
 /// This type represent to HiSysEventWatchRule defined in C.
 #[repr(C)]

@@ -16,7 +16,7 @@
 use std::ffi::{CString, c_char, c_int, c_uint, c_ulonglong};
 
 /// Length limit for the name of a HiSysEventParam.
-const MAX_LENGTH_OF_PARAM_NAME: usize = 33;
+const MAX_LENGTH_OF_PARAM_NAME: usize = 49;
 
 /// This type represent to HiSysEventParamValue defined in C.
 #[repr(C)]
