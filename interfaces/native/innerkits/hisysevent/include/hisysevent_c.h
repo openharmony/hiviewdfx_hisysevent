@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#define MAX_LENGTH_OF_PARAM_NAME 33
+#define MAX_LENGTH_OF_PARAM_NAME 49
 
 /**
  * @brief Define the type of the param.
