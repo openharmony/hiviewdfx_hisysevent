@@ -49,8 +49,8 @@ C++埋点接口如下：
 </td>
 <td class="cellrowborder" valign="top" width="42.61%" headers="mcps1.2.3.1.2 "><p id="p14727325133216"><a name="p14727325133216"></a><a name="p14727325133216"></a>接口功能：记录系统事件。</p>
 <p id="p167271525203213"><a name="p167271525203213"></a><a name="p167271525203213"></a>输入参数：</p>
-<a name="ul0727102516327"></a><a name="ul0727102516327"></a><ul id="ul0727102516327"><li>domain：事件的相关领域，需要使用预置领域请参考Domain，可自定义领域。自定义领域长度在16个字符以内，有效的字符是0-9、A-Z，以字母开头。</li><li>eventName：事件名，长度在32个字符以内，有效的字符是0-9、a-z、A-Z、_，以字母开头，不能以_结尾。</li><li>type：事件类型，参考EventType。</li><li>keyValues：事件参数键值对，支持基本的数据类型、std::string，以及std::vector&lt;基本类型&gt;、std:vector&lt;std::string&gt;。参数名长度在48个字符以内，有效的字符是0-9、a-z、A-Z、_，以字母开头，不能以_结尾。参数名的个数在32个以内。</li></ul>
-<p id="p1727152513217"><a name="p1727152513217"></a><a name="p1727152513217"></a>返回值：成功返回0，错误返回小于0的值。</p>
+<a name="ul0727102516327"></a><a name="ul0727102516327"></a><ul id="ul0727102516327"><li><strong id="b2019634817576">domain</strong>：事件的相关领域，需要使用预置领域请参考Domain，可自定义领域。自定义领域长度在16个字符以内，有效的字符是0-9、a-z, A-Z、_，以字母开头。</li><li><strong id="b2019634817578">eventName</strong>：事件名，长度在32个字符以内，有效的字符是0-9、a-z, A-Z、_，以字母开头。</li><li><strong id="b2019634817579">type</strong>：事件类型，参考EventType。</li><li><strong id="b2019634817580">keyValues</strong>：事件参数键值对，支持<strong id="b2019634917677">基本类型、std::string，以及std::vector&lt;基本类型&gt;、std:vector&lt;std::string&gt;</strong>。参数名长度在48个字符以内，有效的字符是0-9、a-z, A-Z、_，以字母开头。事件参数键值对的个数不超过128个。</li></ul>
+<p id="p1727152513217"><a name="p1727152513217"></a><a name="p1727152513217"></a>返回值：成功返回<strong id="b2019634817677">0</strong>，错误返回小于0的值。</p>
 </td>
 </tr>
 </tbody>
