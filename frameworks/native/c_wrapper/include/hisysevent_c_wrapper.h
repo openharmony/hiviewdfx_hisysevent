@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#define MAX_NUMBER_OF_EVENT_LIST_WRAPPER 594
+#define MAX_EVENT_LIST_LEN 339
 
 #define STATUS_MEM_FREED 0
 #define STATUS_MEM_NEED_RECYCLE 1
@@ -41,8 +41,8 @@ typedef struct HiSysEventParamWrapper HiSysEventParamWrapper;
 
 struct HiSysEventQueryRuleWrapper {
     char domain[MAX_LENGTH_OF_EVENT_DOMAIN];
-    char eventList[MAX_NUMBER_OF_EVENT_LIST_WRAPPER];
-    int eventListSize;
+    char eventList[MAX_EVENT_LIST_LEN];
+    size_t eventListSize;
     char* condition;
 };
 typedef struct HiSysEventQueryRuleWrapper HiSysEventQueryRuleWrapper;
