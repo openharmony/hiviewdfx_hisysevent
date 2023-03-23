@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-static inline void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSysEventParam dest[], size_t size)
+static inline void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSysEventParam dest[], const size_t size)
 {
     for (size_t i = 0; i < size; i++) {
         HiSysEventParamWrapper wrapper = src[i];
@@ -36,33 +36,38 @@ static inline void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSys
     }
 }
 
-static void SplitStringToArray(const char src[], size_t srcMaxLen, char dest[][MAX_LENGTH_OF_EVENT_NAME],
-    size_t destSize)
+static void SplitStringToArray(const char src[], const size_t srcMaxLen, char dest[][MAX_LENGTH_OF_EVENT_NAME],
+    const size_t destSize)
 {
-    size_t curPos = 0; // curnt position is initialized to 0.
-    size_t destItemIndex = 0; // array item index is initialized to 0.
-    size_t sliceBegin = 0; // slice begin position is initialized to 0.
-    size_t sliceEnd = 1; // slice end position is initialized to1.
+    int curPos = 0; // curnt position is initialized to 0.
+    int destItemIndex = 0; // array item index is initialized to 0.
+    int sliceBegin = 0; // slice begin position is initialized to 0.
+    int sliceEnd = 1; // slice end position is initialized to 1.
+    int cpyLen = 0; // string copy len is initialized to 0.
     while (curPos < srcMaxLen && src[curPos] != '\0') {
         if (src[curPos] != '|') {
-            curPos++;
+            ++curPos;
             continue;
         }
         sliceEnd = curPos - 1; // slice end position set to be the position of last charactor before charactor '|'.
-        int reSliceOffset = 2; // "1|2" the offset between charactor 1 and 2 is always 2.
-        if (sliceEnd - sliceBegin + 1 > MAX_LENGTH_OF_EVENT_NAME) {
-            sliceBegin = sliceEnd + reSliceOffset; // ignore event name with invalid length.
-            curPos++;
+        cpyLen = sliceEnd - sliceBegin + 1;
+        if (cpyLen <= 0) {
+            sliceBegin = curPos + 1;
+            ++curPos;
             continue;
         }
-        if (memcpy_s(dest[destItemIndex], sliceEnd - sliceBegin + 1, src + sliceBegin,
-            sliceEnd - sliceBegin + 1) != EOK) {
-            sliceBegin = sliceEnd + reSliceOffset;
-            curPos++;
+        if (cpyLen > MAX_LENGTH_OF_EVENT_NAME) {
+            sliceBegin = curPos + 1; // ignore event name with invalid length.
+            ++curPos;
+            continue;
+        }
+        if (memcpy_s(dest[destItemIndex], cpyLen, src + sliceBegin, cpyLen) != EOK) {
+            sliceBegin = curPos + 1;
+            ++curPos;
             continue; // item copy failed, continue to copy next one.
         }
-        sliceBegin = sliceEnd + reSliceOffset;
-        curPos++;
+        sliceBegin = curPos + 1;
+        ++curPos;
         destItemIndex++;
         if (destItemIndex >= destSize) {
             break;
@@ -71,15 +76,13 @@ static void SplitStringToArray(const char src[], size_t srcMaxLen, char dest[][M
     if (curPos >= srcMaxLen || src[curPos] == '\0') {
         sliceEnd = curPos - 1; // slice end position set to be the position of last charactor before charactor '|'.
     }
-    if (destItemIndex >= destSize ||
-        sliceEnd - sliceBegin + 1 > MAX_LENGTH_OF_EVENT_NAME) {
+    cpyLen = sliceEnd - sliceBegin + 1;
+    if (cpyLen <= 0 || destItemIndex >= destSize || cpyLen > MAX_LENGTH_OF_EVENT_NAME) {
         return;
     }
-    if (memcpy_s(dest[destItemIndex], sliceEnd - sliceBegin + 1, src + sliceBegin,
-        sliceEnd - sliceBegin + 1) != EOK) {
+    if (memcpy_s(dest[destItemIndex], cpyLen, src + sliceBegin, cpyLen) != EOK) {
         return; // item copy failed, ignore directly.
     }
-    return;
 }
 
 static inline void ConvertQueryRuleWrapper(const HiSysEventQueryRuleWrapper src[], HiSysEventQueryRule dest[],
@@ -90,7 +93,7 @@ static inline void ConvertQueryRuleWrapper(const HiSysEventQueryRuleWrapper src[
         for (size_t j = 0; (j < MAX_LENGTH_OF_EVENT_DOMAIN) && (wrapper.domain[j] != '\0'); j++) {
             dest[i].domain[j] = wrapper.domain[j];
         }
-        SplitStringToArray(wrapper.eventList, MAX_NUMBER_OF_EVENT_LIST_WRAPPER, dest[i].eventList,
+        SplitStringToArray(wrapper.eventList, MAX_EVENT_LIST_LEN, dest[i].eventList,
             wrapper.eventListSize);
         dest[i].eventListSize = wrapper.eventListSize;
         dest[i].condition = wrapper.condition;
