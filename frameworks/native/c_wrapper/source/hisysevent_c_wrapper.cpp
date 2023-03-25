@@ -39,49 +39,39 @@ static inline void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSys
 static void SplitStringToArray(const char src[], const size_t srcMaxLen, char dest[][MAX_LENGTH_OF_EVENT_NAME],
     const size_t destSize)
 {
-    int curPos = 0; // curnt position is initialized to 0.
-    int destItemIndex = 0; // array item index is initialized to 0.
-    int sliceBegin = 0; // slice begin position is initialized to 0.
-    int sliceEnd = 1; // slice end position is initialized to 1.
-    int cpyLen = 0; // string copy len is initialized to 0.
+    int curPos = 0; // The current position is initialized to be 0.
+    int destItemIndex = 0; // The index of array item is initialized to be 0.
+    int sliceBegin = 0; // The begin position of a slice is initialized to be 0.
+    int sliceEnd = 1; // The end position of a slice is initialized to be 1.
+    int cpyLen = 0; // The length of string to be copied is initialized to be 0.
     while (curPos < srcMaxLen && src[curPos] != '\0') {
         if (src[curPos] != '|') {
             ++curPos;
             continue;
         }
-        sliceEnd = curPos - 1; // slice end position set to be the position of last charactor before charactor '|'.
+        sliceEnd = curPos - 1;
         cpyLen = sliceEnd - sliceBegin + 1;
-        if (cpyLen <= 0) {
+        if ((cpyLen <= 0) || (cpyLen > MAX_LENGTH_OF_EVENT_NAME) ||
+            (memcpy_s(dest[destItemIndex], cpyLen, src + sliceBegin, cpyLen) != EOK)) {
+            // If the length of the string to be copied is invalid or memory copy failed, skip this step.
             sliceBegin = curPos + 1;
             ++curPos;
             continue;
-        }
-        if (cpyLen > MAX_LENGTH_OF_EVENT_NAME) {
-            sliceBegin = curPos + 1; // ignore event name with invalid length.
-            ++curPos;
-            continue;
-        }
-        if (memcpy_s(dest[destItemIndex], cpyLen, src + sliceBegin, cpyLen) != EOK) {
-            sliceBegin = curPos + 1;
-            ++curPos;
-            continue; // item copy failed, continue to copy next one.
         }
         sliceBegin = curPos + 1;
         ++curPos;
-        destItemIndex++;
+        ++destItemIndex;
         if (destItemIndex >= destSize) {
             break;
         }
     }
     if (curPos >= srcMaxLen || src[curPos] == '\0') {
-        sliceEnd = curPos - 1; // slice end position set to be the position of last charactor before charactor '|'.
+        sliceEnd = curPos - 1;
     }
     cpyLen = sliceEnd - sliceBegin + 1;
-    if (cpyLen <= 0 || destItemIndex >= destSize || cpyLen > MAX_LENGTH_OF_EVENT_NAME) {
+    if ((cpyLen <= 0) || (cpyLen > MAX_LENGTH_OF_EVENT_NAME) || (destItemIndex >= destSize) ||
+        (memcpy_s(dest[destItemIndex], cpyLen, src + sliceBegin, cpyLen) != EOK)) {
         return;
-    }
-    if (memcpy_s(dest[destItemIndex], cpyLen, src + sliceBegin, cpyLen) != EOK) {
-        return; // item copy failed, ignore directly.
     }
 }
 
