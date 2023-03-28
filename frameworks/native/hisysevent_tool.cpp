@@ -221,7 +221,7 @@ void HiSysEventTool::DoCmdHelp()
     cout << "-l -S <formatted begin time> -E <formatted end time> -m <max hisysevent count>"
         << ", get history hisysevent log with formatted time string, end time should not be "
         << "earlier than begin time." << endl;
-    cout << "-l -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName> -m <max hisysevent count>"
+    cout << "-l -c [WHOLE_WORD] -o <domain> -n <eventName> -m <max hisysevent count>"
         << ", get history hisysevent log with domain and event name." << endl;
     cout << "-l -g [FAULT|STATISTIC|SECURITY|BEHAVIOR] -m <max hisysevent count>"
         << ", get history hisysevent log with event type." << endl;
