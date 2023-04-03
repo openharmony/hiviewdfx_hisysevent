@@ -158,6 +158,7 @@ public:
         static constexpr char WEBVIEW[] = "WEBVIEW";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
         static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
+        static constexpr char PUSH_MANAGER[] = "PUSH_MANAGER";
         static constexpr char OTHERS[] = "OTHERS";
     };
 
