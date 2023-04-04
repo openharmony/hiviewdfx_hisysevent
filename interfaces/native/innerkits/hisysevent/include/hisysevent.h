@@ -136,6 +136,7 @@ public:
         static constexpr char PASTEBOARD[] = "PASTEBOARD";
         static constexpr char POWER[] = "POWER";
         static constexpr char POWERMGR[] = "POWERMGR";
+        static constexpr char PUSH_MANAGER[] = "PUSH_MANAGER";
         static constexpr char RELIABILITY[] = "RELIABILITY";
         static constexpr char REQUEST[] = "REQUEST";
         static constexpr char ROUTER[] = "ROUTER";
@@ -157,8 +158,7 @@ public:
         static constexpr char WEARABLE[] = "WEARABLE";
         static constexpr char WEBVIEW[] = "WEBVIEW";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
-        static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
-        static constexpr char PUSH_MANAGER[] = "PUSH_MANAGER";
+        static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";     
         static constexpr char OTHERS[] = "OTHERS";
     };
 
