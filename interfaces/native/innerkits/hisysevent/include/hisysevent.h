@@ -158,7 +158,7 @@ public:
         static constexpr char WEARABLE[] = "WEARABLE";
         static constexpr char WEBVIEW[] = "WEBVIEW";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
-        static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";     
+        static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
         static constexpr char OTHERS[] = "OTHERS";
     };
 
