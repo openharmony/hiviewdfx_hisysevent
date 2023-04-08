@@ -128,6 +128,7 @@ public:
         static constexpr char IVI_HARDWARE[] = "IVIHARDWARE";
         static constexpr char LOCATION[] = "LOCATION";
         static constexpr char MEDICAL_SENSOR[] = "MEDICAL_SENSOR";
+	static constexpr char MEMMGR[] = "MEMMGR";
         static constexpr char MISCDEVICE[] = "MISCDEVICE";
         static constexpr char MSDP[] = "MSDP";
         static constexpr char MULTI_MEDIA[] = "MULTIMEDIA";
