@@ -59,7 +59,7 @@ bool WriteController::CheckLimitWritingEvent(const ControlParam& param, const ch
         return false;
     }
     lruCache.Put(key, stat);
-    HiLog::Error(LABEL, "[%{public}lld, %{public}lld] discard %{public}zu event(s) "
+    HiLog::Debug(LABEL, "[%{public}lld, %{public}lld] discard %{public}zu event(s) "
         "with domain %{public}s and name %{public}s which wrote in function %{public}s.",
         static_cast<long long>(stat.begin.tv_sec), static_cast<long long>(cur.tv_sec),
         stat.count - param.threshold, domain, eventName, func);
