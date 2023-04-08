@@ -27,7 +27,6 @@
 #include "hisysevent_manager.h"
 #include "sys_event_query_rule.h"
 #include "sys_event_rule.h"
-#include "system_ability.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
