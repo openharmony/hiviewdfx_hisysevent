@@ -128,7 +128,7 @@ public:
         static constexpr char IVI_HARDWARE[] = "IVIHARDWARE";
         static constexpr char LOCATION[] = "LOCATION";
         static constexpr char MEDICAL_SENSOR[] = "MEDICAL_SENSOR";
-	static constexpr char MEMMGR[] = "MEMMGR";
+        static constexpr char MEMMGR[] = "MEMMGR";
         static constexpr char MISCDEVICE[] = "MISCDEVICE";
         static constexpr char MSDP[] = "MSDP";
         static constexpr char MULTI_MEDIA[] = "MULTIMEDIA";
@@ -137,7 +137,6 @@ public:
         static constexpr char NOTIFICATION[] = "NOTIFICATION";
         static constexpr char PASTEBOARD[] = "PASTEBOARD";
         static constexpr char POWER[] = "POWER";
-        static constexpr char POWERMGR[] = "POWERMGR";
         static constexpr char PUSH_MANAGER[] = "PUSH_MANAGER";
         static constexpr char RELIABILITY[] = "RELIABILITY";
         static constexpr char REQUEST[] = "REQUEST";
@@ -148,6 +147,7 @@ public:
         static constexpr char SENSOR[] = "SENSOR";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
         static constexpr char STARTUP[] = "STARTUP";
+        static constexpr char STATS[] = "STATS";
         static constexpr char TELEPHONY[] = "TELEPHONY";
         static constexpr char THEME[] = "THEME";
         static constexpr char THERMAL[] = "THERMAL";
