@@ -91,6 +91,7 @@ public:
         static constexpr char CAST_ENGINE[] = "CASTENGINE";
         static constexpr char CCRUNTIME[] = "CCRUNTIME";
         static constexpr char CERT_MANAGER[] = "CERT_MANAGER";
+        static constexpr char CODE_SIGN[] = "CODE_SIGN";
         static constexpr char COMMONEVENT[] = "COMMONEVENT";
         static constexpr char COMMUNICATION[] = "COMMUNICATION";
         static constexpr char CUSTOMIZATION_CONFIG[] = "CUST_CONFIG";
