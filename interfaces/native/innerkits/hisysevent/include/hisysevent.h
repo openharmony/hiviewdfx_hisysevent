@@ -154,6 +154,8 @@ public:
         static constexpr char THERMAL[] = "THERMAL";
         static constexpr char TIME[] = "TIME";
         static constexpr char UPDATE[] = "UPDATE";
+        static constexpr char UPDATE_DUE[] = "UPDATE_DUE";
+        static constexpr char UPDATE_OUC[] = "UPDATE_OUC";
         static constexpr char USB[] = "USB";
         static constexpr char USERIAM_FWK[] = "USERIAM_FWK";
         static constexpr char USERIAM_PIN[] = "USERIAM_PIN";
