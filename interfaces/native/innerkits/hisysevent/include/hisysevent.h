@@ -12,18 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef HI_SYS_EVENT_H
 #define HI_SYS_EVENT_H
-#include "hisysevent_c.h"
 
 #ifdef __cplusplus
 
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <vector>
 
 #include "def.h"
+#include "inner_writer.h"
 #include "write_controller.h"
 
 /*
@@ -66,9 +66,9 @@ template<const char* domain>
 inline static constexpr bool isMasked = IsMaskedCvt<domain, DOMAIN_MASKS_DEF>::value;
 
 class HiSysEvent {
-public:
     friend class NapiHiSysEventAdapter;
 
+public:
     // system event domain list
     class Domain {
     public:
@@ -191,7 +191,7 @@ public:
         if (controller.CheckLimitWritingEvent(param, domain.c_str(), eventName.c_str(), func, line)) {
             return ERR_WRITE_IN_HIGH_FREQ;
         }
-        return InnerWrite(domain, eventName, type, keyValues...);
+        return InnerWriter::InnerWrite(domain, eventName, type, keyValues...);
     }
 
     template<const char* domain, typename... Types, std::enable_if_t<!isMasked<domain>>* = nullptr>
@@ -213,7 +213,7 @@ public:
         if (controller.CheckLimitWritingEvent(param, domain, eventName.c_str(), func, line)) {
             return ERR_WRITE_IN_HIGH_FREQ;
         }
-        return InnerWrite(std::string(domain), eventName, type, keyValues...);
+        return InnerWriter::InnerWrite(std::string(domain), eventName, type, keyValues...);
     }
 
     template<const char* domain, typename... Types, std::enable_if_t<isMasked<domain>>* = nullptr>
@@ -224,367 +224,6 @@ public:
     }
 
 private:
-    class EventBase {
-    public:
-        EventBase(const std::string &domain, const std::string &eventName, int type)
-            : retCode_(0), keyCnt_(0), domain_(domain), eventName_(eventName), type_(type)
-            {};
-        ~EventBase() {}
-    public:
-        int retCode_;
-        unsigned int keyCnt_;
-        std::stringstream jsonStr_;
-        const std::string domain_;
-        const std::string eventName_;
-        const int type_;
-    };
-
-private:
-    template<typename... Types>
-    static int InnerWrite(const std::string &domain, const std::string &eventName,
-        EventType type, Types... keyValues)
-    {
-        EventBase eventBase(domain, eventName, type);
-        eventBase.jsonStr_ << "{";
-        WritebaseInfo(eventBase);
-        if (IsError(eventBase)) {
-            ExplainRetCode(eventBase);
-            return eventBase.retCode_;
-        }
-
-        InnerWrite(eventBase, keyValues...);
-        if (IsError(eventBase)) {
-            ExplainRetCode(eventBase);
-            return eventBase.retCode_;
-        }
-        eventBase.jsonStr_ << "}";
-
-        SendSysEvent(eventBase);
-        return eventBase.retCode_;
-    }
-
-    template<typename T>
-    static void AppendData(EventBase &eventBase, const std::string &key, T value)
-    {
-        if (IsWarnAndUpdate(CheckKey(key), eventBase)) {
-            return;
-        }
-        if (UpdateAndCheckKeyNumIsOver(eventBase)) {
-            return;
-        }
-        eventBase.jsonStr_ << "\"" << key << "\":";
-        AppendValue(eventBase, value);
-        eventBase.jsonStr_ << ",";
-    }
-
-    template<typename T>
-    static void AppendArrayData(EventBase &eventBase, const std::string &key, const std::vector<T> &value)
-    {
-        if (IsWarnAndUpdate(CheckKey(key), eventBase)) {
-            return;
-        }
-        if (UpdateAndCheckKeyNumIsOver(eventBase)) {
-            return;
-        }
-        if (value.empty()) {
-            eventBase.jsonStr_ << "\"" << key << "\":[],";
-            return;
-        }
-        IsWarnAndUpdate(CheckArraySize(value.size()), eventBase);
-
-        unsigned int index = 0;
-        unsigned int arrayMax = GetArrayMax();
-        eventBase.jsonStr_ << "\"" << key << "\":[";
-        for (auto item = value.begin(); item != value.end(); item++) {
-            index++;
-            if (index > arrayMax) {
-                break;
-            }
-            AppendValue(eventBase, *item);
-            eventBase.jsonStr_ << ",";
-        }
-        if (eventBase.jsonStr_.tellp() != 0) {
-            eventBase.jsonStr_.seekp(-1, std::ios_base::end);
-        }
-        eventBase.jsonStr_ << "],";
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, bool value, Types... keyValues)
-    {
-        AppendData<bool>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const char value, Types... keyValues)
-    {
-        AppendData<short>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const unsigned char value, Types... keyValues)
-    {
-        AppendData<unsigned short>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const short value, Types... keyValues)
-    {
-        AppendData<short>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const unsigned short value, Types... keyValues)
-    {
-        AppendData<unsigned short>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const int value, Types... keyValues)
-    {
-        AppendData<int>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const unsigned int value, Types... keyValues)
-    {
-        AppendData<unsigned int>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const long value, Types... keyValues)
-    {
-        AppendData<long>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const unsigned long value, Types... keyValues)
-    {
-        AppendData<unsigned long>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const long long value, Types... keyValues)
-    {
-        AppendData<long long>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const unsigned long long value, Types... keyValues)
-    {
-        AppendData<unsigned long long>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const float value, Types... keyValues)
-    {
-        AppendData<float>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const double value, Types... keyValues)
-    {
-        AppendData<double>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const std::string &value, Types... keyValues)
-    {
-        AppendData(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase, const std::string &key, const char *value, Types... keyValues)
-    {
-        AppendData(eventBase, key, std::string(value));
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<bool> &value, Types... keyValues)
-    {
-        AppendArrayData<bool>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<char> &value, Types... keyValues)
-    {
-        AppendArrayData(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<unsigned char> &value, Types... keyValues)
-    {
-        AppendArrayData(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<short> &value, Types... keyValues)
-    {
-        AppendArrayData<short>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<unsigned short> &value, Types... keyValues)
-    {
-        AppendArrayData<unsigned short>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<int> &value, Types... keyValues)
-    {
-        AppendArrayData<int>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<unsigned int> &value, Types... keyValues)
-    {
-        AppendArrayData<unsigned int>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<long> &value, Types... keyValues)
-    {
-        AppendArrayData<long>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<unsigned long> &value, Types... keyValues)
-    {
-        AppendArrayData<unsigned long>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<long long> &value, Types... keyValues)
-    {
-        AppendArrayData<long long>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<unsigned long long> &value, Types... keyValues)
-    {
-        AppendArrayData<unsigned long long>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<float> &value, Types... keyValues)
-    {
-        AppendArrayData<float>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<double> &value, Types... keyValues)
-    {
-        AppendArrayData<double>(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename... Types>
-    static void InnerWrite(EventBase &eventBase,
-        const std::string &key, const std::vector<std::string> &value, Types... keyValues)
-    {
-        AppendArrayData(eventBase, key, value);
-        InnerWrite(eventBase, keyValues...);
-    }
-
-    template<typename T>
-    static void AppendValue(EventBase &eventBase, const T item)
-    {
-        eventBase.jsonStr_ << item;
-    }
-
-    static void AppendValue(EventBase &eventBase, const std::string &item);
-    static void AppendValue(EventBase &eventBase, const char item);
-    static void AppendValue(EventBase &eventBase, const signed char item);
-    static void AppendValue(EventBase &eventBase, const unsigned char item);
-    static void AppendHexData(EventBase &eventBase, const std::string &key, uint64_t value);
-    static void InnerWrite(EventBase &eventBase);
-    static void InnerWrite(EventBase &eventBase, const HiSysEventParam params[], size_t size);
-    static void WritebaseInfo(EventBase &eventBase);
-
-    static int CheckKey(const std::string &key);
-    static int CheckValue(const std::string &value);
-    static int CheckArraySize(unsigned long size);
-    static bool IsErrorAndUpdate(int retCode, EventBase &eventBase);
-    static bool IsWarnAndUpdate(int retCode, EventBase &eventBase);
-    static bool UpdateAndCheckKeyNumIsOver(EventBase &eventBase);
-    static bool IsError(EventBase &eventBase);
-    static void ExplainRetCode(EventBase &eventBase);
-
-    static unsigned int GetArrayMax();
-    static void SendSysEvent(EventBase &eventBase);
-
-    static void AppendInvalidParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendBoolParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendInt8Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendUint8Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendInt16Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendUint16Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendInt32Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendUint32Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendInt64Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendUint64Param(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendFloatParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendDoubleParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendStringParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-
-    template<typename T>
-    static void AppendArrayParam(HiSysEvent::EventBase &eventBase, const std::string &key,
-        const T *array, size_t arraySize);
-    static void AppendBoolArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendInt8ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendUint8ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendInt16ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendUint16ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendInt32ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendUint32ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendInt64ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendUint64ArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendFloatArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendDoubleArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendStringArrayParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-    static void AppendParam(HiSysEvent::EventBase &eventBase, const HiSysEventParam &param);
-
     static WriteController controller;
 };
 

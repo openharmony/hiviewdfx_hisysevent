@@ -39,8 +39,8 @@ static inline void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSys
 static void SplitStringToArray(const char src[], const size_t srcMaxLen, char dest[][MAX_LENGTH_OF_EVENT_NAME],
     const size_t destSize)
 {
-    int curPos = 0; // The current position is initialized to be 0.
-    int destItemIndex = 0; // The index of array item is initialized to be 0.
+    size_t curPos = 0; // The current position is initialized to be 0.
+    size_t destItemIndex = 0; // The index of array item is initialized to be 0.
     int sliceBegin = 0; // The begin position of a slice is initialized to be 0.
     int sliceEnd = 1; // The end position of a slice is initialized to be 1.
     int cpyLen = 0; // The length of string to be copied is initialized to be 0.
