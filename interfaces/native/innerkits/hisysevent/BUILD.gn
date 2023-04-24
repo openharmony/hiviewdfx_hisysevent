@@ -18,6 +18,7 @@ config("hisysevent_config") {
 
   include_dirs = [
     "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/include",
+    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/encode/include",
     "//third_party/bounds_checking_function/include",
   ]
 }
@@ -30,7 +31,7 @@ ohos_shared_library("libhisysevent") {
   sources = [
     "hisysevent.cpp",
     "hisysevent_c.cpp",
-    "stringfilter.cpp",
+    "inner_writer.cpp",
     "transport.cpp",
     "write_controller.cpp",
   ]
@@ -51,5 +52,8 @@ ohos_shared_library("libhisysevent") {
     "hitrace_native:libhitracechain",
   ]
 
-  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  deps = [
+    "./encode:hisysevent_encode",
+    "//third_party/bounds_checking_function:libsec_shared",
+  ]
 }

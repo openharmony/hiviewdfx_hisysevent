@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,6 @@
 #include "json/json.h"
 #include "ret_code.h"
 #include "ret_def.h"
-#include "stringfilter.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
@@ -452,16 +451,33 @@ ListenerRule ParseListenerRule(const napi_env env, const napi_value& jsObj)
     return ListenerRule(domain, name, tag, RuleType(ruleType));
 }
 
+bool IsValidName(const std::string& content, const size_t maxLength)
+{
+    if (content.empty() || content.length() > maxLength) {
+        return false;
+    }
+    if (!isalpha(content[0])) {
+        return false;
+    }
+    for (auto iter = content.begin() + 1; iter < content.end(); ++iter) {
+        if (isalnum(*iter) || (*iter == '_')) {
+            continue;
+        }
+        return false;
+    }
+    return true;
+}
+
 bool IsQueryRuleValid(const napi_env env, const QueryRule& rule)
 {
     auto domain = rule.GetDomain();
-    if (!StringFilter::GetInstance().IsValidName(domain, MAX_DOMAIN_LENGTH)) {
+    if (!IsValidName(domain, MAX_DOMAIN_LENGTH)) {
         NapiHiSysEventUtil::ThrowErrorByRet(env, NapiInnerError::ERR_INVALID_DOMAIN_IN_QUERY_RULE);
         return false;
     }
     auto names = rule.GetEventList();
     if (std::any_of(names.begin(), names.end(), [] (auto& name) {
-        return !StringFilter::GetInstance().IsValidName(name, MAX_EVENT_NAME_LENGTH);
+        return !IsValidName(name, MAX_EVENT_NAME_LENGTH);
     })) {
         NapiHiSysEventUtil::ThrowErrorByRet(env, NapiInnerError::ERR_INVALID_EVENT_NAME_IN_QUERY_RULE);
         return false;

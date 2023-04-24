@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -67,7 +67,7 @@ void Transport::InitRecvBuffer(int socketId)
     HiLog::Debug(LABEL, "reset send buffer size old=%{public}d, new=%{public}d", oldN, newN);
 }
 
-int Transport::SendToHiSysEventDataSource(const std::string &text)
+int Transport::SendToHiSysEventDataSource(RawData& rawData)
 {
     struct sockaddr_un serverAddr;
     serverAddr.sun_family = AF_UNIX;
@@ -88,7 +88,7 @@ int Transport::SendToHiSysEventDataSource(const std::string &text)
     auto sendRet = 0;
     auto retryTimes = RETRY_TIMES;
     do {
-        sendRet = sendto(socketId, text.c_str(), text.size(), 0,
+        sendRet = sendto(socketId, rawData.GetData(), rawData.GetDataLength(), 0,
             reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
         retryTimes--;
     } while (sendRet < 0 && retryTimes > 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
@@ -104,51 +104,53 @@ int Transport::SendToHiSysEventDataSource(const std::string &text)
     return SUCCESS;
 }
 
-void Transport::AddFailedData(const std::string &text)
+void Transport::AddFailedData(RawData& rawData)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (retryDataList_.size() >= RETRY_QUEUE_SIZE) {
         HiLog::Info(LABEL, "dispatch retry sysevent data as reach max size");
         retryDataList_.pop_front();
     }
-    retryDataList_.push_back(text);
+    retryDataList_.push_back(rawData);
 }
 
 void Transport::RetrySendFailedData()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     while (!retryDataList_.empty()) {
-        std::string text = retryDataList_.front();
-        HiLog::Debug(LABEL, "resend data size=%{public}lu, sysevent=%{public}s",
-            static_cast<unsigned long>(text.size()), text.c_str());
-        if (SendToHiSysEventDataSource(text) != SUCCESS) {
+        auto rawData = retryDataList_.front();
+        if (SendToHiSysEventDataSource(rawData) != SUCCESS) {
             return;
         }
         retryDataList_.pop_front();
     }
 }
 
-int Transport::SendData(const std::string &text)
+int Transport::SendData(RawData& rawData)
 {
-    if (text.size() > MAX_DATA_SIZE) {
-        HiLog::Error(LABEL, "data is too long %{public}lu", static_cast<unsigned long>(text.length()));
+    if (rawData.IsEmpty()) {
+        HiLog::Warn(LABEL, "Try to send a empty data.");
+        return ERR_EMPTY_EVENT;
+    }
+    auto rawDataLength = rawData.GetDataLength();
+    if (rawDataLength > MAX_DATA_SIZE) {
+        HiLog::Error(LABEL, "Data is too long %{public}zu", rawDataLength);
         return ERR_OVER_SIZE;
     }
-    HiLog::Debug(LABEL, "size=%{public}lu, sysevent=%{public}s",
-        static_cast<unsigned long>(text.size()), text.c_str());
+    HiLog::Debug(LABEL, "size=%{public}zu", rawDataLength);
 
     RetrySendFailedData();
     int tryTimes = RETRY_TIMES;
     int retCode = SUCCESS;
     while (tryTimes > 0) {
         tryTimes--;
-        retCode = SendToHiSysEventDataSource(text);
+        retCode = SendToHiSysEventDataSource(rawData);
         if (retCode == SUCCESS) {
             return retCode;
         }
     }
 
-    AddFailedData(text);
+    AddFailedData(rawData);
     return retCode;
 }
 } // namespace HiviewDFX
