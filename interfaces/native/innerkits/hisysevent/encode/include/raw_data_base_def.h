@@ -13,18 +13,35 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_NATIVE_INNERKITS_HISYSEVENT_INCLUDE_RAW_BASE_DEF_H
-#define INTERFACES_NATIVE_INNERKITS_HISYSEVENT_INCLUDE_RAW_BASE_DEF_H
+#ifndef HISYSEVENT_INTERFACE_ENCODE_INCLUDE_RAW_BASE_DEF_H
+#define HISYSEVENT_INTERFACE_ENCODE_INCLUDE_RAW_BASE_DEF_H
 
 #include <cstdarg>
 #include <cstddef>
 #include <cstdint>
-
-#include "def.h"
+#include <string>
 
 namespace OHOS {
 namespace HiviewDFX {
-namespace Encode {
+namespace Encoded {
+constexpr unsigned int MAX_DOMAIN_LENGTH = 16;
+constexpr unsigned int MAX_EVENT_NAME_LENGTH = 32;
+constexpr unsigned int MAX_ARRAY_SIZE = 100;
+
+constexpr char BASE_INFO_KEY_DOMAIN[] = "domain_";
+constexpr char BASE_INFO_KEY_NAME[] = "name_";
+constexpr char BASE_INFO_KEY_TYPE[] = "type_";
+constexpr char BASE_INFO_KEY_TIME_STAMP[] = "time_";
+constexpr char BASE_INFO_KEY_TIME_ZONE[] = "tz_";
+constexpr char BASE_INFO_KEY_ID[] = "id_";
+constexpr char BASE_INFO_KEY_PID[] = "pid_";
+constexpr char BASE_INFO_KEY_TID[] = "tid_";
+constexpr char BASE_INFO_KEY_UID[] = "uid_";
+constexpr char BASE_INFO_KEY_TRACE_ID[] = "traceid_";
+constexpr char BASE_INFO_KEY_SPAN_ID[] = "spanid_";
+constexpr char BASE_INFO_KEY_PARENT_SPAN_ID[] = "pspanid_";
+constexpr char BASE_INFO_KEY_TRACE_FLAG[] = "trace_flag_";
+
 struct HiSysEventHeader {
     /* Event domain */
     char domain[MAX_DOMAIN_LENGTH + 1];
@@ -133,8 +150,12 @@ enum EncodeType: int8_t {
     // Reserved
     INVALID = 4,
 };
-} // namespace Encode
+
+int ParseTimeZone(const std::string& tzStr);
+std::string ParseTimeZone(const uint8_t tzVal);
+
+} // namespace Encoded
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif // INTERFACES_NATIVE_INNERKITS_HISYSEVENT_INCLUDE_RAW_BASE_DEF_H
+#endif // HISYSEVENT_INTERFACE_ENCODE_RAW_INCLUDE_RAW_BASE_DEF_H

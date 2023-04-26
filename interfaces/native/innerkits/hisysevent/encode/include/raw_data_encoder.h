@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_NATIVE_INNERKITS_HISYSEVENT_INCLUDE_ENCODE_RAW_DATA_ENCODER_H
-#define INTERFACES_NATIVE_INNERKITS_HISYSEVENT_INCLUDE_ENCODE_RAW_DATA_ENCODER_H
+#ifndef HISYSEVENT_INTERFACE_ENCODE_INCLUDE_RAW_DATA_ENCODER_H
+#define HISYSEVENT_INTERFACE_ENCODE_INCLUDE_RAW_DATA_ENCODER_H
 
 #include <cstdarg>
 #include <cstddef>
@@ -27,7 +27,7 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-namespace Encode {
+namespace Encoded {
 class RawDataEncoder {
 public:
     static bool ValueTypeEncoded(RawData& data, bool isArray, ValueType valueType,
@@ -92,8 +92,8 @@ private:
     static constexpr int NON_TAG_BYTE_BOUND = (1 << NON_TAG_BYTE_OFFSET);
     static constexpr int NON_TAG_BYTE_MASK = (NON_TAG_BYTE_BOUND - 1);
 };
-} // namespace Encode
+} // namespace Encoded
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif // INTERFACES_NATIVE_INNERKITS_HISYSEVENT_INCLUDE_ENCODE_RAW_DATA_ENCODER_H
+#endif // HISYSEVENT_INTERFACE_ENCODE_INCLUDE_RAW_DATA_ENCODER_H

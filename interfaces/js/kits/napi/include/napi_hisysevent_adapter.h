@@ -21,14 +21,12 @@
 #include <vector>
 
 #include "hisysevent.h"
-#include "inner_writer.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "write_controller.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-using namespace Encode;
 using JsCallerInfo = std::pair<std::string, int64_t>;
 using HiSysEventInfo = struct HiSysEventInfo {
     std::string domain;
@@ -59,64 +57,27 @@ public:
 
 private:
     static void CheckThenWriteSysEvent(HiSysEventAsyncContext* eventAsyncContext);
-    static void InnerWrite(InnerWriter::EventBase& eventBase, const HiSysEventInfo& eventInfo);
+    static void InnerWrite(HiSysEvent::EventBase& eventBase, const HiSysEventInfo& eventInfo);
     static int Write(const HiSysEventInfo& eventInfo);
 
-private:
     template<typename T>
-    static void AppendParams(InnerWriter::EventBase& eventBase, const std::unordered_map<std::string, T>& params)
+    static void AppendData(HiSysEvent::EventBase& eventBase, std::unordered_map<std::string, T> tMap)
     {
-        for (auto iter = params.cbegin(); iter != params.cend(); ++iter) {
-            if (!InnerWriter::CheckParamValidity(eventBase, iter->first)) {
-                continue;
-            }
-            if constexpr (std::is_same_v<std::decay_t<T>, const char*> ||
-                std::is_same_v<std::decay_t<T>, std::string>) {
-                InnerWriter::IsWarnAndUpdate(InnerWriter::CheckValue(iter->second), eventBase);
-                eventBase.GetEventBuilder().AppendValue(
-                    std::make_shared<StringEncodedParam>(iter->first, iter->second));
-            }
-            if constexpr (std::is_same_v<std::decay_t<T>, bool>) {
-                eventBase.GetEventBuilder().AppendValue(
-                    std::make_shared<SignedVarintEncodedParam<bool>>(iter->first, iter->second));
-            }
-            if constexpr (std::is_same_v<std::decay_t<T>, double>) {
-                eventBase.GetEventBuilder().AppendValue(
-                    std::make_shared<FloatingNumberEncodedParam<double>>(iter->first, iter->second));
-            }
+        for (auto iter = tMap.cbegin(); iter != tMap.cend(); iter++) {
+            auto key = iter->first;
+            auto value = iter->second;
+            HiSysEvent::AppendData<T>(eventBase, key, value);
         }
-        AppendArrayParams(eventBase, params);
     }
 
     template<typename T>
-    static void AppendArrayParams(InnerWriter::EventBase& eventBase, const std::unordered_map<std::string, T>& params)
+    static void AppendArrayData(HiSysEvent::EventBase& eventBase,
+        std::unordered_map<std::string, std::vector<T>> tMap)
     {
-        for (auto iter = params.cbegin(); iter != params.cend(); ++iter) {
-            if constexpr (std::is_same_v<std::decay_t<T>, std::vector<std::string>> ||
-                std::is_same_v<std::decay_t<T>, std::vector<const char*>>) {
-                if (!InnerWriter::CheckArrayParamsValidity(eventBase, iter->first, iter->second)) {
-                    continue;
-                }
-                for (auto& item : iter->second) {
-                    InnerWriter::IsWarnAndUpdate(InnerWriter::CheckValue(item), eventBase);
-                }
-                eventBase.GetEventBuilder().AppendValue(
-                    std::make_shared<StringEncodedArrayParam>(iter->first, iter->second));
-            }
-            if constexpr (std::is_same_v<std::decay_t<T>, std::vector<bool>>) {
-                if (!InnerWriter::CheckArrayParamsValidity(eventBase, iter->first, iter->second)) {
-                    continue;
-                }
-                eventBase.GetEventBuilder().AppendValue(
-                    std::make_shared<SignedVarintEncodedArrayParam<bool>>(iter->first, iter->second));
-            }
-            if constexpr (std::is_same_v<std::decay_t<T>, std::vector<double>>) {
-                if (!InnerWriter::CheckArrayParamsValidity(eventBase, iter->first, iter->second)) {
-                    continue;
-                }
-                eventBase.GetEventBuilder().AppendValue(
-                    std::make_shared<FloatingNumberEncodedArrayParam<double>>(iter->first, iter->second));
-            }
+        for (auto iter = tMap.cbegin(); iter != tMap.cend(); iter++) {
+            auto key = iter->first;
+            auto value = iter->second;
+            HiSysEvent::AppendArrayData<T>(eventBase, key, value);
         }
     }
 };

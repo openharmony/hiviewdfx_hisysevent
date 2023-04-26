@@ -15,14 +15,13 @@
 
 #include "encoded_param.h"
 
-#include "def.h"
 #include "hilog/log.h"
 #include "raw_data_encoder.h"
 #include "securec.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-namespace Encode {
+namespace Encoded {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-EncodedParam" };
 }
@@ -49,6 +48,46 @@ RawData& EncodedParam::GetRawData()
     return rawData_;
 }
 
+bool EncodedParam::AsUint64(uint64_t& dest)
+{
+    return false;
+}
+
+bool EncodedParam::AsInt64(int64_t& dest)
+{
+    return false;
+}
+
+bool EncodedParam::AsDouble(double& dest)
+{
+    return false;
+}
+
+bool EncodedParam::AsString(std::string& dest)
+{
+    return false;
+}
+
+bool EncodedParam::AsUint64Vec(std::vector<uint64_t>& dest)
+{
+    return false;
+}
+
+bool EncodedParam::AsInt64Vec(std::vector<int64_t>& dest)
+{
+    return false;
+}
+
+bool EncodedParam::AsDoubleVec(std::vector<double>& dest)
+{
+    return false;
+}
+
+bool EncodedParam::AsStringVec(std::vector<std::string>& dest)
+{
+    return false;
+}
+
 bool EncodedParam::Encode()
 {
     hasEncoded_ = EncodeKey() && EncodeValueType() && EncodeValue();
@@ -63,6 +102,6 @@ bool EncodedParam::EncodeKey()
     }
     return true;
 }
-} // namespace Encode
+} // namespace Encoded
 } // namespace HiviewDFX
 } // namespace OHOS

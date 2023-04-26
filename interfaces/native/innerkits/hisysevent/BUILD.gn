@@ -31,7 +31,7 @@ ohos_shared_library("libhisysevent") {
   sources = [
     "hisysevent.cpp",
     "hisysevent_c.cpp",
-    "inner_writer.cpp",
+    "stringfilter.cpp",
     "transport.cpp",
     "write_controller.cpp",
   ]
@@ -54,5 +54,5 @@ ohos_shared_library("libhisysevent") {
 
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 
-  public_deps = [ "./encode:hisysevent_encode" ]
+  public_deps = [ "./encode:hisysevent_encoded" ]
 }

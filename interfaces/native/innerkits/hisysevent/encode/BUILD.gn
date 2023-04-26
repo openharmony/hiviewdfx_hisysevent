@@ -14,30 +14,29 @@
 import("//base/hiviewdfx/hiview/hiview.gni")
 import("//build/ohos.gni")
 
-config("hisysevent_encode_config") {
+config("hisysevent_encoded_config") {
   visibility = [ "*:*" ]
 
-  include_dirs = [
-    "../include",
-    "./include",
-  ]
+  include_dirs = [ "include" ]
 }
 
-ohos_source_set("hisysevent_encode") {
+ohos_source_set("hisysevent_encoded") {
   sources = [
     "encoded_param.cpp",
     "raw_data.cpp",
+    "raw_data_base_def.cpp",
     "raw_data_builder.cpp",
+    "raw_data_builder_json_parser.cpp",
     "raw_data_encoder.cpp",
   ]
 
-  public_configs = [ ":hisysevent_encode_config" ]
+  public_configs = [ ":hisysevent_encoded_config" ]
 
   external_deps = [
     "c_utils:utils",
     "hilog_native:libhilog",
   ]
 
-  part_name = "hisysevent_native"
+  part_name = "hiview"
   subsystem_name = "hiviewdfx"
 }

@@ -15,14 +15,13 @@
 
 #include "raw_data_encoder.h"
 
-#include "def.h"
 #include "hilog/log.h"
 
 #include "securec.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-namespace Encode {
+namespace Encoded {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-RawDataEncoder" };
 }
@@ -59,6 +58,6 @@ bool RawDataEncoder::ValueTypeEncoded(RawData& data, bool isArray, ValueType typ
     }
     return true;
 }
-} // namespace Encode
+} // namespace Encoded
 } // namespace HiviewDFX
 } // namespace OHOS
