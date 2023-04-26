@@ -638,13 +638,13 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEvent129Keys014, TestSize.Level1)
     static constexpr char domain[] = "TEST";
     std::string eventName = "KEY_EQUAL_129";
     HiLog::Info(LABEL, "test hisysevent 129 key");
-    std::string k = "k";
-    bool v = true;
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT,
         SYS_EVENT_PARAMS(10), SYS_EVENT_PARAMS(20), SYS_EVENT_PARAMS(30), SYS_EVENT_PARAMS(40), SYS_EVENT_PARAMS(50),
         SYS_EVENT_PARAMS(60), SYS_EVENT_PARAMS(70), SYS_EVENT_PARAMS(80), SYS_EVENT_PARAMS(90), SYS_EVENT_PARAMS(100),
         SYS_EVENT_PARAMS(110), SYS_EVENT_PARAMS(120),
-        k, v, k, v, k, v, k, v, k, v, k, v, k, v, k, v, k, v);
+        "test-key1", "test-value1", "test-key2", "test-value2", "test-key3", "test-value3", "test-key4", "test-value4",
+        "test-key5", "test-value5", "test-key6", "test-value6", "test-key7", "test-value7", "test-key8", "test-value8",
+        "test-key9", "test-value9");
     HiLog::Info(LABEL, "has 129 key, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > OHOS::HiviewDFX::SUCCESS));
 }

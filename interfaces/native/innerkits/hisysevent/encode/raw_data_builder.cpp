@@ -40,7 +40,7 @@ static int ParseTimeZone(const std::string& formatted)
     };
     for (auto iter = allTimeZones.begin(); iter < allTimeZones.end(); ++iter) {
         if (*iter == formatted) {
-            ret = (iter - allTimeZones.begin()) + 1; // item value ascends from 1.
+            ret = (iter - allTimeZones.begin());
             break;
         }
     }

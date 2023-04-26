@@ -67,10 +67,11 @@ private:
     static void AppendParams(InnerWriter::EventBase& eventBase, const std::unordered_map<std::string, T>& params)
     {
         for (auto iter = params.cbegin(); iter != params.cend(); ++iter) {
-            if (InnerWriter::CheckParamValidity(eventBase, iter->first)) {
+            if (!InnerWriter::CheckParamValidity(eventBase, iter->first)) {
                 continue;
             }
-            if constexpr (std::is_same_v<std::decay_t<T>, const char*>) {
+            if constexpr (std::is_same_v<std::decay_t<T>, const char*> ||
+                std::is_same_v<std::decay_t<T>, std::string>) {
                 InnerWriter::IsWarnAndUpdate(InnerWriter::CheckValue(iter->second), eventBase);
                 eventBase.GetEventBuilder().AppendValue(
                     std::make_shared<StringEncodedParam>(iter->first, iter->second));
@@ -91,10 +92,11 @@ private:
     static void AppendArrayParams(InnerWriter::EventBase& eventBase, const std::unordered_map<std::string, T>& params)
     {
         for (auto iter = params.cbegin(); iter != params.cend(); ++iter) {
-            if (InnerWriter::CheckParamValidity(eventBase, iter->first)) {
-                continue;
-            }
-            if constexpr (std::is_same_v<std::decay_t<T>, std::vector<std::string>>) {
+            if constexpr (std::is_same_v<std::decay_t<T>, std::vector<std::string>> ||
+                std::is_same_v<std::decay_t<T>, std::vector<const char*>>) {
+                if (!InnerWriter::CheckArrayParamsValidity(eventBase, iter->first, iter->second)) {
+                    continue;
+                }
                 for (auto& item : iter->second) {
                     InnerWriter::IsWarnAndUpdate(InnerWriter::CheckValue(item), eventBase);
                 }
@@ -102,10 +104,16 @@ private:
                     std::make_shared<StringEncodedArrayParam>(iter->first, iter->second));
             }
             if constexpr (std::is_same_v<std::decay_t<T>, std::vector<bool>>) {
+                if (!InnerWriter::CheckArrayParamsValidity(eventBase, iter->first, iter->second)) {
+                    continue;
+                }
                 eventBase.GetEventBuilder().AppendValue(
                     std::make_shared<SignedVarintEncodedArrayParam<bool>>(iter->first, iter->second));
             }
             if constexpr (std::is_same_v<std::decay_t<T>, std::vector<double>>) {
+                if (!InnerWriter::CheckArrayParamsValidity(eventBase, iter->first, iter->second)) {
+                    continue;
+                }
                 eventBase.GetEventBuilder().AppendValue(
                     std::make_shared<FloatingNumberEncodedArrayParam<double>>(iter->first, iter->second));
             }
