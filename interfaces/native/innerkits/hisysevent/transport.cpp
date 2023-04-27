@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,6 +28,8 @@
 
 #include "def.h"
 #include "hilog/log.h"
+
+#include "raw_data_builder_json_parser.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -67,7 +69,7 @@ void Transport::InitRecvBuffer(int socketId)
     HiLog::Debug(LABEL, "reset send buffer size old=%{public}d, new=%{public}d", oldN, newN);
 }
 
-int Transport::SendToHiSysEventDataSource(RawData& rawData)
+int Transport::SendToHiSysEventDataSource(const std::string &text)
 {
     struct sockaddr_un serverAddr;
     serverAddr.sun_family = AF_UNIX;
@@ -76,7 +78,6 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
         return ERR_DOES_NOT_INIT;
     }
     serverAddr.sun_path[sizeof(serverAddr.sun_path) - 1] = '\0';
-
     int socketId = TEMP_FAILURE_RETRY(socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0));
     if (socketId < 0) {
         strerror_r(errno, errMsg, BUF_SIZE);
@@ -87,8 +88,14 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
     InitRecvBuffer(socketId);
     auto sendRet = 0;
     auto retryTimes = RETRY_TIMES;
+    Encoded::RawDataBuilderJsonParser parser(text);
+    auto rawDataBuilder = parser.Parse();
+    if (rawDataBuilder == nullptr) {
+        return ERR_DOES_NOT_INIT;
+    }
+    auto rawData = rawDataBuilder->Build();
     do {
-        sendRet = sendto(socketId, rawData.GetData(), rawData.GetDataLength(), 0,
+        sendRet = sendto(socketId, rawData->GetData(), rawData->GetDataLength(), 0,
             reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
         retryTimes--;
     } while (sendRet < 0 && retryTimes > 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
@@ -104,53 +111,51 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
     return SUCCESS;
 }
 
-void Transport::AddFailedData(RawData& rawData)
+void Transport::AddFailedData(const std::string &text)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (retryDataList_.size() >= RETRY_QUEUE_SIZE) {
         HiLog::Info(LABEL, "dispatch retry sysevent data as reach max size");
         retryDataList_.pop_front();
     }
-    retryDataList_.push_back(rawData);
+    retryDataList_.push_back(text);
 }
 
 void Transport::RetrySendFailedData()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     while (!retryDataList_.empty()) {
-        auto rawData = retryDataList_.front();
-        if (SendToHiSysEventDataSource(rawData) != SUCCESS) {
+        std::string text = retryDataList_.front();
+        HiLog::Debug(LABEL, "resend data size=%{public}lu, sysevent=%{public}s",
+            static_cast<unsigned long>(text.size()), text.c_str());
+        if (SendToHiSysEventDataSource(text) != SUCCESS) {
             return;
         }
         retryDataList_.pop_front();
     }
 }
 
-int Transport::SendData(RawData& rawData)
+int Transport::SendData(const std::string &text)
 {
-    if (rawData.IsEmpty()) {
-        HiLog::Warn(LABEL, "Try to send a empty data.");
-        return ERR_EMPTY_EVENT;
-    }
-    auto rawDataLength = rawData.GetDataLength();
-    if (rawDataLength > MAX_DATA_SIZE) {
-        HiLog::Error(LABEL, "Data is too long %{public}zu", rawDataLength);
+    if (text.size() > MAX_DATA_SIZE) {
+        HiLog::Error(LABEL, "data is too long %{public}lu", static_cast<unsigned long>(text.length()));
         return ERR_OVER_SIZE;
     }
-    HiLog::Debug(LABEL, "size=%{public}zu", rawDataLength);
+    HiLog::Debug(LABEL, "size=%{public}lu, sysevent=%{public}s",
+        static_cast<unsigned long>(text.size()), text.c_str());
 
     RetrySendFailedData();
     int tryTimes = RETRY_TIMES;
     int retCode = SUCCESS;
     while (tryTimes > 0) {
         tryTimes--;
-        retCode = SendToHiSysEventDataSource(rawData);
+        retCode = SendToHiSysEventDataSource(text);
         if (retCode == SUCCESS) {
             return retCode;
         }
     }
 
-    AddFailedData(rawData);
+    AddFailedData(text);
     return retCode;
 }
 } // namespace HiviewDFX

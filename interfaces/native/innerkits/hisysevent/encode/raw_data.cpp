@@ -22,7 +22,7 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-namespace Encode {
+namespace Encoded {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-RawData" };
 constexpr size_t EXPAND_BUF_SIZE = 512;
@@ -32,6 +32,25 @@ RawData::RawData()
 {
     data_ = new uint8_t[EXPAND_BUF_SIZE];
     capacity_ = EXPAND_BUF_SIZE;
+    len_ = 0;
+}
+
+RawData::RawData(uint8_t* data, size_t dataLen)
+{
+    if (data == nullptr || dataLen == 0) {
+        data_ = new uint8_t[EXPAND_BUF_SIZE];
+        capacity_ = EXPAND_BUF_SIZE;
+        len_ = 0;
+        return;
+    }
+    data_ = new uint8_t[dataLen];
+    auto ret = memcpy_s(data_, dataLen, data, dataLen);
+    if (ret != EOK) {
+        HiLog::Error(LABEL, "Failed to copy RawData in constructor, ret is %{public}d.", ret);
+        return;
+    }
+    capacity_ = dataLen;
+    len_ = dataLen;
 }
 
 RawData::RawData(const RawData& data)
@@ -48,14 +67,6 @@ RawData::RawData(const RawData& data)
     }
     capacity_ = dataLen;
     len_ = dataLen;
-}
-
-RawData::~RawData()
-{
-    if (data_ != nullptr) {
-        delete []data_;
-        data_ = nullptr;
-    }
 }
 
 RawData& RawData::operator=(const RawData& data)
@@ -82,6 +93,14 @@ RawData& RawData::operator=(const RawData& data)
     return *this;
 }
 
+RawData::~RawData()
+{
+    if (data_ != nullptr) {
+        delete []data_;
+        data_ = nullptr;
+    }
+}
+
 void RawData::Reset()
 {
     if (data_ != nullptr) {
@@ -94,6 +113,9 @@ void RawData::Reset()
 
 bool RawData::Append(uint8_t* data, size_t len)
 {
+    if (len == 0) {
+        return true;
+    }
     return Update(data, len, len_);
 }
 
@@ -148,6 +170,6 @@ size_t RawData::GetDataLength() const
 {
     return len_;
 }
-} // namespace Encode
+} // namespace Encoded
 } // namespace HiviewDFX
 } // namespace OHOS

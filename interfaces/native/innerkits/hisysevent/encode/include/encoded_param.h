@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_NATIVE_INNERKITS_HISYSEVENT_ENCODER_ENCODED_PARAM_H
-#define INTERFACES_NATIVE_INNERKITS_HISYSEVENT_ENCODER_ENCODED_PARAM_H
+#ifndef HISYSEVENT_INTERFACE_ENCODE_INCLUDE_ENCODED_PARAM_H
+#define HISYSEVENT_INTERFACE_ENCODE_INCLUDE_ENCODED_PARAM_H
 
 #include <cstdarg>
 #include <cstddef>
@@ -23,14 +23,14 @@
 #include <vector>
 
 #include "raw_data_base_def.h"
+#include "value_param.h"
 #include "raw_data_encoder.h"
 #include "raw_data.h"
-#include "def.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-namespace Encode {
-class EncodedParam {
+namespace Encoded {
+class EncodedParam : public ValueParam {
 public:
     EncodedParam(const std::string& key);
     virtual ~EncodedParam();
@@ -38,9 +38,17 @@ public:
 public:
     virtual std::string& GetKey();
     virtual RawData& GetRawData();
+    virtual bool Encode();
 
 public:
-    virtual bool Encode();
+    virtual bool AsUint64(uint64_t& dest) override;
+    virtual bool AsInt64(int64_t& dest) override;
+    virtual bool AsDouble(double& dest) override;
+    virtual bool AsString(std::string& dest) override;
+    virtual bool AsUint64Vec(std::vector<uint64_t>& dest) override;
+    virtual bool AsInt64Vec(std::vector<int64_t>& dest) override;
+    virtual bool AsDoubleVec(std::vector<double>& dest) override;
+    virtual bool AsStringVec(std::vector<std::string>& dest) override;
 
 protected:
     virtual bool EncodeKey();
@@ -71,6 +79,23 @@ public:
     virtual bool EncodeValue() override
     {
         return RawDataEncoder::UnsignedVarintEncoded(rawData_, EncodeType::VARINT, val_);
+    }
+    
+    virtual bool AsString(std::string& ret) override
+    {
+        ret = std::to_string(val_);
+        return true;
+    }
+
+    virtual bool AsUint64(uint64_t& dest) override
+    {
+        dest = static_cast<uint64_t>(val_);
+        return true;
+    }
+
+    virtual DataCodedType GetDataCodedType() override
+    {
+        return DataCodedType::UNSIGNED_VARINT;
     }
 
 private:
@@ -108,6 +133,19 @@ public:
         return ret;
     }
 
+    virtual bool AsUint64Vec(std::vector<uint64_t>& dest) override
+    {
+        for (auto item : vals_) {
+            vals_.emplace_back(static_cast<uint64_t>(item));
+        }
+        return true;
+    }
+
+    virtual DataCodedType GetDataCodedType() override
+    {
+        return DataCodedType::UNSIGNED_VARINT_ARRAY;
+    }
+
 private:
     std::vector<T> vals_;
 };
@@ -131,6 +169,23 @@ public:
     virtual bool EncodeValue() override
     {
         return RawDataEncoder::SignedVarintEncoded(rawData_, EncodeType::VARINT, val_);
+    }
+
+    virtual bool AsString(std::string& ret) override
+    {
+        ret = std::to_string(val_);
+        return true;
+    }
+
+    virtual bool AsInt64(int64_t& dest) override
+    {
+        dest = static_cast<int64_t>(val_);
+        return true;
+    }
+
+    virtual DataCodedType GetDataCodedType() override
+    {
+        return DataCodedType::SIGNED_VARINT;
     }
 
 private:
@@ -169,6 +224,19 @@ public:
         return ret;
     }
 
+    virtual bool AsInt64Vec(std::vector<int64_t>& dest) override
+    {
+        for (auto item : vals_) {
+            vals_.emplace_back(static_cast<int64_t>(item));
+        }
+        return true;
+    }
+
+    virtual DataCodedType GetDataCodedType() override
+    {
+        return DataCodedType::SIGNED_VARINT_ARRAY;
+    }
+
 private:
     std::vector<T> vals_;
 };
@@ -197,6 +265,23 @@ public:
     virtual bool EncodeValue() override
     {
         return RawDataEncoder::FloatingNumberEncoded(rawData_, val_);
+    }
+
+    virtual bool AsString(std::string& ret) override
+    {
+        ret = std::to_string(val_);
+        return true;
+    }
+
+    virtual bool AsDouble(double& ret) override
+    {
+        ret = static_cast<double>(val_);
+        return true;
+    }
+
+    virtual DataCodedType GetDataCodedType() override
+    {
+        return DataCodedType::FLOATING;
     }
 
 private:
@@ -240,6 +325,19 @@ public:
         return ret;
     }
 
+    virtual bool AsDoubleVec(std::vector<double>& dest) override
+    {
+        for (auto item : vals_) {
+            vals_.emplace_back(static_cast<double>(item));
+        }
+        return true;
+    }
+
+    virtual DataCodedType GetDataCodedType() override
+    {
+        return DataCodedType::FLOATING_ARRAY;
+    }
+
 private:
     std::vector<T> vals_;
 };
@@ -259,6 +357,17 @@ public:
     virtual bool EncodeValue() override
     {
         return RawDataEncoder::StringValueEncoded(rawData_, val_);
+    }
+
+    bool AsString(std::string& ret) override
+    {
+        ret = val_;
+        return true;
+    }
+
+    DataCodedType GetDataCodedType() override
+    {
+        return DataCodedType::DSTRING;
     }
 
 private:
@@ -293,11 +402,22 @@ public:
         return ret;
     }
 
+    bool AsStringVec(std::vector<std::string>& dest) override
+    {
+        dest.assign(vals_.begin(), vals_.end());
+        return true;
+    }
+
+    DataCodedType GetDataCodedType() override
+    {
+        return DataCodedType::DSTRING_ARRAY;
+    }
+
 private:
     std::vector<std::string> vals_;
 };
-} // namespace Encode
+} // namespace Encoded
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif // INTERFACES_NATIVE_INNERKITS_HISYSEVENT_ENCODER_ENCODED_PARAM_H
+#endif // HISYSEVENT_INTERFACE_ENCODE_INCLUDE_ENCODED_PARAM_H

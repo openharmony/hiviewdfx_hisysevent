@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_NATIVE_INNERKITS_HISYSEVENT_INCLUDE_RAW_DATA_H
-#define INTERFACES_NATIVE_INNERKITS_HISYSEVENT_INCLUDE_RAW_DATA_H
+#ifndef HISYSEVENT_INTERFACE_ENCODE_INCLUDE_RAW_DATA_H
+#define HISYSEVENT_INTERFACE_ENCODE_INCLUDE_RAW_DATA_H
 
 #include <cstdarg>
 #include <cstddef>
@@ -22,10 +22,11 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-namespace Encode {
+namespace Encoded {
 class RawData {
 public:
     RawData();
+    RawData(uint8_t* data, size_t dataLen);
     RawData(const RawData& data);
     ~RawData();
 
@@ -45,8 +46,8 @@ private:
     size_t len_ = 0;
     size_t capacity_ = 0;
 };
-} // namespace Encode
+} // namespace Encoded
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif // INTERFACES_NATIVE_INNERKITS_HISYSEVENT_INCLUDE_RAW_DATA_H
+#endif // HISYSEVENT_INTERFACE_ENCODE_INCLUDE_RAW_DATA_H

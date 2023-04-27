@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +27,6 @@ static constexpr int ERR_OVER_SIZE = -4;
 static constexpr int ERR_SEND_FAIL = -5;
 static constexpr int ERR_WRITE_IN_HIGH_FREQ = -6;
 static constexpr int ERR_DOMAIN_MASKED = -7;
-static constexpr int ERR_EMPTY_EVENT = -8;
 static constexpr char ERR_MSG_LEVEL0[][32] = {
     "invalid domain name",
     "invalid event name",
@@ -35,8 +34,7 @@ static constexpr char ERR_MSG_LEVEL0[][32] = {
     "over size",
     "send data failed",
     "write too frequently",
-    "domain has been masked",
-    "empty event"
+    "domain has been masked"
 };
 
 static constexpr int ERR_KEY_NAME_INVALID = 1;
