@@ -65,8 +65,6 @@ private:
         int charactor);
     void HandleStatusValueAppend(std::string& key, std::string& value, std::vector<std::string>& values,
         int charactor);
-
-private:
     void AppendValueToBuilder(std::string& key, std::string& value, std::vector<std::string>& values);
     
 private:

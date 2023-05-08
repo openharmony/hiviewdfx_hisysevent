@@ -328,7 +328,7 @@ void RawDataBuilderJsonParser::BuilderAppendIntValue(const std::string& key, con
     if (builder_ == nullptr || value.empty()) {
         return;
     }
-    if (value[0] == '-') {
+    if (value.find("-") != std::string::npos) {
         int64_t i64Value = 0;
         TransStrToType(value.substr(1), i64Value);
         HiLog::Debug(LABEL, "key is %{public}s, value is %{public}" PRId64 ".", key.c_str(), -i64Value);
@@ -366,7 +366,7 @@ void RawDataBuilderJsonParser::BuilderAppendIntArrayValue(const std::string& key
         return;
     }
     if (any_of(values.begin(), values.end(), [] (auto& item) {
-        return !item.empty() && (item[0] == '-');
+        return !item.empty() && item.find("-") != std::string::npos;
     })) {
         std::vector<int64_t> i64Values;
         int64_t i64Value = 0;
@@ -374,7 +374,7 @@ void RawDataBuilderJsonParser::BuilderAppendIntArrayValue(const std::string& key
             if (value.empty()) {
                 continue;
             }
-            if (value[0] == '-') {
+            if (value.find("-") != std::string::npos) {
                 TransStrToType(value.substr(1), i64Value);
                 i64Values.emplace_back(-i64Value);
                 continue;
