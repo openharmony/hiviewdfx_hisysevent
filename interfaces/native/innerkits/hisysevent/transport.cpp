@@ -88,8 +88,11 @@ int Transport::SendToHiSysEventDataSource(const std::string &text)
     InitRecvBuffer(socketId);
     auto sendRet = 0;
     auto retryTimes = RETRY_TIMES;
-    Encoded::RawDataBuilderJsonParser parser(text);
-    auto rawDataBuilder = parser.Parse();
+    auto parser = std::make_unique<Encoded::RawDataBuilderJsonParser>(text);
+    if (parser == nullptr) {
+        return ERR_DOES_NOT_INIT;
+    }
+    auto rawDataBuilder = parser->Parse();
     if (rawDataBuilder == nullptr) {
         return ERR_DOES_NOT_INIT;
     }
