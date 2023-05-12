@@ -112,6 +112,7 @@ public:
         static constexpr char DLP[] = "DLP";
         static constexpr char DSLM[] = "DSLM";
         static constexpr char DSOFTBUS[] = "DSOFTBUS";
+        static constexpr char FORM_MANAGER[] = "FORM_MANAGER";
         static constexpr char FRAMEWORK[] = "FRAMEWORK";
         static constexpr char GLOBAL_I18N[] = "GLOBAL_I18N";
         static constexpr char GLOBAL_RESMGR[] = "GLOBAL_RESMGR";
