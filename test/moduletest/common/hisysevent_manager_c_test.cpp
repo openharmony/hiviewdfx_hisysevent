@@ -376,7 +376,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest002, TestSize.Level3)
      */
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest002 start");
     std::string cond = R"~({"version":"V1","condition":{"and":[{"param":"NAME","op":"=",
-        "value":"SysEventService"}]}})~";
+        "value":"SysEventStore"}]}})~";
     QueryTestWithCondition(cond);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest002 end");
 }
@@ -535,18 +535,13 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest009, TestSize.Level3)
      * @tc.steps: step4. query event.
      */
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest009 start");
-    std::string cond1 = R"~({"version":"V1","condition":{"or":[{"param":"NAME","op":"=",
-        "value":"SysEventService"},{"param":"NAME","op":"=","value":"SysEventSource"}]}})~";
+    std::string cond1 = R"~({"version":"V1","condition":{"and":[{"param":"NAME","op":"=",
+        "value":"SysEventStore"},{"param":"uid_","op":"=","value":1201}]}})~";
     QueryTestWithCondition(cond1);
 
-    std::string cond2 = R"~({"version":"V1","condition":{"and":[{"param":"NAME","op":"=",
-        "value":"SysEventService"},{"param":"uid_","op":"=","value":1201}]}})~";
+    std::string cond2 = R"~({"version":"V1","condition":{"and":[{"param":"type_","op":">","value":0},
+        {"param":"uid_","op":"=","value":1201}]}})~";
     QueryTestWithCondition(cond2);
-
-    std::string cond3 = R"~({"version":"V1","condition":{"and":[{"param":"type_","op":">","value":0},
-        {"param":"uid_","op":"=","value":1201}],"or":[{"param":"NAME","op":"=","value":"SysEventService"},
-        {"param":"NAME","op":"=","value":"SysEventSource"}]}})~";
-    QueryTestWithCondition(cond3);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest009 end");
 }
 
@@ -621,19 +616,19 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest011, TestSize.Level3)
     QueryTestWithCondition(cond3);
 
     std::string cond4 = R"~({"version":"V1","condition":{"and":[{"invalid":"PLUGIN_NAME","op":"=",
-        "value":"SysEventService"}]}})~";
+        "value":"SysEventStore"}]}})~";
     QueryTestWithCondition(cond4);
 
     std::string cond5 = R"~({"version":"V1","condition":{"and":[{"param":"PLUGIN_NAME","invalid":"=",
-        "value":"SysEventService"}]}})~";
+        "value":"SysEventStore"}]}})~";
     QueryTestWithCondition(cond5);
 
     std::string cond6 = R"~({"version":"V1","condition":{"and":[{"param":"PLUGIN_NAME","op":"**",
-        "value":"SysEventService"}]}})~";
+        "value":"SysEventStore"}]}})~";
     QueryTestWithCondition(cond6);
 
     std::string cond7 = R"~({"version":"V1","condition":{"and":[{"param":"PLUGIN_NAME","op":"=",
-        "invalid":"SysEventService"}]}})~";
+        "invalid":"SysEventStore"}]}})~";
     QueryTestWithCondition(cond7);
 
     std::string cond8 = R"~({"version":"V1","condition":{"and":[{"param":"PLUGIN_NAME","op":"=",
@@ -723,7 +718,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest014, TestSize.Level3)
     (void)StringUtil::CopyCString(rule.domain, TEST_DOMAIN, MAX_LEN_OF_DOMAIN);
     rule.eventListSize = 0;
     std::string cond = R"~({"version":"V1","condition":{"and":[{"param":"NAME","op":"=",
-        "value":"SysEventService"}]}})~";
+        "value":"SysEventStore"}]}})~";
     (void)StringUtil::CreateCString(&rule.condition, cond);
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
@@ -756,7 +751,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest015, TestSize.Level3)
     (void)StringUtil::CopyCString(rule.eventList[0], TEST_NAME, MAX_LEN_OF_NAME);
     rule.eventListSize = 1;
     std::string cond = R"~({"version":"V1","condition":{"and":[{"param":"NAME","op":"=",
-        "value":"SysEventService"}]}})~";
+        "value":"SysEventStore"}]}})~";
     (void)StringUtil::CreateCString(&rule.condition, cond);
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
@@ -788,7 +783,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest016, TestSize.Level3)
     HiSysEventQueryRule rule;
     rule.eventListSize = 0;
     std::string cond = R"~({"version":"V1","condition":{"and":[{"param":"NAME","op":"=",
-        "value":"SysEventService"}]}})~";
+        "value":"SysEventStore"}]}})~";
     (void)StringUtil::CreateCString(&rule.condition, cond);
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
