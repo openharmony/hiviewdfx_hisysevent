@@ -920,6 +920,7 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
         {ERR_CAN_NOT_SEND_REQ, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
         {ERR_CAN_NOT_READ_PARCEL, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
         {ERR_SEND_FAIL, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
+        {ERR_CAN_NOT_WRITE_EVENTS, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
         // add watcher
         {ERR_TOO_MANY_WATCHERS, {NapiError::ERR_WATCHER_COUNT_OVER_LIMIT, "Count of watchers is over limit"}},
         {ERR_TOO_MANY_WATCH_RULES, {NapiError::ERR_WATCH_RULE_COUNT_OVER_LIMIT,
@@ -938,6 +939,10 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
         {ERR_QUERY_RULE_INVALID, {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
         {NapiInnerError::ERR_INVALID_EVENT_NAME_IN_QUERY_RULE,
             {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
+        // export
+        {ERR_EXPORT_FREQUENCY_OVER_LIMIT, {NapiError::ERR_QUERY_TOO_FREQUENTLY, "Export frequency is over limit."}},
+        // add subscriber
+        {ERR_TOO_MANY_EVENTS, {NapiError::ERR_WATCHER_COUNT_OVER_LIMIT, "Count of events is over limit"}},
     };
     return errMap.find(retCode) == errMap.end() ?
         std::make_pair(NapiError::ERR_ENV_ABNORMAL, "environment is abnormal") : errMap.at(retCode);
