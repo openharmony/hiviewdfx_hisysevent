@@ -40,7 +40,7 @@ namespace HiviewDFX {
 
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-HiSysEventDelegate" };
-const std::string HiView_DIR = "/hiview/";
+const std::string HIVIEW_DIR = "/hiview/";
 const std::string BASE_DIR_PERMISSION = "g:1201:x";
 const std::string CACHE_DIR_PERMISSION = "g:1201:x";
 const std::string HIVIEW_DIR_PERMISSION = "g:1201:rwx";
@@ -248,8 +248,7 @@ bool HiSysEventDelegate::CreateHiviewDir() const
         HiLog::Error(LABEL, "GetHiViewDir The files dir obtained from context is empty.");
         return false;
     }
-    std::string hiviewDirPath = context->GetCacheDir() + HiView_DIR;
-    HiLog::Error(LABEL, "HiSysEventDelegate::SetAclPermission, testlog hiviewDirPath=%{public}s", hiviewDirPath.c_str());
+    std::string hiviewDirPath = context->GetCacheDir() + HIVIEW_DIR;
     if (FileUtil::IsFileExists(hiviewDirPath)) {
         return true;
     }
@@ -274,21 +273,24 @@ bool HiSysEventDelegate::SetDirPermission() const
     }
     std::string baseDirPath = context->GetBaseDir();
     std::string cacheDirPath = context->GetCacheDir();
-    std::string hiviewDirPath = context->GetCacheDir() + HiView_DIR;
+    std::string hiviewDirPath = context->GetCacheDir() + HIVIEW_DIR;
 
     int aclBaseRet = AclSetAccess(baseDirPath, BASE_DIR_PERMISSION);
     if (aclBaseRet != ACL_SUCC) {
-        HiLog::Error(LABEL, "Set ACL failed , baseDirPath= %{public}s ret = %{public}d!!!!", baseDirPath.c_str(), aclBaseRet);
+        HiLog::Error(LABEL, "Set ACL failed , baseDirPath= %{public}s ret = %{public}d!!!!",
+            baseDirPath.c_str(), aclBaseRet);
         return false;
     }
     int aclCacheRet = AclSetAccess(cacheDirPath, CACHE_DIR_PERMISSION);
     if (aclCacheRet != ACL_SUCC) {
-        HiLog::Error(LABEL, "Set ACL failed , cacheDirPath= %{public}s ret = %{public}d!!!!", cacheDirPath.c_str(), aclCacheRet);
+        HiLog::Error(LABEL, "Set ACL failed , cacheDirPath= %{public}s ret = %{public}d!!!!",
+            cacheDirPath.c_str(), aclCacheRet);
         return false;
     }
     int aclHiviewRet = AclSetAccess(hiviewDirPath, HIVIEW_DIR_PERMISSION);
     if (aclHiviewRet != ACL_SUCC) {
-        HiLog::Error(LABEL, "Set ACL failed , hiviewDirPath= %{public}s ret = %{public}d!!!!", hiviewDirPath.c_str(), aclHiviewRet);
+        HiLog::Error(LABEL, "Set ACL failed , hiviewDirPath= %{public}s ret = %{public}d!!!!",
+            hiviewDirPath.c_str(), aclHiviewRet);
         return false;
     }
     return true;

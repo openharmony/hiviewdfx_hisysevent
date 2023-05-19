@@ -141,7 +141,6 @@ public:
         return CURRENT_TIME;
     }
 
-
 public:
     enum Code {
         DEFAULT = -1,
@@ -361,7 +360,8 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventService002, TestSize.Level1)
     MessageOption option;
     sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::ADD_SYS_EVENT_SUBSCRIBER, data, reply, option);
     ASSERT_TRUE(true);
-    sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::REMOVE_SYS_EVENT_SUBSCRIBER, data, reply, option);
+    sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::REMOVE_SYS_EVENT_SUBSCRIBER,
+        data, reply, option);
     ASSERT_TRUE(true);
     sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::EXPORT_SYS_EVENT, data, reply, option);
     ASSERT_TRUE(true);
