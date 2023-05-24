@@ -16,6 +16,7 @@
 #include "napi_hisysevent_adapter.h"
 
 #include <cctype>
+#include <memory>
 
 #include "def.h"
 #include "hilog/log.h"
@@ -179,37 +180,35 @@ void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* ev
     napi_queue_async_work(env, eventAsyncContext->asyncWork);
 }
 
-void NapiHiSysEventAdapter::InnerWrite(HiSysEvent::EventBase& eventBase,
+void NapiHiSysEventAdapter::InnerWrite(InnerWriter::EventBase& eventBase,
     const HiSysEventInfo& eventInfo)
 {
-    AppendData<bool>(eventBase, eventInfo.boolParams);
-    AppendArrayData<bool>(eventBase, eventInfo.boolArrayParams);
-    AppendData<double>(eventBase, eventInfo.doubleParams);
-    AppendArrayData<double>(eventBase, eventInfo.doubleArrayParams);
-    AppendData<std::string>(eventBase, eventInfo.stringParams);
-    AppendArrayData<std::string>(eventBase, eventInfo.stringArrayParams);
+    AppendParams(eventBase, eventInfo.boolParams);
+    AppendParams(eventBase, eventInfo.boolArrayParams);
+    AppendParams(eventBase, eventInfo.doubleParams);
+    AppendParams(eventBase, eventInfo.doubleArrayParams);
+    AppendParams(eventBase, eventInfo.stringParams);
+    AppendParams(eventBase, eventInfo.stringArrayParams);
 }
 
 int NapiHiSysEventAdapter::Write(const HiSysEventInfo& eventInfo)
 {
-    HiSysEvent::EventBase eventBase(eventInfo.domain, eventInfo.name, eventInfo.eventType);
-    eventBase.jsonStr_ << "{";
-    HiSysEvent::WritebaseInfo(eventBase);
-    if (HiSysEvent::IsError(eventBase)) {
-        HiSysEvent::ExplainRetCode(eventBase);
-        return eventBase.retCode_;
+    InnerWriter::EventBase eventBase(eventInfo.domain, eventInfo.name, eventInfo.eventType);
+    InnerWriter::WritebaseInfo(eventBase);
+    if (InnerWriter::IsError(eventBase)) {
+        InnerWriter::ExplainRetCode(eventBase);
+        return eventBase.GetRetCode();
     }
 
     InnerWrite(eventBase, eventInfo);
-    HiSysEvent::InnerWrite(eventBase);
-    if (HiSysEvent::IsError(eventBase)) {
-        HiSysEvent::ExplainRetCode(eventBase);
-        return eventBase.retCode_;
+    InnerWriter::InnerWrite(eventBase);
+    if (InnerWriter::IsError(eventBase)) {
+        InnerWriter::ExplainRetCode(eventBase);
+        return eventBase.GetRetCode();
     }
-    eventBase.jsonStr_ << "}";
 
-    HiSysEvent::SendSysEvent(eventBase);
-    return eventBase.retCode_;
+    InnerWriter::SendSysEvent(eventBase);
+    return eventBase.GetRetCode();
 }
 } // namespace HiviewDFX
 } // namespace OHOS

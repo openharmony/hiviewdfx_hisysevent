@@ -26,6 +26,8 @@
 #include "stringfilter.h"
 #include "transport.h"
 
+#include "raw_data_builder_json_parser.h"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
@@ -61,6 +63,18 @@ static std::string GetTimeZone()
         return std::string(timeZone);
     }
     return std::string("+0000");
+}
+
+inline static pid_t GetPid()
+{
+    static pid_t pid = getpid();
+    return pid;
+}
+
+inline static pid_t GetUid()
+{
+    static pid_t uid = getuid();
+    return uid;
 }
 
 int HiSysEvent::CheckKey(const std::string &key)
@@ -183,7 +197,13 @@ void HiSysEvent::InnerWrite(EventBase &eventBase, const HiSysEventParam params[]
 
 void HiSysEvent::SendSysEvent(HiSysEvent::EventBase &eventBase)
 {
-    int r = Transport::GetInstance().SendData(eventBase.jsonStr_.str());
+    auto parser = std::make_unique<Encoded::RawDataBuilderJsonParser>(eventBase.jsonStr_.str());
+    auto rawDataBuilder = parser->Parse();
+    if (rawDataBuilder == nullptr) {
+        return;
+    }
+    auto rawData = *(rawDataBuilder->Build());
+    int r = Transport::GetInstance().SendData(rawData);
     if (r != SUCCESS) {
         eventBase.retCode_ = r;
         ExplainRetCode(eventBase);
@@ -210,9 +230,9 @@ void HiSysEvent::WritebaseInfo(HiSysEvent::EventBase &eventBase)
     AppendData(eventBase, "type_", eventBase.type_);
     AppendData(eventBase, "time_", GetMilliseconds());
     AppendData(eventBase, "tz_", GetTimeZone());
-    AppendData(eventBase, "pid_", getpid());
+    AppendData(eventBase, "pid_", GetPid());
     AppendData(eventBase, "tid_", gettid());
-    AppendData(eventBase, "uid_", getuid());
+    AppendData(eventBase, "uid_", GetUid());
     HiTraceId hitraceId = HiTraceChain::GetId();
     if (!hitraceId.IsValid()) {
         eventBase.keyCnt_ = 0;

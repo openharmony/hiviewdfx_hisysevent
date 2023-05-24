@@ -21,12 +21,15 @@
 #include <vector>
 
 #include "hisysevent.h"
+#include "inner_writer.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "stringfilter.h"
 #include "write_controller.h"
 
 namespace OHOS {
 namespace HiviewDFX {
+using namespace Encoded;
 using JsCallerInfo = std::pair<std::string, int64_t>;
 using HiSysEventInfo = struct HiSysEventInfo {
     std::string domain;
@@ -57,27 +60,15 @@ public:
 
 private:
     static void CheckThenWriteSysEvent(HiSysEventAsyncContext* eventAsyncContext);
-    static void InnerWrite(HiSysEvent::EventBase& eventBase, const HiSysEventInfo& eventInfo);
+    static void InnerWrite(InnerWriter::EventBase& eventBase, const HiSysEventInfo& eventInfo);
     static int Write(const HiSysEventInfo& eventInfo);
 
+private:
     template<typename T>
-    static void AppendData(HiSysEvent::EventBase& eventBase, std::unordered_map<std::string, T> tMap)
+    static void AppendParams(InnerWriter::EventBase& eventBase, const std::unordered_map<std::string, T>& params)
     {
-        for (auto iter = tMap.cbegin(); iter != tMap.cend(); iter++) {
-            auto key = iter->first;
-            auto value = iter->second;
-            HiSysEvent::AppendData<T>(eventBase, key, value);
-        }
-    }
-
-    template<typename T>
-    static void AppendArrayData(HiSysEvent::EventBase& eventBase,
-        std::unordered_map<std::string, std::vector<T>> tMap)
-    {
-        for (auto iter = tMap.cbegin(); iter != tMap.cend(); iter++) {
-            auto key = iter->first;
-            auto value = iter->second;
-            HiSysEvent::AppendArrayData<T>(eventBase, key, value);
+        for (auto iter = params.cbegin(); iter != params.cend(); ++iter) {
+            InnerWriter::InnerWrite(eventBase, iter->first, iter->second);
         }
     }
 };
