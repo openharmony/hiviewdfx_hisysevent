@@ -80,7 +80,7 @@ public:
     {
         return RawDataEncoder::UnsignedVarintEncoded(rawData_, EncodeType::VARINT, val_);
     }
-    
+
     virtual bool AsString(std::string& ret) override
     {
         ret = std::to_string(val_);

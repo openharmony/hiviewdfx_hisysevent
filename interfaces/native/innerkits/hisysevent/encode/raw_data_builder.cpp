@@ -36,61 +36,58 @@ RawDataBuilder::RawDataBuilder(const std::string& domain, const std::string& nam
     (void)AppendType(eventType);
 }
 
-bool RawDataBuilder::BuildHeader()
+bool RawDataBuilder::BuildHeader(std::shared_ptr<RawData> dest)
 {
-    if (!rawData_.Append(reinterpret_cast<uint8_t*>(&header_), sizeof(struct HiSysEventHeader))) {
+    if (!dest->Append(reinterpret_cast<uint8_t*>(&header_), sizeof(struct HiSysEventHeader))) {
         HiLog::Error(LABEL, "Event header copy failed.");
         return false;
     }
     // append trace info
     if (header_.isTraceOpened == 1 &&
-        !rawData_.Append(reinterpret_cast<uint8_t*>(&traceInfo_), sizeof(struct TraceInfo))) {
+        !dest->Append(reinterpret_cast<uint8_t*>(&traceInfo_), sizeof(struct TraceInfo))) {
         HiLog::Error(LABEL, "Trace info copy failed.");
         return false;
     }
     return true;
 }
 
-bool RawDataBuilder::BuildCustomizedParams()
+bool RawDataBuilder::BuildCustomizedParams(std::shared_ptr<RawData> dest)
 {
-    for (auto param : allParams_) {
+    return !any_of(allParams_.begin(), allParams_.end(), [&dest] (auto& param) {
         auto rawData = param->GetRawData();
-        if (!rawData_.Append(rawData.GetData(), rawData.GetDataLength())) {
-            return false;
-        }
-    }
-    return true;
+        return !dest->Append(rawData.GetData(), rawData.GetDataLength());
+    });
 }
 
 std::shared_ptr<RawData> RawDataBuilder::Build()
 {
     // placehold block size
     int32_t blockSize = 0;
-    rawData_.Reset();
-    if (!rawData_.Append(reinterpret_cast<uint8_t*>(&blockSize), sizeof(int32_t))) {
+    auto rawData = std::make_shared<RawData>();
+    if (!rawData->Append(reinterpret_cast<uint8_t*>(&blockSize), sizeof(int32_t))) {
         HiLog::Error(LABEL, "Block size copy failed.");
-        std::make_shared<RawData>(rawData_);
+        return rawData;
     }
-    if (!BuildHeader()) {
+    if (!BuildHeader(rawData)) {
         HiLog::Error(LABEL, "Header of sysevent build failed.");
-        std::make_shared<RawData>(rawData_);
+        return rawData;
     }
     // append parameter count
     int32_t paramCnt = static_cast<int32_t>(allParams_.size());
-    if (!rawData_.Append(reinterpret_cast<uint8_t*>(&paramCnt), sizeof(int32_t))) {
+    if (!rawData->Append(reinterpret_cast<uint8_t*>(&paramCnt), sizeof(int32_t))) {
         HiLog::Error(LABEL, "Parameter count copy failed.");
-        std::make_shared<RawData>(rawData_);
+        return rawData;
     }
-    if (!BuildCustomizedParams()) {
+    if (!BuildCustomizedParams(rawData)) {
         HiLog::Error(LABEL, "Customized paramters of sys event build failed.");
-        std::make_shared<RawData>(rawData_);
+        return rawData;
     }
     // update block size
-    blockSize = static_cast<int32_t>(rawData_.GetDataLength());
-    if (!rawData_.Update(reinterpret_cast<uint8_t*>(&blockSize), sizeof(int32_t), 0)) {
+    blockSize = static_cast<int32_t>(rawData->GetDataLength());
+    if (!rawData->Update(reinterpret_cast<uint8_t*>(&blockSize), sizeof(int32_t), 0)) {
         HiLog::Error(LABEL, "Failed to update block size.");
     }
-    return std::make_shared<RawData>(rawData_);
+    return rawData;
 }
 
 bool RawDataBuilder::IsBaseInfo(const std::string& key)
@@ -129,7 +126,6 @@ RawDataBuilder& RawDataBuilder::AppendType(const int eventType)
 {
     header_.type = static_cast<uint8_t>(eventType - 1); // header_.type is only 2 bits which must be
                                                        // subtracted 1 in order to avoid data overrflow.
-    HiLog::Debug(LABEL, "Encode event type is %{public}d.", eventType);
     return *this;
 }
 
@@ -231,13 +227,13 @@ RawDataBuilder& RawDataBuilder::AppendValue(std::shared_ptr<EncodedParam> param)
         return *this;
     }
     auto paramKey = param->GetKey();
-    for (auto iter = allParams_.begin(); iter < allParams_.end(); iter++) {
+    for (auto iter = allParams_.begin(); iter != allParams_.end(); iter++) {
         if ((*iter) == nullptr) {
             continue;
         }
         if ((*iter)->GetKey() == paramKey) {
-            allParams_.erase(iter);
-            break;
+            *iter = param;
+            return *this;
         }
     }
     allParams_.emplace_back(param);
@@ -246,7 +242,7 @@ RawDataBuilder& RawDataBuilder::AppendValue(std::shared_ptr<EncodedParam> param)
 
 std::shared_ptr<EncodedParam> RawDataBuilder::GetValue(const std::string& key)
 {
-    for (auto iter = allParams_.begin(); iter < allParams_.end(); iter++) {
+    for (auto iter = allParams_.begin(); iter != allParams_.end(); iter++) {
         if ((*iter) == nullptr) {
             continue;
         }

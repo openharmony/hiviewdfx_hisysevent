@@ -21,13 +21,11 @@
 #include <cstdint>
 #include <string>
 
+#include "def.h"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace Encoded {
-constexpr unsigned int MAX_DOMAIN_LENGTH = 16;
-constexpr unsigned int MAX_EVENT_NAME_LENGTH = 32;
-constexpr unsigned int MAX_ARRAY_SIZE = 100;
-
 constexpr char BASE_INFO_KEY_DOMAIN[] = "domain_";
 constexpr char BASE_INFO_KEY_NAME[] = "name_";
 constexpr char BASE_INFO_KEY_TYPE[] = "type_";
