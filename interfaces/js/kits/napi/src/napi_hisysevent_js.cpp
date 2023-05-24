@@ -324,6 +324,9 @@ static napi_value Unsubscribe(napi_env env, napi_callback_info info)
     if (ret != NAPI_SUCCESS) {
         HiLog::Error(LABEL, "failed to unsubscribe, result code is %{public}d.", ret);
         int32_t retCode = static_cast<int32_t>(ret);
+        if (ret == DB_FAILED) {
+            retCode = NapiError::ERR_REMOVE_SUBSCRIBE;
+        }
         NapiHiSysEventUtil::ThrowErrorByRet(env, retCode);
     }
     return nullptr;
