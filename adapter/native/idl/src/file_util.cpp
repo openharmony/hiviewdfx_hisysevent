@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -84,6 +84,33 @@ std::string GetFilePathByDir(const std::string& dir, const std::string& fileName
     }
     filePath.append(fileName);
     return filePath;
+}
+
+int CopyFile(const std::string &src, const std::string &des)
+{
+    std::ifstream fin(src, std::ios::binary);
+    std::ofstream fout(des, std::ios::binary);
+    if (!fin.is_open()) {
+        return -1;
+    }
+    if (!fout.is_open()) {
+        return -1;
+    }
+    fout << fin.rdbuf();
+    if (fout.fail()) {
+        fout.clear();
+    }
+    fout.flush();
+    return 0;
+}
+
+bool IsLegalPath(const std::string& path)
+{
+    if (path.find("./") != std::string::npos ||
+        path.find("../") != std::string::npos) {
+        return false;
+    }
+    return true;
 }
 } // namespace FileUtil
 } // namespace HiviewDFX

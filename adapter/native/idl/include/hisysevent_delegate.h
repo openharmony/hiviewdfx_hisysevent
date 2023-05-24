@@ -56,8 +56,6 @@ private:
         std::vector<SysEventRule>& sysRules) const;
     void ConvertQueryRule(const std::vector<QueryRule>& rules,
         std::vector<SysEventQueryRule>& sysRules) const;
-    void MergeEventList(const std::vector<QueryRule>& rules,
-        std::vector<std::string>& events) const;
     sptr<IRemoteObject> GetSysEventService() const;
     bool CreateHiviewDir() const;
     bool SetDirPermission() const;

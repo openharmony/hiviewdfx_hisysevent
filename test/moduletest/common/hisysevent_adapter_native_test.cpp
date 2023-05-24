@@ -126,7 +126,7 @@ public:
         return 0;
     }
 
-    int64_t AddSubscriber(const std::vector<std::string> &events)
+    int64_t AddSubscriber(const std::vector<SysEventQueryRule> &rules)
     {
         return CURRENT_TIME;
     }
@@ -367,20 +367,17 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventService002, TestSize.Level1)
     ASSERT_TRUE(true);
     const sptr<IRemoteObject>& impl(sysEventServiceStub);
     SysEventServiceProxy proxy(impl);
-    vector<std::string> events;
-    events.push_back("BUNDLE_INSTALL");
-    events.push_back("ABILITY_ONBACKGROUND");
-    auto ret = proxy.AddSubscriber(events);
+    std::vector<OHOS::HiviewDFX::SysEventQueryRule> queryRules;
+    std::vector<std::string> eventNames { "EVENT_NAME1", "EVENT_NAME2" };
+    OHOS::HiviewDFX::SysEventQueryRule queryRule("DOMAIN", eventNames);
+    queryRules.emplace_back(queryRule);
+    auto ret = proxy.AddSubscriber(queryRules);
     ASSERT_TRUE(std::to_string(ret).length() > TIME_STAMP_LENGTH);
     ret = proxy.RemoveSubscriber();
     ASSERT_TRUE(ret == 0);
     long long defaultTimeStap = -1;
     int queryCount = 10;
     OHOS::HiviewDFX::QueryArgument args(defaultTimeStap, defaultTimeStap, queryCount);
-    std::vector<OHOS::HiviewDFX::SysEventQueryRule> queryRules;
-    std::vector<std::string> eventNames { "EVENT_NAME1", "EVENT_NAME2" };
-    OHOS::HiviewDFX::SysEventQueryRule queryRule("DOMAIN", eventNames);
-    queryRules.emplace_back(queryRule);
     ret = proxy.Export(args, queryRules);
     ASSERT_TRUE(std::to_string(ret).length() > TIME_STAMP_LENGTH);
 }

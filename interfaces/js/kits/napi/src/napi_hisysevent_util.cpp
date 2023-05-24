@@ -920,7 +920,6 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
         {ERR_CAN_NOT_SEND_REQ, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
         {ERR_CAN_NOT_READ_PARCEL, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
         {ERR_SEND_FAIL, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
-        {ERR_CAN_NOT_WRITE_EVENTS, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
         // add watcher
         {ERR_TOO_MANY_WATCHERS, {NapiError::ERR_WATCHER_COUNT_OVER_LIMIT, "Count of watchers is over limit"}},
         {ERR_TOO_MANY_WATCH_RULES, {NapiError::ERR_WATCH_RULE_COUNT_OVER_LIMIT,
