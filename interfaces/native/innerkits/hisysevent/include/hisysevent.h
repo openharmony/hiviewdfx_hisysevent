@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "def.h"
+#include "inner_writer.h"
 #include "write_controller.h"
 
 /*
@@ -196,7 +197,7 @@ public:
         if (controller.CheckLimitWritingEvent(param, domain.c_str(), eventName.c_str(), func, line)) {
             return ERR_WRITE_IN_HIGH_FREQ;
         }
-        return InnerWrite(domain, eventName, type, keyValues...);
+        return InnerWriter::InnerWrite(domain, eventName, type, keyValues...);
     }
 
     template<const char* domain, typename... Types, std::enable_if_t<!isMasked<domain>>* = nullptr>
@@ -218,7 +219,7 @@ public:
         if (controller.CheckLimitWritingEvent(param, domain, eventName.c_str(), func, line)) {
             return ERR_WRITE_IN_HIGH_FREQ;
         }
-        return InnerWrite(std::string(domain), eventName, type, keyValues...);
+        return InnerWriter::InnerWrite(std::string(domain), eventName, type, keyValues...);
     }
 
     template<const char* domain, typename... Types, std::enable_if_t<isMasked<domain>>* = nullptr>
