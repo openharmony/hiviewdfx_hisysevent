@@ -18,6 +18,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <list>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -506,8 +507,8 @@ private:
         return false;
     }
 
-    bool BuildHeader();
-    bool BuildCustomizedParams();
+    bool BuildHeader(std::shared_ptr<RawData> dest);
+    bool BuildCustomizedParams(std::shared_ptr<RawData> dest);
 
 private:
     struct HiSysEventHeader header_ = {
@@ -528,8 +529,7 @@ private:
         .spanId = 0,
         .pSpanId = 0,
     };
-    std::vector<std::shared_ptr<EncodedParam>> allParams_;
-    RawData rawData_;
+    std::list<std::shared_ptr<EncodedParam>> allParams_;
 };
 } // namespace Encoded
 } // namespace HiviewDFX

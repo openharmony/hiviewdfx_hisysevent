@@ -16,7 +16,10 @@ import("//build/ohos.gni")
 config("hisysevent_encoded_config") {
   visibility = [ "*:*" ]
 
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "../include",
+    "./include",
+  ]
 }
 
 ohos_source_set("hisysevent_encoded") {
