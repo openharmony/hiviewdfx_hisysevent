@@ -54,8 +54,6 @@ using namespace OHOS::HiviewDFX;
 namespace {
 constexpr char ASH_MEM_NAME[] = "TestSharedMemory";
 constexpr int32_t ASH_MEM_SIZE = 1024 * 2; // 2K
-constexpr int64_t CURRENT_TIME = 20170810130952; // 2017-08-10-13:09:52
-constexpr int32_t TIME_STAMP_LENGTH = 10; // timeStamp length
 
 sptr<Ashmem> GetAshmem()
 {
@@ -126,31 +124,13 @@ public:
         return 0;
     }
 
-    int64_t AddSubscriber(const std::vector<SysEventQueryRule> &rules)
-    {
-        return CURRENT_TIME;
-    }
-
-    int32_t RemoveSubscriber()
-    {
-        return 0;
-    }
-
-    int64_t Export(const QueryArgument &queryArgument, const std::vector<SysEventQueryRule> &rules)
-    {
-        return CURRENT_TIME;
-    }
-
 public:
     enum Code {
         DEFAULT = -1,
         ADD_SYS_EVENT_LISTENER = 0,
         REMOVE_SYS_EVENT_LISTENER,
         QUERY_SYS_EVENT,
-        SET_DEBUG_MODE,
-        ADD_SYS_EVENT_SUBSCRIBER,
-        REMOVE_SYS_EVENT_SUBSCRIBER,
-        EXPORT_SYS_EVENT
+        SET_DEBUG_MODE
     };
 };
 }
@@ -302,12 +282,12 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventCallback, TestSize.Level1)
 }
 
 /**
- * @tc.name: TestSysEventService001
+ * @tc.name: TestSysEventService
  * @tc.desc: SysEventServiceProxy/Stub test
  * @tc.type: FUNC
  * @tc.require: issueI62WJT
  */
-HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventService001, TestSize.Level1)
+HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventService, TestSize.Level1)
 {
     SysEventServiceStub* sysEventServiceStub = new(std::nothrow) SysEventServiceStubTest();
     MessageParcel data, reply;
@@ -345,41 +325,6 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventService001, TestSize.Level1)
     queryRules.emplace_back(queryRule);
     ret = proxy.Query(args, queryRules, querier);
     ASSERT_TRUE(ret == 0);
-}
-
-/**
- * @tc.name: TestSysEventService002
- * @tc.desc: SysEventServiceProxy/Stub test
- * @tc.type: FUNC
- * @tc.require: SR000I1G43
- */
-HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventService002, TestSize.Level1)
-{
-    SysEventServiceStub* sysEventServiceStub = new(std::nothrow) SysEventServiceStubTest();
-    MessageParcel data, reply;
-    MessageOption option;
-    sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::ADD_SYS_EVENT_SUBSCRIBER, data, reply, option);
-    ASSERT_TRUE(true);
-    sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::REMOVE_SYS_EVENT_SUBSCRIBER,
-        data, reply, option);
-    ASSERT_TRUE(true);
-    sysEventServiceStub->OnRemoteRequest(SysEventServiceStubTest::Code::EXPORT_SYS_EVENT, data, reply, option);
-    ASSERT_TRUE(true);
-    const sptr<IRemoteObject>& impl(sysEventServiceStub);
-    SysEventServiceProxy proxy(impl);
-    std::vector<OHOS::HiviewDFX::SysEventQueryRule> queryRules;
-    std::vector<std::string> eventNames { "EVENT_NAME1", "EVENT_NAME2" };
-    OHOS::HiviewDFX::SysEventQueryRule queryRule("DOMAIN", eventNames);
-    queryRules.emplace_back(queryRule);
-    auto ret = proxy.AddSubscriber(queryRules);
-    ASSERT_TRUE(std::to_string(ret).length() > TIME_STAMP_LENGTH);
-    ret = proxy.RemoveSubscriber();
-    ASSERT_TRUE(ret == 0);
-    long long defaultTimeStap = -1;
-    int queryCount = 10;
-    OHOS::HiviewDFX::QueryArgument args(defaultTimeStap, defaultTimeStap, queryCount);
-    ret = proxy.Export(args, queryRules);
-    ASSERT_TRUE(std::to_string(ret).length() > TIME_STAMP_LENGTH);
 }
 
 /**

@@ -47,9 +47,6 @@ public:
         const std::shared_ptr<HiSysEventBaseQueryCallback> callback) const;
     int32_t SetDebugMode(const std::shared_ptr<HiSysEventBaseListener> listener,
         const bool mode);
-    int64_t Export(const struct QueryArg& arg, const std::vector<QueryRule>& rules) const;
-    int64_t Subscribe(const std::vector<QueryRule>& rules) const;
-    int32_t Unsubscribe() const;
 
 private:
     void ConvertListenerRule(const std::vector<ListenerRule>& rules,
@@ -57,8 +54,6 @@ private:
     void ConvertQueryRule(const std::vector<QueryRule>& rules,
         std::vector<SysEventQueryRule>& sysRules) const;
     sptr<IRemoteObject> GetSysEventService() const;
-    bool CreateHiviewDir() const;
-    bool SetDirPermission() const;
 
 private:
     sptr<HiSysEventListenerProxy> spListenerCallBack = nullptr;

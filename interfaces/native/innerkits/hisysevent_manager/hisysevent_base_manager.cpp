@@ -68,33 +68,5 @@ int32_t HiSysEventBaseManager::SetDebugMode(std::shared_ptr<HiSysEventBaseListen
     }
     return listener->listenerProxy->SetDebugMode(listener, mode);
 }
-
-int64_t HiSysEventBaseManager::Export(struct QueryArg& arg, std::vector<QueryRule>& rules)
-{
-    auto proxy = std::make_unique<HiSysEventDelegate>();
-    if (proxy != nullptr) {
-        return proxy->Export(arg, rules);
-    }
-    return ERR_LISTENER_NOT_EXIST;
-}
-
-int64_t HiSysEventBaseManager::Subscribe(std::vector<QueryRule>& rules)
-{
-    auto proxy = std::make_unique<HiSysEventDelegate>();
-    if (proxy != nullptr) {
-        return proxy->Subscribe(rules);
-    }
-    return ERR_LISTENER_NOT_EXIST;
-}
-
-int32_t HiSysEventBaseManager::Unsubscribe()
-{
-    auto proxy = std::make_unique<HiSysEventDelegate>();
-    if (proxy != nullptr) {
-        return proxy->Unsubscribe();
-    }
-    return ERR_LISTENER_NOT_EXIST;
-}
-
 } // namespace HiviewDFX
 } // namespace OHOS

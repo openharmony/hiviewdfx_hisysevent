@@ -39,12 +39,6 @@ private:
         MessageParcel& reply, MessageOption& option);
     int32_t HandleSetDebugMode(MessageParcel& data,
         MessageParcel& reply, MessageOption& option);
-    int32_t HandleAddSubscriber(MessageParcel& data,
-        MessageParcel& reply, MessageOption& option);
-    int32_t HandleRemoveSubscriber(MessageParcel& data,
-        MessageParcel& reply, MessageOption& option);
-    int32_t HandleExportEvent(MessageParcel& data,
-        MessageParcel& reply, MessageOption& option);
 };
 } // namespace HiviewDFX
 } // namespace OHOS
