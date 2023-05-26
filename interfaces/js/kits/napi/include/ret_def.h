@@ -48,7 +48,6 @@ constexpr int32_t ERR_QUERY_RULE_COUNT_OVER_LIMIT = 11200301;
 constexpr int32_t ERR_INVALID_QUERY_RULE = 11200302;
 constexpr int32_t ERR_CONCURRENT_QUERY_COUNT_OVER_LIMIT = 11200303;
 constexpr int32_t ERR_QUERY_TOO_FREQUENTLY = 11200304;
-constexpr int32_t ERR_REMOVE_SUBSCRIBE = 11200305;
 }
 
 namespace NapiInnerError {
@@ -57,7 +56,6 @@ constexpr int32_t ERR_INVALID_EVENT_NAME_IN_QUERY_RULE = 112003002;
 }
 
 static constexpr int32_t NAPI_SUCCESS = 0;
-static constexpr int32_t DB_FAILED = -1;
 
 static constexpr int32_t ERR_INVALID_PARAM_COUNT = -100;
 static constexpr int32_t ERR_NAPI_PARSED_FAILED = -101;
