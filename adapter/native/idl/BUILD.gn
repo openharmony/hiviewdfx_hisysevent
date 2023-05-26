@@ -20,6 +20,7 @@ config("sys_event_impl_config") {
     ".",
     "include",
     "//foundation/systemabilitymgr/safwk/services/safwk/include",
+    "//foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context",
   ]
 }
 
@@ -30,22 +31,28 @@ ohos_source_set("sys_event_impl_client") {
   ]
 
   sources = [
+    "src/file_util.cpp",
     "src/hisysevent_delegate.cpp",
     "src/hisysevent_listener_proxy.cpp",
     "src/hisysevent_query_proxy.cpp",
   ]
 
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  deps = [
+    "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
 
   all_dependent_configs = [ ":sys_event_impl_config" ]
 
   public_configs = [ "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_config" ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
+    "storage_service:storage_manager_acl",
   ]
 
   part_name = "hisysevent_native"
