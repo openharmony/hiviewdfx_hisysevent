@@ -42,13 +42,15 @@ namespace HiviewDFX {
 
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-HiSysEventDelegate" };
+const std::string EVENT_DIR = "/data/storage/el2/base/cache/hiview/event";
+#ifdef STORAGE_SERVICE_ENABLE
 const std::string BASE_DIR = "/data/storage/el2/base";
 const std::string CACHE_DIR = "/data/storage/el2/base/cache";
 const std::string HIVIEW_DIR = "/data/storage/el2/base/cache/hiview";
-const std::string EVENT_DIR = "/data/storage/el2/base/cache/hiview/event";
 const std::string PARENT_DIR_PERMISSION = "g:1201:x";
 const std::string SUB_DIR_PERMISSION = "g:1201:rwx";
 constexpr int ACL_SUCC = 0;
+#endif
 }
 
 int32_t HiSysEventDelegate::AddListener(const std::shared_ptr<HiSysEventBaseListener> listener,
