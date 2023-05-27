@@ -27,11 +27,14 @@ ohos_shared_library("hisysevent_c_wrapper") {
     "./source/hisysevent_rust_querier.cpp",
   ]
 
+  deps = [
+    "../../../interfaces/native/innerkits/hisysevent:libhisysevent",
+    "../../../interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
+  ]
+
   external_deps = [
     "c_utils:utils",
     "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
-    "hisysevent_native:libhisyseventmanager",
   ]
 
   output_extension = "so"

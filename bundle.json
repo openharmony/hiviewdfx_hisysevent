@@ -22,6 +22,7 @@
     "ram": "",
     "deps": {
       "components": [
+        "access_token",
         "c_utils",
         "hilog_native",
         "hitrace_native",
@@ -63,6 +64,13 @@
               "hisysevent_manager.h"
             ],
             "header_base": "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager/include"
+          }
+        },
+        {
+          "name": "//base/hiviewdfx/hisysevent/interfaces/rust/innerkits:hisysevent_rust",
+          "header": {
+            "header_files": [],
+            "header_base": []
           }
         }
       ],
