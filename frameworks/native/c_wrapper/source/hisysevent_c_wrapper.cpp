@@ -49,16 +49,16 @@ static void SplitStringToArray(const char src[], const size_t srcMaxLen, char de
             ++curPos;
             continue;
         }
-        sliceEnd = curPos - 1;
+        sliceEnd = static_cast<int>(curPos - 1);
         cpyLen = sliceEnd - sliceBegin + 1;
         if ((cpyLen <= 0) || (cpyLen > MAX_LENGTH_OF_EVENT_NAME) ||
             (memcpy_s(dest[destItemIndex], cpyLen, src + sliceBegin, cpyLen) != EOK)) {
             // If the length of the string to be copied is invalid or memory copy failed, skip this step.
-            sliceBegin = curPos + 1;
+            sliceBegin = static_cast<int>(curPos + 1);
             ++curPos;
             continue;
         }
-        sliceBegin = curPos + 1;
+        sliceBegin = static_cast<int>(curPos + 1);
         ++curPos;
         ++destItemIndex;
         if (destItemIndex >= destSize) {
@@ -66,7 +66,7 @@ static void SplitStringToArray(const char src[], const size_t srcMaxLen, char de
         }
     }
     if (curPos >= srcMaxLen || src[curPos] == '\0') {
-        sliceEnd = curPos - 1;
+        sliceEnd = static_cast<int>(curPos - 1);
     }
     cpyLen = sliceEnd - sliceBegin + 1;
     if ((cpyLen <= 0) || (cpyLen > MAX_LENGTH_OF_EVENT_NAME) || (destItemIndex >= destSize) ||

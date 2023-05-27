@@ -36,7 +36,7 @@ constexpr int FUNC_NAME_INDEX = 1;
 constexpr int LINE_INFO_INDEX = 2;
 constexpr int LINE_INDEX = 1;
 constexpr char CALL_FUNC_INFO_DELIMITER = ' ';
-constexpr char CALL_LINE_INFO_DELIMITER= ':';
+constexpr char CALL_LINE_INFO_DELIMITER = ':';
 constexpr char PATH_DELIMITER = '/';
 
 bool IsUninitializedJsCallerInfo(const JsCallerInfo& info)

@@ -67,13 +67,13 @@ static std::string GetTimeZone()
 
 inline static pid_t GetPid()
 {
-    static pid_t pid = getpid();
+    static pid_t pid = static_cast<pid_t>(getpid());
     return pid;
 }
 
 inline static pid_t GetUid()
 {
-    static pid_t uid = getuid();
+    static pid_t uid = static_cast<pid_t>(getuid());
     return uid;
 }
 
@@ -198,6 +198,9 @@ void HiSysEvent::InnerWrite(EventBase &eventBase, const HiSysEventParam params[]
 void HiSysEvent::SendSysEvent(HiSysEvent::EventBase &eventBase)
 {
     auto parser = std::make_unique<Encoded::RawDataBuilderJsonParser>(eventBase.jsonStr_.str());
+    if (parser == nullptr) {
+        return;
+    }
     auto rawDataBuilder = parser->Parse();
     if (rawDataBuilder == nullptr) {
         return;
