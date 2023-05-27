@@ -28,7 +28,8 @@
         "ipc",
         "napi",
         "safwk",
-        "samgr"
+        "samgr",
+        "storage_service"
       ],
       "third_party": [
         "bounds_checking_function",

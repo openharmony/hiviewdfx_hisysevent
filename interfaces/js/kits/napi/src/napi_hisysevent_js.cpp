@@ -44,8 +44,14 @@ constexpr size_t REMOVE_LISTENER_LISTENER_PARAM_INDEX = 0;
 constexpr size_t QUERY_QUERY_ARG_PARAM_INDEX = 0;
 constexpr size_t QUERY_RULE_ARRAY_PARAM_INDEX = 1;
 constexpr size_t QUERY_QUERIER_PARAM_INDEX = 2;
+constexpr size_t EXPORT_FUNC_MAX_PARAM_NUM = 2;
+constexpr size_t EXPORT_QUERY_ARG_PARAM_INDEX = 0;
+constexpr size_t EXPORT_RULE_ARRAY_PARAM_INDEX = 1;
+constexpr size_t SUBSCRIBE_FUNC_MAX_PARAM_NUM = 1;
+constexpr size_t SUBSCRIBE_RULE_ARRAY_PARAM_INDEX = 0;
 constexpr long long DEFAULT_TIME_STAMP = -1;
 constexpr int DEFAULT_EVENT_COUNT = 1000;
+constexpr int TIME_STAMP_LENGTH = 13;
 using NAPI_LISTENER_PAIR = std::pair<pid_t, std::shared_ptr<NapiHiSysEventListener>>;
 using NAPI_QUERIER_PAIR = std::pair<pid_t, std::shared_ptr<NapiHiSysEventQuerier>>;
 std::unordered_map<napi_ref, NAPI_LISTENER_PAIR> listeners;
@@ -230,6 +236,99 @@ static napi_value Query(napi_env env, napi_callback_info info)
     return nullptr;
 }
 
+static napi_value ExportSysEvents(napi_env env, napi_callback_info info)
+{
+    if (!NapiHiSysEventUtil::IsSystemAppCall()) {
+        NapiHiSysEventUtil::ThrowSystemAppPermissionError(env);
+        return nullptr;
+    }
+    size_t paramNum = EXPORT_FUNC_MAX_PARAM_NUM;
+    napi_value params[EXPORT_FUNC_MAX_PARAM_NUM] = {0};
+    napi_value thisArg = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
+    if (paramNum < EXPORT_FUNC_MAX_PARAM_NUM) {
+        std::unordered_map<int32_t, std::string> paramError = {
+            {EXPORT_QUERY_ARG_PARAM_INDEX, "queryArg"},
+            {EXPORT_RULE_ARRAY_PARAM_INDEX, "rules"},
+        };
+        HiLog::Error(LABEL, "count of parameters is less than %{public}zu.", EXPORT_FUNC_MAX_PARAM_NUM);
+        NapiHiSysEventUtil::ThrowParamMandatoryError(env, paramError.at(paramNum));
+        return nullptr;
+    }
+    QueryArg queryArg = { DEFAULT_TIME_STAMP, DEFAULT_TIME_STAMP, DEFAULT_EVENT_COUNT };
+    if (auto ret = NapiHiSysEventUtil::ParseQueryArg(env, params[EXPORT_QUERY_ARG_PARAM_INDEX], queryArg);
+        ret != SUCCESS) {
+        HiLog::Error(LABEL, "failed to parse query arg, result code is %{public}d.", ret);
+        return nullptr;
+    }
+    std::vector<QueryRule> rules;
+    if (auto ret = NapiHiSysEventUtil::ParseQueryRules(env, params[EXPORT_RULE_ARRAY_PARAM_INDEX], rules);
+        ret != SUCCESS) {
+        HiLog::Error(LABEL, "failed to parse query rules, result code is %{public}d.", ret);
+        return nullptr;
+    }
+    auto ret = HiSysEventBaseManager::Export(queryArg, rules);
+    if (std::to_string(ret).length() < TIME_STAMP_LENGTH) {
+        HiLog::Error(LABEL, "failed to export event");
+        int32_t retCode = static_cast<int32_t>(ret);
+        NapiHiSysEventUtil::ThrowErrorByRet(env, retCode);
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NapiHiSysEventUtil::CreateInt64Value(env, ret, result);
+    return result;
+}
+
+static napi_value Subscribe(napi_env env, napi_callback_info info)
+{
+    if (!NapiHiSysEventUtil::IsSystemAppCall()) {
+        NapiHiSysEventUtil::ThrowSystemAppPermissionError(env);
+        return nullptr;
+    }
+    size_t paramNum = SUBSCRIBE_FUNC_MAX_PARAM_NUM;
+    napi_value params[SUBSCRIBE_FUNC_MAX_PARAM_NUM] = {0};
+    napi_value thisArg = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
+    if (paramNum < SUBSCRIBE_FUNC_MAX_PARAM_NUM) {
+        HiLog::Error(LABEL, "count of parameters is less than %{public}zu.", SUBSCRIBE_FUNC_MAX_PARAM_NUM);
+        NapiHiSysEventUtil::ThrowParamMandatoryError(env, "rules");
+        return nullptr;
+    }
+    std::vector<QueryRule> rules;
+    if (auto ret = NapiHiSysEventUtil::ParseQueryRules(env, params[SUBSCRIBE_RULE_ARRAY_PARAM_INDEX], rules);
+        ret != SUCCESS) {
+        HiLog::Error(LABEL, "failed to parse query rules, result code is %{public}d.", ret);
+        return nullptr;
+    }
+    auto ret = HiSysEventBaseManager::Subscribe(rules);
+    if (std::to_string(ret).length() < TIME_STAMP_LENGTH) {
+        HiLog::Error(LABEL, "failed to subscribe event.");
+        int32_t retCode = static_cast<int32_t>(ret);
+        NapiHiSysEventUtil::ThrowErrorByRet(env, retCode);
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NapiHiSysEventUtil::CreateInt64Value(env, ret, result);
+    return result;
+}
+
+static napi_value Unsubscribe(napi_env env, napi_callback_info info)
+{
+    if (!NapiHiSysEventUtil::IsSystemAppCall()) {
+        NapiHiSysEventUtil::ThrowSystemAppPermissionError(env);
+        return nullptr;
+    }
+    auto ret = HiSysEventBaseManager::Unsubscribe();
+    if (ret != NAPI_SUCCESS) {
+        HiLog::Error(LABEL, "failed to unsubscribe, result code is %{public}d.", ret);
+        int32_t retCode = static_cast<int32_t>(ret);
+        NapiHiSysEventUtil::ThrowErrorByRet(env, retCode);
+    }
+    return nullptr;
+}
+
 EXTERN_C_START
 static napi_value Init(napi_env env, napi_value exports)
 {
@@ -238,6 +337,9 @@ static napi_value Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addWatcher", AddWatcher),
         DECLARE_NAPI_FUNCTION("removeWatcher", RemoveWatcher),
         DECLARE_NAPI_FUNCTION("query", Query),
+        DECLARE_NAPI_FUNCTION("exportSysEvents", ExportSysEvents),
+        DECLARE_NAPI_FUNCTION("subscribe", Subscribe),
+        DECLARE_NAPI_FUNCTION("unsubscribe", Unsubscribe),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
 

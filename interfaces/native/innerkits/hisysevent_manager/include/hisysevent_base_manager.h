@@ -37,6 +37,9 @@ public:
     static int32_t Query(struct QueryArg& arg, std::vector<QueryRule>& rules,
         std::shared_ptr<HiSysEventBaseQueryCallback> callback);
     static int32_t SetDebugMode(std::shared_ptr<HiSysEventBaseListener> listener, bool mode);
+    static int64_t Export(struct QueryArg& arg, std::vector<QueryRule>& rules);
+    static int64_t Subscribe(std::vector<QueryRule>& rules);
+    static int32_t Unsubscribe();
 };
 } // namespace HiviewDFX
 } // namespace OHOS

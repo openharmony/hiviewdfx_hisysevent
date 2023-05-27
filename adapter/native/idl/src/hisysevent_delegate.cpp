@@ -15,6 +15,9 @@
 
 #include "hisysevent_delegate.h"
 
+#include <memory>
+
+#include "file_util.h"
 #include "hilog/log.h"
 #include "hisysevent_listener_proxy.h"
 #include "hisysevent_query_proxy.h"
@@ -23,14 +26,32 @@
 #include "iservice_registry.h"
 #include "query_argument.h"
 #include "ret_code.h"
+#ifdef STORAGE_SERVICE_ENABLE
+#include "storage_acl.h"
+#endif
 #include "sys_event_service_proxy.h"
 #include "system_ability_definition.h"
 
 using namespace std;
+#ifdef STORAGE_SERVICE_ENABLE
+using namespace OHOS::StorageDaemon;
+#endif
 
 namespace OHOS {
 namespace HiviewDFX {
-static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-HiSysEventDelegate" };
+
+namespace {
+constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-HiSysEventDelegate" };
+const std::string EVENT_DIR = "/data/storage/el2/base/cache/hiview/event";
+#ifdef STORAGE_SERVICE_ENABLE
+const std::string BASE_DIR = "/data/storage/el2/base";
+const std::string CACHE_DIR = "/data/storage/el2/base/cache";
+const std::string HIVIEW_DIR = "/data/storage/el2/base/cache/hiview";
+const std::string PARENT_DIR_PERMISSION = "g:1201:x";
+const std::string SUB_DIR_PERMISSION = "g:1201:rwx";
+constexpr int ACL_SUCC = 0;
+#endif
+}
 
 int32_t HiSysEventDelegate::AddListener(const std::shared_ptr<HiSysEventBaseListener> listener,
     const std::vector<ListenerRule>& rules)
@@ -102,6 +123,67 @@ int32_t HiSysEventDelegate::Query(const struct QueryArg& arg,
     return sysEventService.Query(queryArgument, hospRules, spCallBack);
 }
 
+int64_t HiSysEventDelegate::Export(const struct QueryArg& arg, const std::vector<QueryRule>& rules) const
+{
+    auto service = GetSysEventService();
+    if (service == nullptr) {
+        HiLog::Error(LABEL, "Fail to get service.");
+        return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
+    }
+    auto res = CreateHiviewDir();
+    if (!res) {
+        HiLog::Error(LABEL, "Fail to create hiview dir.");
+        return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
+    }
+    res = SetDirPermission();
+    if (!res) {
+        HiLog::Error(LABEL, "Fail to set ACL permission.");
+        return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
+    }
+    std::vector<SysEventQueryRule> hospRules;
+    ConvertQueryRule(rules, hospRules);
+    SysEventServiceProxy sysEventService(service);
+    QueryArgument queryArgument(arg.beginTime, arg.endTime, arg.maxEvents, arg.fromSeq, arg.toSeq);
+    return sysEventService.Export(queryArgument, hospRules);
+}
+
+int64_t HiSysEventDelegate::Subscribe(const std::vector<QueryRule>& rules) const
+{
+    auto service = GetSysEventService();
+    if (service == nullptr) {
+        HiLog::Error(LABEL, "Fail to get service.");
+        return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
+    }
+
+    auto res = CreateHiviewDir();
+    if (!res) {
+        HiLog::Error(LABEL, "Fail to create hiview dir.");
+        return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
+    }
+    res = SetDirPermission();
+    if (!res) {
+        HiLog::Error(LABEL, "Fail to set ACL permission.");
+        return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
+    }
+
+    std::vector<SysEventQueryRule> hospRules;
+    ConvertQueryRule(rules, hospRules);
+
+    SysEventServiceProxy sysEventService(service);
+    return sysEventService.AddSubscriber(hospRules);
+}
+
+int32_t HiSysEventDelegate::Unsubscribe() const
+{
+    auto service = GetSysEventService();
+    if (service == nullptr) {
+        HiLog::Error(LABEL, "Fail to get service.");
+        return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
+    }
+    SysEventServiceProxy sysEventService(service);
+    return sysEventService.RemoveSubscriber();
+}
+
 HiSysEventDelegate::~HiSysEventDelegate()
 {
     HiLog::Info(LABEL, "HiSysEventDelegate destructor");
@@ -145,5 +227,51 @@ sptr<IRemoteObject> HiSysEventDelegate::GetSysEventService() const
     }
     return sam->CheckSystemAbility(DFX_SYS_EVENT_SERVICE_ABILITY_ID);
 }
+
+bool HiSysEventDelegate::CreateHiviewDir() const
+{
+    if (FileUtil::IsFileExists(EVENT_DIR)) {
+        return true;
+    }
+    if (!FileUtil::ForceCreateDirectory(EVENT_DIR)) {
+        HiLog::Error(LABEL, "failed to create event dir, errno=%{public}d.", errno);
+        return false;
+    }
+    return true;
+}
+
+bool HiSysEventDelegate::SetDirPermission() const
+{
+#ifdef STORAGE_SERVICE_ENABLE
+    int aclBaseRet = AclSetAccess(BASE_DIR, PARENT_DIR_PERMISSION);
+    if (aclBaseRet != ACL_SUCC) {
+        HiLog::Error(LABEL, "Set ACL failed , baseDirPath= %{public}s ret = %{public}d!!!!",
+            BASE_DIR.c_str(), aclBaseRet);
+        return false;
+    }
+    int aclCacheRet = AclSetAccess(CACHE_DIR, PARENT_DIR_PERMISSION);
+    if (aclCacheRet != ACL_SUCC) {
+        HiLog::Error(LABEL, "Set ACL failed , cacheDirPath= %{public}s ret = %{public}d!!!!",
+            CACHE_DIR.c_str(), aclCacheRet);
+        return false;
+    }
+    int aclHiviewRet = AclSetAccess(HIVIEW_DIR, PARENT_DIR_PERMISSION);
+    if (aclHiviewRet != ACL_SUCC) {
+        HiLog::Error(LABEL, "Set ACL failed , hiviewDirPath= %{public}s ret = %{public}d!!!!",
+            HIVIEW_DIR.c_str(), aclHiviewRet);
+        return false;
+    }
+    int aclRet = AclSetAccess(EVENT_DIR, SUB_DIR_PERMISSION);
+    if (aclRet != ACL_SUCC) {
+        HiLog::Error(LABEL, "Set ACL failed , eventDirPath= %{public}s ret = %{public}d!!!!",
+            EVENT_DIR.c_str(), aclRet);
+        return false;
+    }
+    return true;
+#else
+    return false;
+#endif // STORAGE_SERVICE_ENABLE
+}
+
 } // namespace HiviewDFX
 } // namespace OHOS
