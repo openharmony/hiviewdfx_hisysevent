@@ -26,12 +26,16 @@
 #include "iservice_registry.h"
 #include "query_argument.h"
 #include "ret_code.h"
+#ifdef STORAGE_SERVICE_ENABLE
 #include "storage_acl.h"
+#endif
 #include "sys_event_service_proxy.h"
 #include "system_ability_definition.h"
 
 using namespace std;
+#ifdef STORAGE_SERVICE_ENABLE
 using namespace OHOS::StorageDaemon;
+#endif
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -236,6 +240,7 @@ bool HiSysEventDelegate::CreateHiviewDir() const
 
 bool HiSysEventDelegate::SetDirPermission() const
 {
+#ifdef STORAGE_SERVICE_ENABLE
     int aclBaseRet = AclSetAccess(BASE_DIR, PARENT_DIR_PERMISSION);
     if (aclBaseRet != ACL_SUCC) {
         HiLog::Error(LABEL, "Set ACL failed , baseDirPath= %{public}s ret = %{public}d!!!!",
@@ -261,6 +266,9 @@ bool HiSysEventDelegate::SetDirPermission() const
         return false;
     }
     return true;
+#else
+    return false;
+#endif // STORAGE_SERVICE_ENABLE
 }
 
 } // namespace HiviewDFX
