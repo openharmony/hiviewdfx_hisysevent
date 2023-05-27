@@ -17,8 +17,6 @@
 
 #include <memory>
 
-#include "application_context.h"
-#include "context.h"
 #include "file_util.h"
 #include "hilog/log.h"
 #include "hisysevent_listener_proxy.h"
@@ -40,8 +38,10 @@ namespace HiviewDFX {
 
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-HiSysEventDelegate" };
-const std::string HIVIEW_DIR = "/hiview/";
-const std::string EVENT_DIR = "/event/";
+const std::string BASE_DIR = "/data/storage/el2/base";
+const std::string CACHE_DIR = "/data/storage/el2/base/cache";
+const std::string HIVIEW_DIR = "/data/storage/el2/base/cache/hiview";
+const std::string EVENT_DIR = "/data/storage/el2/base/cache/hiview/event";
 const std::string PARENT_DIR_PERMISSION = "g:1201:x";
 const std::string SUB_DIR_PERMISSION = "g:1201:rwx";
 constexpr int ACL_SUCC = 0;
@@ -224,21 +224,10 @@ sptr<IRemoteObject> HiSysEventDelegate::GetSysEventService() const
 
 bool HiSysEventDelegate::CreateHiviewDir() const
 {
-    std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> context =
-        OHOS::AbilityRuntime::Context::GetApplicationContext();
-    if (context == nullptr) {
-        HiLog::Error(LABEL, "GetHiViewDir Context is null.");
-        return false;
-    }
-    if (context->GetCacheDir().empty()) {
-        HiLog::Error(LABEL, "GetHiViewDir The files dir obtained from context is empty.");
-        return false;
-    }
-    std::string eventDirPath = context->GetCacheDir() + HIVIEW_DIR + EVENT_DIR;
-    if (FileUtil::IsFileExists(eventDirPath)) {
+    if (FileUtil::IsFileExists(EVENT_DIR)) {
         return true;
     }
-    if (!FileUtil::ForceCreateDirectory(eventDirPath)) {
+    if (!FileUtil::ForceCreateDirectory(EVENT_DIR)) {
         HiLog::Error(LABEL, "failed to create event dir, errno=%{public}d.", errno);
         return false;
     }
@@ -247,43 +236,28 @@ bool HiSysEventDelegate::CreateHiviewDir() const
 
 bool HiSysEventDelegate::SetDirPermission() const
 {
-    std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> context =
-        OHOS::AbilityRuntime::Context::GetApplicationContext();
-    if (context == nullptr) {
-        HiLog::Error(LABEL, "GetHiViewDir Context is null.");
-        return false;
-    }
-    if (context->GetCacheDir().empty()) {
-        HiLog::Error(LABEL, "GetHiViewDir The files dir obtained from context is empty.");
-        return false;
-    }
-    std::string baseDirPath = context->GetBaseDir();
-    std::string cacheDirPath = context->GetCacheDir();
-    std::string hiviewDirPath = context->GetCacheDir() + HIVIEW_DIR;
-    std::string eventDirPath = context->GetCacheDir() + HIVIEW_DIR + EVENT_DIR;
-
-    int aclBaseRet = AclSetAccess(baseDirPath, PARENT_DIR_PERMISSION);
+    int aclBaseRet = AclSetAccess(BASE_DIR, PARENT_DIR_PERMISSION);
     if (aclBaseRet != ACL_SUCC) {
         HiLog::Error(LABEL, "Set ACL failed , baseDirPath= %{public}s ret = %{public}d!!!!",
-            baseDirPath.c_str(), aclBaseRet);
+            BASE_DIR.c_str(), aclBaseRet);
         return false;
     }
-    int aclCacheRet = AclSetAccess(cacheDirPath, PARENT_DIR_PERMISSION);
+    int aclCacheRet = AclSetAccess(CACHE_DIR, PARENT_DIR_PERMISSION);
     if (aclCacheRet != ACL_SUCC) {
         HiLog::Error(LABEL, "Set ACL failed , cacheDirPath= %{public}s ret = %{public}d!!!!",
-            cacheDirPath.c_str(), aclCacheRet);
+            CACHE_DIR.c_str(), aclCacheRet);
         return false;
     }
-    int aclHiviewRet = AclSetAccess(hiviewDirPath, PARENT_DIR_PERMISSION);
+    int aclHiviewRet = AclSetAccess(HIVIEW_DIR, PARENT_DIR_PERMISSION);
     if (aclHiviewRet != ACL_SUCC) {
         HiLog::Error(LABEL, "Set ACL failed , hiviewDirPath= %{public}s ret = %{public}d!!!!",
-            hiviewDirPath.c_str(), aclHiviewRet);
+            HIVIEW_DIR.c_str(), aclHiviewRet);
         return false;
     }
-    int aclRet = AclSetAccess(eventDirPath, SUB_DIR_PERMISSION);
+    int aclRet = AclSetAccess(EVENT_DIR, SUB_DIR_PERMISSION);
     if (aclRet != ACL_SUCC) {
         HiLog::Error(LABEL, "Set ACL failed , eventDirPath= %{public}s ret = %{public}d!!!!",
-            eventDirPath.c_str(), aclRet);
+            EVENT_DIR.c_str(), aclRet);
         return false;
     }
     return true;
