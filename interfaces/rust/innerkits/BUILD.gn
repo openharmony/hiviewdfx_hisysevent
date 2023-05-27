@@ -22,11 +22,10 @@ ohos_rust_shared_library("hisysevent_rust") {
     "src/utils.rs",
   ]
 
-  deps = [ "../../../frameworks/native/c_wrapper:hisysevent_c_wrapper" ]
-
-  external_deps = [
-    "hisysevent_native:libhisysevent",
-    "hisysevent_native:libhisyseventmanager",
+  deps = [
+    "../../../frameworks/native/c_wrapper:hisysevent_c_wrapper",
+    "../../native/innerkits/hisysevent:libhisysevent",
+    "../../native/innerkits/hisysevent_manager:libhisyseventmanager",
   ]
 
   crate_name = "hisysevent"

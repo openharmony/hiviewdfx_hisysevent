@@ -32,11 +32,14 @@ ohos_shared_library("hisysevent_napi") {
     "./src/napi_hisysevent_util.cpp",
   ]
 
+  deps = [
+    "../../../native/innerkits/hisysevent:libhisysevent",
+    "../../../native/innerkits/hisysevent_manager:libhisyseventmanager",
+  ]
+
   external_deps = [
     "access_token:libtokenid_sdk",
     "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
-    "hisysevent_native:libhisyseventmanager",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
