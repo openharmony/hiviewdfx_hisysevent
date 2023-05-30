@@ -168,6 +168,7 @@ public:
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
         static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
         static constexpr char OTHERS[] = "OTHERS";
+        static constexpr char VIR_SERVICE[] = "VIR_SERVICE";
     };
 
     enum EventType {
