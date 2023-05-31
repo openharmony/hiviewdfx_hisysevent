@@ -82,6 +82,7 @@ public:
         static constexpr char APPEXECFWK[] = "APPEXECFWK";
         static constexpr char AUDIO[] = "AUDIO";
         static constexpr char AV_SESSION[] = "AV_SESSION";
+        static constexpr char AV_CODEC[] = "AV_CODEC";
         static constexpr char BACKGROUND_TASK[] = "BACKGROUND_TASK";
         static constexpr char BARRIER_FREE[] = "BARRIERFREE";
         static constexpr char BATTERY[] = "BATTERY";
