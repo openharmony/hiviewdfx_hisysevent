@@ -17,6 +17,7 @@
 
 #include <functional>
 #include <iosfwd>
+#include <limits>
 #include <string>
 #include <thread>
 #include <unistd.h>
@@ -62,7 +63,6 @@ public:
 
     void OnEvent(std::shared_ptr<HiSysEventRecord> sysEvent) final
     {
-        HiLog::Info(LABEL, "================= OnEvent =============");
         if (sysEvent == nullptr || assertFunc_ == nullptr) {
             return;
         }
@@ -253,8 +253,8 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest007, Test
 {
     sleep(1);
     std::vector<int64_t> val = {
-        1111111111111111,
-        -222222222222222222,
+        std::numeric_limits<int64_t>::min(),
+        std::numeric_limits<int64_t>::max(),
         -3333333333333333333,
     };
     auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
@@ -279,8 +279,8 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest008, Test
 {
     sleep(1);
     std::vector<uint64_t> val = {
-        1111111111111111,
-        222222222222222222,
+        std::numeric_limits<uint64_t>::min(),
+        std::numeric_limits<uint64_t>::max(),
         3333333333333333333,
     };
     auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
@@ -307,7 +307,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest009, Test
     std::vector<double> val = {
         1.5,
         2.5,
-        100000000.5,
+        100.374,
     };
     auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
