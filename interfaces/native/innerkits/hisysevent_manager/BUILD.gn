@@ -37,10 +37,13 @@ ohos_shared_library("libhisyseventmanager") {
   ]
 
   output_name = "libhisyseventmanager"
+
   install_enable = true
 
   innerapi_tags = [ "platformsdk" ]
+
   part_name = "hisysevent_native"
+
   subsystem_name = "hiviewdfx"
 
   public_configs = [
@@ -49,12 +52,14 @@ ohos_shared_library("libhisyseventmanager") {
   ]
 
   deps = [
-    "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_client",
-    "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_service_gen_src_client",
-    "//base/hiviewdfx/hisysevent/frameworks/native/util:hisysevent_util",
+    "../../../../adapter/native/idl:sys_event_impl_client",
+    "../../../../adapter/native/idl:sys_event_service_gen_src_client",
+    "../../../../frameworks/native/util:hisysevent_util",
   ]
 
   public_deps = [ "//third_party/jsoncpp:jsoncpp" ]
+
+  version_script = "libhisyseventmanager.map"
 
   external_deps = [
     "c_utils:utils",

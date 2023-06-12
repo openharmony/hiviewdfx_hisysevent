@@ -597,7 +597,15 @@ private:
     static WriteController controller;
 };
 
-// macro interface
+/**
+ * @brief Macro interface for writing system event.
+ * @param domain      event domain.
+ * @param eventName   event name.
+ * @param type        event type.
+ * @return 0 means success,
+ *     greater than 0 also means success but with some data ignored,
+ *     less than 0 means failure.
+ */
 #define HiSysEventWrite(domain, eventName, type, ...) \
 ({ \
     int hiSysEventWriteRet2023___ = OHOS::HiviewDFX::ERR_DOMAIN_MASKED; \

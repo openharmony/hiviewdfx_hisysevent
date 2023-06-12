@@ -38,9 +38,11 @@ ohos_shared_library("libhisysevent") {
   ]
 
   output_name = "libhisysevent"
+
   install_enable = true
 
   part_name = "hisysevent_native"
+
   subsystem_name = "hiviewdfx"
 
   innerapi_tags = [
@@ -52,6 +54,8 @@ ohos_shared_library("libhisysevent") {
     "hilog_native:libhilog",
     "hitrace_native:libhitracechain",
   ]
+
+  version_script = "libhisysevent.map"
 
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 
