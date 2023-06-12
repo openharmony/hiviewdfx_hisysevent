@@ -33,11 +33,38 @@ public:
     ~HiSysEventManager() {}
 
 public:
+    /**
+     * @brief Add a watcher on event writing.
+     * @param listener  event watcher.
+     * @param rules    rules for watcher.
+     * @return 0 means success, others means failure.
+     */
     static int32_t AddListener(std::shared_ptr<HiSysEventListener> listener,
         std::vector<ListenerRule>& rules);
+
+    /**
+     * @brief Remove a watcher.
+     * @param listener event watcher.
+     * @return 0 means success, others means failure.
+     */
     static int32_t RemoveListener(std::shared_ptr<HiSysEventListener> listener);
+
+    /**
+     * @brief Query event.
+     * @param arg      arg of query.
+     * @param rules    rules of query.
+     * @param callback callback of query.
+     * @return 0 means success, others means failure.
+     */
     static int32_t Query(struct QueryArg& arg, std::vector<QueryRule>& rules,
         std::shared_ptr<HiSysEventQueryCallback> callback);
+
+    /**
+     * @brief Set debug mode for event watcher.
+     * @param listener  event watcher.
+     * @param mode      debug mode.
+     * @return 0 means success, others means failure.
+     */
     static int32_t SetDebugMode(std::shared_ptr<HiSysEventListener> listener, bool mode);
 
 private:
