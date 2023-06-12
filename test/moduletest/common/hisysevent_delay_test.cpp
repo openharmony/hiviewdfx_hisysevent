@@ -28,7 +28,6 @@
 #include "gtest/hwext/gtest-ext.h"
 #include "gtest/hwext/gtest-tag.h"
 
-#include "hilog/log.h"
 #include "hisysevent.h"
 #include "string_ex.h"
 #include "string_util.h"
@@ -38,59 +37,35 @@ using namespace OHOS;
 using namespace OHOS::HiviewDFX;
 
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_DELAY_TEST" };
 constexpr int WROTE_TOTAL_CNT = 30;
-constexpr int MILL_TO_MICRO = 1000;
-
-long long GetSystemNanos()
-{
-    struct timespec ts {};
-    (void)clock_gettime(CLOCK_REALTIME, &ts);
-    long long nanoseconds = (ts.tv_sec * MILL_TO_MICRO * MILL_TO_MICRO * MILL_TO_MICRO) + ts.tv_nsec;
-    return nanoseconds;
-}
 
 void WriteStringWithLength(const std::string testCaseName, const std::string testCaseDescription, int cnt)
 {
-    HiLog::Info(LABEL, "================= %{public}s start =============", testCaseName.c_str());
-    HiLog::Info(LABEL, "================= %{public}s =============", testCaseDescription.c_str());
     string param;
     param.append(cnt, 'a');
     std::vector<int> wroteRet;
-    long long start = GetSystemNanos();
     int ret = SUCCESS;
     for (int i = 0; i < WROTE_TOTAL_CNT; ++i) {
         ret = HiSysEventWrite(HiSysEvent::Domain::AAFWK, "LIFECYCLE_TIMEOUT", HiSysEvent::EventType::FAULT, "key",
             param);
         wroteRet.emplace_back(ret);
     }
-    long long finish = GetSystemNanos();
-    HiLog::Info(LABEL, "this time cost is %{public}lld us", (finish - start) / MILL_TO_MICRO);
-    HiLog::Info(LABEL, "this avarage time is %{public}lld us", (finish - start) / MILL_TO_MICRO / WROTE_TOTAL_CNT);
     ASSERT_TRUE((wroteRet.size() == WROTE_TOTAL_CNT) &&
         (std::count(wroteRet.begin(), wroteRet.end(), SUCCESS) == WROTE_TOTAL_CNT));
-    HiLog::Info(LABEL, "================= %{public}s end =============", testCaseName.c_str());
 }
 
 template<typename T>
 void WriteSingleValue(const std::string testCaseName, const std::string testCaseDescription, T val)
 {
-    HiLog::Info(LABEL, "================= %{public}s start =============", testCaseName.c_str());
-    HiLog::Info(LABEL, "================= %{public}s =============", testCaseDescription.c_str());
     std::vector<int> wroteRet;
-    long long start = GetSystemNanos();
     int ret = SUCCESS;
     for (int i = 0; i < WROTE_TOTAL_CNT; ++i) {
         ret = HiSysEventWrite(HiSysEvent::Domain::AAFWK, "LIFECYCLE_TIMEOUT", HiSysEvent::EventType::FAULT, "key",
             val);
         wroteRet.emplace_back(ret);
     }
-    long long finish = GetSystemNanos();
-    HiLog::Info(LABEL, "this time cost is %{public}lld us", (finish - start) / MILL_TO_MICRO);
-    HiLog::Info(LABEL, "this avarage time is %{public}lld us", (finish - start) / MILL_TO_MICRO / WROTE_TOTAL_CNT);
     ASSERT_TRUE((wroteRet.size() == WROTE_TOTAL_CNT) &&
         (std::count(wroteRet.begin(), wroteRet.end(), SUCCESS) == WROTE_TOTAL_CNT));
-    HiLog::Info(LABEL, "================= %{public}s end =============", testCaseName.c_str());
 }
 }
 
@@ -118,21 +93,14 @@ void HiSysEventDelayTest::TearDown(void)
  */
 HWTEST_F(HiSysEventDelayTest, HiSysEventDelayTest001, TestSize.Level1)
 {
-    HiLog::Info(LABEL, "================= HiSysEventDelayTest001 start =============");
-    HiLog::Info(LABEL, "================= Write a sysevent without any parameter =============");
     std::vector<int> wroteRet;
-    long long start = GetSystemNanos();
     int ret = SUCCESS;
     for (int i = 0; i < WROTE_TOTAL_CNT; ++i) {
         ret = HiSysEventWrite(HiSysEvent::Domain::AAFWK, "LIFECYCLE_TIMEOUT", HiSysEvent::EventType::FAULT);
         wroteRet.emplace_back(ret);
     }
-    long long finish = GetSystemNanos();
-    HiLog::Info(LABEL, "this time cost is %{public}lld us", (finish - start) / MILL_TO_MICRO);
-    HiLog::Info(LABEL, "this avarage time is %{public}lld us", (finish - start) / MILL_TO_MICRO / WROTE_TOTAL_CNT);
     ASSERT_TRUE((wroteRet.size() == WROTE_TOTAL_CNT) &&
         (std::count(wroteRet.begin(), wroteRet.end(), SUCCESS) == WROTE_TOTAL_CNT));
-    HiLog::Info(LABEL, "================= HiSysEventDelayTest001 end =============");
 }
 
 /**
