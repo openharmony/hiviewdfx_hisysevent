@@ -941,7 +941,7 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
         // export
         {ERR_EXPORT_FREQUENCY_OVER_LIMIT, {NapiError::ERR_QUERY_TOO_FREQUENTLY, "Export frequency is over limit."}},
         // add subscriber
-        {ERR_TOO_MANY_EVENTS, {NapiError::ERR_WATCHER_COUNT_OVER_LIMIT, "Count of events is over limit"}},
+        {ERR_TOO_MANY_EVENTS, {NapiError::ERR_QUERY_RULE_COUNT_OVER_LIMIT, "Count of query rules is over limit"}},
         // remove subscriber
         {ERR_REMOVE_SUBSCRIBE, {NapiError::ERR_REMOVE_SUBSCRIBE, "unsubscribe failed"}},
     };
