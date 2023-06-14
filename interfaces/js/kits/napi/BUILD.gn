@@ -17,6 +17,7 @@ ohos_shared_library("hisysevent_napi") {
   include_dirs = [
     ".",
     "include/",
+    "//third_party/jsoncpp/include",
     "//third_party/node/src",
   ]
 
@@ -35,12 +36,13 @@ ohos_shared_library("hisysevent_napi") {
   deps = [
     "../../../native/innerkits/hisysevent:libhisysevent",
     "../../../native/innerkits/hisysevent_manager:libhisyseventmanager",
+    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
     "access_token:libtokenid_sdk",
     "hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 

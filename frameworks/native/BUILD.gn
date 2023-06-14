@@ -26,6 +26,7 @@ ohos_executable("hisysevent") {
     "include",
     "//utils/system/safwk/native/include",
     "//foundation/systemabilitymgr/safwk/interfaces/innerkits/safwk",
+    "//third_party/jsoncpp/include",
   ]
 
   public_configs =
@@ -42,7 +43,7 @@ ohos_executable("hisysevent") {
   external_deps = [
     "c_utils:utils",
     "hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "samgr:samgr_proxy",
   ]
 
