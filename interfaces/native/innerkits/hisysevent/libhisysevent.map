@@ -41,13 +41,13 @@
         "OHOS::HiviewDFX::Encoded::RawDataEncoder::EncodedTag(unsigned char)";
         "OHOS::HiviewDFX::Encoded::RawData::Append(unsigned char*, unsigned int)";
         "OHOS::HiviewDFX::Encoded::RawData::Append(unsigned char*, unsigned long)";
-        "HiSysEvent_Write";
         "OHOS::HiviewDFX::InnerWriter::CheckArraySize(unsigned int)";
         "OHOS::HiviewDFX::InnerWriter::CheckArraySize(unsigned long)";
         "OHOS::HiviewDFX::Encoded::EncodedParam::AsString(std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>>&)";
         "OHOS::HiviewDFX::StringFilter::IsValidName(std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>> const&, unsigned int)";
     };
   extern "C" {
+        "HiSysEvent_Write";
         "OH_HiSysEvent_Write";
   };
   local:
