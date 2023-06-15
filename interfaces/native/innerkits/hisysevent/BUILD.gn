@@ -55,8 +55,6 @@ ohos_shared_library("libhisysevent") {
     "hitrace_native:libhitracechain",
   ]
 
-  version_script = "libhisysevent.map"
-
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 
   public_deps = [ "./encode:hisysevent_encoded" ]
