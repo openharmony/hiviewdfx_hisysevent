@@ -50,6 +50,8 @@ ohos_shared_library("libhisysevent") {
     "platformsdk",
   ]
 
+  version_script = "libhisysevent.map"
+
   external_deps = [
     "hilog_native:libhilog",
     "hitrace_native:libhitracechain",

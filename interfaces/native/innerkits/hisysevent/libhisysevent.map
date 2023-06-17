@@ -45,6 +45,16 @@
         "OHOS::HiviewDFX::InnerWriter::CheckArraySize(unsigned long)";
         "OHOS::HiviewDFX::Encoded::EncodedParam::AsString(std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>>&)";
         "OHOS::HiviewDFX::StringFilter::IsValidName(std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>> const&, unsigned int)";
+        "OHOS::HiviewDFX::HiSysEvent::WritebaseInfo(OHOS::HiviewDFX::HiSysEvent::EventBase&)";
+        "OHOS::HiviewDFX::HiSysEvent::IsError(OHOS::HiviewDFX::HiSysEvent::EventBase&)";
+        "OHOS::HiviewDFX::HiSysEvent::ExplainRetCode(OHOS::HiviewDFX::HiSysEvent::EventBase&)";
+        "OHOS::HiviewDFX::HiSysEvent::SendSysEvent(OHOS::HiviewDFX::HiSysEvent::EventBase&)";
+        "OHOS::HiviewDFX::HiSysEvent::CheckKey(std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>> const&)";
+        "OHOS::HiviewDFX::HiSysEvent::IsWarnAndUpdate(int, OHOS::HiviewDFX::HiSysEvent::EventBase&)";
+        "OHOS::HiviewDFX::HiSysEvent::UpdateAndCheckKeyNumIsOver(OHOS::HiviewDFX::HiSysEvent::EventBase&)";
+        "OHOS::HiviewDFX::HiSysEvent::InnerWrite(OHOS::HiviewDFX::HiSysEvent::EventBase&)";
+        "OHOS::HiviewDFX::HiSysEvent::AppendValue(OHOS::HiviewDFX::HiSysEvent::EventBase&, std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>> const&)";
+        "OHOS::HiviewDFX::HiSysEvent::CheckValue(std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>> const&)";
     };
   extern "C" {
         "HiSysEvent_Write";
