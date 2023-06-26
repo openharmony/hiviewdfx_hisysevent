@@ -24,8 +24,8 @@
       "components": [
         "access_token",
         "c_utils",
-        "hilog_native",
-        "hitrace_native",
+        "hilog",
+        "hitrace",
         "ipc",
         "napi",
         "safwk",

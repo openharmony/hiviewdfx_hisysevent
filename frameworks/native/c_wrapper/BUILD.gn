@@ -34,7 +34,7 @@ ohos_shared_library("hisysevent_c_wrapper") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 
   output_extension = "so"

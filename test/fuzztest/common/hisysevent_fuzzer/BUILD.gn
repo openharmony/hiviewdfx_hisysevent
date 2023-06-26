@@ -29,8 +29,7 @@ ohos_fuzztest("HiSysEventFuzzTest") {
 
   sources = [ "hisysevent_fuzzer.cpp" ]
 
-  external_deps = [
-    "hisysevent_native:libhisysevent",
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+  deps = [ "../../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd" ]
+
+  external_deps = [ "hilog:libhilog" ]
 }

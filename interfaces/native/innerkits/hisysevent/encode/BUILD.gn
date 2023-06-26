@@ -36,7 +36,7 @@ ohos_source_set("hisysevent_encoded") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 
   part_name = "hisysevent_native"

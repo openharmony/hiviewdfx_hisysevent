@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,8 @@
  */
 
 #include "hisysevent_record.h"
+
+#include <sstream>
 
 #include "hilog/log.h"
 #include "hisysevent_value.h"
@@ -96,7 +98,12 @@ int64_t HiSysEventRecord::GetUid() const
 
 uint64_t HiSysEventRecord::GetTraceId() const
 {
-    return GetUInt64ValueByKey("traceid_");
+    std::string hexStr = GetStringValueByKey("traceid_");
+    uint64_t traceId = 0; // default trace id is 0
+    std::stringstream ss;
+    ss << hexStr;
+    ss >> std::hex >> traceId;
+    return traceId;
 }
 
 uint64_t HiSysEventRecord::GetSpanId() const

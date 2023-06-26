@@ -69,7 +69,7 @@ struct HiSysEventHeader {
     /* Event type */
     uint8_t type : 2;
 
-    /* Trace info flag*/
+    /* Trace info flag */
     uint8_t isTraceOpened : 1;
 };
 
