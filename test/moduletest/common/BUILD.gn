@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -29,26 +29,24 @@ ohos_moduletest("HiSysEventAdapterNativeTest") {
   configs = [ ":hisysevent_native_test_config" ]
 
   deps = [
-    "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_client",
-    "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_service_gen_src_client",
-    "//base/hiviewdfx/hisysevent/frameworks/native/util:hisysevent_util",
+    "../../../adapter/native/idl:sys_event_impl_client",
+    "../../../adapter/native/idl:sys_event_service_gen_src_client",
+    "../../../frameworks/native/util:hisysevent_util",
+    "../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd",
+    "../../../interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_static_lib_for_tdd",
     "//third_party/googletest:gtest_main",
   ]
 
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
-      "hisysevent_native:libhisysevent",
-      "hisysevent_native:libhisyseventmanager",
-      "hiviewdfx_hilog_native:libhilog",
+      "hilog:libhilog",
       "ipc:ipc_single",
     ]
   } else {
     external_deps = [
       "c_utils:utils",
       "hilog:libhilog",
-      "hisysevent_native:libhisysevent",
-      "hisysevent_native:libhisyseventmanager",
       "ipc:ipc_single",
     ]
     cflags_cc = [ "-D__HIVIEW_HAVE_HITRACE__" ]
@@ -63,24 +61,22 @@ ohos_moduletest("HiSysEventNativeTest") {
   configs = [ ":hisysevent_native_test_config" ]
 
   deps = [
-    "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_client",
-    "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_service_gen_src_client",
+    "../../../adapter/native/idl:sys_event_impl_client",
+    "../../../adapter/native/idl:sys_event_service_gen_src_client",
+    "../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd",
+    "../../../interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_static_lib_for_tdd",
     "//third_party/googletest:gtest_main",
   ]
 
   if (is_standard_system) {
     external_deps = [
       "c_utils:utils",
-      "hisysevent_native:libhisysevent",
-      "hisysevent_native:libhisyseventmanager",
-      "hiviewdfx_hilog_native:libhilog",
+      "hilog:libhilog",
     ]
   } else {
     external_deps = [
       "c_utils:utils",
       "hilog:libhilog",
-      "hisysevent_native:libhisysevent",
-      "hisysevent_native:libhisyseventmanager",
     ]
     cflags_cc = [ "-D__HIVIEW_HAVE_HITRACE__" ]
   }
@@ -100,8 +96,8 @@ ohos_moduletest("HiSysEventCTest") {
   }
 
   external_deps = [
-    "hisysevent_native:libhisysevent",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
   ]
 }
 
@@ -116,7 +112,8 @@ ohos_moduletest("HiSysEventManagerCTest") {
   configs = [ ":hisysevent_native_test_config" ]
 
   deps = [
-    "//base/hiviewdfx/hisysevent/frameworks/native/util:hisysevent_util",
+    "../../../frameworks/native/util:hisysevent_util",
+    "../../../interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_static_lib_for_tdd",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -126,10 +123,7 @@ ohos_moduletest("HiSysEventManagerCTest") {
     deps += [ "//third_party/bounds_checking_function:libsec_static" ]
   }
 
-  external_deps = [
-    "hisysevent_native:libhisyseventmanager",
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+  external_deps = [ "hilog:libhilog" ]
 }
 
 ohos_moduletest("HiSysEventDelayTest") {
@@ -143,7 +137,8 @@ ohos_moduletest("HiSysEventDelayTest") {
   configs = [ ":hisysevent_native_test_config" ]
 
   deps = [
-    "//base/hiviewdfx/hisysevent/frameworks/native/util:hisysevent_util",
+    "../../../frameworks/native/util:hisysevent_util",
+    "../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -153,10 +148,7 @@ ohos_moduletest("HiSysEventDelayTest") {
     deps += [ "//third_party/bounds_checking_function:libsec_static" ]
   }
 
-  external_deps = [
-    "hisysevent_native:libhisysevent",
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+  external_deps = [ "hilog:libhilog" ]
 }
 
 ohos_moduletest("HiSysEventWroteResultCheckTest") {
@@ -170,7 +162,9 @@ ohos_moduletest("HiSysEventWroteResultCheckTest") {
   configs = [ ":hisysevent_native_test_config" ]
 
   deps = [
-    "//base/hiviewdfx/hisysevent/frameworks/native/util:hisysevent_util",
+    "../../../frameworks/native/util:hisysevent_util",
+    "../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd",
+    "../../../interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_static_lib_for_tdd",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -181,9 +175,36 @@ ohos_moduletest("HiSysEventWroteResultCheckTest") {
   }
 
   external_deps = [
-    "hisysevent_native:libhisysevent",
-    "hisysevent_native:libhisyseventmanager",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:libhitracechain",
+  ]
+}
+
+ohos_moduletest("HiSysEventEncodedTest") {
+  module_out_path = module_output_path
+
+  include_dirs =
+      [ "//base/hiviewdfx/hisysevent/adapter/native/idl/include/ret_code.h" ]
+
+  sources = [ "hisysevent_encoded_test.cpp" ]
+
+  configs = [ ":hisysevent_native_test_config" ]
+
+  deps = [
+    "../../../frameworks/native/util:hisysevent_util",
+    "../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  if (build_public_version) {
+    deps += [ "//third_party/bounds_checking_function:libsec_shared" ]
+  } else {
+    deps += [ "//third_party/bounds_checking_function:libsec_static" ]
+  }
+
+  external_deps = [
+    "hilog:libhilog",
+    "hitrace:libhitracechain",
   ]
 }
 
@@ -195,6 +216,7 @@ group("moduletest") {
     ":HiSysEventAdapterNativeTest",
     ":HiSysEventCTest",
     ":HiSysEventDelayTest",
+    ":HiSysEventEncodedTest",
     ":HiSysEventManagerCTest",
     ":HiSysEventNativeTest",
     ":HiSysEventWroteResultCheckTest",

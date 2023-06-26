@@ -79,7 +79,7 @@ std::shared_ptr<RawData> RawDataBuilder::Build()
         return rawData;
     }
     if (!BuildCustomizedParams(rawData)) {
-        HiLog::Error(LABEL, "Customized paramters of sys event build failed.");
+        HiLog::Error(LABEL, "Customized paramters of sysevent build failed.");
         return rawData;
     }
     // update block size

@@ -53,8 +53,38 @@ ohos_shared_library("libhisysevent") {
   version_script = "libhisysevent.map"
 
   external_deps = [
-    "hilog_native:libhilog",
-    "hitrace_native:libhitracechain",
+    "hilog:libhilog",
+    "hitrace:libhitracechain",
+  ]
+
+  deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+
+  public_deps = [ "./encode:hisysevent_encoded" ]
+}
+
+ohos_static_library("hisysevent_static_lib_for_tdd") {
+  configs = [ ":hisysevent_config" ]
+
+  all_dependent_configs = [ ":hisysevent_config" ]
+
+  sources = [
+    "hisysevent.cpp",
+    "hisysevent_c.cpp",
+    "inner_writer.cpp",
+    "stringfilter.cpp",
+    "transport.cpp",
+    "write_controller.cpp",
+  ]
+
+  output_name = "hisysevent_static_lib_for_tdd"
+
+  part_name = "hisysevent_native"
+
+  subsystem_name = "hiviewdfx"
+
+  external_deps = [
+    "hilog:libhilog",
+    "hitrace:libhitracechain",
   ]
 
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]

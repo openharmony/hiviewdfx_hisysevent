@@ -36,6 +36,7 @@
 #include "hisysevent_record.h"
 #include "hisysevent_query_callback.h"
 #include "hisysevent_listener.h"
+#include "hitrace/trace.h"
 #include "ret_code.h"
 #include "rule_type.h"
 
@@ -93,6 +94,14 @@ void WriteAndWatch(std::shared_ptr<Watcher> watcher, T& val)
     sleep(1);
     ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(watcher);
     ASSERT_TRUE(ret == SUCCESS);
+}
+
+bool IsContains(const std::string& total, const std::string& part)
+{
+    if (total.empty() || part.empty()) {
+        return false;
+    }
+    return total.find(part) != std::string::npos;
 }
 }
 
@@ -177,21 +186,20 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest003, Test
 
 /**
  * @tc.name: HiSysEventWroteResultCheckTest004
- * @tc.desc: Write sysevent with floating parameter
+ * @tc.desc: Write sysevent with double parameter
  * @tc.type: FUNC
  * @tc.require: issueI76V6J
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest004, TestSize.Level1)
 {
     sleep(1);
-    double val = -3.5;
+    double val = 30949.374;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
             return false;
         }
-        double ret;
-        sysEvent->GetParamValue(PARAM_KEY, ret);
-        return ret == val;
+        std::string eventJsonStr = sysEvent->AsJson();
+        return IsContains(eventJsonStr, "\"key\":30949.4,");
     });
     WriteAndWatch(watcher, val);
 }
@@ -313,10 +321,8 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest009, Test
         if (sysEvent == nullptr) {
             return false;
         }
-        std::vector<double> ret;
-        sysEvent->GetParamValue(PARAM_KEY, ret);
-        return (ret.size() == ARRAY_TOTAL_CNT) && (val[FIRST_ITEM_INDEX] == ret[FIRST_ITEM_INDEX]) &&
-            (val[SECOND_ITEM_INDEX] == ret[SECOND_ITEM_INDEX]) && (val[THIRD_ITEM_INDEX] == ret[THIRD_ITEM_INDEX]);
+        std::string eventJsonStr = sysEvent->AsJson();
+        return IsContains(eventJsonStr, "\"key\":[1.5,2.5,100.374],");
     });
     WriteAndWatch(watcher, val);
 }
@@ -343,6 +349,93 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest010, Test
         sysEvent->GetParamValue(PARAM_KEY, ret);
         return (ret.size() == ARRAY_TOTAL_CNT) && (ret[FIRST_ITEM_INDEX] == "value1\n\r") &&
             (ret[SECOND_ITEM_INDEX] == "value2\n\r") && (ret[THIRD_ITEM_INDEX] == "value3\n\r");
+    });
+    WriteAndWatch(watcher, val);
+}
+
+/**
+ * @tc.name: HiSysEventWroteResultCheckTest011
+ * @tc.desc: Write sysevent with float parameter
+ * @tc.type: FUNC
+ * @tc.require: issueI76V6J
+ */
+HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest011, TestSize.Level1)
+{
+    sleep(1);
+    float val = 230.47;
+    auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
+        if (sysEvent == nullptr) {
+            return false;
+        }
+        std::string eventJsonStr = sysEvent->AsJson();
+        return IsContains(eventJsonStr, "\"key\":230.47,");
+    });
+    WriteAndWatch(watcher, val);
+    WriteAndWatch(watcher, val);
+}
+
+/**
+ * @tc.name: HiSysEventWroteResultCheckTest012
+ * @tc.desc: Write sysevent with float array parameter
+ * @tc.type: FUNC
+ * @tc.require: issueI76V6J
+ */
+HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest012, TestSize.Level1)
+{
+    sleep(1);
+    std::vector<float> val = {
+        1.1,
+        2.2,
+        3.5,
+        4,
+    };
+    auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
+        if (sysEvent == nullptr) {
+            return false;
+        }
+        std::string eventJsonStr = sysEvent->AsJson();
+        return IsContains(eventJsonStr, "\"key\":[1.1,2.2,3.5,4],");
+    });
+    WriteAndWatch(watcher, val);
+}
+
+/**
+ * @tc.name: HiSysEventWroteResultCheckTest013
+ * @tc.desc: Write sysevent after begin hitracechain
+ * @tc.type: FUNC
+ * @tc.require: issueI76V6J
+ */
+HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest013, TestSize.Level1)
+{
+    sleep(1);
+    std::string val = "with valid hitracechain";
+    auto traceId = HiTraceChain::Begin("TestCase1", HITRACE_FLAG_INCLUDE_ASYNC | HITRACE_FLAG_DONOT_CREATE_SPAN);
+    auto watcher = std::make_shared<Watcher>([&val, &traceId] (std::shared_ptr<HiSysEventRecord> sysEvent) {
+        if (sysEvent == nullptr) {
+            return false;
+        }
+        return (traceId.GetFlags() == sysEvent->GetTraceFlag()) && (traceId.GetChainId() == sysEvent->GetTraceId());
+    });
+    WriteAndWatch(watcher, val);
+    HiTraceChain::End(traceId);
+}
+
+/**
+ * @tc.name: HiSysEventWroteResultCheckTest014
+ * @tc.desc: Write sysevent with negative double parameter
+ * @tc.type: FUNC
+ * @tc.require: issueI76V6J
+ */
+HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest014, TestSize.Level1)
+{
+    sleep(1);
+    double val = -3.5;
+    auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
+        if (sysEvent == nullptr) {
+            return false;
+        }
+        std::string eventJsonStr = sysEvent->AsJson();
+        return IsContains(eventJsonStr, "\"key\":-3.5,");
     });
     WriteAndWatch(watcher, val);
 }
