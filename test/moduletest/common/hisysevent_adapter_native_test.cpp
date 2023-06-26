@@ -26,8 +26,9 @@
 #include "gtest/hwext/gtest-ext.h"
 #include "gtest/hwext/gtest-tag.h"
 
-#include "hilog/log.h"
 #include "ash_mem_utils.h"
+#include "file_util.h"
+#include "hilog/log.h"
 #include "hisysevent_base_listener.h"
 #include "hisysevent_base_query_callback.h"
 #include "hisysevent_delegate.h"
@@ -56,6 +57,8 @@ constexpr char ASH_MEM_NAME[] = "TestSharedMemory";
 constexpr int32_t ASH_MEM_SIZE = 1024 * 2; // 2K
 constexpr int64_t CURRENT_TIME = 20170810130952; // 2017-08-10-13:09:52
 constexpr int32_t TIME_STAMP_LENGTH = 10; // timeStamp length
+constexpr char LOG_DIR_PATH[] = "/data/test/adapter_native_test";
+constexpr char FILE_PATH[] = "/data/test/adapter_native_test/test.log";
 
 sptr<Ashmem> GetAshmem()
 {
@@ -246,6 +249,10 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestHiSysEventDelegateApisWithInvalidInsta
     auto baseQuerier = std::make_shared<HiSysEventBaseQueryCallback>();
     ret = delegate->Query(args, queryRules, baseQuerier);
     ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
+    ret = delegate->Subscribe(queryRules);
+    ASSERT_TRUE(std::to_string(ret).length() > TIME_STAMP_LENGTH);
+    ret = delegate->Unsubscribe();
+    ASSERT_TRUE(ret == 0);
 }
 
 /**
@@ -380,6 +387,44 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventService002, TestSize.Level1)
     OHOS::HiviewDFX::QueryArgument args(defaultTimeStap, defaultTimeStap, queryCount);
     ret = proxy.Export(args, queryRules);
     ASSERT_TRUE(std::to_string(ret).length() > TIME_STAMP_LENGTH);
+}
+
+/**
+ * @tc.name: FileUtilOhosTest001
+ * @tc.desc: FileUtil test
+ * @tc.type: FUNC
+ * @tc.require: SR000I1G43
+ */
+HWTEST_F(HiSysEventAdapterNativeTest, FileUtilOhosTest001, TestSize.Level3)
+{
+    auto ret = FileUtil::ForceCreateDirectory(LOG_DIR_PATH);
+    ASSERT_TRUE(ret);
+    ret = FileUtil::IsDirectory(LOG_DIR_PATH);
+    ASSERT_TRUE(ret);
+    ret = FileUtil::RemoveDirectory(LOG_DIR_PATH);
+    ASSERT_TRUE(ret);
+    ret = FileUtil::IsDirectory(LOG_DIR_PATH);
+    ASSERT_TRUE(!ret);
+    auto result = FileUtil::GetFilePathByDir(LOG_DIR_PATH, "test.log");
+    ASSERT_TRUE(result == FILE_PATH);
+}
+
+/**
+ * @tc.name: FileUtilOhosTest002
+ * @tc.desc: FileUtil test
+ * @tc.type: FUNC
+ * @tc.require: SR000I1G43
+ */
+HWTEST_F(HiSysEventAdapterNativeTest, FileUtilOhosTest002, TestSize.Level3)
+{
+    auto ret = FileUtil::IsLegalPath("aa/../bb");
+    ASSERT_TRUE(!ret);
+    ret = FileUtil::IsLegalPath("aa/./bb");
+    ASSERT_TRUE(!ret);
+    ret = FileUtil::IsLegalPath("aa/bb/");
+    ASSERT_TRUE(ret);
+    ret = FileUtil::IsLegalPath("aa/bb/cc");
+    ASSERT_TRUE(ret);
 }
 
 /**
