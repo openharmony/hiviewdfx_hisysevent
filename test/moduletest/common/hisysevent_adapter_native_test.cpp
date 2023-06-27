@@ -57,7 +57,6 @@ namespace {
 constexpr char ASH_MEM_NAME[] = "TestSharedMemory";
 constexpr int32_t ASH_MEM_SIZE = 1024 * 2; // 2K
 constexpr int64_t CURRENT_TIME = 20170810130952; // 2017-08-10-13:09:52
-constexpr int32_t TIME_STAMP_LENGTH = 10; // timeStamp length
 constexpr char LOG_DIR_PATH[] = "/data/test/adapter_native_test";
 constexpr char FILE_PATH[] = "/data/test/adapter_native_test/test.log";
 
