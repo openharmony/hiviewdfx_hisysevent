@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include <chrono>
 #include <iosfwd>
 #include <string>
 #include <thread>
@@ -70,6 +71,13 @@ sptr<Ashmem> GetAshmem()
         return ashmem;
     }
     return ashmem;
+}
+
+uint64_t GetMilliseconds()
+{
+    auto now = std::chrono::system_clock::now();
+    auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    return millisecs.count();
 }
 
 class QuerySysEventCallbackStubTest : public QuerySysEventCallbackStub {
@@ -249,8 +257,9 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestHiSysEventDelegateApisWithInvalidInsta
     auto baseQuerier = std::make_shared<HiSysEventBaseQueryCallback>();
     ret = delegate->Query(args, queryRules, baseQuerier);
     ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
-    ret = delegate->Subscribe(queryRules);
-    ASSERT_TRUE(std::to_string(ret).length() > TIME_STAMP_LENGTH);
+    int64_t currentTime = static_cast<int64_t>(GetMilliseconds());
+    auto result = delegate->Subscribe(queryRules);
+    ASSERT_TRUE(std::to_string(result).length() >= std::to_string(currentTime).length());
     ret = delegate->Unsubscribe();
     ASSERT_TRUE(ret == 0);
 }
@@ -378,15 +387,16 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventService002, TestSize.Level1)
     std::vector<std::string> eventNames { "EVENT_NAME1", "EVENT_NAME2" };
     OHOS::HiviewDFX::SysEventQueryRule queryRule("DOMAIN", eventNames);
     queryRules.emplace_back(queryRule);
+    int64_t currentTime = static_cast<int64_t>(GetMilliseconds());
     auto ret = proxy.AddSubscriber(queryRules);
-    ASSERT_TRUE(std::to_string(ret).length() > TIME_STAMP_LENGTH);
+    ASSERT_TRUE(std::to_string(ret).length() >= std::to_string(currentTime).length());
     ret = proxy.RemoveSubscriber();
     ASSERT_TRUE(ret == 0);
     long long defaultTimeStap = -1;
     int queryCount = 10;
     OHOS::HiviewDFX::QueryArgument args(defaultTimeStap, defaultTimeStap, queryCount);
     ret = proxy.Export(args, queryRules);
-    ASSERT_TRUE(std::to_string(ret).length() > TIME_STAMP_LENGTH);
+    ASSERT_TRUE(std::to_string(ret).length() >= std::to_string(currentTime).length());
 }
 
 /**
