@@ -115,8 +115,7 @@ int32_t HiSysEventDelegate::Query(const struct QueryArg& arg,
     std::vector<SysEventQueryRule> hospRules;
     ConvertQueryRule(rules, hospRules);
 
-    sptr<HiSysEventQueryProxy> spCallBack =
-        new OHOS::HiviewDFX::HiSysEventQueryProxy(callback);
+    sptr<HiSysEventQueryProxy> spCallBack(new OHOS::HiviewDFX::HiSysEventQueryProxy(callback));
 
     SysEventServiceProxy sysEventService(service);
     QueryArgument queryArgument(arg.beginTime, arg.endTime, arg.maxEvents, arg.fromSeq, arg.toSeq);
