@@ -22,8 +22,6 @@
 #include <list>
 #include <securec.h>
 #include <string>
-#include <sys/socket.h>
-#include <sys/un.h>
 #include <unistd.h>
 
 #include "def.h"
@@ -69,14 +67,6 @@ void Transport::InitRecvBuffer(int socketId)
 
 int Transport::SendToHiSysEventDataSource(RawData& rawData)
 {
-    struct sockaddr_un serverAddr;
-    serverAddr.sun_family = AF_UNIX;
-    if (strcpy_s(serverAddr.sun_path, sizeof(serverAddr.sun_path), "/dev/unix/socket/hisysevent") != EOK) {
-        HiLog::Error(LABEL, "can not assign server path");
-        return ERR_DOES_NOT_INIT;
-    }
-    serverAddr.sun_path[sizeof(serverAddr.sun_path) - 1] = '\0';
-
     if (socketId_ < 0) {
         socketId_ = TEMP_FAILURE_RETRY(socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0));
         if (socketId_ < 0) {
@@ -91,7 +81,7 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
     auto retryTimes = RETRY_TIMES;
     do {
         sendRet = sendto(socketId_, rawData.GetData(), rawData.GetDataLength(), 0,
-            reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
+            reinterpret_cast<sockaddr*>(&serverAddr_), sizeof(serverAddr_));
         retryTimes--;
     } while (sendRet < 0 && retryTimes > 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
     if (sendRet < 0) {
@@ -118,6 +108,9 @@ void Transport::AddFailedData(RawData& rawData)
 
 void Transport::RetrySendFailedData()
 {
+    if (retryDataList_.empty()) {
+        return;
+    }
     std::lock_guard<std::mutex> lock(mutex_);
     while (!retryDataList_.empty()) {
         auto rawData = retryDataList_.front();

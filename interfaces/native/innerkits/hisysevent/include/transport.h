@@ -19,6 +19,8 @@
 #include <list>
 #include <mutex>
 #include <string>
+#include <sys/socket.h>
+#include <sys/un.h>
 
 #include "raw_data.h"
 
@@ -48,6 +50,10 @@ private:
     std::mutex mutex_;
     std::list<RawData> retryDataList_;
     int socketId_ = INVALID_SOCKET_ID; // uninit
+    struct sockaddr_un serverAddr_ = {
+        .sun_family = AF_UNIX,
+        .sun_path = "/dev/unix/socket/hisysevent",
+    };
 };
 } // namespace HiviewDFX
 } // namespace OHOS
