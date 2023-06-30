@@ -21,6 +21,8 @@
 #include <iosfwd>
 #include <list>
 #include <securec.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <string>
 #include <unistd.h>
 
@@ -33,6 +35,10 @@ namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
 constexpr size_t BUF_SIZE = 2000;
 char errMsg[BUF_SIZE] = { 0 };
+struct sockaddr_un SERVER_ADDR_ = {
+    .sun_family = AF_UNIX,
+    .sun_path = "/dev/unix/socket/hisysevent",
+};
 }
 Transport Transport::instance_;
 
@@ -81,7 +87,7 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
     auto retryTimes = RETRY_TIMES;
     do {
         sendRet = sendto(socketId_, rawData.GetData(), rawData.GetDataLength(), 0,
-            reinterpret_cast<sockaddr*>(&serverAddr_), sizeof(serverAddr_));
+            reinterpret_cast<sockaddr*>(&SERVER_ADDR_), sizeof(SERVER_ADDR_));
         retryTimes--;
     } while (sendRet < 0 && retryTimes > 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
     if (sendRet < 0) {

@@ -19,8 +19,6 @@
 #include <list>
 #include <mutex>
 #include <string>
-#include <sys/socket.h>
-#include <sys/un.h>
 
 #include "raw_data.h"
 
@@ -28,6 +26,7 @@ namespace OHOS {
 namespace HiviewDFX {
 using namespace Encoded;
 constexpr int INVALID_SOCKET_ID = -1;
+
 class Transport {
 public:
     Transport() {}
@@ -50,10 +49,6 @@ private:
     std::mutex mutex_;
     std::list<RawData> retryDataList_;
     int socketId_ = INVALID_SOCKET_ID; // uninit
-    struct sockaddr_un serverAddr_ = {
-        .sun_family = AF_UNIX,
-        .sun_path = "/dev/unix/socket/hisysevent",
-    };
 };
 } // namespace HiviewDFX
 } // namespace OHOS
