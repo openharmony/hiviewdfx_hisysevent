@@ -26,6 +26,7 @@ namespace OHOS {
 namespace HiviewDFX {
 using namespace Encoded;
 constexpr int INVALID_SOCKET_ID = -1;
+
 class Transport {
 public:
     Transport() {}

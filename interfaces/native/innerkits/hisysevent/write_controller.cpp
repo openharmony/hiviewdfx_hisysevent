@@ -46,7 +46,8 @@ bool WriteController::CheckLimitWritingEvent(const ControlParam& param, const ch
     }
     timeval cur;
     gettimeofday(&cur, nullptr);
-    if (stat.begin.tv_sec + static_cast<time_t>(param.period) < cur.tv_sec) {
+    if ((stat.begin.tv_sec + static_cast<time_t>(param.period) < cur.tv_sec) ||
+        (stat.begin.tv_sec > cur.tv_sec)) {
         stat.count = 1;
         stat.begin = cur;
         lruCache.Put(key, stat);

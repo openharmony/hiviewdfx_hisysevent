@@ -118,7 +118,6 @@ RawData::~RawData()
 
 void RawData::Reset()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
     if (data_ != nullptr) {
         len_ = 0;
         return;
@@ -148,7 +147,6 @@ bool RawData::Update(uint8_t* data, size_t len, size_t pos)
             "len_ is %{public}zu", len, pos, len_);
         return false;
     }
-    std::lock_guard<std::mutex> lock(mutex_);
     auto ret = EOK;
     if ((pos + len) > capacity_) {
         size_t expandedSize = (len > EXPAND_BUF_SIZE) ? len : EXPAND_BUF_SIZE;
@@ -182,7 +180,6 @@ bool RawData::Update(uint8_t* data, size_t len, size_t pos)
 
 uint8_t* RawData::GetData() const
 {
-    std::lock_guard<std::mutex> lock(mutex_);
     return data_;
 }
 

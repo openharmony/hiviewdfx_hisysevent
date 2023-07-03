@@ -46,7 +46,6 @@ private:
     uint8_t* data_ = nullptr;
     size_t len_ = 0;
     size_t capacity_ = 0;
-    mutable std::mutex mutex_;
 };
 } // namespace Encoded
 } // namespace HiviewDFX
