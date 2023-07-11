@@ -43,6 +43,11 @@ ohos_shared_library("libhisysevent") {
 
   part_name = "hisysevent_native"
 
+  install_images = [
+    "system",
+    "updater",
+  ]
+
   subsystem_name = "hiviewdfx"
 
   innerapi_tags = [
