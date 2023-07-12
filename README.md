@@ -77,7 +77,7 @@ The following table lists the C++ APIs provided by the  **HiSysEvent**  class.
 2.  Configure compilation information. Specifically, add the subsystem SDK dependency to  **BUILD.gn**.
 
     ```
-    external_deps = [ "hisysevent_native:libhisysevent" ]
+    external_deps = [ "hisysevent:libhisysevent" ]
     ```
 
 

@@ -44,7 +44,7 @@ ohos_shared_library("libhisyseventmanager") {
 
   innerapi_tags = [ "platformsdk" ]
 
-  part_name = "hisysevent_native"
+  part_name = "hisysevent"
 
   subsystem_name = "hiviewdfx"
 
@@ -85,7 +85,7 @@ ohos_static_library("hisyseventmanager_static_lib_for_tdd") {
 
   output_name = "hisyseventmanager_static_lib_for_tdd"
 
-  part_name = "hisysevent_native"
+  part_name = "hisysevent"
 
   subsystem_name = "hiviewdfx"
 

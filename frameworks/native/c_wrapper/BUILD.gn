@@ -39,6 +39,6 @@ ohos_shared_library("hisysevent_c_wrapper") {
 
   output_extension = "so"
 
-  part_name = "hisysevent_native"
+  part_name = "hisysevent"
   subsystem_name = "hiviewdfx"
 }

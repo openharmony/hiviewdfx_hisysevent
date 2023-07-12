@@ -56,7 +56,7 @@ ohos_executable("hisysevent") {
     "main.cpp",
   ]
 
-  part_name = "hisysevent_native"
+  part_name = "hisysevent"
   subsystem_name = "hiviewdfx"
 }
 

@@ -77,7 +77,7 @@ C++接口实例
 2.  编译设置，在BUILD.gn里增加子系统SDK依赖：
 
     ```
-    external_deps = [ "hisysevent_native:libhisysevent" ]
+    external_deps = [ "hisysevent:libhisysevent" ]
     ```
 
 

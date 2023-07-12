@@ -22,6 +22,6 @@ ohos_rust_unittest("rust_hisysevent_test") {
 
   deps = [ "../../../interfaces/rust/innerkits:hisysevent_rust" ]
 
-  part_name = "hisysevent_native"
+  part_name = "hisysevent"
   subsystem_name = "hiviewdfx"
 }

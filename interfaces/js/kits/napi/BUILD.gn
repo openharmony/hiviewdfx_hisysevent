@@ -48,7 +48,7 @@ ohos_shared_library("hisysevent_napi") {
 
   relative_install_dir = "module"
 
-  part_name = "hisysevent_native"
+  part_name = "hisysevent"
 
   subsystem_name = "hiviewdfx"
 }
