@@ -48,7 +48,7 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
         return;
     }
     work->data = reinterpret_cast<void*>(context);
-    uv_queue_work(
+    uv_queue_work_with_qos(
         loop,
         work,
         [] (uv_work_t* work) {},
@@ -81,7 +81,7 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
             if (context->release != nullptr) {
                 context->release(context->threadId);
             }
-        });
+        }, uv_qos_background);
 }
 }
 
