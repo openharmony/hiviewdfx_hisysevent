@@ -1,5 +1,5 @@
 {
-  "name": "@ohos/hisysevent_native",
+  "name": "@ohos/hisysevent",
   "description": "System event logging",
   "version": "3.1",
   "license": "Apache License 2.0",
@@ -10,7 +10,7 @@
   "dirs": {},
   "scripts": {},
   "component": {
-    "name": "hisysevent_native",
+    "name": "hisysevent",
     "subsystem": "hiviewdfx",
     "syscap": [
       "SystemCapability.HiviewDFX.HiSysEvent"

@@ -41,7 +41,7 @@ ohos_shared_library("libhisysevent") {
 
   install_enable = true
 
-  part_name = "hisysevent_native"
+  part_name = "hisysevent"
 
   install_images = [
     "system",
@@ -83,7 +83,7 @@ ohos_static_library("hisysevent_static_lib_for_tdd") {
 
   output_name = "hisysevent_static_lib_for_tdd"
 
-  part_name = "hisysevent_native"
+  part_name = "hisysevent"
 
   subsystem_name = "hiviewdfx"
 

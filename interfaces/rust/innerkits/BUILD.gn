@@ -31,6 +31,6 @@ ohos_rust_shared_library("hisysevent_rust") {
   crate_name = "hisysevent"
   crate_type = "dylib"
 
-  part_name = "hisysevent_native"
+  part_name = "hisysevent"
   subsystem_name = "hiviewdfx"
 }

@@ -58,7 +58,7 @@ ohos_source_set("sys_event_impl_client") {
     defines += [ "STORAGE_SERVICE_ENABLE" ]
   }
 
-  part_name = "hisysevent_native"
+  part_name = "hisysevent"
   subsystem_name = "hiviewdfx"
 }
 
@@ -91,6 +91,6 @@ ohos_source_set("sys_event_service_gen_src_client") {
     "samgr:samgr_proxy",
   ]
 
-  part_name = "hisysevent_native"
+  part_name = "hisysevent"
   subsystem_name = "hiviewdfx"
 }
