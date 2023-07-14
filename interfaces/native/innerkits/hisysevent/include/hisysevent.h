@@ -88,6 +88,7 @@ public:
         static constexpr char BATTERY[] = "BATTERY";
         static constexpr char BIOMETRICS[] = "BIOMETRICS";
         static constexpr char BLUETOOTH[] = "BLUETOOTH";
+        static constexpr char BT_SERVICE[] = "BT_SERVICE";
         static constexpr char BUNDLE_MANAGER[] = "BUNDLE_MANAGER";
         static constexpr char CAMERA[] = "CAMERA";
         static constexpr char CAST_ENGINE[] = "CASTENGINE";
