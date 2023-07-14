@@ -81,7 +81,7 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
             if (context->release != nullptr) {
                 context->release(context->threadId);
             }
-        }, uv_qos_background);
+        }, uv_qos_default);
 }
 }
 
