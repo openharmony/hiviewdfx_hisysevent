@@ -177,7 +177,7 @@ void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* ev
             napi_delete_async_work(env, eventAsyncContext->asyncWork);
             delete eventAsyncContext;
         }, reinterpret_cast<void*>(eventAsyncContext), &eventAsyncContext->asyncWork);
-    napi_queue_async_work_with_qos(env, eventAsyncContext->asyncWork, napi_qos_background);
+    napi_queue_async_work_with_qos(env, eventAsyncContext->asyncWork, napi_qos_default);
 }
 
 void NapiHiSysEventAdapter::InnerWrite(InnerWriter::EventBase& eventBase,
