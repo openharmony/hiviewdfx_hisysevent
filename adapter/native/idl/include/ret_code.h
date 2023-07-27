@@ -49,6 +49,9 @@ static constexpr int32_t ERR_TOO_MANY_EVENTS = -32;
 static constexpr int32_t ERR_EXPORT_FREQUENCY_OVER_LIMIT = -33;
 static constexpr int32_t ERR_REMOVE_SUBSCRIBE = -34;
 
+/* for c interface */
+static constexpr int32_t ERR_QUERY_ARG_NULL = -35;
+static constexpr int32_t ERR_QUERY_CALLBACK_NULL = -36;
 } // namespace HiviewDFX
 } // namespace OHOS
 
