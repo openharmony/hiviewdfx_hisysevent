@@ -849,7 +849,11 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest018, TestSize.Level3)
 
     HiSysEventQueryRule rule;
     InitQueryRule(rule);
-    HiSysEventQueryRule rules[] = { rule, rule, rule, rule, rule, rule, rule, rule, rule, rule, rule };
+    const int invalidRuleCnt = 101; // maximum count for query rule is 100.
+    HiSysEventQueryRule rules[invalidRuleCnt];
+    for (int i = 0; i < invalidRuleCnt; i++) {
+        rules[i] = rule;
+    }
 
     HiSysEventQueryCallback callback;
     InitCallck(callback);
