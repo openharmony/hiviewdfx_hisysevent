@@ -1154,7 +1154,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithTooManyRules, TestS
     int queryCount = 10;
     struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
     std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
-    int rulesCount = 11;
+    int rulesCount = 101; // limit to 100
     while (rulesCount-- > 0) {
         std::vector<std::string> eventNames {"EVENT_NAME"};
         OHOS::HiviewDFX::QueryRule rule("DOMAIN", eventNames);
