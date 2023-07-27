@@ -97,16 +97,28 @@ extern "C" {
 int OH_HiSysEvent_Query(const HiSysEventQueryArg* arg, HiSysEventQueryRule rules[], size_t ruleSize,
     HiSysEventQueryCallback* callback)
 {
+    if (arg == nullptr) {
+        return OHOS::HiviewDFX::ERR_QUERY_ARG_NULL;
+    }
+    if (callback == nullptr || callback->OnQuery == nullptr || callback->OnComplete == nullptr) {
+        return OHOS::HiviewDFX::ERR_QUERY_CALLBACK_NULL;
+    }
     return HiSysEventQuery(*arg, rules, ruleSize, *callback);
 }
 
 int OH_HiSysEvent_Add_Watcher(HiSysEventWatcher* watcher, HiSysEventWatchRule rules[], size_t ruleSize)
 {
+    if (watcher == nullptr || watcher->OnEvent == nullptr || watcher->OnServiceDied == nullptr) {
+        return OHOS::HiviewDFX::ERR_LISTENER_NOT_EXIST;
+    }
     return HiSysEventAddWatcher(*watcher, rules, ruleSize);
 }
 
 int OH_HiSysEvent_Remove_Watcher(HiSysEventWatcher* watcher)
 {
+    if (watcher == nullptr || watcher->OnEvent == nullptr || watcher->OnServiceDied == nullptr) {
+        return OHOS::HiviewDFX::ERR_LISTENER_NOT_EXIST;
+    }
     return HiSysEventRemoveWatcher(*watcher);
 }
 

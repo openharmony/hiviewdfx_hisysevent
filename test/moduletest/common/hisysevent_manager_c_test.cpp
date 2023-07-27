@@ -111,10 +111,27 @@ void OnCompleteTest(int32_t reason, int32_t total)
     HiLog::Info(LABEL, "OnCompleted, res=%{public}d, total=%{public}d", reason, total);
 }
 
-void InitCallck(HiSysEventQueryCallback& callback)
+void InitCallback(HiSysEventQueryCallback& callback)
 {
     callback.OnQuery = OnQueryTest;
     callback.OnComplete = OnCompleteTest;
+}
+
+void OnEventTest(HiSysEventRecordC record)
+{
+    ASSERT_TRUE(strlen(record.jsonStr) > 0);
+    HiLog::Info(LABEL, "OnEvent: event=%{public}s", record.jsonStr);
+}
+
+void OnServiceDiedTest()
+{
+    HiLog::Info(LABEL, "OnServiceDied");
+}
+
+void InitWatcher(HiSysEventWatcher& watcher)
+{
+    watcher.OnEvent = OnEventTest;
+    watcher.OnServiceDied = OnServiceDiedTest;
 }
 
 void QueryTestWithCondition(const std::string& cond)
@@ -128,7 +145,7 @@ void QueryTestWithCondition(const std::string& cond)
     HiSysEventQueryRule rules[] = { rule };
 
     HiSysEventQueryCallback callback;
-    InitCallck(callback);
+    InitCallback(callback);
 
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
@@ -353,7 +370,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest001, TestSize.Level3)
     HiSysEventQueryRule rules[] = { rule };
 
     HiSysEventQueryCallback callback;
-    InitCallck(callback);
+    InitCallback(callback);
 
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
@@ -513,7 +530,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest008, TestSize.Level3)
     HiSysEventQueryRule rules[] = { rule1, rule2 };
 
     HiSysEventQueryCallback callback;
-    InitCallck(callback);
+    InitCallback(callback);
 
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
@@ -581,7 +598,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest010, TestSize.Level3)
     HiSysEventQueryRule rules[] = { rule1, rule2 };
 
     HiSysEventQueryCallback callback;
-    InitCallck(callback);
+    InitCallback(callback);
 
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
@@ -661,7 +678,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest012, TestSize.Level3)
     rule.eventListSize = 0;
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
-    InitCallck(callback);
+    InitCallback(callback);
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest012 end");
@@ -690,7 +707,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest013, TestSize.Level3)
     rule.eventListSize = 1;
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
-    InitCallck(callback);
+    InitCallback(callback);
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest013 end");
@@ -722,7 +739,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest014, TestSize.Level3)
     (void)StringUtil::CreateCString(&rule.condition, cond);
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
-    InitCallck(callback);
+    InitCallback(callback);
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
@@ -755,7 +772,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest015, TestSize.Level3)
     (void)StringUtil::CreateCString(&rule.condition, cond);
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
-    InitCallck(callback);
+    InitCallback(callback);
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
@@ -787,7 +804,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest016, TestSize.Level3)
     (void)StringUtil::CreateCString(&rule.condition, cond);
     HiSysEventQueryRule rules[] = { rule };
     HiSysEventQueryCallback callback;
-    InitCallck(callback);
+    InitCallback(callback);
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
@@ -818,7 +835,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest017, TestSize.Level3)
     HiSysEventQueryRule rules[] = { rule };
 
     HiSysEventQueryCallback callback;
-    InitCallck(callback);
+    InitCallback(callback);
 
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
@@ -852,12 +869,50 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest018, TestSize.Level3)
     HiSysEventQueryRule rules[] = { rule, rule, rule, rule, rule, rule, rule, rule, rule, rule, rule };
 
     HiSysEventQueryCallback callback;
-    InitCallck(callback);
+    InitCallback(callback);
 
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_TOO_MANY_QUERY_RULES);
 
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest018 end");
+}
+
+/**
+ * @tc.name: HiSysEventMgrCQueryTest019
+ * @tc.desc: Testing to query events with null param.
+ * @tc.type: FUNC
+ * @tc.require: issueI7O8IM
+ */
+HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest019, TestSize.Level0)
+{
+    /**
+     * @tc.steps: step1. create HiSysEventQueryArg.
+     * @tc.steps: step2. create HiSysEventQueryRule.
+     * @tc.steps: step3. create HiSysEventQueryCallback.
+     * @tc.steps: step4. query event.
+     */
+    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest019 start");
+    HiSysEventQueryRule rules[] = {};
+    HiSysEventQueryCallback callback;
+    InitCallback(callback);
+    auto res = OH_HiSysEvent_Query(nullptr, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
+    ASSERT_EQ(res, ERR_QUERY_ARG_NULL);
+
+    HiSysEventQueryArg arg;
+    InitQueryArg(arg);
+    res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), nullptr);
+    ASSERT_EQ(res, ERR_QUERY_CALLBACK_NULL);
+
+    callback.OnQuery = nullptr;
+    res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
+    ASSERT_EQ(res, ERR_QUERY_CALLBACK_NULL);
+
+    InitCallback(callback);
+    callback.OnComplete = nullptr;
+    res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
+    ASSERT_EQ(res, ERR_QUERY_CALLBACK_NULL);
+
+    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest019 end");
 }
 
 /**
@@ -990,12 +1045,12 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest003, TestSize.Level3)
 }
 
 /**
- * @tc.name: HiSysEventRecordCTest001
+ * @tc.name: HiSysEventMgrCRecordTest004
  * @tc.desc: Test apis of HisysventRecordC
  * @tc.type: FUNC
  * @tc.require: issueI62WJT
  */
-HWTEST_F(HiSysEventManagerCTest, HiSysEventRecordCTest001, TestSize.Level3)
+HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest004, TestSize.Level3)
 {
     struct HiSysEventRecord record;
     char*** testp = nullptr;
@@ -1056,3 +1111,115 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventRecordCTest001, TestSize.Level3)
     ASSERT_TRUE(ret == ERR_NULL);
 }
 
+/**
+ * @tc.name: HiSysEventMgrCWatchTest001
+ * @tc.desc: Testing to watch events with null param.
+ * @tc.type: FUNC
+ * @tc.require: issueI7O8IM
+ */
+HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCWatcherTest001, TestSize.Level0)
+{
+    /**
+     * @tc.steps: step1. create HiSysEventWatcher object.
+     * @tc.steps: step2. create HiSysEventWatchRule objects.
+     * @tc.steps: step3. watch event.
+     */
+    // watcher is null
+    HiLog::Info(LABEL, "HiSysEventMgrCWatcherTest001 start");
+    auto ret = OH_HiSysEvent_Add_Watcher(nullptr, nullptr, 0);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
+
+    // watcher.OnEvent is null
+    HiSysEventWatcher nullWatcher;
+    InitWatcher(nullWatcher);
+    nullWatcher.OnEvent = nullptr;
+    HiSysEventWatchRule rule = {"HIVIEWDFX", "PLUGIN_LOAD", "", 1, 0};
+    HiSysEventWatchRule rules[] = {rule};
+    ret = OH_HiSysEvent_Add_Watcher(&nullWatcher, rules, sizeof(rules) / sizeof(HiSysEventWatchRule));
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
+
+    // watcher.OnServiceDied is null
+    InitWatcher(nullWatcher);
+    nullWatcher.OnServiceDied = nullptr;
+    ret = OH_HiSysEvent_Add_Watcher(&nullWatcher, rules, sizeof(rules) / sizeof(HiSysEventWatchRule));
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
+
+    // watcher does not exist
+    HiSysEventWatcher watcher;
+    InitWatcher(watcher);
+    ret = OH_HiSysEvent_Remove_Watcher(&watcher);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
+
+    // normal function test
+    ret = OH_HiSysEvent_Add_Watcher(&watcher, rules, sizeof(rules) / sizeof(HiSysEventWatchRule));
+    ASSERT_EQ(ret, 0);
+    ret = OH_HiSysEvent_Write("HIVIEWDFX", "PLUGIN_LOAD", HISYSEVENT_BEHAVIOR, nullptr, 0);
+    ASSERT_EQ(ret, 0);
+    sleep(3);
+    ret = OH_HiSysEvent_Remove_Watcher(&watcher);
+    ASSERT_EQ(ret, 0);
+
+    HiLog::Info(LABEL, "HiSysEventMgrCWatcherTest001 end");
+}
+
+/**
+ * @tc.name: HiSysEventMgrCWatchTest002
+ * @tc.desc: Testing to watch events with too many rules.
+ * @tc.type: FUNC
+ * @tc.require: issueI7O8IM
+ */
+HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCWatchTest002, TestSize.Level0)
+{
+    /**
+     * @tc.steps: step1. create HiSysEventWatcher object.
+     * @tc.steps: step2. create HiSysEventWatchRule objects.
+     * @tc.steps: step3. watch event.
+     */
+    HiLog::Info(LABEL, "HiSysEventMgrCWatchTest002 start");
+    HiSysEventWatcher watcher;
+    InitWatcher(watcher);
+    HiSysEventWatchRule rule = {"HIVIEWDFX", "PLUGIN_LOAD", "", 1, 0};
+    const size_t maxNum = 20;
+    HiSysEventWatchRule rules[maxNum + 1];
+    for (size_t i = 0; i <= maxNum; i++) {
+        rules[i] = rule;
+    }
+    auto ret = OH_HiSysEvent_Add_Watcher(&watcher, rules, sizeof(rules) / sizeof(HiSysEventWatchRule));
+    ASSERT_EQ(ret, ERR_TOO_MANY_WATCH_RULES);
+    HiLog::Info(LABEL, "HiSysEventMgrCWatchTest002 end");
+}
+
+/**
+ * @tc.name: HiSysEventMgrCWatchTest003
+ * @tc.desc: Testing to watch events with too many watchers.
+ * @tc.type: FUNC
+ * @tc.require: issueI7O8IM
+ */
+HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCWatchTest003, TestSize.Level0)
+{
+    /**
+     * @tc.steps: step1. create HiSysEventWatcher object.
+     * @tc.steps: step2. create HiSysEventWatchRule objects.
+     * @tc.steps: step3. watch event.
+     */
+    HiLog::Info(LABEL, "HiSysEventMgrCWatchTest003 start");
+    const size_t maxNum = 30;
+    HiSysEventWatcher watchers[maxNum + 1];
+    for (size_t i = 0; i <= maxNum; i++) {
+        HiSysEventWatcher watcher;
+        InitWatcher(watcher);
+        watchers[i] = watcher;
+    }
+    HiSysEventWatchRule rule = {"HIVIEWDFX", "PLUGIN_LOAD", "", 1, 0};
+    HiSysEventWatchRule rules[] = {rule};
+    for (size_t i = 0; i < maxNum; i++) {
+        (void)OH_HiSysEvent_Add_Watcher(&watchers[i], rules, sizeof(rules) / sizeof(HiSysEventWatchRule));
+    }
+    auto ret = OH_HiSysEvent_Add_Watcher(&watchers[maxNum], rules, sizeof(rules) / sizeof(HiSysEventWatchRule));
+    ASSERT_EQ(ret, ERR_TOO_MANY_WATCHERS);
+
+    for (size_t i = 0; i <= maxNum; i++) {
+        (void)OH_HiSysEvent_Remove_Watcher(&watchers[i]);
+    }
+    HiLog::Info(LABEL, "HiSysEventMgrCWatchTest003 end");
+}
