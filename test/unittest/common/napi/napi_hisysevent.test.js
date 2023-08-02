@@ -349,10 +349,10 @@ describe('hiSysEventJsUnitTest', function () {
                             if (infos instanceof Array) {
                                 for (let i = 0; i < infos.length; i++) {
                                     let item = infos[i];
-                                    console.info(`hiSysEventJsUnitTest005: domain is ${item.domain}, name is ${item.name}, eventType is ${item.eventType}`)
+                                    console.info(`hiSysEventJsUnitTest006: domain is ${item.domain}, name is ${item.name}, eventType is ${item.eventType}`)
                                     if (item.params instanceof Object) {
                                         for (const key in item.params) {
-                                            console.info(`hiSysEventJsUnitTest005: ${key}: ${item.params[key]}`)
+                                            console.info(`hiSysEventJsUnitTest006: ${key}: ${item.params[key]}`)
                                         }
                                     }
                                 }
@@ -424,10 +424,10 @@ describe('hiSysEventJsUnitTest', function () {
                             if (infos instanceof Array) {
                                 for (let i = 0; i < infos.length; i++) {
                                     let item = infos[i];
-                                    console.info(`hiSysEventJsUnitTest005: domain is ${item.domain}, name is ${item.name}, eventType is ${item.eventType}`)
+                                    console.info(`hiSysEventJsUnitTest007: domain is ${item.domain}, name is ${item.name}, eventType is ${item.eventType}`)
                                     if (item.params instanceof Object) {
                                         for (const key in item.params) {
-                                            console.info(`hiSysEventJsUnitTest005: ${key}: ${item.params[key]}`)
+                                            console.info(`hiSysEventJsUnitTest007: ${key}: ${item.params[key]}`)
                                         }
                                     }
                                 }

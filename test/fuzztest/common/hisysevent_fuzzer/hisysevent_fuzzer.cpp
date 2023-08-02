@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "hisysevent.h"
+#include "raw_data_builder_json_parser.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -34,6 +35,12 @@ static void HiSysEventWriteFuzzTest(const uint8_t* data, size_t size)
     (void)HiSysEventWrite(TEST_DOMAIN, strData, HiSysEvent::EventType::FAULT,
         "STR_KEY", strData, "INT_KEY", int64Data);
 }
+
+static void RawDataBuilderJsonParserTest(const uint8_t* data, size_t size)
+{
+    std::string testData(reinterpret_cast<const char*>(data), size);
+    RawDataBuilderJsonParser parser(testData);
+}
 } // namespace HiviewDFX
 } // namespace OHOS
 
@@ -42,6 +49,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
     OHOS::HiviewDFX::HiSysEventWriteFuzzTest(data, size);
+    OHOS::HiviewDFX::RawDataBuilderJsonParserTest(data, size);
     return 0;
 }
 
