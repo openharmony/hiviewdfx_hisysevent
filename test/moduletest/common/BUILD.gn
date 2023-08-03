@@ -64,6 +64,7 @@ ohos_moduletest("HiSysEventNativeTest") {
     "../../../adapter/native/idl:sys_event_impl_client",
     "../../../adapter/native/idl:sys_event_service_gen_src_client",
     "../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd",
+    "../../../interfaces/native/innerkits/hisysevent/encode:hisysevent_encoded",
     "../../../interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_static_lib_for_tdd",
     "//third_party/googletest:gtest_main",
   ]
