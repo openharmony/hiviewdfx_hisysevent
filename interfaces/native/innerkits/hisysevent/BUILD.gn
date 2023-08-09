@@ -53,6 +53,7 @@ ohos_shared_library("libhisysevent") {
   innerapi_tags = [
     "chipsetsdk",
     "platformsdk",
+    "sasdk",
   ]
 
   version_script = "libhisysevent.map"
