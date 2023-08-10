@@ -45,6 +45,7 @@ constexpr char MAX_EVENTS_ATTR[] = "maxEvents";
 constexpr char BEGIN_SEQ_ATTR[] = "fromSeq";
 constexpr char END_SEQ_ATTR[] = "toSeq";
 constexpr char NAMES_ATTR[] = "names";
+constexpr char CONDITION_ATTR[] = "condition";
 constexpr char DOMAIN__KEY[] = "domain_";
 constexpr char NAME__KEY[] = "name_";
 constexpr char TYPE__KEY[] = "type_";
@@ -479,10 +480,10 @@ QueryRule ParseQueryRule(const napi_env env, napi_value& jsObj)
     HiLog::Debug(LABEL, "domain is %{public}s.", domain.c_str());
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, jsObj, NAMES_ATTR);
     ParseStringArray(env, propertyValue, names);
-    for (auto& name : names) {
-        HiLog::Debug(LABEL, "    event name is %{public}s.", name.c_str());
-    }
-    return QueryRule(domain, names);
+    propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, jsObj, CONDITION_ATTR);
+    std::string condition = ParseStringValue(env, propertyValue);
+    HiLog::Debug(LABEL, "condition is %{public}s.", condition.c_str());
+    return QueryRule(domain, names, RuleType::WHOLE_WORD, 0, condition);
 }
 
 void SetNamedProperty(const napi_env env, napi_value& object, const std::string& propertyName,
