@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-static inline void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSysEventParam dest[], const size_t size)
+static inline void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSysEventParam dest[], unsigned int size)
 {
     for (size_t i = 0; i < size; i++) {
         HiSysEventParamWrapper wrapper = src[i];
@@ -36,8 +36,8 @@ static inline void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSys
     }
 }
 
-static void SplitStringToArray(const char src[], const size_t srcMaxLen, char dest[][MAX_LENGTH_OF_EVENT_NAME],
-    const size_t destSize)
+static void SplitStringToArray(const char src[], unsigned int srcMaxLen, char dest[][MAX_LENGTH_OF_EVENT_NAME],
+    unsigned int destSize)
 {
     size_t curPos = 0; // The current position is initialized to be 0.
     size_t destItemIndex = 0; // The index of array item is initialized to be 0.
@@ -76,7 +76,7 @@ static void SplitStringToArray(const char src[], const size_t srcMaxLen, char de
 }
 
 static inline void ConvertQueryRuleWrapper(const HiSysEventQueryRuleWrapper src[], HiSysEventQueryRule dest[],
-    const size_t size)
+    unsigned int size)
 {
     for (size_t i = 0; i < size; i++) {
         HiSysEventQueryRuleWrapper wrapper = src[i];
@@ -90,8 +90,8 @@ static inline void ConvertQueryRuleWrapper(const HiSysEventQueryRuleWrapper src[
     }
 }
 
-int HiSysEventWriteWrapper(const char* func, uint64_t line, const char* domain, const char* name,
-    int type, const HiSysEventParamWrapper paramWrappers[], const size_t size)
+int HiSysEventWriteWrapper(const char* func, unsigned long long line, const char* domain, const char* name,
+    int type, const HiSysEventParamWrapper paramWrappers[], uint32_t size)
 {
     HiSysEventParam params[size];
     ConvertParamWrapper(paramWrappers, params, size);
@@ -99,7 +99,7 @@ int HiSysEventWriteWrapper(const char* func, uint64_t line, const char* domain, 
 }
 
 int HiSysEventAddWatcherWrapper(HiSysEventRustWatcherC* watcher, const HiSysEventWatchRule rules[],
-    const size_t ruleSize)
+    unsigned int ruleSize)
 {
     return OhHiSysEventAddRustWatcher(watcher, rules, ruleSize);
 }
@@ -110,15 +110,15 @@ int HiSysEventRemoveWatcherWrapper(HiSysEventRustWatcherC* watcher)
 }
 
 int HiSysEventQueryWrapper(HiSysEventQueryArg* arg, const HiSysEventQueryRuleWrapper queryRules[],
-    const size_t ruleSize, HiSysEventRustQuerierC* querier)
+    unsigned int ruleSize, HiSysEventRustQuerierC* querier)
 {
     HiSysEventQueryRule rules[ruleSize];
     ConvertQueryRuleWrapper(queryRules, rules, ruleSize);
     return OhHiSysEventRustQuery(arg, rules, ruleSize, querier);
 }
 
-HiSysEventRecordC GetHiSysEventRecordByIndexWrapper(const HiSysEventRecordC records[], const uint32_t total,
-    const uint32_t index)
+HiSysEventRecordC GetHiSysEventRecordByIndexWrapper(const HiSysEventRecordC records[], unsigned int total,
+    unsigned int index)
 {
     if (index >= total) {
         HiSysEventRecordC record = {};
