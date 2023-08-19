@@ -885,35 +885,35 @@ describe('hiSysEventJsUnitTest', function () {
         }, 2500)
     })
 
-        /**
+    /**
      * @tc.name: hiSysEventJsUnitTest022
      * @tc.desc: Test query sysevent with null condition
      * @tc.type: FUNC
      */
-        it('hiSysEventJsUnitTest022', 0, async function (done) {
-            setTimeout(() => {
-                try {
-                    hiSysEvent.query({
-                        beginTime: -1,
-                        endTime: -1,
-                        maxEvents: 5,
-                    }, [{
-                        domain: "RELIABILITY",
-                        names: ["STACK"],
-                        condition: null
-                    }], {
-                        onQuery: function (infos) {
-                            expect(infos.length >= 0).assertTrue()
-                        },
-                        onComplete: function(reason, total, seq) {
-                            expect(total >  0).assertTrue()
-                            done()
-                        }
-                    })
-                } catch (err) {
-                    expect(false).assertTrue()
-                    done()
-                }
-            }, 2500)
-        })
+    it('hiSysEventJsUnitTest022', 0, async function (done) {
+        setTimeout(() => {
+            try {
+                hiSysEvent.query({
+                    beginTime: -1,
+                    endTime: -1,
+                    maxEvents: 5,
+                }, [{
+                    domain: "RELIABILITY",
+                    names: ["STACK"],
+                    condition: null
+                }], {
+                    onQuery: function (infos) {
+                        expect(infos.length >= 0).assertTrue()
+                    },
+                    onComplete: function(reason, total, seq) {
+                        expect(total >  0).assertTrue()
+                        done()
+                    }
+                })
+            } catch (err) {
+                expect(false).assertTrue()
+                done()
+            }
+        }, 2500)
+    })
 });
