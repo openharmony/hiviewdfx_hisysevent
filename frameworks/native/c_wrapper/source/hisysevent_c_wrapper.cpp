@@ -91,7 +91,7 @@ static inline void ConvertQueryRuleWrapper(const HiSysEventQueryRuleWrapper src[
 }
 
 int HiSysEventWriteWrapper(const char* func, unsigned long long line, const char* domain, const char* name,
-    int type, const HiSysEventParamWrapper paramWrappers[], uint32_t size)
+    int type, const HiSysEventParamWrapper paramWrappers[], unsigned int size)
 {
     HiSysEventParam params[size];
     ConvertParamWrapper(paramWrappers, params, size);
