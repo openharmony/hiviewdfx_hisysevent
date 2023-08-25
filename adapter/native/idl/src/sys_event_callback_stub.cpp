@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-SysEventCallbackStub" };
+static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-SysEventCallbackStub" };
 int32_t SysEventCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
     MessageParcel& reply, MessageOption& option)
 {

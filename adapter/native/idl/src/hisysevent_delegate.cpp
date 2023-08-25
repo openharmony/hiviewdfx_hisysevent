@@ -41,7 +41,7 @@ namespace OHOS {
 namespace HiviewDFX {
 
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-HiSysEventDelegate" };
+constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-HiSysEventDelegate" };
 const std::string EVENT_DIR = "/data/storage/el2/base/cache/hiview/event";
 #ifdef STORAGE_SERVICE_ENABLE
 const std::string BASE_DIR = "/data/storage/el2/base";
