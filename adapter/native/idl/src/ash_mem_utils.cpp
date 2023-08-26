@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-SharedMemory-Util" };
+constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-SharedMemory-Util" };
 constexpr char ASH_MEM_NAME[] = "HiSysEventService SharedMemory";
 constexpr int32_t ASH_MEM_SIZE = 1024 * 769; // 769k
 

@@ -23,7 +23,7 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiView-SysEventServiceProxy" };
+static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-SysEventServiceProxy" };
 int32_t SysEventServiceProxy::AddListener(const std::vector<SysEventRule>& rules,
     const sptr<ISysEventCallback>& callback)
 {
