@@ -161,7 +161,7 @@ pub struct HiSysEventParam<'a> {
 #[derive(Copy, Clone)]
 struct HiSysEventParamWrapper {
     /// Param name.
-    pub param_name: [c_char; MAX_LENGTH_OF_PARAM_NAME],
+    pub param_name: [u8; MAX_LENGTH_OF_PARAM_NAME],
 
     /// Param type.
     pub param_type: c_int,

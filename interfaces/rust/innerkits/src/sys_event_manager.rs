@@ -40,13 +40,13 @@ const MAX_EVENT_LIST_LEN: usize = 339;
 #[derive(Copy, Clone)]
 struct HiSysEventWatchRule {
     /// The domain of the event.
-    pub domain: [c_char; MAX_LENGTH_OF_EVENT_DOMAIN],
+    pub domain: [u8; MAX_LENGTH_OF_EVENT_DOMAIN],
 
     /// The name of the event.
-    pub name: [c_char; MAX_LENGTH_OF_EVENT_NAME],
+    pub name: [u8; MAX_LENGTH_OF_EVENT_NAME],
 
     /// The tag of the event.
-    pub tag: [c_char; MAX_LENGTH_OF_EVENT_TAG],
+    pub tag: [u8; MAX_LENGTH_OF_EVENT_TAG],
 
     /// The rule of match system event.
     pub rule_type: c_int,
@@ -74,10 +74,10 @@ struct HiSysEventQueryArg {
 #[derive(Copy, Clone)]
 struct HiSysEventQueryRuleWrapper {
     // The domain of the event.
-    pub domain: [c_char; MAX_LENGTH_OF_EVENT_DOMAIN],
+    pub domain: [u8; MAX_LENGTH_OF_EVENT_DOMAIN],
 
     /// List of event name.
-    pub event_list: [c_char; MAX_EVENT_LIST_LEN],
+    pub event_list: [u8; MAX_EVENT_LIST_LEN],
 
     /// Size of event name list.
     pub event_list_size: c_uint,
@@ -91,10 +91,10 @@ struct HiSysEventQueryRuleWrapper {
 #[derive(Copy, Clone)]
 pub struct HiSysEventRecord {
     /// Domain.
-    domain: [c_char; MAX_LENGTH_OF_EVENT_DOMAIN],
+    domain: [u8; MAX_LENGTH_OF_EVENT_DOMAIN],
 
     /// Event name.
-    event_name: [c_char; MAX_LENGTH_OF_EVENT_NAME],
+    event_name: [u8; MAX_LENGTH_OF_EVENT_NAME],
 
     /// Event type.
     event_type: c_int,
@@ -103,7 +103,7 @@ pub struct HiSysEventRecord {
     time: c_ulonglong,
 
     /// Timezone.
-    tz: [c_char; MAX_LENGTH_OF_TIME_ZONE],
+    tz: [u8; MAX_LENGTH_OF_TIME_ZONE],
 
     /// Process id.
     pid: c_longlong,
