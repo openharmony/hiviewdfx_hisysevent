@@ -34,7 +34,6 @@
 #include "hisysevent_record.h"
 #include "hisysevent_query_callback.h"
 #include "hisysevent_listener.h"
-#include "raw_data_builder_json_parser.h"
 #include "ret_code.h"
 #include "rule_type.h"
 
@@ -1494,27 +1493,5 @@ HWTEST_F(HiSysEventNativeTest, TestParseWrongTypeParamsFromUninitializedHiSysEve
     double doubleTypeParam2 = 0;
     ret = record.GetParamValue("DOUBLE_T_NOT_EXIST", doubleTypeParam2);
     ASSERT_TRUE(ret == ERR_KEY_NOT_EXIST);
-}
-
-/**
- * @tc.name: TestParsingEventContainsFloatingNumberWithScientificNotationFormat
- * @tc.desc: Parse sysevent which contains floating point number with scientific notation format
- * @tc.type: FUNC
- * @tc.require: issueI5OA3F
- */
-HWTEST_F(HiSysEventNativeTest, TestParsingEventContainsFloatingNumberWithScientificNotationFormat, TestSize.Level1)
-{
-    constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
-        \"PARAM_A\":3.4,\"UINT64_T\":18446744073709551610,\"DOUBLE_T\":3.34523e+05,\"INT64_T\":9223372036854775800,\
-        \"PARAM_B\":[\"123\", \"456\", \"789\"],\"PARAM_C\":[]}";
-    RawDataBuilderJsonParser parser(JSON_STR);
-    auto ret = parser.Parse();
-    ASSERT_TRUE(ret != nullptr);
-    ASSERT_EQ(ret->GetDomain(), "DEMO");
-    ASSERT_EQ(ret->GetName(), "EVENT_NAME_A");
-    ASSERT_EQ(ret->GetEventType(), 4);
-    uint64_t val = 0.0;
-    ret->ParseValueByKey("INT64_T", val);
-    ASSERT_EQ(val, 9223372036854775800);
 }
 

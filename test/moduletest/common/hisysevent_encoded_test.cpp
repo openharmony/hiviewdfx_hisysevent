@@ -25,7 +25,6 @@
 
 #include "encoded_param.h"
 #include "raw_data_base_def.h"
-#include "raw_data_builder_json_parser.h"
 #include "raw_data_builder.h"
 #include "raw_data_encoder.h"
 #include "raw_data.h"
@@ -59,40 +58,6 @@ void HiSysEventEncodedTest::SetUp(void)
 
 void HiSysEventEncodedTest::TearDown(void)
 {
-}
-
-/**
- * @tc.name: RawDataBuilderJsonParserTest001
- * @tc.desc: Construct RawDataBuilderJsonParser with empty string
- * @tc.type: FUNC
- * @tc.require: issueI7E737
- */
-HWTEST_F(HiSysEventEncodedTest, RawDataBuilderJsonParserTest001, TestSize.Level1)
-{
-    auto jsonParser = std::make_shared<RawDataBuilderJsonParser>("");
-    ASSERT_TRUE(jsonParser != nullptr);
-    auto eventBuilder = jsonParser->Parse();
-    ASSERT_TRUE(eventBuilder != nullptr);
-}
-
-/**
- * @tc.name: RawDataBuilderJsonParserTest002
- * @tc.desc: Construct RawDataBuilderJsonParser with valid string
- * @tc.type: FUNC
- * @tc.require: issueI7E737
- */
-HWTEST_F(HiSysEventEncodedTest, RawDataBuilderJsonParserTest002, TestSize.Level1)
-{
-    std::string rawSysEventStr = R"~({"domain_":"KERNEL_VENDOR","name_":"POWER_KEY",
-        "type_":1,"time_":1502603794820,"tz_":"+0800","pid_":1751,"tid_":1751,"uid_":0,
-        "id_":"17835276947892625495","trace_flag_":3,"traceid_":"a92ab1ea12c7144",
-        "spanid_":"0","pspanid_":"0","key1":"-300","key2":[-300, 300],
-        "key3":3.4,"key4":"[3.4,-3.4]","info_":"","level_":"CRITICAL","seq_":972})~";
-    auto jsonParser = std::make_shared<RawDataBuilderJsonParser>(rawSysEventStr);
-    ASSERT_TRUE(jsonParser != nullptr);
-    auto eventBuilder = jsonParser->Parse();
-    ASSERT_TRUE(eventBuilder != nullptr && eventBuilder->GetDomain() == "KERNEL_VENDOR" &&
-        eventBuilder->GetName() == "POWER_KEY");
 }
 
 /**
