@@ -174,6 +174,7 @@ public:
         static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
         static constexpr char OTHERS[] = "OTHERS";
         static constexpr char VIR_SERVICE[] = "VIR_SERVICE";
+        static constexpr char FILEMANAGEMENT[] = "FILEMANAGEMENT";
     };
 
     enum EventType {
