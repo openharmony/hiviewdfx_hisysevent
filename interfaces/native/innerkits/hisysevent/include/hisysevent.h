@@ -116,6 +116,7 @@ public:
         static constexpr char DLP[] = "DLP";
         static constexpr char DSLM[] = "DSLM";
         static constexpr char DSOFTBUS[] = "DSOFTBUS";
+        static constexpr char FILEMANAGEMENT[] = "FILEMANAGEMENT";
         static constexpr char FFRT[] = "FFRT";
         static constexpr char FORM_MANAGER[] = "FORM_MANAGER";
         static constexpr char FRAMEWORK[] = "FRAMEWORK";
@@ -174,7 +175,6 @@ public:
         static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
         static constexpr char OTHERS[] = "OTHERS";
         static constexpr char VIR_SERVICE[] = "VIR_SERVICE";
-        static constexpr char FILEMANAGEMENT[] = "FILEMANAGEMENT";
     };
 
     enum EventType {
