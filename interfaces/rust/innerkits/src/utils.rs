@@ -16,7 +16,7 @@
 use std::ffi::{CString, c_char};
 
 /// Translate a &str to &[c_char; N].
-pub fn trans_slice_to_array(src: &str, dest: &mut [c_char]) {
+pub fn trans_slice_to_array(src: &str, dest: &mut [u8]) {
     let name = CString::new(src).unwrap();
     let name = name.to_bytes();
     let name_len = name.len();
