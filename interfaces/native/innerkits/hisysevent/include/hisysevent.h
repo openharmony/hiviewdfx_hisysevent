@@ -142,6 +142,7 @@ public:
         static constexpr char MULTI_MEDIA[] = "MULTIMEDIA";
         static constexpr char MULTI_MODAL_INPUT[] = "MULTIMODALINPUT";
         static constexpr char NETMANAGER_STANDARD[] = "NETMANAGER";
+        static constexpr char NFC[] = "NFC";
         static constexpr char NOTIFICATION[] = "NOTIFICATION";
         static constexpr char PASTEBOARD[] = "PASTEBOARD";
         static constexpr char POWER[] = "POWER";
