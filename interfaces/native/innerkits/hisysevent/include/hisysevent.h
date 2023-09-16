@@ -166,6 +166,7 @@ public:
         static constexpr char UPDATE_DUE[] = "UPDATE_DUE";
         static constexpr char UPDATE_OUC[] = "UPDATE_OUC";
         static constexpr char USB[] = "USB";
+        static constexpr char USERIAM_FACE_HAL[] = "USERIAM_FACE_HAL";
         static constexpr char USERIAM_FP_HAL[] = "USERIAM_FP_HAL";
         static constexpr char USERIAM_FWK[] = "USERIAM_FWK";
         static constexpr char USERIAM_PIN[] = "USERIAM_PIN";
