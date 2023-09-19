@@ -675,9 +675,9 @@ HWTEST_F(HiSysEventCTest, HiSysEventCTest013, TestSize.Level3)
      * @tc.steps: step2. write event.
      * @tc.steps: step3. check the result of writing.
      */
-    for (int i = 0; i <= 10; i++) { // the frequency is limited to 10 events every 5 seconds
+    for (int i = 0; i <= 100; i++) { // the frequency is limited to 100 events every 5 seconds
         int res = OH_HiSysEvent_Write(TEST_DOMAIN, TEST_NAME, HISYSEVENT_BEHAVIOR, {}, 0);
-        if (i == 10) {
+        if (i == 100) {
             ASSERT_EQ(res, ERR_WRITE_IN_HIGH_FREQ);
         } else {
             ASSERT_EQ(res, 0);
