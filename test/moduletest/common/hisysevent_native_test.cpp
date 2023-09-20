@@ -957,13 +957,13 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArrayStringValueMoreThan256K026, Te
 
 /**
  * @tc.name: TestDefensingHiSysEventStorm
- * @tc.desc: Write event more than 10 times in 5 seconds
+ * @tc.desc: Write event more than 100 times in 5 seconds
  * @tc.type: FUNC
  * @tc.require: issueI5FNPQ
  */
 HWTEST_F(HiSysEventNativeTest, TestDefensingHiSysEventStorm, TestSize.Level1)
 {
-    int writeCount = 12;
+    int writeCount = 102;
     for (int i = 0; i < writeCount; i++) {
         auto result = WriteSysEventByMarcoInterface();
         if (i < HISYSEVENT_THRESHOLD) {

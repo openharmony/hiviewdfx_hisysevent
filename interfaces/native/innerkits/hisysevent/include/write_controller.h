@@ -25,7 +25,7 @@ namespace OHOS {
 namespace HiviewDFX {
 static constexpr size_t DEFAULT_CACHE_CAPACITY = 30;
 static constexpr size_t HISYSEVENT_DEFAULT_PERIOD = 5;
-static constexpr size_t HISYSEVENT_DEFAULT_THRESHOLD = 10;
+static constexpr size_t HISYSEVENT_DEFAULT_THRESHOLD = 100;
 
 using ControlParam = struct {
     size_t period;

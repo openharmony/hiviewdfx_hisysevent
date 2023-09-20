@@ -652,12 +652,12 @@ describe('hiSysEventJsUnitTest', function () {
 
     /**
      * @tc.name: hiSysEventJsUnitTest017
-     * @tc.desc: Test writing sysevents more than 10 times in 5 seconds
+     * @tc.desc: Test writing sysevents more than 100 times in 5 seconds
      * @tc.type: FUNC
      */
     it('hiSysEventJsUnitTest017', 0, async function (done) {
         try {
-            for (let index = 0; index < 12; index++) {
+            for (let index = 0; index < 102; index++) {
                 hiSysEvent.write({
                     domain: "USERIAM_PIN",
                     name: "USERIAM_TEMPLATE_CHANGE",
