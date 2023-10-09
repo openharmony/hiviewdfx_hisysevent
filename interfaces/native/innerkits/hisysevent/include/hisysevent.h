@@ -130,9 +130,9 @@ public:
         static constexpr char IAWARE[] = "IAWARE";
         static constexpr char IMS_UT[] = "IMS_UT";
         static constexpr char INPUTMETHOD[] = "INPUTMETHOD";
+        static constexpr char INPUT_UE[] = "INPUT_UE";
         static constexpr char INTELLI_ACCESSORIES[] = "INTELLIACC";
         static constexpr char INTELLI_TV[] = "INTELLITV";
-        static constexpr char INPUT_UE[] = "INPUT_UE";
         static constexpr char ISHARE[] = "ISHARE";
         static constexpr char IVI_HARDWARE[] = "IVIHARDWARE";
         static constexpr char LOCATION[] = "LOCATION";
