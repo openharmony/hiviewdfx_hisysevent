@@ -1203,9 +1203,19 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryTooFrequently, TestSize
     int queryCount = 10;
     struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
     std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
-    auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
-    ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_QUERY_TOO_FREQUENTLY);
+    const int threshhold = 50;
+    const int delayDuration = 1; // 1 second
+    for (int i = 0; i < 2; i++) { // 2 cycles
+        sleep(delayDuration);
+        for (int j = 0; j <= threshhold; j++) { // more than 50 queries in 1 second is never allowed
+            auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
+            if (j == threshhold) {
+                ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_QUERY_TOO_FREQUENTLY);
+            } else {
+                ASSERT_TRUE(ret == OHOS::HiviewDFX::IPC_CALL_SUCCEED);
+            }
+        }
+    }
 }
 
 /**

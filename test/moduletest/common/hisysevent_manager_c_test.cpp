@@ -837,10 +837,19 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest017, TestSize.Level3)
     HiSysEventQueryCallback callback;
     InitCallback(callback);
 
-    auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
-    ASSERT_EQ(res, 0);
-    res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
-    ASSERT_EQ(res, ERR_QUERY_TOO_FREQUENTLY);
+    const int threshhold = 50;
+    const int delayDuration = 1; // 1 second
+    for (int i = 0; i < 2; i++) { // 2 cycles
+        sleep(delayDuration);
+        for (int j = 0; j <= threshhold; j++) { // more than 50 queries in 1 second is never allowed
+            auto ret = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
+            if (j == threshhold) {
+                ASSERT_EQ(ret, ERR_QUERY_TOO_FREQUENTLY);
+            } else {
+                ASSERT_EQ(ret, 0);
+            }
+        }
+    }
 
     HiLog::Info(LABEL, "HiSysEventMgrCQueryTest017 end");
 }
