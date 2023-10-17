@@ -16,6 +16,7 @@
 #ifndef HISYSEVENT_MANAGER_H
 #define HISYSEVENT_MANAGER_H
 
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -69,7 +70,8 @@ public:
 
 private:
     static std::unordered_map<std::shared_ptr<HiSysEventListener>,
-        std::shared_ptr<HiSysEventBaseListener>> listenerToBaseMap;
+        std::shared_ptr<HiSysEventBaseListener>> listenerToBaseMap_;
+    static std::mutex listenersMutex_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

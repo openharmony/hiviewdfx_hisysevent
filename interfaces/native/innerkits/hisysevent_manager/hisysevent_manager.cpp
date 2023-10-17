@@ -26,7 +26,8 @@ constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_MANAGER" };
 }
 
 std::unordered_map<std::shared_ptr<HiSysEventListener>,
-        std::shared_ptr<HiSysEventBaseListener>> HiSysEventManager::listenerToBaseMap;
+        std::shared_ptr<HiSysEventBaseListener>> HiSysEventManager::listenerToBaseMap_;
+std::mutex HiSysEventManager::listenersMutex_;
 
 int32_t HiSysEventManager::AddListener(std::shared_ptr<HiSysEventListener> listener,
     std::vector<ListenerRule>& rules)
@@ -35,10 +36,11 @@ int32_t HiSysEventManager::AddListener(std::shared_ptr<HiSysEventListener> liste
         HiLog::Warn(LABEL, "add a null listener is not allowed.");
         return ERR_LISTENER_NOT_EXIST;
     }
-    auto baseListener = listenerToBaseMap[listener];
+    std::lock_guard<std::mutex> lock(listenersMutex_);
+    auto baseListener = listenerToBaseMap_[listener];
     if (baseListener == nullptr) {
         baseListener = std::make_shared<HiSysEventBaseListener>(listener);
-        listenerToBaseMap[listener] = baseListener;
+        listenerToBaseMap_[listener] = baseListener;
     }
     return HiSysEventBaseManager::AddListener(baseListener, rules);
 }
@@ -49,7 +51,8 @@ int32_t HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventListener> li
         HiLog::Warn(LABEL, "remov a null listener is not allowed.");
         return ERR_LISTENER_NOT_EXIST;
     }
-    auto baseListener = listenerToBaseMap[listener];
+    std::lock_guard<std::mutex> lock(listenersMutex_);
+    auto baseListener = listenerToBaseMap_[listener];
     if (baseListener == nullptr) {
         HiLog::Warn(LABEL, "no need to remove a listener which has not been added.");
         return ERR_LISTENER_NOT_EXIST;
@@ -57,7 +60,7 @@ int32_t HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventListener> li
     auto ret = HiSysEventBaseManager::RemoveListener(baseListener);
     if (ret == IPC_CALL_SUCCEED) {
         HiLog::Debug(LABEL, "remove listener from local cache.");
-        listenerToBaseMap.erase(listener);
+        listenerToBaseMap_.erase(listener);
     }
     return ret;
 }
@@ -75,7 +78,8 @@ int32_t HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventListener> list
         HiLog::Warn(LABEL, "set debug mode on a null listener is not allowed.");
         return ERR_LISTENER_NOT_EXIST;
     }
-    auto baseListener = listenerToBaseMap[listener];
+    std::lock_guard<std::mutex> lock(listenersMutex_);
+    auto baseListener = listenerToBaseMap_[listener];
     if (baseListener == nullptr) {
         HiLog::Warn(LABEL, "no need to set debug mode on a listener which has not been added.");
         return ERR_LISTENER_NOT_EXIST;
