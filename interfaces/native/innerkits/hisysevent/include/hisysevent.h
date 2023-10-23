@@ -171,6 +171,7 @@ public:
         static constexpr char USERIAM_FACE_HDF[] = "USERIAM_FACE_HDF";
         static constexpr char USERIAM_FP_HAL[] = "USERIAM_FP_HAL";
         static constexpr char USERIAM_FWK[] = "USERIAM_FWK";
+        static constexpr char USERIAM_FWK_HDF[] = "USERIAM_FWK_HDF";
         static constexpr char USERIAM_PIN[] = "USERIAM_PIN";
         static constexpr char WEARABLE_HARDWARE[] = "WEARABLEHW";
         static constexpr char WEARABLE[] = "WEARABLE";
