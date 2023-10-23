@@ -116,6 +116,7 @@ public:
         static constexpr char DLP[] = "DLP";
         static constexpr char DSLM[] = "DSLM";
         static constexpr char DSOFTBUS[] = "DSOFTBUS";
+        static constexpr char FACE_SETTINGS[] = "FACE_SETTINGS";
         static constexpr char FILEMANAGEMENT[] = "FILEMANAGEMENT";
         static constexpr char FFRT[] = "FFRT";
         static constexpr char FORM_MANAGER[] = "FORM_MANAGER";
@@ -167,7 +168,7 @@ public:
         static constexpr char UPDATE_DUE[] = "UPDATE_DUE";
         static constexpr char UPDATE_OUC[] = "UPDATE_OUC";
         static constexpr char USB[] = "USB";
-        static constexpr char USERIAM_FACE_HAL[] = "USERIAM_FACE_HAL";
+        static constexpr char USERIAM_FACE_HDF[] = "USERIAM_FACE_HDF";
         static constexpr char USERIAM_FP_HAL[] = "USERIAM_FP_HAL";
         static constexpr char USERIAM_FWK[] = "USERIAM_FWK";
         static constexpr char USERIAM_PIN[] = "USERIAM_PIN";
