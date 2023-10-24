@@ -120,6 +120,7 @@ public:
         static constexpr char FILEMANAGEMENT[] = "FILEMANAGEMENT";
         static constexpr char FFRT[] = "FFRT";
         static constexpr char FORM_MANAGER[] = "FORM_MANAGER";
+        static constexpr char FP_SETTINGS[] = "FP_SETTINGS";
         static constexpr char FRAMEWORK[] = "FRAMEWORK";
         static constexpr char GLOBAL_I18N[] = "GLOBAL_I18N";
         static constexpr char GLOBAL_RESMGR[] = "GLOBAL_RESMGR";
@@ -169,7 +170,7 @@ public:
         static constexpr char UPDATE_OUC[] = "UPDATE_OUC";
         static constexpr char USB[] = "USB";
         static constexpr char USERIAM_FACE_HDF[] = "USERIAM_FACE_HDF";
-        static constexpr char USERIAM_FP_HAL[] = "USERIAM_FP_HAL";
+        static constexpr char USERIAM_FP_HDF[] = "USERIAM_FP_HDF";
         static constexpr char USERIAM_FWK[] = "USERIAM_FWK";
         static constexpr char USERIAM_FWK_HDF[] = "USERIAM_FWK_HDF";
         static constexpr char USERIAM_PIN[] = "USERIAM_PIN";
