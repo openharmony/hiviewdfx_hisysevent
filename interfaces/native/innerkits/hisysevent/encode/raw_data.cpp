@@ -25,7 +25,7 @@ namespace HiviewDFX {
 namespace Encoded {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-RawData" };
-constexpr size_t EXPAND_BUF_SIZE = 512;
+constexpr size_t EXPAND_BUF_SIZE = 128;
 }
 
 RawData::RawData()

@@ -23,34 +23,26 @@ namespace Encoded {
 namespace {
 constexpr unsigned int DEFAULT_TZ_POS = 14; // default "+0000"
 
-static std::vector<std::string> ALL_TIME_ZONES {
-    "-0100", "-0200", "-0300", "-0330", "-0400", "-0500", "-0600",
-    "-0700", "-0800", "-0900", "-0930", "-1000", "-1100", "-1200",
-    "+0000", "+0100", "+0200", "+0300", "+0330", "+0400", "+0430",
-    "+0500", "+0530", "+0545", "+0600", "+0630", "+0700", "+0800",
-    "+0845", "+0900", "+0930", "+1000", "+1030", "+1100", "+1200",
-    "+1245", "+1300", "+1400"
+static std::vector<long> ALL_TIME_ZONES {
+    3600, 7200, 10800, 11880, 14400, 18000, 21600,
+    25200, 28800, 32400, 33480, 36000, 39600, 43200,
+    0, -3600, -7200, -10800, -11880, -14400, 15480,
+    -18000, -19080, -19620, -21600, -22680, -25200, -28800,
+    -30420, -32400, -33480, -36000, -37080, -39600, -43200,
+    -44820, -46800, -50400
 };
 }
 
-int ParseTimeZone(const std::string& tzStr)
+int ParseTimeZone(long tz)
 {
     int ret = DEFAULT_TZ_POS;
     for (auto iter = ALL_TIME_ZONES.begin(); iter < ALL_TIME_ZONES.end(); ++iter) {
-        if (*iter == tzStr) {
+        if (*iter == tz) {
             ret = (iter - ALL_TIME_ZONES.begin());
             break;
         }
     }
     return ret;
-}
-
-std::string ParseTimeZone(const uint8_t tzVal)
-{
-    if (tzVal >= ALL_TIME_ZONES.size()) {
-        return ALL_TIME_ZONES.at(DEFAULT_TZ_POS);
-    }
-    return ALL_TIME_ZONES.at(tzVal);
 }
 } // namespace Encoded
 } // namespace HiviewDFX

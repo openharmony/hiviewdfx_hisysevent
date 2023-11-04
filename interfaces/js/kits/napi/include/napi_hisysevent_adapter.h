@@ -21,7 +21,6 @@
 #include <vector>
 
 #include "hisysevent.h"
-#include "inner_writer.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "stringfilter.h"
@@ -60,15 +59,15 @@ public:
 
 private:
     static void CheckThenWriteSysEvent(HiSysEventAsyncContext* eventAsyncContext);
-    static void InnerWrite(InnerWriter::EventBase& eventBase, const HiSysEventInfo& eventInfo);
-    static int Write(const HiSysEventInfo& eventInfo);
+    static void InnerWrite(HiSysEvent::EventBase& eventBase, const HiSysEventInfo& eventInfo);
+    static int Write(const HiSysEventInfo& eventInfo, uint64_t timeStamp);
 
 private:
     template<typename T>
-    static void AppendParams(InnerWriter::EventBase& eventBase, const std::unordered_map<std::string, T>& params)
+    static void AppendParams(HiSysEvent::EventBase& eventBase, const std::unordered_map<std::string, T>& params)
     {
         for (auto iter = params.cbegin(); iter != params.cend(); ++iter) {
-            InnerWriter::InnerWrite(eventBase, iter->first, iter->second);
+            HiSysEvent::InnerWrite(eventBase, iter->first, iter->second);
         }
     }
 };

@@ -23,8 +23,11 @@
 #include <sstream>
 #include <vector>
 
+#include "encoded_param.h"
 #include "def.h"
-#include "inner_writer.h"
+#include "hisysevent_c.h"
+#include "raw_data.h"
+#include "stringfilter.h"
 #include "write_controller.h"
 
 /*
@@ -68,6 +71,7 @@ inline static constexpr bool isMasked = IsMaskedCvt<domain, DOMAIN_MASKS_DEF>::v
 
 class HiSysEvent {
 public:
+    friend class HiSysEvent;
     friend class NapiHiSysEventAdapter;
 
     // system event domain list
@@ -207,10 +211,12 @@ public:
             .threshold = HISYSEVENT_DEFAULT_THRESHOLD,
 #endif
         };
-        if (controller.CheckLimitWritingEvent(param, domain.c_str(), eventName.c_str(), func, line)) {
+        uint64_t timeStamp = controller.CheckLimitWritingEvent(param, domain.c_str(), eventName.c_str(),
+            func, line);
+        if (timeStamp == INVALID_TIME_STAMP) {
             return ERR_WRITE_IN_HIGH_FREQ;
         }
-        return InnerWriter::InnerWrite(domain, eventName, type, keyValues...);
+        return InnerWrite(domain, eventName, type, timeStamp, keyValues...);
     }
 
     template<const char* domain, typename... Types, std::enable_if_t<!isMasked<domain>>* = nullptr>
@@ -229,10 +235,12 @@ public:
             .threshold = HISYSEVENT_DEFAULT_THRESHOLD,
 #endif
         };
-        if (controller.CheckLimitWritingEvent(param, domain, eventName.c_str(), func, line)) {
+        uint64_t timeStamp = controller.CheckLimitWritingEvent(param, domain, eventName.c_str(),
+            func, line);
+        if (timeStamp == INVALID_TIME_STAMP) {
             return ERR_WRITE_IN_HIGH_FREQ;
         }
-        return InnerWriter::InnerWrite(std::string(domain), eventName, type, keyValues...);
+        return InnerWrite(std::string(domain), eventName, type, timeStamp, keyValues...);
     }
 
     template<const char* domain, typename... Types, std::enable_if_t<isMasked<domain>>* = nullptr>
@@ -243,6 +251,482 @@ public:
     }
 
 private:
+    class EventBase {
+    public:
+        EventBase(const std::string& domain, const std::string& eventName, int type, uint64_t timeStamp = 0);
+        ~EventBase() = default;
+
+    public:
+        int GetRetCode();
+        void SetRetCode(int retCode);
+        void AppendParam(std::shared_ptr<Encoded::EncodedParam> param);
+        void WritebaseInfo();
+        size_t GetParamCnt();
+        std::shared_ptr<Encoded::RawData> GetEventRawData();
+
+    private:
+        int retCode_ = 0;
+        size_t paramCnt_ = 0;
+        size_t paramCntWroteOffset_ = 0;
+        struct Encoded::HiSysEventHeader header_ = {
+            .domain = {0},
+            .name = {0},
+            .timestamp = 0,
+            .timeZone = 0,
+            .uid = 0,
+            .pid = 0,
+            .tid = 0,
+            .id = 0,
+            .type = 0,
+            .isTraceOpened = 0,
+        };
+        struct Encoded::TraceInfo traceInfo_ = {
+            .traceFlag = 0,
+            .traceId = 0,
+            .spanId = 0,
+            .pSpanId = 0,
+        };
+        std::shared_ptr<Encoded::RawData> rawData_ = nullptr;
+    };
+
+private:
+    template<typename... Types>
+    static int InnerWrite(const std::string& domain, const std::string& eventName,
+        int type, uint64_t timeStamp, Types... keyValues)
+    {
+        if (!StringFilter::GetInstance().IsValidName(domain, MAX_DOMAIN_LENGTH)) {
+            return ExplainThenReturnRetCode(ERR_DOMAIN_NAME_INVALID);
+        }
+        if (!StringFilter::GetInstance().IsValidName(eventName, MAX_EVENT_NAME_LENGTH)) {
+            return ExplainThenReturnRetCode(ERR_EVENT_NAME_INVALID);
+        }
+        EventBase eventBase(domain, eventName, type, timeStamp);
+        WritebaseInfo(eventBase);
+        if (IsError(eventBase)) {
+            return ExplainThenReturnRetCode(eventBase.GetRetCode());
+        }
+
+        InnerWrite(eventBase, keyValues...);
+        if (IsError(eventBase)) {
+            return ExplainThenReturnRetCode(eventBase.GetRetCode());
+        }
+
+        SendSysEvent(eventBase);
+        return eventBase.GetRetCode();
+    }
+
+    static bool CheckParamValidity(EventBase& eventBase, const std::string &key)
+    {
+        if (IsWarnAndUpdate(CheckKey(key), eventBase)) {
+            return false;
+        }
+        if (UpdateAndCheckKeyNumIsOver(eventBase)) {
+            return false;
+        }
+        return true;
+    }
+
+    template<typename T>
+    static bool CheckArrayValidity(EventBase& eventBase, const T* array)
+    {
+        if (array == nullptr) {
+            eventBase.SetRetCode(ERR_VALUE_INVALID);
+            return false;
+        }
+        return true;
+    }
+
+    template<typename T>
+    static bool CheckArrayParamsValidity(EventBase& eventBase, const std::string& key, const std::vector<T>& value)
+    {
+        if (!CheckParamValidity(eventBase, key)) {
+            return false;
+        }
+        if (value.empty()) {
+            std::vector<bool> boolArrayValue;
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedArrayParam<bool>>(key,
+                boolArrayValue));
+            return false;
+        }
+        IsWarnAndUpdate(CheckArraySize(value.size()), eventBase);
+        return true;
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, bool value, Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedParam<bool>>(key, value));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const char value, Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedParam<int8_t>>(key,
+                static_cast<int8_t>(value)));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const unsigned char value,
+        Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::UnsignedVarintEncodedParam<uint8_t>>(key,
+                static_cast<uint8_t>(value)));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const short value, Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedParam<int16_t>>(key,
+                static_cast<int16_t>(value)));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const unsigned short value,
+        Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::UnsignedVarintEncodedParam<uint16_t>>(key,
+                static_cast<uint16_t>(value)));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const int value, Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedParam<int32_t>>(key, value));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const unsigned int value,
+        Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::UnsignedVarintEncodedParam<uint32_t>>(key, value));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const long value, Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedParam<int64_t>>(key,
+                static_cast<int64_t>(value)));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const unsigned long value,
+        Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::UnsignedVarintEncodedParam<uint64_t>>(key,
+                static_cast<uint64_t>(value)));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const long long value, Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedParam<int64_t>>(key,
+                static_cast<int64_t>(value)));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const unsigned long long value,
+        Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::UnsignedVarintEncodedParam<uint64_t>>(key,
+                static_cast<uint64_t>(value)));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const float value, Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::FloatingNumberEncodedParam<float>>(key, value));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const double value, Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            eventBase.AppendParam(std::make_shared<Encoded::FloatingNumberEncodedParam<double>>(key, value));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::string& value,
+        Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            IsWarnAndUpdate(CheckValue(value), eventBase);
+            auto rawStr = StringFilter::GetInstance().EscapeToRaw(value);
+            eventBase.AppendParam(std::make_shared<Encoded::StringEncodedParam>(key, rawStr));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const char* value, Types... keyValues)
+    {
+        if (CheckParamValidity(eventBase, key)) {
+            IsWarnAndUpdate(CheckValue(std::string(value)), eventBase);
+            auto rawStr = StringFilter::GetInstance().EscapeToRaw(std::string(value));
+            eventBase.AppendParam(std::make_shared<Encoded::StringEncodedParam>(key, std::string(rawStr)));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<bool>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedArrayParam<bool>>(key, value));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<char>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            std::vector<int8_t> translated;
+            for (auto item : value) {
+                translated.emplace_back(static_cast<int8_t>(item));
+            }
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedArrayParam<int8_t>>(key, translated));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<unsigned char>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            std::vector<uint8_t> translated;
+            for (auto item : value) {
+                translated.emplace_back(static_cast<uint8_t>(item));
+            }
+            eventBase.AppendParam(std::make_shared<Encoded::UnsignedVarintEncodedArrayParam<uint8_t>>(key,
+                translated));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<short>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            std::vector<int16_t> translated;
+            for (auto item : value) {
+                translated.emplace_back(static_cast<int16_t>(item));
+            }
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedArrayParam<int16_t>>(key, translated));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<unsigned short>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            std::vector<uint16_t> translated;
+            for (auto item : value) {
+                translated.emplace_back(static_cast<uint16_t>(item));
+            }
+            eventBase.AppendParam(std::make_shared<Encoded::UnsignedVarintEncodedArrayParam<uint16_t>>(key,
+                translated));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<int>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedArrayParam<int32_t>>(key, value));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<unsigned int>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            eventBase.AppendParam(std::make_shared<Encoded::UnsignedVarintEncodedArrayParam<uint32_t>>(key, value));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<long>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            std::vector<int64_t> translated;
+            for (auto item : value) {
+                translated.emplace_back(static_cast<int64_t>(item));
+            }
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedArrayParam<int64_t>>(key, translated));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<unsigned long>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            std::vector<uint64_t> translated;
+            for (auto item : value) {
+                translated.emplace_back(static_cast<uint64_t>(item));
+            }
+            eventBase.AppendParam(std::make_shared<Encoded::UnsignedVarintEncodedArrayParam<uint64_t>>(key,
+                translated));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<long long>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            std::vector<int64_t> translated;
+            for (auto item : value) {
+                translated.emplace_back(static_cast<int64_t>(item));
+            }
+            eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedArrayParam<int64_t>>(key, translated));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<unsigned long long>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            std::vector<uint64_t> translated;
+            for (auto item : value) {
+                translated.emplace_back(static_cast<uint64_t>(item));
+            }
+            eventBase.AppendParam(std::make_shared<Encoded::UnsignedVarintEncodedArrayParam<uint64_t>>(key,
+                translated));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<float>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            eventBase.AppendParam(std::make_shared<Encoded::FloatingNumberEncodedArrayParam<float>>(key, value));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<double>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            eventBase.AppendParam(std::make_shared<Encoded::FloatingNumberEncodedArrayParam<double>>(key, value));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+    template<typename... Types>
+    static void InnerWrite(EventBase& eventBase, const std::string& key, const std::vector<std::string>& value,
+        Types... keyValues)
+    {
+        if (CheckArrayParamsValidity(eventBase, key, value)) {
+            std::vector<std::string> rawStrs;
+            for (auto& item : value) {
+                IsWarnAndUpdate(CheckValue(item), eventBase);
+                rawStrs.emplace_back(StringFilter::GetInstance().EscapeToRaw(item));
+            }
+            eventBase.AppendParam(std::make_shared<Encoded::StringEncodedArrayParam>(key, rawStrs));
+        }
+        InnerWrite(eventBase, keyValues...);
+    }
+
+private:
+    static void InnerWrite(EventBase& eventBase);
+    static void InnerWrite(EventBase& eventBase, const HiSysEventParam params[], size_t size);
+    static void WritebaseInfo(EventBase& eventBase);
+    static void AppendHexData(EventBase& eventBase, const std::string& key, uint64_t value);
+    static int CheckKey(const std::string& key);
+    static int CheckValue(const std::string& value);
+    static int CheckArraySize(const size_t size);
+    static bool IsErrorAndUpdate(int retCode, EventBase& eventBase);
+    static bool IsWarnAndUpdate(int retCode, EventBase& eventBase);
+    static bool UpdateAndCheckKeyNumIsOver(EventBase& eventBase);
+    static bool IsError(EventBase& eventBase);
+    static int ExplainThenReturnRetCode(const int retCode);
+    static void SendSysEvent(EventBase& eventBase);
+    static void AppendInvalidParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendBoolParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendInt8Param(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendUint8Param(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendInt16Param(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendUint16Param(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendInt32Param(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendUint32Param(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendInt64Param(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendUint64Param(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendFloatParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendDoubleParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendStringParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendBoolArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendInt8ArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendUint8ArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendInt16ArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendUint16ArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendInt32ArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendUint32ArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendInt64ArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendUint64ArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendFloatArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendDoubleArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendStringArrayParam(EventBase& eventBase, const HiSysEventParam& param);
+    static void AppendParam(EventBase& eventBase, const HiSysEventParam& param);
+
     static WriteController controller;
 };
 

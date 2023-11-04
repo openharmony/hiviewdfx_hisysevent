@@ -151,9 +151,7 @@ enum EncodeType: int8_t {
     INVALID = 4,
 };
 
-int ParseTimeZone(const std::string& tzStr);
-std::string ParseTimeZone(const uint8_t tzVal);
-
+int ParseTimeZone(long tzVal);
 } // namespace Encoded
 } // namespace HiviewDFX
 } // namespace OHOS

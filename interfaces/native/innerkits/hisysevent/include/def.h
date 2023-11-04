@@ -28,6 +28,7 @@ static constexpr int ERR_SEND_FAIL = -5;
 static constexpr int ERR_WRITE_IN_HIGH_FREQ = -6;
 static constexpr int ERR_DOMAIN_MASKED = -7;
 static constexpr int ERR_EMPTY_EVENT = -8;
+static constexpr int ERR_RAW_DATA_WROTE_EXCEPTION = -9;
 static constexpr char ERR_MSG_LEVEL0[][32] = {
     "invalid domain name",
     "invalid event name",
@@ -36,7 +37,8 @@ static constexpr char ERR_MSG_LEVEL0[][32] = {
     "send data failed",
     "write too frequently",
     "domain has been masked",
-    "empty event"
+    "empty event",
+    "raw data wrote failed"
 };
 
 static constexpr int ERR_KEY_NAME_INVALID = 1;

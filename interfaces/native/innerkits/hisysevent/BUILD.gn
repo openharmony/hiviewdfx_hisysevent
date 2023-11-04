@@ -31,7 +31,6 @@ ohos_shared_library("libhisysevent") {
   sources = [
     "hisysevent.cpp",
     "hisysevent_c.cpp",
-    "inner_writer.cpp",
     "stringfilter.cpp",
     "transport.cpp",
     "write_controller.cpp",
@@ -76,7 +75,6 @@ ohos_static_library("hisysevent_static_lib_for_tdd") {
   sources = [
     "hisysevent.cpp",
     "hisysevent_c.cpp",
-    "inner_writer.cpp",
     "stringfilter.cpp",
     "transport.cpp",
     "write_controller.cpp",
