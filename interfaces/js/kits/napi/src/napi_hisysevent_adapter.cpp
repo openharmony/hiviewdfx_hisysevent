@@ -39,11 +39,6 @@ constexpr char CALL_FUNC_INFO_DELIMITER = ' ';
 constexpr char CALL_LINE_INFO_DELIMITER = ':';
 constexpr char PATH_DELIMITER = '/';
 
-bool IsUninitializedJsCallerInfo(const JsCallerInfo& info)
-{
-    return info.first.empty() || info.second == DEFAULT_LINE_NUM;
-}
-
 void Split(const std::string& origin, char delimiter, std::vector<std::string>& ret)
 {
     std::string::size_type start = 0;
@@ -124,20 +119,17 @@ void NapiHiSysEventAdapter::CheckThenWriteSysEvent(HiSysEventAsyncContext* event
     }
     auto eventInfo = eventAsyncContext->eventInfo;
     auto jsCallerInfo = eventAsyncContext->jsCallerInfo;
-    if (IsUninitializedJsCallerInfo(jsCallerInfo)) {
-        eventAsyncContext->eventWroteResult = Write(eventInfo);
-        return;
-    }
     ControlParam param {
         .period = HISYSEVENT_DEFAULT_PERIOD,
         .threshold = HISYSEVENT_DEFAULT_THRESHOLD,
     };
-    if (HiSysEvent::controller.CheckLimitWritingEvent(param, eventInfo.domain.c_str(), eventInfo.name.c_str(),
-        jsCallerInfo.first.c_str(), jsCallerInfo.second)) {
+    uint64_t timeStamp = HiSysEvent::controller.CheckLimitWritingEvent(param, eventInfo.domain.c_str(),
+        eventInfo.name.c_str(), jsCallerInfo.first.c_str(), jsCallerInfo.second);
+    if (timeStamp == INVALID_TIME_STAMP) {
         eventAsyncContext->eventWroteResult = ERR_WRITE_IN_HIGH_FREQ;
         return;
     }
-    eventAsyncContext->eventWroteResult = Write(eventInfo);
+    eventAsyncContext->eventWroteResult = Write(eventInfo, timeStamp);
 }
 
 void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* eventAsyncContext)
@@ -180,7 +172,7 @@ void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* ev
     napi_queue_async_work_with_qos(env, eventAsyncContext->asyncWork, napi_qos_default);
 }
 
-void NapiHiSysEventAdapter::InnerWrite(InnerWriter::EventBase& eventBase,
+void NapiHiSysEventAdapter::InnerWrite(HiSysEvent::EventBase& eventBase,
     const HiSysEventInfo& eventInfo)
 {
     AppendParams(eventBase, eventInfo.boolParams);
@@ -191,23 +183,27 @@ void NapiHiSysEventAdapter::InnerWrite(InnerWriter::EventBase& eventBase,
     AppendParams(eventBase, eventInfo.stringArrayParams);
 }
 
-int NapiHiSysEventAdapter::Write(const HiSysEventInfo& eventInfo)
+int NapiHiSysEventAdapter::Write(const HiSysEventInfo& eventInfo, uint64_t timeStamp)
 {
-    InnerWriter::EventBase eventBase(eventInfo.domain, eventInfo.name, eventInfo.eventType);
-    InnerWriter::WritebaseInfo(eventBase);
-    if (InnerWriter::IsError(eventBase)) {
-        InnerWriter::ExplainRetCode(eventBase);
-        return eventBase.GetRetCode();
+    if (!StringFilter::GetInstance().IsValidName(eventInfo.domain, MAX_DOMAIN_LENGTH)) {
+        return HiSysEvent::ExplainThenReturnRetCode(ERR_DOMAIN_NAME_INVALID);
+    }
+    if (!StringFilter::GetInstance().IsValidName(eventInfo.name, MAX_EVENT_NAME_LENGTH)) {
+        return HiSysEvent::ExplainThenReturnRetCode(ERR_EVENT_NAME_INVALID);
+    }
+    HiSysEvent::EventBase eventBase(eventInfo.domain, eventInfo.name, eventInfo.eventType, timeStamp);
+    HiSysEvent::WritebaseInfo(eventBase);
+    if (HiSysEvent::IsError(eventBase)) {
+        return HiSysEvent::ExplainThenReturnRetCode(eventBase.GetRetCode());
     }
 
     InnerWrite(eventBase, eventInfo);
-    InnerWriter::InnerWrite(eventBase);
-    if (InnerWriter::IsError(eventBase)) {
-        InnerWriter::ExplainRetCode(eventBase);
-        return eventBase.GetRetCode();
+    HiSysEvent::InnerWrite(eventBase);
+    if (HiSysEvent::IsError(eventBase)) {
+        return HiSysEvent::ExplainThenReturnRetCode(eventBase.GetRetCode());
     }
 
-    InnerWriter::SendSysEvent(eventBase);
+    HiSysEvent::SendSysEvent(eventBase);
     return eventBase.GetRetCode();
 }
 } // namespace HiviewDFX

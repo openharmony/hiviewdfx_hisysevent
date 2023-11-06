@@ -25,7 +25,6 @@
 
 #include "encoded_param.h"
 #include "raw_data_base_def.h"
-#include "raw_data_builder.h"
 #include "raw_data_encoder.h"
 #include "raw_data.h"
 
@@ -61,63 +60,6 @@ void HiSysEventEncodedTest::TearDown(void)
 }
 
 /**
- * @tc.name: RawDataTest001
- * @tc.desc: RawData constructor test
- * @tc.type: FUNC
- * @tc.require: issueI7E737
- */
-HWTEST_F(HiSysEventEncodedTest, RawDataTest001, TestSize.Level1)
-{
-    auto dataBuilderEmpty = std::make_shared<RawDataBuilder>();
-    ASSERT_TRUE(dataBuilderEmpty != nullptr);
-    RawData originEmpty = *(dataBuilderEmpty->Build());
-    RawData dest1(originEmpty.GetData(), originEmpty.GetDataLength());
-    ASSERT_TRUE(dest1.GetData() != nullptr);
-    RawData dest2(originEmpty);
-    ASSERT_TRUE(dest2.GetData() != nullptr);
-    auto dataBuilder = std::make_shared<RawDataBuilder>();
-    ASSERT_TRUE(dataBuilder != nullptr);
-    dataBuilder->AppendDomain("DOMAIN");
-    dataBuilder->AppendName("NAME");
-    dataBuilder->AppendType(HiSysEvent::EventType::SECURITY);
-    RawData origin = *(dataBuilder->Build());
-    RawData dest3(origin.GetData(), origin.GetDataLength());
-    ASSERT_TRUE((dest3.GetDataLength() > 0) && (dest3.GetData() != nullptr));
-    RawData dest4(origin);
-    ASSERT_TRUE((dest4.GetDataLength() > 0) && (dest4.GetData() != nullptr));
-}
-
-/**
- * @tc.name: RawDataTest002
- * @tc.desc: RawData assign, reset and update api test
- * @tc.type: FUNC
- * @tc.require: issueI7E737
- */
-HWTEST_F(HiSysEventEncodedTest, RawDataTest002, TestSize.Level1)
-{
-    auto dataBuilderEmpty = std::make_shared<RawDataBuilder>();
-    ASSERT_TRUE(dataBuilderEmpty != nullptr);
-    RawData originEmpty = *(dataBuilderEmpty->Build());
-    RawData tmpData = originEmpty;
-    originEmpty.Reset();
-    ASSERT_TRUE(originEmpty.GetDataLength() == 0);
-    auto ret = originEmpty.Update(nullptr, 0, 0);
-    ASSERT_TRUE(!ret);
-    auto dataBuilder = std::make_shared<RawDataBuilder>();
-    ASSERT_TRUE(dataBuilder != nullptr);
-    dataBuilder->AppendDomain("DOMAIN");
-    dataBuilder->AppendName("NAME");
-    RawData origin = *(dataBuilderEmpty->Build());
-    ret = originEmpty.Update(origin.GetData(), origin.GetDataLength(), 100); // 100 is an invalid position
-    ASSERT_TRUE(!ret);
-    RawData tmpData2 = origin;
-    ASSERT_TRUE(origin.GetDataLength() > 0);
-    origin.Reset();
-    ASSERT_TRUE(origin.GetDataLength() == 0);
-    ASSERT_TRUE(tmpData2.GetDataLength() > 0);
-}
-
-/**
  * @tc.name: EncodeParamTest001
  * @tc.desc: EncodeParam api interfaces test
  * @tc.type: FUNC
@@ -127,8 +69,15 @@ HWTEST_F(HiSysEventEncodedTest, EncodeParamTest001, TestSize.Level1)
 {
     uint64_t val = 39912344; // a random numeber
     std::shared_ptr<EncodedParam> param = std::make_shared<UnsignedVarintEncodedParam<uint64_t>>("KEY", val);
-    RawData data = param->GetRawData();
-    ASSERT_TRUE((data.GetData() != nullptr) && (data.GetDataLength() > 0));
+    auto data = param->GetRawData();
+    ASSERT_TRUE(data == nullptr);
+    ASSERT_TRUE(!param->Encode());
+    auto rawData = std::make_shared<Encoded::RawData>();
+    param->SetRawData(rawData);
+    ASSERT_TRUE(param->Encode());
+    data = param->GetRawData();
+    ASSERT_TRUE(data != nullptr);
+    ASSERT_TRUE((data->GetData() != nullptr) && (data->GetDataLength() > 0));
     uint64_t destUint64Val;
     ASSERT_TRUE(param->AsUint64(destUint64Val));
     ASSERT_TRUE(destUint64Val == val);
@@ -150,50 +99,6 @@ HWTEST_F(HiSysEventEncodedTest, EncodeParamTest001, TestSize.Level1)
 }
 
 /**
- * @tc.name: RawDataBuilderTest001
- * @tc.desc: RawDataBuilder api interfaces test
- * @tc.type: FUNC
- * @tc.require: issueI7E737
- */
-HWTEST_F(HiSysEventEncodedTest, RawDataBuilderTest001, TestSize.Level1)
-{
-    auto dataBuilder = std::make_shared<RawDataBuilder>();
-    ASSERT_TRUE(dataBuilder != nullptr);
-    dataBuilder->AppendDomain("DOMAIN");
-    dataBuilder->AppendName("NAME");
-    dataBuilder->AppendType(HiSysEvent::EventType::SECURITY);
-    dataBuilder->AppendTimeStamp(1502603794820); // a random timestamp
-    dataBuilder->AppendTimeZone(3); // 3 is a valid index
-    dataBuilder->AppendUid(100); // 100 is a random uid
-    dataBuilder->AppendPid(1000); // 1000 is a random pid
-    dataBuilder->AppendTid(384); // 384 is a random tid
-    uint64_t id = std::numeric_limits<uint64_t>::max();
-    dataBuilder->AppendId(id);
-    dataBuilder->AppendId(std::to_string(id));
-    uint64_t traceId = std::numeric_limits<uint64_t>::max();
-    dataBuilder->AppendTraceId(traceId);
-    dataBuilder->AppendSpanId(0); // default span id is 0
-    dataBuilder->AppendPSpanId(0); // default parent span id is 0
-    dataBuilder->AppendTraceFlag(HITRACE_FLAG_INCLUDE_ASYNC | HITRACE_FLAG_DONOT_CREATE_SPAN);
-    dataBuilder->AppendValue(nullptr);
-    uint64_t val = 39912344; // a random numeber
-    std::shared_ptr<EncodedParam> param = std::make_shared<UnsignedVarintEncodedParam<uint64_t>>("KEY", val);
-    dataBuilder->AppendValue(param);
-    dataBuilder->Build();
-    std::shared_ptr<EncodedParam> param1 = dataBuilder->GetValue("KEY1");
-    ASSERT_TRUE(param1 == nullptr);
-    std::shared_ptr<EncodedParam> param2 = dataBuilder->GetValue("KEY");
-    uint64_t val2 = 0;
-    ASSERT_TRUE(param2->AsUint64(val2));
-    ASSERT_TRUE(val == val2);
-    ASSERT_TRUE(dataBuilder->GetEventType() == HiSysEvent::EventType::SECURITY);
-    auto header = dataBuilder->GetHeader();
-    ASSERT_TRUE((header.type + 1) == HiSysEvent::EventType::SECURITY);
-    auto traceInfo = dataBuilder->GetTraceInfo();
-    ASSERT_TRUE(traceInfo.traceFlag == (HITRACE_FLAG_INCLUDE_ASYNC | HITRACE_FLAG_DONOT_CREATE_SPAN));
-}
-
-/**
  * @tc.name: RawDatabaseDefTest001
  * @tc.desc: Some api interfaces of raw data base definition test
  * @tc.type: FUNC
@@ -201,8 +106,8 @@ HWTEST_F(HiSysEventEncodedTest, RawDataBuilderTest001, TestSize.Level1)
  */
 HWTEST_F(HiSysEventEncodedTest, RawDatabaseDefTest001, TestSize.Level1)
 {
-    auto timeZone = ParseTimeZone(40); // 40 is a invalid index
-    ASSERT_TRUE(timeZone == "+0000");
-    timeZone = ParseTimeZone(15); // 15 is a valid index
-    ASSERT_TRUE(timeZone == "+0100");
+    auto tzIndex = ParseTimeZone(3600); // 3600 is a valid timezone value
+    ASSERT_TRUE(tzIndex == 0); // reference to ALL_TIME_ZONES defined in raw_data_base_def.cpp
+    tzIndex = ParseTimeZone(15); // 15 is an invalid timezone value
+    ASSERT_TRUE(tzIndex == 14); // default index
 }

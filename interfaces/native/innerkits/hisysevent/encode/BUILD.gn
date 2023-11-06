@@ -27,7 +27,6 @@ ohos_source_set("hisysevent_encoded") {
     "encoded_param.cpp",
     "raw_data.cpp",
     "raw_data_base_def.cpp",
-    "raw_data_builder.cpp",
     "raw_data_encoder.cpp",
   ]
 

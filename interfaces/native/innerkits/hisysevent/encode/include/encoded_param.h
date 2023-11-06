@@ -37,7 +37,8 @@ public:
 
 public:
     virtual std::string& GetKey();
-    virtual RawData& GetRawData();
+    virtual std::shared_ptr<RawData> GetRawData();
+    virtual void SetRawData(std::shared_ptr<RawData> rawData);
     virtual bool Encode();
 
 public:
@@ -57,7 +58,7 @@ protected:
 
 protected:
     std::string key_;
-    RawData rawData_;
+    std::shared_ptr<RawData> rawData_;
     bool hasEncoded_ = false;
 };
 
@@ -73,12 +74,18 @@ public:
 
     virtual bool EncodeValueType() override
     {
-        return RawDataEncoder::ValueTypeEncoded(rawData_, false, ValueType::UINT64, 0);
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        return RawDataEncoder::ValueTypeEncoded(*rawData_, false, ValueType::UINT64, 0);
     }
 
     virtual bool EncodeValue() override
     {
-        return RawDataEncoder::UnsignedVarintEncoded(rawData_, EncodeType::VARINT, val_);
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        return RawDataEncoder::UnsignedVarintEncoded(*rawData_, EncodeType::VARINT, val_);
     }
 
     virtual bool AsString(std::string& ret) override
@@ -121,14 +128,20 @@ public:
 
     virtual bool EncodeValueType() override
     {
-        return RawDataEncoder::ValueTypeEncoded(rawData_, true, ValueType::UINT64, 0);
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        return RawDataEncoder::ValueTypeEncoded(*rawData_, true, ValueType::UINT64, 0);
     }
 
     virtual bool EncodeValue() override
     {
-        bool ret = RawDataEncoder::UnsignedVarintEncoded(rawData_, EncodeType::LENGTH_DELIMITED, vals_.size());
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        bool ret = RawDataEncoder::UnsignedVarintEncoded(*rawData_, EncodeType::LENGTH_DELIMITED, vals_.size());
         for (auto item : vals_) {
-            ret = ret && RawDataEncoder::UnsignedVarintEncoded(rawData_, EncodeType::VARINT, item);
+            ret = ret && RawDataEncoder::UnsignedVarintEncoded(*rawData_, EncodeType::VARINT, item);
         }
         return ret;
     }
@@ -163,12 +176,18 @@ public:
 
     virtual bool EncodeValueType() override
     {
-        return RawDataEncoder::ValueTypeEncoded(rawData_, false, ValueType::INT64, 0);
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        return RawDataEncoder::ValueTypeEncoded(*rawData_, false, ValueType::INT64, 0);
     }
 
     virtual bool EncodeValue() override
     {
-        return RawDataEncoder::SignedVarintEncoded(rawData_, EncodeType::VARINT, val_);
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        return RawDataEncoder::SignedVarintEncoded(*rawData_, EncodeType::VARINT, val_);
     }
 
     virtual bool AsString(std::string& ret) override
@@ -212,14 +231,20 @@ public:
 
     virtual bool EncodeValueType() override
     {
-        return RawDataEncoder::ValueTypeEncoded(rawData_, true, ValueType::INT64, 0);
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        return RawDataEncoder::ValueTypeEncoded(*rawData_, true, ValueType::INT64, 0);
     }
 
     virtual bool EncodeValue() override
     {
-        bool ret = RawDataEncoder::UnsignedVarintEncoded(rawData_, EncodeType::LENGTH_DELIMITED, vals_.size());
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        bool ret = RawDataEncoder::UnsignedVarintEncoded(*rawData_, EncodeType::LENGTH_DELIMITED, vals_.size());
         for (auto item : vals_) {
-            ret = ret && RawDataEncoder::SignedVarintEncoded(rawData_, EncodeType::VARINT, item);
+            ret = ret && RawDataEncoder::SignedVarintEncoded(*rawData_, EncodeType::VARINT, item);
         }
         return ret;
     }
@@ -252,6 +277,9 @@ public:
 
     virtual bool EncodeValueType() override
     {
+        if (rawData_ == nullptr) {
+            return false;
+        }
         auto valueType = ValueType::UNKNOWN;
         if (std::is_same_v<std::decay_t<T>, float>) {
             valueType = ValueType::FLOAT;
@@ -259,12 +287,15 @@ public:
         if (std::is_same_v<std::decay_t<T>, double>) {
             valueType = ValueType::DOUBLE;
         }
-        return RawDataEncoder::ValueTypeEncoded(rawData_, false, valueType, 0);
+        return RawDataEncoder::ValueTypeEncoded(*rawData_, false, valueType, 0);
     }
 
     virtual bool EncodeValue() override
     {
-        return RawDataEncoder::FloatingNumberEncoded(rawData_, val_);
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        return RawDataEncoder::FloatingNumberEncoded(*rawData_, val_);
     }
 
     virtual bool AsString(std::string& ret) override
@@ -306,6 +337,9 @@ public:
 
     virtual bool EncodeValueType() override
     {
+        if (rawData_ == nullptr) {
+            return false;
+        }
         auto valueType = ValueType::UNKNOWN;
         if (std::is_same_v<std::decay_t<T>, float>) {
             valueType = ValueType::FLOAT;
@@ -313,14 +347,17 @@ public:
         if (std::is_same_v<std::decay_t<T>, double>) {
             valueType = ValueType::DOUBLE;
         }
-        return RawDataEncoder::ValueTypeEncoded(rawData_, true, valueType, 0);
+        return RawDataEncoder::ValueTypeEncoded(*rawData_, true, valueType, 0);
     }
 
     virtual bool EncodeValue() override
     {
-        bool ret = RawDataEncoder::UnsignedVarintEncoded(rawData_, EncodeType::LENGTH_DELIMITED, vals_.size());
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        bool ret = RawDataEncoder::UnsignedVarintEncoded(*rawData_, EncodeType::LENGTH_DELIMITED, vals_.size());
         for (auto item : vals_) {
-            ret = ret && RawDataEncoder::FloatingNumberEncoded(rawData_, item);
+            ret = ret && RawDataEncoder::FloatingNumberEncoded(*rawData_, item);
         }
         return ret;
     }
@@ -351,12 +388,18 @@ public:
 
     virtual bool EncodeValueType() override
     {
-        return RawDataEncoder::ValueTypeEncoded(rawData_, false, ValueType::STRING, 0);
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        return RawDataEncoder::ValueTypeEncoded(*rawData_, false, ValueType::STRING, 0);
     }
 
     virtual bool EncodeValue() override
     {
-        return RawDataEncoder::StringValueEncoded(rawData_, val_);
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        return RawDataEncoder::StringValueEncoded(*rawData_, val_);
     }
 
     bool AsString(std::string& ret) override
@@ -390,14 +433,20 @@ public:
 
     virtual bool EncodeValueType() override
     {
-        return RawDataEncoder::ValueTypeEncoded(rawData_, true, ValueType::STRING, 0);
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        return RawDataEncoder::ValueTypeEncoded(*rawData_, true, ValueType::STRING, 0);
     }
 
     virtual bool EncodeValue() override
     {
-        bool ret = RawDataEncoder::UnsignedVarintEncoded(rawData_, EncodeType::LENGTH_DELIMITED, vals_.size());
+        if (rawData_ == nullptr) {
+            return false;
+        }
+        bool ret = RawDataEncoder::UnsignedVarintEncoded(*rawData_, EncodeType::LENGTH_DELIMITED, vals_.size());
         for (auto item : vals_) {
-            ret = ret && RawDataEncoder::StringValueEncoded(rawData_, item);
+            ret = ret && RawDataEncoder::StringValueEncoded(*rawData_, item);
         }
         return ret;
     }

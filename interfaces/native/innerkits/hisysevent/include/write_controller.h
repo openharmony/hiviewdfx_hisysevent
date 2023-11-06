@@ -23,6 +23,7 @@
 
 namespace OHOS {
 namespace HiviewDFX {
+static constexpr uint64_t INVALID_TIME_STAMP = 0;
 static constexpr size_t DEFAULT_CACHE_CAPACITY = 30;
 static constexpr size_t HISYSEVENT_DEFAULT_PERIOD = 5;
 static constexpr size_t HISYSEVENT_DEFAULT_THRESHOLD = 100;
@@ -32,11 +33,9 @@ using ControlParam = struct {
     size_t threshold;
 };
 
-template<typename K, typename V>
+template<typename K, typename V, size_t capacity = DEFAULT_CACHE_CAPACITY>
 class LruCache {
 public:
-    LruCache(int capacity = DEFAULT_CACHE_CAPACITY): capacity(capacity) {}
-
     V Get(K key)
     {
         V v;
@@ -80,26 +79,25 @@ private:
     }
 
 private:
-    size_t capacity;
     std::unordered_map<K, CacheNode<K, V>> key2Index;
     std::list<K> keyCache;
 };
 
 class WriteController {
 public:
-    bool CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
+    uint64_t CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
         const char* func, int64_t line);
 
 private:
     struct EventLimitStat {
         size_t count;
-        timeval begin;
+        uint64_t begin;
 
     public:
         EventLimitStat()
         {
             count = 0;
-            gettimeofday(&begin, nullptr);
+            begin = INVALID_TIME_STAMP;
         }
 
     public:
@@ -110,11 +108,11 @@ private:
     };
 
 private:
-    std::string ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line) const;
+    uint64_t ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line) const;
 
 private:
     std::mutex lmtMutex;
-    LruCache<std::string, EventLimitStat> lruCache;
+    LruCache<uint64_t, EventLimitStat> lruCache;
 };
 } // HiviewDFX
 } // OHOS

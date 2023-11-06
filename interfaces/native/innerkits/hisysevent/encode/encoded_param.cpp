@@ -40,7 +40,12 @@ std::string& EncodedParam::GetKey()
     return key_;
 }
 
-RawData& EncodedParam::GetRawData()
+void EncodedParam::SetRawData(std::shared_ptr<RawData> rawData)
+{
+    rawData_ = rawData;
+}
+
+std::shared_ptr<RawData> EncodedParam::GetRawData()
 {
     if (!hasEncoded_) {
         hasEncoded_ = Encode();
@@ -96,7 +101,10 @@ bool EncodedParam::Encode()
 
 bool EncodedParam::EncodeKey()
 {
-    if (!RawDataEncoder::StringValueEncoded(rawData_, key_)) {
+    if (rawData_ == nullptr) {
+        return false;
+    }
+    if (!RawDataEncoder::StringValueEncoded(*rawData_, key_)) {
         HiLog::Error(LABEL, "The key of customized value encoded failded.");
         return false;
     }

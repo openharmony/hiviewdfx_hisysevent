@@ -16,6 +16,7 @@
 #include "write_controller.h"
 
 #include <__mutex_base>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <iosfwd>
@@ -30,50 +31,67 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "WRITE_CONTROLLER" };
-constexpr char STR_CONCAT = '_';
+constexpr int SEC_TO_MILLS = 1000;
+constexpr uint64_t PRIME = 0x100000001B3ull;
+constexpr uint64_t BASIS = 0xCBF29CE484222325ull;
+constexpr uint64_t HASH_TRANS_FACTOR = 1000;
+
+uint64_t GenerateHash(const std::string& info)
+{
+    uint64_t ret {BASIS};
+    const char* p = info.c_str();
+    size_t infoLen = info.size();
+    size_t infoLenLimit = 256;
+    size_t hashLen = (infoLen < infoLenLimit) ? infoLen : infoLenLimit;
+    size_t i = 0;
+    while (i < hashLen) {
+        ret ^= *(p + i);
+        ret *= PRIME;
+        i++;
+    }
+    return ret;
 }
 
-bool WriteController::CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
-    const char* func, int64_t line)
+static inline uint64_t GetMilliseconds()
+{
+    auto now = std::chrono::system_clock::now();
+    auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    return millisecs.count();
+}
+}
+
+uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, const char* domain,
+    const char* eventName, const char* func, int64_t line)
 {
     std::lock_guard<std::mutex> lock(lmtMutex);
-    std::string key = ConcatenateInfoAsKey(eventName, func, line);
+    uint64_t key = ConcatenateInfoAsKey(eventName, func, line);
     EventLimitStat stat = lruCache.Get(key);
-    if (!stat.IsValid()) {
-        stat.count = 1;
-        lruCache.Put(key, stat);
-        return false;
-    }
-    timeval cur;
-    gettimeofday(&cur, nullptr);
-    if ((stat.begin.tv_sec + static_cast<time_t>(param.period) < cur.tv_sec) ||
-        (stat.begin.tv_sec > cur.tv_sec)) {
-        stat.count = 1;
+    uint64_t cur = GetMilliseconds();
+    if (!stat.IsValid() || ((stat.begin / SEC_TO_MILLS) + param.period < (cur / SEC_TO_MILLS)) ||
+        ((stat.begin / SEC_TO_MILLS) > (cur / SEC_TO_MILLS))) {
+        stat.count = 1; // record the first event writing during one cycle
         stat.begin = cur;
         lruCache.Put(key, stat);
-        return false;
+        return cur;
     }
     stat.count++;
     if (stat.count <= param.threshold) {
         lruCache.Put(key, stat);
-        return false;
+        return cur;
     }
     lruCache.Put(key, stat);
     HiLog::Debug(LABEL, "{ .period = [%{public}zu, .threshold = %{public}zu} "
         "[%{public}lld, %{public}lld] discard %{public}zu event(s) "
         "with domain %{public}s and name %{public}s which wrote in function %{public}s.",
-        param.period, param.threshold, static_cast<long long>(stat.begin.tv_sec),
-        static_cast<long long>(cur.tv_sec), stat.count - param.threshold, domain, eventName, func);
-    return true;
+        param.period, param.threshold, static_cast<long long>(stat.begin / SEC_TO_MILLS),
+        static_cast<long long>(cur / SEC_TO_MILLS), stat.count - param.threshold,
+        domain, eventName, func);
+    return INVALID_TIME_STAMP;
 }
 
-std::string WriteController::ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line) const
+uint64_t WriteController::ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line) const
 {
-    std::stringstream ss;
-    ss << eventName << STR_CONCAT << std::string(func) << STR_CONCAT << line;
-    std::string concaStr = ss.str();
-    ss.clear();
-    return concaStr;
+    return (GenerateHash(eventName) + GenerateHash(func)) * HASH_TRANS_FACTOR + static_cast<uint64_t>(line);
 }
 } // HiviewDFX
 } // OHOS
