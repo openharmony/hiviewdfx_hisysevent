@@ -42,7 +42,7 @@
         "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent:libhisysevent",
         "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
         "//base/hiviewdfx/hisysevent/interfaces/js/kits:hisysevent_napi_ref",
-        "//base/hiviewdfx/hisysevent/interfaces/rust/innerkits:hisysevent_rust",
+        "//base/hiviewdfx/hisysevent/interfaces/rust:hisysevent_rust",
         "//base/hiviewdfx/hisysevent/frameworks/native:hisysevent"
       ],
       "inner_kits": [
@@ -67,7 +67,7 @@
           }
         },
         {
-          "name": "//base/hiviewdfx/hisysevent/interfaces/rust/innerkits:hisysevent_rust",
+          "name": "//base/hiviewdfx/hisysevent/interfaces/rust:hisysevent_rust",
           "header": {
             "header_files": [],
             "header_base": []

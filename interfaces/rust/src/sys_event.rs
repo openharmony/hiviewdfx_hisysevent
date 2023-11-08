@@ -1,19 +1,17 @@
-/*
- * Copyright (C) 2023 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright (C) 2023 Huawei Device Co., Ltd.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-use std::ffi::{CString, c_char, c_int, c_uint, c_ulonglong};
+use std::ffi::{c_char, c_int, c_uint, c_ulonglong, CString};
 
 /// Length limit for the name of a HiSysEventParam.
 const MAX_LENGTH_OF_PARAM_NAME: usize = 49;
@@ -180,7 +178,7 @@ pub fn parse_type_len<T>(_: T) -> (&'static str, usize) {
     let mut bytes = value_type.as_bytes();
     if bytes[0] == b'&' {
         value_type = &value_type[1..];
-		bytes = value_type.as_bytes();
+        bytes = value_type.as_bytes();
     }
     if bytes[0] != b'[' {
         // not a array
@@ -203,7 +201,9 @@ pub fn parse_type_len<T>(_: T) -> (&'static str, usize) {
             break;
         }
     }
-    let array_len = value_type[len_start..(bytes.len() - 1)].parse::<usize>().unwrap();
+    let array_len = value_type[len_start..(bytes.len() - 1)]
+        .parse::<usize>()
+        .unwrap();
     if bytes[1] == b'&' {
         // reference
         (&value_type[2..val_end], array_len)
@@ -224,14 +224,20 @@ pub fn build_string_arrays<'a>(param_name: &'a str, str_arr: &[&'a str]) -> HiSy
         param_name,
         param_type: HiSysEventParamType::ParamTypeStringArray,
         param_value: HiSysEventParamValue {
-            void_ptr_: std::boxed::Box::<[*const c_char]>::into_raw(dest.into_boxed_slice()) as *const c_int as *const (),
+            void_ptr_: std::boxed::Box::<[*const c_char]>::into_raw(dest.into_boxed_slice())
+                as *const c_int as *const (),
         },
         array_size: str_arr.len(),
     }
 }
 
 /// Write system event.
-pub(crate) fn write(event_domain: &str, event_name: &str, event_type: c_int, event_params: &[HiSysEventParam]) -> i32 {
+pub(crate) fn write(
+    event_domain: &str,
+    event_name: &str,
+    event_type: c_int,
+    event_params: &[HiSysEventParam],
+) -> i32 {
     let mut params_wrapper: Vec<HiSysEventParamWrapper> = vec![];
     for i in 0..event_params.len() {
         params_wrapper.push(HiSysEventParamWrapper {
@@ -240,7 +246,10 @@ pub(crate) fn write(event_domain: &str, event_name: &str, event_type: c_int, eve
             param_value: event_params[i].param_value,
             array_size: event_params[i].array_size as c_uint,
         });
-        crate::utils::trans_slice_to_array(event_params[i].param_name, &mut params_wrapper[i].param_name);
+        crate::utils::trans_slice_to_array(
+            event_params[i].param_name,
+            &mut params_wrapper[i].param_name,
+        );
     }
     let func = CString::new(crate::function!()).expect("Need a valid function name");
     let domain = CString::new(event_domain).expect("Need a valid domain name");
@@ -254,14 +263,20 @@ pub(crate) fn write(event_domain: &str, event_name: &str, event_type: c_int, eve
             event_name.as_ptr() as *const c_char,
             event_type,
             params_wrapper.as_mut_ptr(),
-            event_params.len() as c_uint
+            event_params.len() as c_uint,
         )
     }
 }
 
 extern "C" {
     /// ffi border function.
-    fn HiSysEventWriteWrapper(func: *const c_char, line: c_ulonglong, domain: *const c_char,
-        name: *const c_char, event_type: c_int, params: *const HiSysEventParamWrapper,
-        size: c_uint) -> c_int;
+    fn HiSysEventWriteWrapper(
+        func: *const c_char,
+        line: c_ulonglong,
+        domain: *const c_char,
+        name: *const c_char,
+        event_type: c_int,
+        params: *const HiSysEventParamWrapper,
+        size: c_uint,
+    ) -> c_int;
 }
