@@ -1,31 +1,29 @@
-/*
- * Copyright (C) 2023 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright (C) 2023 Huawei Device Co., Ltd.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 //! Rust interfaces for crate hisysevent.
 
-mod sys_event_manager;
 mod sys_event;
+mod sys_event_manager;
 mod utils;
 
 #[macro_use]
 pub mod macros;
 
+pub use sys_event::{
+    build_string_arrays, parse_type_len, HiSysEventParam, HiSysEventParamType, HiSysEventParamValue,
+};
 pub use sys_event_manager::{HiSysEventRecord, Querier, Watcher};
-
-pub use sys_event::{HiSysEventParam, HiSysEventParamType, HiSysEventParamValue, parse_type_len,
-    build_string_arrays};
 
 /// Enumerate system event types.
 #[non_exhaustive]
@@ -45,9 +43,18 @@ pub enum EventType {
 }
 
 /// Write system event.
-pub fn write(event_domain: &str, event_name: &str, event_type: EventType,
-    event_params: &[HiSysEventParam]) -> i32 {
-    sys_event::write(event_domain, event_name, event_type as std::ffi::c_int, event_params)
+pub fn write(
+    event_domain: &str,
+    event_name: &str,
+    event_type: EventType,
+    event_params: &[HiSysEventParam],
+) -> i32 {
+    sys_event::write(
+        event_domain,
+        event_name,
+        event_type as std::ffi::c_int,
+        event_params,
+    )
 }
 
 /// Enumerate search system event rule type.
