@@ -40,6 +40,9 @@ inline uint32_t GetPid()
 inline uint32_t GetUid()
 {
     static uint32_t uid = static_cast<uint32_t>(getuid());
+    if (uid == 0) { // 0 might be an unexpected uid value, try to reassign uid when it is 0.
+        uid = static_cast<uint32_t>(getuid());
+    }
     return uid;
 }
 }
