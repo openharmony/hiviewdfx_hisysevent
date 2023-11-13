@@ -51,22 +51,22 @@ uint64_t GenerateHash(const std::string& info)
     }
     return ret;
 }
+}
 
-static inline uint64_t GetMilliseconds()
+uint64_t WriteController::GetCurrentTimeMills()
 {
     auto now = std::chrono::system_clock::now();
     auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     return millisecs.count();
 }
-}
 
-uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, const char* domain,
-    const char* eventName, const char* func, int64_t line)
+uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
+    const CallerInfo& callerInfo)
 {
     std::lock_guard<std::mutex> lock(lmtMutex);
-    uint64_t key = ConcatenateInfoAsKey(eventName, func, line);
+    uint64_t key = ConcatenateInfoAsKey(eventName, callerInfo.func, callerInfo.line);
     EventLimitStat stat = lruCache.Get(key);
-    uint64_t cur = GetMilliseconds();
+    uint64_t cur = callerInfo.timeStamp;
     if (!stat.IsValid() || ((stat.begin / SEC_TO_MILLS) + param.period < (cur / SEC_TO_MILLS)) ||
         ((stat.begin / SEC_TO_MILLS) > (cur / SEC_TO_MILLS))) {
         stat.count = 1; // record the first event writing during one cycle
@@ -85,8 +85,19 @@ uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, cons
         "with domain %{public}s and name %{public}s which wrote in function %{public}s.",
         param.period, param.threshold, static_cast<long long>(stat.begin / SEC_TO_MILLS),
         static_cast<long long>(cur / SEC_TO_MILLS), stat.count - param.threshold,
-        domain, eventName, func);
+        domain, eventName, callerInfo.func);
     return INVALID_TIME_STAMP;
+}
+
+uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, const char* domain,
+    const char* eventName, const char* func, int64_t line)
+{
+    CallerInfo info = {
+        .func = func,
+        .line = line,
+        .timeStamp = GetCurrentTimeMills(),
+    };
+    return CheckLimitWritingEvent(param, domain, eventName, info);
 }
 
 uint64_t WriteController::ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line) const

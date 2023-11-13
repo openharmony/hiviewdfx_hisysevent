@@ -50,6 +50,7 @@ using HiSysEventAsyncContext = struct HiSysEventAsyncContext {
     HiSysEventInfo eventInfo;
     int eventWroteResult;
     JsCallerInfo jsCallerInfo;
+    uint64_t timeStamp;
 };
 
 class NapiHiSysEventAdapter {
