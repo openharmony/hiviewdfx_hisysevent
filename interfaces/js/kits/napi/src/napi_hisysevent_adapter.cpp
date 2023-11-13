@@ -123,8 +123,13 @@ void NapiHiSysEventAdapter::CheckThenWriteSysEvent(HiSysEventAsyncContext* event
         .period = HISYSEVENT_DEFAULT_PERIOD,
         .threshold = HISYSEVENT_DEFAULT_THRESHOLD,
     };
+    CallerInfo info = {
+        .func = jsCallerInfo.first.c_str(),
+        .line = jsCallerInfo.second,
+        .timeStamp = eventAsyncContext->timeStamp,
+    };
     uint64_t timeStamp = HiSysEvent::controller.CheckLimitWritingEvent(param, eventInfo.domain.c_str(),
-        eventInfo.name.c_str(), jsCallerInfo.first.c_str(), jsCallerInfo.second);
+        eventInfo.name.c_str(), info);
     if (timeStamp == INVALID_TIME_STAMP) {
         eventAsyncContext->eventWroteResult = ERR_WRITE_IN_HIGH_FREQ;
         return;
@@ -136,6 +141,7 @@ void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* ev
 {
     napi_value resource = nullptr;
     NapiHiSysEventUtil::CreateStringValue(env, FUNC_SOURCE_NAME, resource);
+    eventAsyncContext->timeStamp = HiSysEvent::controller.GetCurrentTimeMills();
     napi_create_async_work(
         env, nullptr, resource,
         [] (napi_env env, void* data) {

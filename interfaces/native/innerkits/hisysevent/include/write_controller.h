@@ -33,6 +33,12 @@ using ControlParam = struct {
     size_t threshold;
 };
 
+using CallerInfo = struct {
+    const char* func;
+    int64_t line;
+    uint64_t timeStamp;
+};
+
 template<typename K, typename V, size_t capacity = DEFAULT_CACHE_CAPACITY>
 class LruCache {
 public:
@@ -85,6 +91,9 @@ private:
 
 class WriteController {
 public:
+    uint64_t GetCurrentTimeMills();
+    uint64_t CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
+        const CallerInfo& callerInfo);
     uint64_t CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
         const char* func, int64_t line);
 

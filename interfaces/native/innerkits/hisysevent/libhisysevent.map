@@ -48,6 +48,8 @@
         "OHOS::HiviewDFX::HiSysEvent::controller";
         "OHOS::HiviewDFX::WriteController::CheckLimitWritingEvent(OHOS::HiviewDFX::ControlParam const&, char const*, char const*, char const*, long)";
         "OHOS::HiviewDFX::WriteController::CheckLimitWritingEvent(OHOS::HiviewDFX::ControlParam const&, char const*, char const*, char const*, long long)";
+        "OHOS::HiviewDFX::WriteController::CheckLimitWritingEvent(OHOS::HiviewDFX::ControlParam const&, char const*, char const*, OHOS::HiviewDFX::CallerInfo const&)";
+        "OHOS::HiviewDFX::WriteController::GetCurrentTimeMills()";
         "OHOS::HiviewDFX::Encoded::ParseTimeZone(long)";
         "OHOS::HiviewDFX::HiSysEvent::EventBase::AppendParam(std::__h::shared_ptr<OHOS::HiviewDFX::Encoded::EncodedParam>)";
         "OHOS::HiviewDFX::Encoded::EncodedParam::SetRawData(std::__h::shared_ptr<OHOS::HiviewDFX::Encoded::RawData>)";
