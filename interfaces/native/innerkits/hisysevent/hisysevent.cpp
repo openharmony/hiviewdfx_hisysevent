@@ -24,7 +24,9 @@
 
 #include "def.h"
 #include "hilog/log.h"
+#ifdef HIVIEWDFX_HITRACE_ENABLED
 #include "hitrace/trace.h"
+#endif
 #include "transport.h"
 
 namespace OHOS {
@@ -106,6 +108,7 @@ void HiSysEvent::EventBase::WritebaseInfo()
     header_.pid = GetPid();
     header_.tid = gettid();
     header_.uid = GetUid();
+#ifdef HIVIEWDFX_HITRACE_ENABLED
     HiTraceId hitraceId = HiTraceChain::GetId();
     if (hitraceId.IsValid()) {
         header_.isTraceOpened = 1; // 1: include trace info, 0: exclude trace info.
@@ -114,6 +117,9 @@ void HiSysEvent::EventBase::WritebaseInfo()
         traceInfo_.pSpanId = hitraceId.GetParentSpanId();
         traceInfo_.traceFlag = hitraceId.GetFlags();
     }
+#else
+    header_.isTraceOpened = 0; // 1: include trace info, 0: exclude trace info.
+#endif
     int32_t blockSize = 0;
     if (!rawData_->Append(reinterpret_cast<uint8_t*>(&blockSize), sizeof(int32_t))) {
         SetRetCode(ERR_RAW_DATA_WROTE_EXCEPTION);

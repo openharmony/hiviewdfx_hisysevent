@@ -29,7 +29,6 @@
 #include "raw_data.h"
 
 #include "hisysevent.h"
-#include "hitrace/trace.h"
 
 using namespace testing::ext;
 using namespace OHOS::HiviewDFX;

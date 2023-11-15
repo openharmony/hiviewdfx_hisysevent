@@ -21,6 +21,14 @@ config("hisysevent_native_test_config") {
   include_dirs = [ "include" ]
 }
 
+declare_args() {
+  hiviewdfx_hitrace_enabaled_for_test = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.hiviewdfx_hitrace)) {
+    hiviewdfx_hitrace_enabaled_for_test = true
+  }
+}
+
 ohos_moduletest("HiSysEventAdapterNativeTest") {
   module_out_path = module_output_path
 
@@ -175,10 +183,13 @@ ohos_moduletest("HiSysEventWroteResultCheckTest") {
     deps += [ "//third_party/bounds_checking_function:libsec_static" ]
   }
 
-  external_deps = [
-    "hilog:libhilog",
-    "hitrace:libhitracechain",
-  ]
+  external_deps = [ "hilog:libhilog" ]
+
+  defines = []
+  if (hiviewdfx_hitrace_enabaled_for_test) {
+    external_deps += [ "hitrace:libhitracechain" ]
+    defines += [ "HIVIEWDFX_HITRACE_ENABLED_FOR_TEST" ]
+  }
 }
 
 ohos_moduletest("HiSysEventEncodedTest") {
@@ -203,10 +214,7 @@ ohos_moduletest("HiSysEventEncodedTest") {
     deps += [ "//third_party/bounds_checking_function:libsec_static" ]
   }
 
-  external_deps = [
-    "hilog:libhilog",
-    "hitrace:libhitracechain",
-  ]
+  external_deps = [ "hilog:libhilog" ]
 }
 
 group("moduletest") {

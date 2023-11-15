@@ -23,6 +23,14 @@ config("hisysevent_config") {
   ]
 }
 
+declare_args() {
+  hiviewdfx_hitrace_enabaled = false
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.hiviewdfx_hitrace)) {
+    hiviewdfx_hitrace_enabaled = true
+  }
+}
+
 ohos_shared_library("libhisysevent") {
   configs = [ ":hisysevent_config" ]
 
@@ -57,10 +65,13 @@ ohos_shared_library("libhisysevent") {
 
   version_script = "libhisysevent.map"
 
-  external_deps = [
-    "hilog:libhilog",
-    "hitrace:libhitracechain",
-  ]
+  external_deps = [ "hilog:libhilog" ]
+
+  defines = []
+  if (hiviewdfx_hitrace_enabaled) {
+    external_deps += [ "hitrace:libhitracechain" ]
+    defines += [ "HIVIEWDFX_HITRACE_ENABLED" ]
+  }
 
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 
@@ -86,10 +97,13 @@ ohos_static_library("hisysevent_static_lib_for_tdd") {
 
   subsystem_name = "hiviewdfx"
 
-  external_deps = [
-    "hilog:libhilog",
-    "hitrace:libhitracechain",
-  ]
+  external_deps = [ "hilog:libhilog" ]
+
+  defines = []
+  if (hiviewdfx_hitrace_enabaled) {
+    external_deps += [ "hitrace:libhitracechain" ]
+    defines += [ "HIVIEWDFX_HITRACE_ENABLED" ]
+  }
 
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 
