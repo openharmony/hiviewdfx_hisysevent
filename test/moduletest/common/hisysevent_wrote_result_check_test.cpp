@@ -36,7 +36,9 @@
 #include "hisysevent_record.h"
 #include "hisysevent_query_callback.h"
 #include "hisysevent_listener.h"
+#ifdef HIVIEWDFX_HITRACE_ENABLED_FOR_TEST
 #include "hitrace/trace.h"
+#endif
 #include "ret_code.h"
 #include "rule_type.h"
 
@@ -501,6 +503,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest012, Test
     WriteAndWatchThenQuery(watcher, querier, val);
 }
 
+#ifdef HIVIEWDFX_HITRACE_ENABLED_FOR_TEST
 /**
  * @tc.name: HiSysEventWroteResultCheckTest013
  * @tc.desc: Write sysevent after begin hitracechain
@@ -524,6 +527,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest013, Test
     WriteAndWatchThenQuery(watcher, querier, val);
     HiTraceChain::End(traceId);
 }
+#endif
 
 /**
  * @tc.name: HiSysEventWroteResultCheckTest014
