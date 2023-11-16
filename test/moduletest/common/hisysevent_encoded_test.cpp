@@ -77,24 +77,6 @@ HWTEST_F(HiSysEventEncodedTest, EncodeParamTest001, TestSize.Level1)
     data = param->GetRawData();
     ASSERT_TRUE(data != nullptr);
     ASSERT_TRUE((data->GetData() != nullptr) && (data->GetDataLength() > 0));
-    uint64_t destUint64Val;
-    ASSERT_TRUE(param->AsUint64(destUint64Val));
-    ASSERT_TRUE(destUint64Val == val);
-    int64_t destInt64Val;
-    ASSERT_TRUE(!param->AsInt64(destInt64Val));
-    std::string destStrVal;
-    ASSERT_TRUE(param->AsString(destStrVal));
-    ASSERT_TRUE(destStrVal == std::to_string(val));
-    double destDoubleVal;
-    ASSERT_TRUE(!param->AsDouble(destDoubleVal));
-    std::vector<uint64_t> destUintArrayVal;
-    ASSERT_TRUE(!param->AsUint64Vec(destUintArrayVal));
-    std::vector<int64_t> destIntArrayVal;
-    ASSERT_TRUE(!param->AsInt64Vec(destIntArrayVal));
-    std::vector<double> destDoubleArrayVal;
-    ASSERT_TRUE(!param->AsDoubleVec(destDoubleArrayVal));
-    std::vector<std::string> destStrArrayVal;
-    ASSERT_TRUE(!param->AsStringVec(destStrArrayVal));
 }
 
 /**

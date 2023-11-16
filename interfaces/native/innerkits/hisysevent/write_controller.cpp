@@ -80,7 +80,7 @@ uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, cons
         return cur;
     }
     lruCache.Put(key, stat);
-    HiLog::Debug(LABEL, "{ .period = [%{public}zu, .threshold = %{public}zu} "
+    HiLog::Debug(LABEL, "{.period = %{public}zu, .threshold = %{public}zu} "
         "[%{public}lld, %{public}lld] discard %{public}zu event(s) "
         "with domain %{public}s and name %{public}s which wrote in function %{public}s.",
         param.period, param.threshold, static_cast<long long>(stat.begin / SEC_TO_MILLS),

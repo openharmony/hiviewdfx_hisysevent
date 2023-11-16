@@ -53,46 +53,6 @@ std::shared_ptr<RawData> EncodedParam::GetRawData()
     return rawData_;
 }
 
-bool EncodedParam::AsUint64(uint64_t& dest)
-{
-    return false;
-}
-
-bool EncodedParam::AsInt64(int64_t& dest)
-{
-    return false;
-}
-
-bool EncodedParam::AsDouble(double& dest)
-{
-    return false;
-}
-
-bool EncodedParam::AsString(std::string& dest)
-{
-    return false;
-}
-
-bool EncodedParam::AsUint64Vec(std::vector<uint64_t>& dest)
-{
-    return false;
-}
-
-bool EncodedParam::AsInt64Vec(std::vector<int64_t>& dest)
-{
-    return false;
-}
-
-bool EncodedParam::AsDoubleVec(std::vector<double>& dest)
-{
-    return false;
-}
-
-bool EncodedParam::AsStringVec(std::vector<std::string>& dest)
-{
-    return false;
-}
-
 bool EncodedParam::Encode()
 {
     hasEncoded_ = EncodeKey() && EncodeValueType() && EncodeValue();

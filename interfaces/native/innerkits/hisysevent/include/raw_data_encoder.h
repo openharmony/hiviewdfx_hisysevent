@@ -28,6 +28,17 @@
 namespace OHOS {
 namespace HiviewDFX {
 namespace Encoded {
+enum DataCodedType: uint8_t {
+    UNSIGNED_VARINT,
+    UNSIGNED_VARINT_ARRAY,
+    SIGNED_VARINT,
+    SIGNED_VARINT_ARRAY,
+    FLOATING,
+    FLOATING_ARRAY,
+    DSTRING,
+    DSTRING_ARRAY,
+};
+
 class RawDataEncoder {
 public:
     static bool ValueTypeEncoded(RawData& data, bool isArray, ValueType valueType,

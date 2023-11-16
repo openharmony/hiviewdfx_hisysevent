@@ -13,16 +13,6 @@
 
 import("//build/ohos.gni")
 
-config("hisysevent_config") {
-  visibility = [ "*:*" ]
-
-  include_dirs = [
-    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/include",
-    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/encode/include",
-    "//third_party/bounds_checking_function/include",
-  ]
-}
-
 declare_args() {
   hiviewdfx_hitrace_enabaled = false
   if (defined(global_parts_info) &&
@@ -31,14 +21,27 @@ declare_args() {
   }
 }
 
+config("hisysevent_config") {
+  visibility = [ "*:*" ]
+
+  include_dirs = [
+    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/include",
+    "//third_party/bounds_checking_function/include",
+  ]
+}
+
 ohos_shared_library("libhisysevent") {
   configs = [ ":hisysevent_config" ]
 
   all_dependent_configs = [ ":hisysevent_config" ]
 
   sources = [
+    "encoded_param.cpp",
     "hisysevent.cpp",
     "hisysevent_c.cpp",
+    "raw_data.cpp",
+    "raw_data_base_def.cpp",
+    "raw_data_encoder.cpp",
     "stringfilter.cpp",
     "transport.cpp",
     "write_controller.cpp",
@@ -74,8 +77,6 @@ ohos_shared_library("libhisysevent") {
   }
 
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-
-  public_deps = [ "./encode:hisysevent_encoded" ]
 }
 
 ohos_static_library("hisysevent_static_lib_for_tdd") {
@@ -84,8 +85,12 @@ ohos_static_library("hisysevent_static_lib_for_tdd") {
   all_dependent_configs = [ ":hisysevent_config" ]
 
   sources = [
+    "encoded_param.cpp",
     "hisysevent.cpp",
     "hisysevent_c.cpp",
+    "raw_data.cpp",
+    "raw_data_base_def.cpp",
+    "raw_data_encoder.cpp",
     "stringfilter.cpp",
     "transport.cpp",
     "write_controller.cpp",
@@ -106,6 +111,4 @@ ohos_static_library("hisysevent_static_lib_for_tdd") {
   }
 
   deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
-
-  public_deps = [ "./encode:hisysevent_encoded" ]
 }
