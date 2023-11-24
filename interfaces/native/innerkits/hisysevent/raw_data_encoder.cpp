@@ -38,7 +38,7 @@ bool RawDataEncoder::StringValueEncoded(RawData& data, const std::string& val)
     }
     if (!data.Append(reinterpret_cast<uint8_t*>(const_cast<char*>(val.c_str())),
         val.length())) {
-        HiLog::Error(LABEL, "String value copy failed.");
+        HiLog::Error(LABEL, "string value copy failed.");
         return false;
     }
     return true;

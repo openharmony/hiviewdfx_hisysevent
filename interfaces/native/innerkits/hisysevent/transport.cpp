@@ -53,22 +53,21 @@ void Transport::InitRecvBuffer(int socketId)
     socklen_t oldOutSize = static_cast<socklen_t>(sizeof(int));
     if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&oldN), &oldOutSize) < 0) {
         strerror_r(errno, g_errMsg, BUF_SIZE);
-        HiLog::Error(LABEL, "get socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
+        HiLog::Debug(LABEL, "get socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
     }
 
     int sendBuffSize = MAX_DATA_SIZE;
     if (setsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&sendBuffSize), sizeof(int)) < 0) {
         strerror_r(errno, g_errMsg, BUF_SIZE);
-        HiLog::Error(LABEL, "set socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
+        HiLog::Debug(LABEL, "set socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
     }
 
     int newN = 0;
     socklen_t newOutSize = static_cast<socklen_t>(sizeof(int));
     if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&newN), &newOutSize) < 0) {
         strerror_r(errno, g_errMsg, BUF_SIZE);
-        HiLog::Error(LABEL, "get new socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
+        HiLog::Debug(LABEL, "get new socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
     }
-    HiLog::Debug(LABEL, "reset send buffer size old=%{public}d, new=%{public}d", oldN, newN);
 }
 
 int Transport::SendToHiSysEventDataSource(RawData& rawData)
@@ -77,7 +76,7 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
         socketId_ = TEMP_FAILURE_RETRY(socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0));
         if (socketId_ < 0) {
             strerror_r(errno, g_errMsg, BUF_SIZE);
-            HiLog::Error(LABEL, "create hisysevent client socket failed, error=%{public}d, msg=%{public}s",
+            HiLog::Debug(LABEL, "create hisysevent client socket failed, error=%{public}d, msg=%{public}s",
                 errno, g_errMsg);
             return ERR_DOES_NOT_INIT;
         }
@@ -94,11 +93,10 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
         close(socketId_);
         socketId_ = INVALID_SOCKET_ID;
         strerror_r(errno, g_errMsg, BUF_SIZE);
-        HiLog::Error(LABEL, "send data to hisysevent server failed, error=%{public}d, msg=%{public}s",
+        HiLog::Debug(LABEL, "send data to hisysevent server failed, error=%{public}d, msg=%{public}s",
             errno, g_errMsg);
         return ERR_SEND_FAIL;
     }
-    HiLog::Debug(LABEL, "HiSysEvent send data successful");
     return SUCCESS;
 }
 
@@ -106,7 +104,6 @@ void Transport::AddFailedData(RawData& rawData)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (retryDataList_.size() >= RETRY_QUEUE_SIZE) {
-        HiLog::Info(LABEL, "dispatch retry sysevent data as reach max size");
         retryDataList_.pop_front();
     }
     retryDataList_.push_back(rawData);
@@ -130,15 +127,13 @@ void Transport::RetrySendFailedData()
 int Transport::SendData(RawData& rawData)
 {
     if (rawData.IsEmpty()) {
-        HiLog::Warn(LABEL, "Try to send a empty data.");
+        HiLog::Warn(LABEL, "try to send a empty data.");
         return ERR_EMPTY_EVENT;
     }
     auto rawDataLength = rawData.GetDataLength();
     if (rawDataLength > MAX_DATA_SIZE) {
-        HiLog::Error(LABEL, "Data is too long %{public}zu", rawDataLength);
         return ERR_OVER_SIZE;
     }
-    HiLog::Debug(LABEL, "size=%{public}zu", rawDataLength);
 
     RetrySendFailedData();
     int tryTimes = RETRY_TIMES;
