@@ -106,7 +106,7 @@ void HiSysEvent::EventBase::WritebaseInfo()
     tzset();
     header_.timeZone = static_cast<uint8_t>(ParseTimeZone(timezone));
     header_.pid = GetPid();
-    header_.tid = gettid();
+    header_.tid = static_cast<uint32_t>(gettid());
     header_.uid = GetUid();
 #ifdef HIVIEWDFX_HITRACE_ENABLED
     HiTraceId hitraceId = HiTraceChain::GetId();
