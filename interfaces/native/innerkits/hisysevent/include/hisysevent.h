@@ -148,6 +148,7 @@ public:
         static constexpr char MSDP[] = "MSDP";
         static constexpr char MULTI_MEDIA[] = "MULTIMEDIA";
         static constexpr char MULTI_MODAL_INPUT[] = "MULTIMODALINPUT";
+        static constexpr char MULTIWINDOW_UE[] = "MULTIWINDOW_UE";
         static constexpr char NETMANAGER_STANDARD[] = "NETMANAGER";
         static constexpr char NFC[] = "NFC";
         static constexpr char NFC_EXT[] = "NFC_EXT";
