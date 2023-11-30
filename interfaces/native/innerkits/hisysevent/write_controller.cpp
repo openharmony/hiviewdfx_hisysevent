@@ -34,7 +34,7 @@ constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "WRITE_CONTROLLER" };
 constexpr int SEC_TO_MILLS = 1000;
 constexpr uint64_t PRIME = 0x100000001B3ull;
 constexpr uint64_t BASIS = 0xCBF29CE484222325ull;
-constexpr uint64_t HASH_TRANS_FACTOR = 1000;
+constexpr char CONNECTOR[] = "_";
 
 uint64_t GenerateHash(const std::string& info)
 {
@@ -102,7 +102,9 @@ uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, cons
 
 uint64_t WriteController::ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line) const
 {
-    return (GenerateHash(eventName) + GenerateHash(func)) * HASH_TRANS_FACTOR + static_cast<uint64_t>(line);
+    std::string key;
+    key.append(eventName).append(CONNECTOR).append(func).append(CONNECTOR).append(std::to_string(line));
+    return GenerateHash(key);
 }
 } // HiviewDFX
 } // OHOS
