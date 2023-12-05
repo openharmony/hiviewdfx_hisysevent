@@ -33,20 +33,6 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
-inline uint32_t GetPid()
-{
-    static uint32_t pid = static_cast<uint32_t>(getpid());
-    return pid;
-}
-
-inline uint32_t GetUid()
-{
-    static uint32_t uid = static_cast<uint32_t>(getuid());
-    if (uid == 0) { // 0 might be an unexpected uid value, try to reassign uid when it is 0.
-        uid = static_cast<uint32_t>(getuid());
-    }
-    return uid;
-}
 }
 
 WriteController HiSysEvent::controller;
@@ -105,9 +91,9 @@ void HiSysEvent::EventBase::WritebaseInfo()
     }
     tzset();
     header_.timeZone = static_cast<uint8_t>(ParseTimeZone(timezone));
-    header_.pid = GetPid();
+    header_.pid = static_cast<uint32_t>(getpid());
     header_.tid = static_cast<uint32_t>(gettid());
-    header_.uid = GetUid();
+    header_.uid = static_cast<uint32_t>(getuid());
 #ifdef HIVIEWDFX_HITRACE_ENABLED
     HiTraceId hitraceId = HiTraceChain::GetId();
     if (hitraceId.IsValid()) {
