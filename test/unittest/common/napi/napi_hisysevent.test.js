@@ -140,9 +140,12 @@ describe('hiSysEventJsUnitTest', function () {
   }
 
   /**
+   * @tc.desc: Test hisysevent writing with calling AsyncCallback.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest001
-   * @tc.desc: Test hisysevent writing with calling AsyncCallback
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest001
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest001', 0, async function (done) {
     writeEventWithAsyncWork("RELIABILITY", "STACK", hiSysEvent.EventType.FAULT,
@@ -162,9 +165,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
-   * @tc.name: hiSysEventJsUnitTest002
    * @tc.desc: Test hisysevent writing with returning Promise.
-   * @tc.type: FUNC
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest002
+   * @tc.number: hiSysEventJsUnitTest002
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest002', 0, async function (done) {
     writeEventWithPromise("RELIABILITY", "STACK", hiSysEvent.EventType.FAULT,
@@ -184,9 +190,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
-   * @tc.name: hiSysEventJsUnitTest003
    * @tc.desc: Test function return of adding/remove hisysevent watcher result.
-   * @tc.type: FUNC
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest003
+   * @tc.number: hiSysEventJsUnitTest003
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest003', 0, async function (done) {
     let watcher = {
@@ -212,9 +221,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test watcher callback.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest004
-   * @tc.desc: Test watcher callback
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest004
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest004', 0, async function (done) {
     let watcher = {
@@ -250,9 +262,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test query callback.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest005
-   * @tc.desc: Test query callback
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest005
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest005', 0, async function (done) {
     try {
@@ -280,9 +295,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test query callback with domain which length is over 16.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest006
-   * @tc.desc: Test query callback with domain which length is over 16
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest006
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest006', 0, async function (done) {
     console.info('hiSysEventJsUnitTest006 start')
@@ -311,9 +329,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test query callback with domain which length is over 32.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest007
-   * @tc.desc: Test query callback with domain which length is over 32
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest007
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
    it('hiSysEventJsUnitTest007', 0, async function (done) {
     try {
@@ -341,9 +362,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test hisysevent of invalid domain writing with calling AsyncCallback.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest008
-   * @tc.desc: Test hisysevent of invalid domain writing with calling AsyncCallback
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest008
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest008', 0, async function (done) {
     writeEventWithAsyncWork("RELIABILITY_RELIABILITY", "STACK", hiSysEvent.EventType.FAULT,
@@ -361,9 +385,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test hisysevent of invalid event name writing with calling AsyncCallback.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest009
-   * @tc.desc: Test hisysevent of invalid event name writing with calling AsyncCallback
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest009
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest009', 0, async function (done) {
     writeEventWithAsyncWork("RELIABILITY", "STACK_STACK_STACK_STACK_STACK_STACK", hiSysEvent.EventType.FAULT,
@@ -381,9 +408,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test hisysevent which is over size writing with calling AsyncCallback.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest010
-   * @tc.desc: Test hisysevent which is over size writing with calling AsyncCallback
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest010
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
    it('hiSysEventJsUnitTest010', 0, async function (done) {
     let params = {
@@ -405,9 +435,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test hisysevent of invalid param name writing with calling AsyncCallback.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest011
-   * @tc.desc: Test hisysevent of invalid param name writing with calling AsyncCallback
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest011
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest011', 0, async function (done) {
     writeEventWithAsyncWork("RELIABILITY", "STACK", hiSysEvent.EventType.FAULT,
@@ -425,9 +458,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test hisysevent with string over limit writing with calling AsyncCallback.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest012
-   * @tc.desc: Test hisysevent with string over limit writing with calling AsyncCallback
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest012
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
    it('hiSysEventJsUnitTest012', 0, async function (done) {
     writeEventWithAsyncWork("RELIABILITY", "STACK", hiSysEvent.EventType.FAULT,
@@ -445,9 +481,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test hisysevent with param count over limit writing with calling AsyncCallback.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest013
-   * @tc.desc: Test hisysevent with param count over limit writing with calling AsyncCallback
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest013
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
    it('hiSysEventJsUnitTest013', 0, async function (done) {
     let largeParams = {}
@@ -463,9 +502,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test hisysevent with array size over limit writing with calling AsyncCallback.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest014
-   * @tc.desc: Test hisysevent with array size over limit writing with calling AsyncCallback
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest014
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
    it('hiSysEventJsUnitTest014', 0, async function (done) {
     let msgArray = []
@@ -487,9 +529,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test hisysevent query with sequence.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest015
-   * @tc.desc: Test hisysevent query with sequence
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest015
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest015', 0, async function (done) {
     querySysEvent({
@@ -509,9 +554,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test hisysevent get max sequence.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest016
-   * @tc.desc: Test hisysevent get max sequence
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest016
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest016', 0, async function (done) {
     querySysEvent({
@@ -531,9 +579,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test writing sysevents more than 100 times in 5 seconds.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest017
-   * @tc.desc: Test writing sysevents more than 100 times in 5 seconds
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest017
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest017', 0, async function (done) {
     try {
@@ -556,9 +607,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test query sysevent with 2 conditions: == & ==.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest018
-   * @tc.desc: Test query sysevent with 2 conditions: == & ==
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest018
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest018', 0, async function (done) {
     writeCustomizedSysEvent({
@@ -600,9 +654,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test query sysevent with conditions: <= & >=.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest019
-   * @tc.desc: Test query sysevent with conditions: <= & >=
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest019
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest019', 0, async function (done) {
     writeCustomizedSysEvent({
@@ -644,9 +701,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test query sysevent with conditions: > & <.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest020
-   * @tc.desc: Test query sysevent with conditions: > & <
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest020
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest020', 0, async function (done) {
     writeCustomizedSysEvent({
@@ -688,9 +748,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test query sysevent with 2 conditions: != & ==.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest021
-   * @tc.desc: Test query sysevent with 2 conditions: != & ==
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest021
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest021', 0, async function (done) {
     writeCustomizedSysEvent({
@@ -732,9 +795,12 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
+   * @tc.desc: Test query sysevent with null condition.
+   * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest022
-   * @tc.desc: Test query sysevent with null condition
-   * @tc.type: FUNC
+   * @tc.number: hiSysEventJsUnitTest022
+   * @tc.type: Function
+   * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest022', 0, async function (done) {
     setTimeout(() => {
@@ -742,6 +808,34 @@ describe('hiSysEventJsUnitTest', function () {
         beginTime: -1,
         endTime: -1,
         maxEvents: 5,
+      }, [{
+        domain: "RELIABILITY",
+        names: ["STACK"],
+        condition: null
+      }], (infos) => {
+        expect(infos.length >= 0).assertTrue()
+      }, (reason, total) => {
+        expect(total > 0).assertTrue()
+      }, (err) => {
+        expect(false).assertTrue()
+      }, done)
+    }, 2500)
+  })
+
+  /**
+   * @tc.desc: Test query sysevent with default query argument.
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest023
+   * @tc.number: hiSysEventJsUnitTest023
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+  it('hiSysEventJsUnitTest023', 0, async function (done) {
+    setTimeout(() => {
+      querySysEvent({
+        beginTime: -1,
+        endTime: -1,
+        maxEvents: -1,
       }, [{
         domain: "RELIABILITY",
         names: ["STACK"],
