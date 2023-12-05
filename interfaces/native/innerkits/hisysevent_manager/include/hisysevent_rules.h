@@ -16,6 +16,7 @@
 #ifndef ARG_RULES_H
 #define ARG_RULES_H
 
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -29,10 +30,18 @@ struct QueryArg {
     int maxEvents;
     long long fromSeq;
     long long toSeq;
+
     QueryArg(const long long beginTime = -1, const long long endTime = -1, const int maxEvents = -1,
         const long long fromSeq = -1, const long long toSeq = -1)
-        : beginTime(beginTime), endTime(endTime), maxEvents(maxEvents), fromSeq(fromSeq), toSeq(toSeq) {}
-    QueryArg() {}
+    {
+        this->beginTime = beginTime < 0 ? 0 : beginTime;
+        this->endTime = endTime < 0 ? std::numeric_limits<long long>::max() : endTime;
+        this->maxEvents = maxEvents < 0 ? std::numeric_limits<int>::max() : maxEvents;
+        this->fromSeq = fromSeq;
+        this->toSeq = toSeq;
+    }
+
+    QueryArg(): beginTime(0), endTime(0), maxEvents(0), fromSeq(-1), toSeq(-1) {}
 };
 
 class ListenerRule {

@@ -15,6 +15,7 @@
 
 #include "hisysevent_native_test.h"
 
+#include <functional>
 #include <iosfwd>
 #include <string>
 #include <thread>
@@ -48,6 +49,7 @@ using namespace OHOS::HiviewDFX;
 namespace {
 constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENTTEST" };
 constexpr char TEST_DOMAIN[] = "DEMO";
+constexpr char TEST_DOMAIN2[] = "KERNEL_VENDOR";
 int32_t WriteSysEventByMarcoInterface()
 {
     return HiSysEventWrite(TEST_DOMAIN, "DEMO_EVENTNAME", HiSysEvent::EventType::FAULT,
@@ -75,24 +77,32 @@ public:
     }
 };
 
+using OnQueryCallback = std::function<bool(std::shared_ptr<std::vector<HiSysEventRecord>>)>;
+using OnCompleteCallback = std::function<bool(int32_t, int32_t)>;
+
 class Querier : public HiSysEventQueryCallback {
 public:
-    Querier() {}
+    explicit Querier(OnQueryCallback onQueryCallback = nullptr, OnCompleteCallback onCompleteCallback = nullptr)
+        : onQueryCallback(onQueryCallback), onCompleteCallback(onCompleteCallback) {}
     virtual ~Querier() {}
 
     void OnQuery(std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) final
     {
-        if (sysEvents == nullptr) {
-            return;
-        }
-        for (auto& item : *sysEvents) {
-            HiLog::Debug(LABEL, "sysEvent: %{public}s", item.AsJson().c_str());
+        if (onQueryCallback != nullptr) {
+            ASSERT_TRUE(onQueryCallback(sysEvents));
         }
     }
+
     void OnComplete(int32_t reason, int32_t total) final
     {
-        HiLog::Debug(LABEL, "reason: %{public}d, total: %{public}d.", reason, total);
+        if (onCompleteCallback != nullptr) {
+            ASSERT_TRUE(onCompleteCallback(reason, total));
+        }
     }
+
+private:
+    OnQueryCallback onQueryCallback;
+    OnCompleteCallback onCompleteCallback;
 };
 }
 
@@ -1500,5 +1510,34 @@ HWTEST_F(HiSysEventNativeTest, TestParseWrongTypeParamsFromUninitializedHiSysEve
     double doubleTypeParam2 = 0;
     ret = record.GetParamValue("DOUBLE_T_NOT_EXIST", doubleTypeParam2);
     ASSERT_TRUE(ret == ERR_KEY_NOT_EXIST);
+}
+
+/**
+ * @tc.name: TestHiSysEventManagerQueryWithDefaultQueryArgument
+ * @tc.desc: Query with default arugumen
+ * @tc.type: FUNC
+ * @tc.require: issueI5L2RV
+ */
+HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithDefaultQueryArgument, TestSize.Level1)
+{
+    int eventWroiteCnt = 3;
+    for (int index = 0; index < eventWroiteCnt; index++) {
+        HiSysEventWrite(TEST_DOMAIN2, "POWER_KEY", HiSysEvent::EventType::FAULT, "DESC", "in test case");
+    }
+    sleep(2);
+    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
+        return true;
+    }, [] (int32_t reason, int32_t total) {
+        return total > 0;
+    });
+    long long defaultTimeStap = -1; // default value
+    int queryCount = -1; // default value
+    struct OHOS::HiviewDFX::QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
+    std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
+    std::vector<std::string> eventNames {"POWER_KEY"};
+    OHOS::HiviewDFX::QueryRule rule("KERNEL_VENDOR", eventNames); // empty domain
+    queryRules.emplace_back(rule);
+    auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
+    ASSERT_TRUE(ret == OHOS::HiviewDFX::IPC_CALL_SUCCEED);
 }
 
