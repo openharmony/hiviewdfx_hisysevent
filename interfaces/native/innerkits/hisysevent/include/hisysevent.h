@@ -121,6 +121,7 @@ public:
         static constexpr char DSLM[] = "DSLM";
         static constexpr char DSOFTBUS[] = "DSOFTBUS";
         static constexpr char FACE_SETTINGS[] = "FACE_SETTINGS";
+        static constexpr char FIDO[] = "FIDO";
         static constexpr char FILEMANAGEMENT[] = "FILEMANAGEMENT";
         static constexpr char FFRT[] = "FFRT";
         static constexpr char FORM_MANAGER[] = "FORM_MANAGER";
@@ -134,6 +135,7 @@ public:
         static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
         static constexpr char HUKS[] = "HUKS";
         static constexpr char IAWARE[] = "IAWARE";
+        static constexpr char IFAA[] = "IFAA";
         static constexpr char IMS_UT[] = "IMS_UT";
         static constexpr char INPUTMETHOD[] = "INPUTMETHOD";
         static constexpr char INPUT_UE[] = "INPUT_UE";
