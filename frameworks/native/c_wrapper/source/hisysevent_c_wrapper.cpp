@@ -95,7 +95,13 @@ int HiSysEventWriteWrapper(const char* func, unsigned long long line, const char
 {
     HiSysEventParam params[size];
     ConvertParamWrapper(paramWrappers, params, size);
-    return HiSysEvent_Write(func, line, domain, name, HiSysEventEventType(type), params, size);
+    int ret = HiSysEvent_Write(func, line, domain, name, HiSysEventEventType(type), params, size);
+    for (auto& param : params) {
+        if ((param.t == HISYSEVENT_STRING) && (param.v.s != nullptr)) {
+            delete param.v.s;
+        }
+    }
+    return ret;
 }
 
 int HiSysEventAddWatcherWrapper(HiSysEventRustWatcherC* watcher, const HiSysEventWatchRule rules[],
