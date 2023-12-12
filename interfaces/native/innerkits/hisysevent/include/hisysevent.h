@@ -102,6 +102,7 @@ public:
         static constexpr char COMMONEVENT[] = "COMMONEVENT";
         static constexpr char COMMUNICATION[] = "COMMUNICATION";
         static constexpr char CONTAINER[] = "CONTAINER";
+        static constexpr char CONTAINER_COMM[] = "CONTAINER_COMM";
         static constexpr char CUSTOMIZATION_CONFIG[] = "CUST_CONFIG";
         static constexpr char CUSTOMIZATION_EDM[] = "CUST_EDM";
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
