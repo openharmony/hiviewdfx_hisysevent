@@ -801,11 +801,14 @@ int32_t NapiHiSysEventUtil::ParseQueryArg(const napi_env env, napi_value& jsObj,
         ThrowParamTypeError(env, "queryArg", "object");
         return ERR_QUERY_ARG_TYPE_INVALID;
     }
-    queryArg.beginTime = GetLonglongTypeAttribute(env, jsObj, BEGIN_TIME_ATTR, DEFAULT_TIME_STAMP);
+    auto beginTime = GetLonglongTypeAttribute(env, jsObj, BEGIN_TIME_ATTR, DEFAULT_TIME_STAMP);
+    queryArg.beginTime = beginTime < 0 ? 0 : beginTime;
     HiLog::Debug(LABEL, "queryArg.beginTime is %{public}lld.", queryArg.beginTime);
-    queryArg.endTime = GetLonglongTypeAttribute(env, jsObj, END_TIME_ATTR, DEFAULT_TIME_STAMP);
+    auto endTime = GetLonglongTypeAttribute(env, jsObj, END_TIME_ATTR, DEFAULT_TIME_STAMP);
+    queryArg.endTime = endTime < 0 ? std::numeric_limits<long long>::max() : endTime;
     HiLog::Debug(LABEL, "queryArg.endTime is %{public}lld.", queryArg.endTime);
-    queryArg.maxEvents = GetInt32TypeAttribute(env, jsObj, MAX_EVENTS_ATTR, DEFAULT_MAX_EVENTS);
+    auto maxEvents = GetInt32TypeAttribute(env, jsObj, MAX_EVENTS_ATTR, DEFAULT_MAX_EVENTS);
+    queryArg.maxEvents = maxEvents < 0 ? std::numeric_limits<int>::max() : maxEvents;
     HiLog::Debug(LABEL, "queryArg.maxEvents is %{public}d.", queryArg.maxEvents);
     queryArg.fromSeq = GetLonglongTypeAttribute(env, jsObj, BEGIN_SEQ_ATTR, DEFAULT_SEQ);
     HiLog::Debug(LABEL, "queryArg.fromSeq is %{public}lld.", queryArg.fromSeq);
