@@ -83,7 +83,7 @@ bool IsValueTypeValid(const napi_env env, const napi_value& jsObj,
 {
     napi_valuetype valueType = GetValueType(env, jsObj);
     if (valueType != typeName) {
-        HiLog::Error(LABEL, "napi value type not match: valueType=%{public}d, typeName=%{public}d.",
+        HiLog::Debug(LABEL, "napi value type not match: valueType=%{public}d, typeName=%{public}d.",
             valueType, typeName);
         return false;
     }
@@ -129,7 +129,7 @@ std::string ParseStringValue(const napi_env env, const napi_value& value, std::s
     size_t bufLength = 0;
     napi_status status = napi_get_value_string_utf8(env, value, buf, BUF_SIZE - 1, &bufLength);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to parse napi value of string type.");
+        HiLog::Debug(LABEL, "failed to parse napi value of string type.");
         return defaultValue;
     }
     std::string dest = std::string {buf};

@@ -29,7 +29,7 @@ constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
 int HiSysEventInnerWrite(const char* func, int64_t line, const std::string& domain, const std::string& name,
     HiSysEventEventType type, const HiSysEventParam params[], size_t size)
 {
-    HiLog::Info(LABEL, "domain=%{public}s, name=%{public}s, type=%{public}d, param szie=%{public}zu",
+    HiLog::Debug(LABEL, "domain=%{public}s, name=%{public}s, type=%{public}d, param szie=%{public}zu",
         domain.c_str(), name.c_str(), type, size);
     return HiSysEvent::Write(func, line, domain, name, HiSysEvent::EventType(type), params, size);
 }
