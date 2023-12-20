@@ -27,6 +27,7 @@
 #ifdef HIVIEWDFX_HITRACE_ENABLED
 #include "hitrace/trace.h"
 #endif
+#include "securec.h"
 #include "transport.h"
 
 namespace OHOS {
