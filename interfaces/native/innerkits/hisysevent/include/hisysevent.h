@@ -164,6 +164,7 @@ public:
         static constexpr char ROUTER[] = "ROUTER";
         static constexpr char RSS[] = "RSS";
         static constexpr char SAMGR[] = "SAMGR";
+        static constexpr char SECURE_ELEMENT[] = "SECURE_ELEMENT";
         static constexpr char SECURITY_AUDIT[] = "SECURITY_AUDIT";
         static constexpr char SECURITY_GUARD[] = "SECURITY_GUARD";
         static constexpr char SEC_COMPONENT[] = "SEC_COMPONENT";
