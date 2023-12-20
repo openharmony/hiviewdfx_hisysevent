@@ -185,13 +185,13 @@ public:
         static constexpr char USERIAM_FWK[] = "USERIAM_FWK";
         static constexpr char USERIAM_FWK_HDF[] = "USERIAM_FWK_HDF";
         static constexpr char USERIAM_PIN[] = "USERIAM_PIN";
+        static constexpr char VIR_SERVICE[] = "VIR_SERVICE";
         static constexpr char WEARABLE_HARDWARE[] = "WEARABLEHW";
         static constexpr char WEARABLE[] = "WEARABLE";
         static constexpr char WEBVIEW[] = "WEBVIEW";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
         static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
         static constexpr char OTHERS[] = "OTHERS";
-        static constexpr char VIR_SERVICE[] = "VIR_SERVICE";
     };
 
     enum EventType {
