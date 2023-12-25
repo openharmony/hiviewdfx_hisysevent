@@ -19,13 +19,15 @@
 #include "raw_data_encoder.h"
 #include "securec.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_ENCODED_PARAM"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace Encoded {
-namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-EncodedParam" };
-}
-
 EncodedParam::EncodedParam(const std::string& key)
 {
     key_ = key;
@@ -65,7 +67,7 @@ bool EncodedParam::EncodeKey()
         return false;
     }
     if (!RawDataEncoder::StringValueEncoded(*rawData_, key_)) {
-        HiLog::Error(LABEL, "The key of customized value encoded failded.");
+        HILOG_ERROR(LOG_CORE, "The key of customized value encoded failded.");
         return false;
     }
     return true;

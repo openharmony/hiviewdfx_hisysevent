@@ -23,10 +23,15 @@
 #include "hisysevent.h"
 #include "json_flatten_parser.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_JSON_DECORATOR"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_JSON_DECORATOR" };
 constexpr char ARRY_SIZE[] = "arrsize";
 constexpr char DECORATE_PREFIX[] = "\033[31m";
 constexpr char DECORATE_SUFFIX[] = "\033[0m";
@@ -57,7 +62,7 @@ HiSysEventJsonDecorator::HiSysEventJsonDecorator()
     Json::Reader reader(Json::Features::strictMode());
     if (!reader.parse(fin, root)) {
 #endif
-        HiLog::Error(LABEL, "parse json file failed, please check the style of json file: %{public}s.",
+        HILOG_ERROR(LOG_CORE, "parse json file failed, please check the style of json file: %{public}s.",
             HISYSEVENT_YAML_DEF_JSON_PATH);
     } else {
         isRootValid = true;
@@ -93,7 +98,7 @@ Validity HiSysEventJsonDecorator::CheckAttrValidity(const Json::Value& eventJson
 Validity HiSysEventJsonDecorator::CheckLevelValidity(const Json::Value& baseInfo)
 {
     if (!baseInfo.isMember(LEVEL)) {
-        HiLog::Error(LABEL, "level not defined in __BASE");
+        HILOG_ERROR(LOG_CORE, "level not defined in __BASE");
         return Validity::KEY_INVALID;
     }
     std::string levelDes = baseInfo[LEVEL].asString();
@@ -158,7 +163,7 @@ std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const HiSysEventRecord
     std::string origin = record.AsJson();
     decoratedMarks.clear(); // reset marked keys.
     if (!isRootValid) {
-        HiLog::Error(LABEL, "root json value is not valid, failed to decorate.");
+        HILOG_ERROR(LOG_CORE, "root json value is not valid, failed to decorate.");
         return origin;
     }
     Json::Value eventJson;
@@ -172,7 +177,7 @@ std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const HiSysEventRecord
     Json::Reader reader(Json::Features::strictMode());
     if (!reader.parse(origin, eventJson)) {
 #endif
-        HiLog::Error(LABEL, "parse json file failed, please check the style of json file: %{public}s.",
+        HILOG_ERROR(LOG_CORE, "parse json file failed, please check the style of json file: %{public}s.",
             origin.c_str());
         return origin;
     }
@@ -196,10 +201,10 @@ std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const HiSysEventRecord
                 return ret;
             });
     if (!needDecorate) {
-        HiLog::Debug(LABEL, "no need to decorate this event json string.");
+        HILOG_DEBUG(LOG_CORE, "no need to decorate this event json string.");
         return origin;
     }
-    HiLog::Debug(LABEL, "all invalid key or value will be high-lighted with red color.");
+    HILOG_DEBUG(LOG_CORE, "all invalid key or value will be high-lighted with red color.");
     return DecorateJsonStr(origin, decoratedMarks);
 }
 

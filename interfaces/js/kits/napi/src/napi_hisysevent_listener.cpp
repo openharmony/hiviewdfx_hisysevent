@@ -18,10 +18,15 @@
 #include "hilog/log.h"
 #include "napi_hisysevent_util.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "NAPI_HISYSEVENT_LISTENER"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_LISTENER" };
 constexpr char ON_EVENT_ATTR[] = "onEvent";
 constexpr char ON_SERVICE_DIED_ATTR[] = "onServiceDied";
 constexpr size_t ON_EVENT_PARAM_COUNT = 1;
@@ -59,13 +64,13 @@ void NapiHiSysEventListener::OnEvent(const std::string& domain, const std::strin
             napi_value listener = nullptr;
             napi_status status = napi_get_reference_value(env, ref, &listener);
             if (status != napi_ok) {
-                HiLog::Error(LABEL, "failed to get JS reference of event listener.");
+                HILOG_ERROR(LOG_CORE, "failed to get JS reference of event listener.");
             }
             napi_value onEvent = NapiHiSysEventUtil::GetPropertyByName(env, listener, ON_EVENT_ATTR);
             napi_value ret = nullptr;
             status = napi_call_function(env, listener, onEvent, ON_EVENT_PARAM_COUNT, argv, &ret);
             if (status != napi_ok) {
-                HiLog::Error(LABEL, "failed to call onEvent JS function.");
+                HILOG_ERROR(LOG_CORE, "failed to call onEvent JS function.");
             }
         });
 }
@@ -80,14 +85,14 @@ void NapiHiSysEventListener::OnServiceDied()
             napi_value listener = nullptr;
             napi_status status = napi_get_reference_value(env, ref, &listener);
             if (status != napi_ok) {
-                HiLog::Error(LABEL, "failed to get JS reference of event listener.");
+                HILOG_ERROR(LOG_CORE, "failed to get JS reference of event listener.");
             }
             napi_value onServiceDied = NapiHiSysEventUtil::GetPropertyByName(env, listener, ON_SERVICE_DIED_ATTR);
             napi_value ret = nullptr;
             status = napi_call_function(env, listener, onServiceDied, ON_SERVICE_DIED_PARAM_COUNT,
                 nullptr, &ret);
             if (status != napi_ok) {
-                HiLog::Error(LABEL, "failed to call onServiceDied JS function.");
+                HILOG_ERROR(LOG_CORE, "failed to call onServiceDied JS function.");
             }
         });
 }

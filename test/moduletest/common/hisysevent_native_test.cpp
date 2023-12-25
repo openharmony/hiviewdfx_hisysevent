@@ -46,8 +46,13 @@
 using namespace testing::ext;
 using namespace OHOS::HiviewDFX;
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_NATIVE_TEST"
+
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENTTEST" };
 constexpr char TEST_DOMAIN[] = "DEMO";
 constexpr char TEST_DOMAIN2[] = "KERNEL_VENDOR";
 int32_t WriteSysEventByMarcoInterface()
@@ -66,14 +71,14 @@ public:
         if (sysEvent == nullptr) {
             return;
         }
-        HiLog::Debug(LABEL, "domain: %{public}s, eventName: %{public}s, eventType: %{public}d, extra: %{public}s.",
+        HILOG_DEBUG(LOG_CORE, "domain: %{public}s, eventName: %{public}s, eventType: %{public}d, extra: %{public}s.",
             sysEvent->GetDomain().c_str(), sysEvent->GetEventName().c_str(), sysEvent->GetEventType(),
             sysEvent->AsJson().c_str());
     }
 
     void OnServiceDied() final
     {
-        HiLog::Debug(LABEL, "OnServiceDied");
+        HILOG_DEBUG(LOG_CORE, "OnServiceDied");
     }
 };
 
@@ -294,7 +299,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventNormal001, TestSize.Level1)
     testStringValues.push_back(std::string("b"));
     testStringValues.push_back(std::string("c"));
 
-    HiLog::Info(LABEL, "test hisysevent normal write");
+    HILOG_INFO(LOG_CORE, "test hisysevent normal write");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT,
         "keyBool", testBoolValue, "keyChar", testCharValue, "keyShort", testShortValue,
         "keyInt", testIntValue, "KeyLong", testLongValue, "KeyLongLong", testLongLongValue,
@@ -308,7 +313,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventNormal001, TestSize.Level1)
         "keyUnsignedLongs", testUnsignedLongValues, "keyLongLongs", testLongLongValues,
         "keyUnsignedLongLongs", testUnsignedLongLongValues, "keyFloats", testFloatValues,
         "keyDoubles", testDoubleValues, "keyStrings", testStringValues);
-    HiLog::Info(LABEL, "normal write, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "normal write, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -325,9 +330,9 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventDomainSpecialChar002, TestSize.Leve
      */
     static constexpr char domain[] = "_demo";
     std::string eventName = "DOMAIN_SPECIAL_CHAR";
-    HiLog::Info(LABEL, "test hisysevent domain has special char");
+    HILOG_INFO(LOG_CORE, "test hisysevent domain has special char");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT);
-    HiLog::Info(LABEL, "domain has special char, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "domain has special char, retCode=%{public}d", result);
     ASSERT_TRUE(result < 0);
 }
 
@@ -344,9 +349,9 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventDomainEmpty003, TestSize.Level1)
      */
     static constexpr char domain[] = "";
     std::string eventName = "DOMAIN_EMPTY";
-    HiLog::Info(LABEL, "test hisysevent domain is empty");
+    HILOG_INFO(LOG_CORE, "test hisysevent domain is empty");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT);
-    HiLog::Info(LABEL, "domain is empty, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "domain is empty, retCode=%{public}d", result);
     ASSERT_TRUE(result < 0);
 }
 
@@ -363,17 +368,17 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventDomainTooLong004, TestSize.Level1)
      */
     static constexpr char domain16[] = "AAAAAAAAAAAAAAAA";
     std::string eventName = "DOMAIN_TOO_LONG_16";
-    HiLog::Info(LABEL, "test hisysevent domain is too long, normal length");
+    HILOG_INFO(LOG_CORE, "test hisysevent domain is too long, normal length");
 
     int result = 0;
     result = HiSysEventWrite(domain16, eventName, HiSysEvent::EventType::FAULT);
-    HiLog::Info(LABEL, "domain too long, equal 16 retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "domain too long, equal 16 retCode=%{public}d", result);
 
-    HiLog::Info(LABEL, "test hisysevent domain is too long");
+    HILOG_INFO(LOG_CORE, "test hisysevent domain is too long");
     static constexpr char domain17[] = "AAAAAAAAAAAAAAAAL";
     eventName = "DOMAIN_TOO_LONG_17";
     result = HiSysEventWrite(domain17, eventName, HiSysEvent::EventType::FAULT);
-    HiLog::Info(LABEL, "domain is too long, more than 16 retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "domain is too long, more than 16 retCode=%{public}d", result);
     ASSERT_TRUE(result < 0);
 }
 
@@ -390,9 +395,9 @@ HWTEST_F(HiSysEventNativeTest, TesetHiSysEventSpecailEventName005, TestSize.Leve
      */
     static constexpr char domain[] = "SPEC_EVT_NAME";
     std::string eventName = "_SPECIAL_CHAR";
-    HiLog::Info(LABEL, "test hisysevent event name has special char");
+    HILOG_INFO(LOG_CORE, "test hisysevent event name has special char");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT);
-    HiLog::Info(LABEL, "event name has special char, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "event name has special char, retCode=%{public}d", result);
     ASSERT_TRUE(result < 0);
 }
 
@@ -409,9 +414,9 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventNameEmpty006, TestSize.Level1)
      */
     static constexpr char domain[] = "EMPTY";
     std::string eventName = "";
-    HiLog::Info(LABEL, "test hisysevent event name is empty");
+    HILOG_INFO(LOG_CORE, "test hisysevent event name is empty");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT);
-    HiLog::Info(LABEL, "event name is empty, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "event name is empty, retCode=%{public}d", result);
     ASSERT_TRUE(result < 0);
 }
 
@@ -428,21 +433,21 @@ HWTEST_F(HiSysEventNativeTest, TesetHiSysEventNameTooLong007, TestSize.Level1)
      */
     static constexpr char domain32[] = "NAME_32";
     std::string eventName = "";
-    HiLog::Info(LABEL, "test hisysevent event name is too long, normal length");
+    HILOG_INFO(LOG_CORE, "test hisysevent event name is too long, normal length");
     int normal = 32;
     for (int index = 0; index < normal; index++) {
         eventName.append("N");
     }
     int result = 0;
     result = HiSysEventWrite(domain32, eventName, HiSysEvent::EventType::FAULT);
-    HiLog::Info(LABEL, "event name is too long, equal 32, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "event name is too long, equal 32, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::SUCCESS));
 
-    HiLog::Info(LABEL, "test hisysevent event name is too long");
+    HILOG_INFO(LOG_CORE, "test hisysevent event name is too long");
     static constexpr char domain33[] = "NAME_33";
     eventName.append("L");
     result = HiSysEventWrite(domain33, eventName, HiSysEvent::EventType::FAULT);
-    HiLog::Info(LABEL, "event name is too long, more than 32, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "event name is too long, more than 32, retCode=%{public}d", result);
     ASSERT_TRUE(result < 0);
 }
 
@@ -462,7 +467,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventKeySpecialChar008, TestSize.Level1)
     std::string key1 = "_key1";
     std::string key2 = "key2";
     int result = 0;
-    HiLog::Info(LABEL, "test hisysevent key has special char");
+    HILOG_INFO(LOG_CORE, "test hisysevent key has special char");
     bool value1 = true;
     result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, key1, value1, key2, value1);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > OHOS::HiviewDFX::SUCCESS));
@@ -530,10 +535,10 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventEscape009, TestSize.Level1)
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "ESCAPE";
-    HiLog::Info(LABEL, "test hisysevent escape char");
+    HILOG_INFO(LOG_CORE, "test hisysevent escape char");
     std::string value = "\"escapeByCpp\"";
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", value);
-    HiLog::Info(LABEL, "key's value has espcae char, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "key's value has espcae char, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -550,10 +555,10 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventKeyEmpty010, TestSize.Level1)
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "KEY_EMPTY";
-    HiLog::Info(LABEL, "test hisysevent key is empty");
+    HILOG_INFO(LOG_CORE, "test hisysevent key is empty");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT,
         "", "valueIsEmpty", "key2", "notEmpty");
-    HiLog::Info(LABEL, "key is empty, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "key is empty, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -570,10 +575,10 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventKeySpecialChar011, TestSize.Level1)
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "KEY_SPECIAL_CHAR";
-    HiLog::Info(LABEL, "test hisysevent key is special");
+    HILOG_INFO(LOG_CORE, "test hisysevent key is special");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT,
         "_key1", "special", "key2", "normal");
-    HiLog::Info(LABEL, "key has special char, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "key has special char, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -590,7 +595,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventKeyTooLong012, TestSize.Level1)
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "KEY_48";
-    HiLog::Info(LABEL, "test hisysevent key 48 char");
+    HILOG_INFO(LOG_CORE, "test hisysevent key 48 char");
     std::string key = "";
     int normal = 48;
     for (int index = 0; index < normal; index++) {
@@ -598,14 +603,14 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventKeyTooLong012, TestSize.Level1)
     }
     int result = 0;
     result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, key, "48length", "key2", "normal");
-    HiLog::Info(LABEL, "key equal 48 char, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "key equal 48 char, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::SUCCESS));
 
-    HiLog::Info(LABEL, "test hisysevent key 49 char");
+    HILOG_INFO(LOG_CORE, "test hisysevent key 49 char");
     eventName = "KEY_49";
     key.append("V");
     result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, key, "49length", "key2", "normal");
-    HiLog::Info(LABEL, "key more than 48 char, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "key more than 48 char, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -622,7 +627,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEvent128Keys013, TestSize.Level1)
      */
     static constexpr char domain[] = "TEST";
     std::string eventName = "KEY_EQUAL_128";
-    HiLog::Info(LABEL, "test hisysevent 128 keys");
+    HILOG_INFO(LOG_CORE, "test hisysevent 128 keys");
     std::string k = "k";
     bool v = true;
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT,
@@ -630,7 +635,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEvent128Keys013, TestSize.Level1)
         SYS_EVENT_PARAMS(60), SYS_EVENT_PARAMS(70), SYS_EVENT_PARAMS(80), SYS_EVENT_PARAMS(90), SYS_EVENT_PARAMS(100),
         SYS_EVENT_PARAMS(110), SYS_EVENT_PARAMS(120),
         k, v, k, v, k, v, k, v, k, v, k, v, k, v, k, v);
-    HiLog::Info(LABEL, "has 128 key, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "has 128 key, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -647,14 +652,14 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEvent129Keys014, TestSize.Level1)
      */
     static constexpr char domain[] = "TEST";
     std::string eventName = "KEY_EQUAL_129";
-    HiLog::Info(LABEL, "test hisysevent 129 key");
+    HILOG_INFO(LOG_CORE, "test hisysevent 129 key");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT,
         SYS_EVENT_PARAMS(10), SYS_EVENT_PARAMS(20), SYS_EVENT_PARAMS(30), SYS_EVENT_PARAMS(40), SYS_EVENT_PARAMS(50),
         SYS_EVENT_PARAMS(60), SYS_EVENT_PARAMS(70), SYS_EVENT_PARAMS(80), SYS_EVENT_PARAMS(90), SYS_EVENT_PARAMS(100),
         SYS_EVENT_PARAMS(110), SYS_EVENT_PARAMS(120),
         "key1", true, "key2", true, "key3", true, "key4", true, "key5", true,
         "key6", true, "key7", true, "key8", true, "key9", true);
-    HiLog::Info(LABEL, "has 129 key, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "has 129 key, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -671,7 +676,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventStringValueEqual256K015, TestSize.L
      */
     static constexpr char domain[] = "TEST";
     std::string eventName = "EQUAL_256K";
-    HiLog::Info(LABEL, "test key's value 256K string");
+    HILOG_INFO(LOG_CORE, "test key's value 256K string");
     std::string value;
     int length = 256 * 1024;
     for (int index = 0; index < length; index++) {
@@ -679,7 +684,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventStringValueEqual256K015, TestSize.L
     }
     sleep(1); // make sure hiview read all data before send large data
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", value);
-    HiLog::Info(LABEL, "string length is 256K, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "string length is 256K, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -696,7 +701,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventStringValueMoreThan256K016, TestSiz
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "MORETHAN256K";
-    HiLog::Info(LABEL, "test more than 256K string");
+    HILOG_INFO(LOG_CORE, "test more than 256K string");
     std::string value;
     int length = 256 * 1024 + 1;
     for (int index = 0; index < length; index++) {
@@ -704,7 +709,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventStringValueMoreThan256K016, TestSiz
     }
     sleep(1); // make sure hiview read all data before send large data
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", value);
-    HiLog::Info(LABEL, "string length is more than 256K, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "string length is more than 256K, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -721,7 +726,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray100Item017, TestSize.Level1)
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "BOOL_ARRAY_100";
-    HiLog::Info(LABEL, "test bool array 100 item");
+    HILOG_INFO(LOG_CORE, "test bool array 100 item");
     std::vector<bool> values;
     int maxItem = 100;
     for (int index = 0; index < maxItem; index++) {
@@ -729,7 +734,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray100Item017, TestSize.Level1)
     }
     sleep(1); // make sure hiview read all data before send large data
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", values);
-    HiLog::Info(LABEL, "array bool list 100, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "array bool list 100, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -746,7 +751,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray101Item018, TestSize.Level1)
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "BOOL_ARRAY_101";
-    HiLog::Info(LABEL, "test bool array 101 item");
+    HILOG_INFO(LOG_CORE, "test bool array 101 item");
     std::vector<bool> values;
     int maxItem = 101;
     for (int index = 0; index < maxItem; index++) {
@@ -754,7 +759,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray101Item018, TestSize.Level1)
     }
     sleep(1); // make sure hiview read all data before send large data
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", values);
-    HiLog::Info(LABEL, "array bool list 101, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "array bool list 101, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -771,7 +776,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray100CharItem019, TestSize.Level
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "CHAR_ARRAY_100";
-    HiLog::Info(LABEL, "test char array 100 item");
+    HILOG_INFO(LOG_CORE, "test char array 100 item");
     std::vector<char> values;
     int maxItem = 100;
     for (int index = 0; index < maxItem; index++) {
@@ -779,7 +784,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray100CharItem019, TestSize.Level
     }
     sleep(1); // make sure hiview read all data before send large data
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", values);
-    HiLog::Info(LABEL, "array char list 100, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "array char list 100, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -796,7 +801,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray101CharItem020, TestSize.Level
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "CHAR_ARRAY_101";
-    HiLog::Info(LABEL, "test char array 101 item");
+    HILOG_INFO(LOG_CORE, "test char array 101 item");
     std::vector<char> values;
     int maxItem = 101;
     for (int index = 0; index < maxItem; index++) {
@@ -804,7 +809,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray101CharItem020, TestSize.Level
     }
     sleep(1); // make sure hiview read all data before send large data
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", values);
-    HiLog::Info(LABEL, "array char list 101, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "array char list 101, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -821,7 +826,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray100UnsignedCharItem021, TestSi
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "UCHAR_ARRAY_100";
-    HiLog::Info(LABEL, "test unsigned char array 100 item");
+    HILOG_INFO(LOG_CORE, "test unsigned char array 100 item");
     std::vector<unsigned char> values;
     int maxItem = 100;
     for (int index = 0; index < maxItem; index++) {
@@ -829,7 +834,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray100UnsignedCharItem021, TestSi
     }
     sleep(1); // make sure hiview read all data before send large data
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", values);
-    HiLog::Info(LABEL, "array unsigned char list 100, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "array unsigned char list 100, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -846,7 +851,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray101UnsignedCharItem022, TestSi
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "UCHAR_ARRAY_101";
-    HiLog::Info(LABEL, "test unsigned char array 101 item");
+    HILOG_INFO(LOG_CORE, "test unsigned char array 101 item");
     std::vector<unsigned char> values;
     int maxItem = 101;
     for (int index = 0; index < maxItem; index++) {
@@ -854,7 +859,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray101UnsignedCharItem022, TestSi
     }
     sleep(1); // make sure hiview read all data before send large data
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", values);
-    HiLog::Info(LABEL, "array unsigned char list 101, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "array unsigned char list 101, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -872,7 +877,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray100StringItem023, TestSize.Lev
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "STR_ARRAY_100";
-    HiLog::Info(LABEL, "test string array 100 item");
+    HILOG_INFO(LOG_CORE, "test string array 100 item");
     std::vector<std::string> values;
     int maxItem = 100;
     for (int index = 0; index < maxItem; index++) {
@@ -880,7 +885,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray100StringItem023, TestSize.Lev
     }
     sleep(1); // make sure hiview read all data before send large data
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", values);
-    HiLog::Info(LABEL, "array string list 100, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "array string list 100, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == OHOS::HiviewDFX::SUCCESS));
 }
 
@@ -897,7 +902,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray101StringItem024, TestSize.Lev
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "STR_ARRAY_101";
-    HiLog::Info(LABEL, "test string array 101 item");
+    HILOG_INFO(LOG_CORE, "test string array 101 item");
     std::vector<std::string> values;
     int maxItem = 101;
     for (int index = 0; index < maxItem; index++) {
@@ -905,7 +910,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArray101StringItem024, TestSize.Lev
     }
     sleep(1); // make sure hiview read all data before send large data
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", values);
-    HiLog::Info(LABEL, "array string list 101, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "array string list 101, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > 0));
 }
 
@@ -922,7 +927,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArrayStringValueEqual256K025, TestS
      */
     static constexpr char domain[] = "TEST";
     std::string eventName = "EQUAL_256K";
-    HiLog::Info(LABEL, "test array item value 256K string");
+    HILOG_INFO(LOG_CORE, "test array item value 256K string");
     std::string value;
     int length = 256 * 1024;
     for (int index = 0; index < length; index++) {
@@ -933,7 +938,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArrayStringValueEqual256K025, TestS
     values.push_back("c");
     values.push_back(value);
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", values);
-    HiLog::Info(LABEL, "array item value length is 256K, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "array item value length is 256K, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result == 0));
 }
 
@@ -950,7 +955,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArrayStringValueMoreThan256K026, Te
      */
     static constexpr char domain[] = "DEMO";
     std::string eventName = "MORETHAN256K";
-    HiLog::Info(LABEL, "test array item value more than 256K string");
+    HILOG_INFO(LOG_CORE, "test array item value more than 256K string");
     std::string value;
     int length = 256 * 1024 + 1;
     for (int index = 0; index < length; index++) {
@@ -961,7 +966,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventArrayStringValueMoreThan256K026, Te
     values.push_back("c");
     values.push_back(value);
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT, "key1", values);
-    HiLog::Info(LABEL, "array item value length is more than 256K, retCode=%{public}d", result);
+    HILOG_INFO(LOG_CORE, "array item value length is more than 256K, retCode=%{public}d", result);
     ASSERT_TRUE(WrapSysEventWriteAssertion(result, result > 0));
 }
 

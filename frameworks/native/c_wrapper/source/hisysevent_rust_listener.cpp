@@ -18,9 +18,13 @@
 #include "hilog/log.h"
 #include "hisysevent_record_convertor.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_RUST_LISTENER"
+
 namespace {
-constexpr OHOS::HiviewDFX::HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_RUST_LISTENER" };
-using OHOS::HiviewDFX::HiLog;
 using OHOS::HiviewDFX::HiSysEventRecordConvertor;
 }
 
@@ -37,7 +41,7 @@ HiSysEventRustListener::~HiSysEventRustListener()
 void HiSysEventRustListener::OnEvent(std::shared_ptr<OHOS::HiviewDFX::HiSysEventRecord> sysEvent)
 {
     if (watcher_ == nullptr || sysEvent == nullptr) {
-        HiLog::Error(LABEL, "OnEvent callback or sys event is null.");
+        HILOG_ERROR(LOG_CORE, "OnEvent callback or sys event is null.");
         return;
     }
     HiSysEventRecordC record;
@@ -48,7 +52,7 @@ void HiSysEventRustListener::OnEvent(std::shared_ptr<OHOS::HiviewDFX::HiSysEvent
 void HiSysEventRustListener::OnServiceDied()
 {
     if (watcher_ == nullptr) {
-        HiLog::Error(LABEL, "OnServiceDied callback is null.");
+        HILOG_ERROR(LOG_CORE, "OnServiceDied callback is null.");
         return;
     }
     watcher_->onServiceDiedWrapperCb(watcher_->onServiceDiedRustCb);

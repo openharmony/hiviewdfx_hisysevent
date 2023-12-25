@@ -17,7 +17,6 @@
 
 #include <map>
 
-#include "hilog/log.h"
 #include "hisysevent.h"
 #include "rule_type.h"
 

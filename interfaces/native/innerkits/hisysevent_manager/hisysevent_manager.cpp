@@ -19,12 +19,14 @@
 #include "hisysevent_base_manager.h"
 #include "ret_code.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_MANAGER"
+
 namespace OHOS {
 namespace HiviewDFX {
-namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_MANAGER" };
-}
-
 std::unordered_map<std::shared_ptr<HiSysEventListener>,
         std::shared_ptr<HiSysEventBaseListener>> HiSysEventManager::listenerToBaseMap_;
 std::mutex HiSysEventManager::listenersMutex_;
@@ -33,7 +35,7 @@ int32_t HiSysEventManager::AddListener(std::shared_ptr<HiSysEventListener> liste
     std::vector<ListenerRule>& rules)
 {
     if (listener == nullptr) {
-        HiLog::Warn(LABEL, "add a null listener is not allowed.");
+        HILOG_WARN(LOG_CORE, "add a null listener is not allowed.");
         return ERR_LISTENER_NOT_EXIST;
     }
     std::lock_guard<std::mutex> lock(listenersMutex_);
@@ -48,18 +50,18 @@ int32_t HiSysEventManager::AddListener(std::shared_ptr<HiSysEventListener> liste
 int32_t HiSysEventManager::RemoveListener(std::shared_ptr<HiSysEventListener> listener)
 {
     if (listener == nullptr) {
-        HiLog::Warn(LABEL, "remov a null listener is not allowed.");
+        HILOG_WARN(LOG_CORE, "remov a null listener is not allowed.");
         return ERR_LISTENER_NOT_EXIST;
     }
     std::lock_guard<std::mutex> lock(listenersMutex_);
     auto baseListener = listenerToBaseMap_[listener];
     if (baseListener == nullptr) {
-        HiLog::Warn(LABEL, "no need to remove a listener which has not been added.");
+        HILOG_WARN(LOG_CORE, "no need to remove a listener which has not been added.");
         return ERR_LISTENER_NOT_EXIST;
     }
     auto ret = HiSysEventBaseManager::RemoveListener(baseListener);
     if (ret == IPC_CALL_SUCCEED) {
-        HiLog::Debug(LABEL, "remove listener from local cache.");
+        HILOG_DEBUG(LOG_CORE, "remove listener from local cache.");
         listenerToBaseMap_.erase(listener);
     }
     return ret;
@@ -75,13 +77,13 @@ int32_t HiSysEventManager::Query(struct QueryArg& arg, std::vector<QueryRule>& r
 int32_t HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventListener> listener, bool mode)
 {
     if (listener == nullptr) {
-        HiLog::Warn(LABEL, "set debug mode on a null listener is not allowed.");
+        HILOG_WARN(LOG_CORE, "set debug mode on a null listener is not allowed.");
         return ERR_LISTENER_NOT_EXIST;
     }
     std::lock_guard<std::mutex> lock(listenersMutex_);
     auto baseListener = listenerToBaseMap_[listener];
     if (baseListener == nullptr) {
-        HiLog::Warn(LABEL, "no need to set debug mode on a listener which has not been added.");
+        HILOG_WARN(LOG_CORE, "no need to set debug mode on a listener which has not been added.");
         return ERR_LISTENER_NOT_EXIST;
     }
     return HiSysEventBaseManager::SetDebugMode(baseListener, mode);

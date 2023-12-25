@@ -29,10 +29,15 @@
 #include "def.h"
 #include "hilog/log.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_TRANSPORT"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
 constexpr size_t BUF_SIZE = 2000;
 char g_errMsg[BUF_SIZE] = { 0 };
 struct sockaddr_un g_serverAddr = {
@@ -53,20 +58,20 @@ void Transport::InitRecvBuffer(int socketId)
     socklen_t oldOutSize = static_cast<socklen_t>(sizeof(int));
     if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&oldN), &oldOutSize) < 0) {
         strerror_r(errno, g_errMsg, BUF_SIZE);
-        HiLog::Debug(LABEL, "get socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
+        HILOG_DEBUG(LOG_CORE, "get socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
     }
 
     int sendBuffSize = MAX_DATA_SIZE;
     if (setsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&sendBuffSize), sizeof(int)) < 0) {
         strerror_r(errno, g_errMsg, BUF_SIZE);
-        HiLog::Debug(LABEL, "set socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
+        HILOG_DEBUG(LOG_CORE, "set socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
     }
 
     int newN = 0;
     socklen_t newOutSize = static_cast<socklen_t>(sizeof(int));
     if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&newN), &newOutSize) < 0) {
         strerror_r(errno, g_errMsg, BUF_SIZE);
-        HiLog::Debug(LABEL, "get new socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
+        HILOG_DEBUG(LOG_CORE, "get new socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
     }
 }
 
@@ -76,7 +81,7 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
         socketId_ = TEMP_FAILURE_RETRY(socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0));
         if (socketId_ < 0) {
             strerror_r(errno, g_errMsg, BUF_SIZE);
-            HiLog::Debug(LABEL, "create hisysevent client socket failed, error=%{public}d, msg=%{public}s",
+            HILOG_DEBUG(LOG_CORE, "create hisysevent client socket failed, error=%{public}d, msg=%{public}s",
                 errno, g_errMsg);
             return ERR_DOES_NOT_INIT;
         }
@@ -93,7 +98,7 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
         close(socketId_);
         socketId_ = INVALID_SOCKET_ID;
         strerror_r(errno, g_errMsg, BUF_SIZE);
-        HiLog::Debug(LABEL, "send data to hisysevent server failed, error=%{public}d, msg=%{public}s",
+        HILOG_DEBUG(LOG_CORE, "send data to hisysevent server failed, error=%{public}d, msg=%{public}s",
             errno, g_errMsg);
         return ERR_SEND_FAIL;
     }
@@ -127,7 +132,7 @@ void Transport::RetrySendFailedData()
 int Transport::SendData(RawData& rawData)
 {
     if (rawData.IsEmpty()) {
-        HiLog::Warn(LABEL, "try to send a empty data.");
+        HILOG_WARN(LOG_CORE, "try to send a empty data.");
         return ERR_EMPTY_EVENT;
     }
     auto rawDataLength = rawData.GetDataLength();

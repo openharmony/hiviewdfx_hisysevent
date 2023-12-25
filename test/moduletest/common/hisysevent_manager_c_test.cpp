@@ -28,8 +28,13 @@
 using namespace testing::ext;
 using namespace OHOS::HiviewDFX;
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_MANAGER_C_TEST"
+
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_TEST" };
 constexpr int64_t MAX_NUM_OF_QUERY = 10;
 constexpr size_t MAX_LEN_OF_DOMAIN = 16;
 constexpr size_t MAX_LEN_OF_NAME = 32;
@@ -70,7 +75,7 @@ void InitQueryRuleWithCondition(HiSysEventQueryRule& rule, const std::string& co
 
 void RecordBaseParamPrint(const HiSysEventRecord& record)
 {
-    HiLog::Debug(LABEL, "event: domain=%{public}s, name=%{public}s, type=%{public}d, tz=%{public}s, "
+    HILOG_DEBUG(LOG_CORE, "event: domain=%{public}s, name=%{public}s, type=%{public}d, tz=%{public}s, "
             "time=%{public}" PRIu64 ", pid=%{public}" PRId64 ", tid=%{public}" PRId64 ", uid=%{public}"
             PRId64 ", traceId=%{public}" PRIu64 ", spandId=%{public}" PRIu64 ", pspanId=%{public}"
             PRIu64 ", level=%{public}s" ", tag=%{public}s",
@@ -82,7 +87,7 @@ void RecordBaseParamPrint(const HiSysEventRecord& record)
 
 void OnQueryTest(HiSysEventRecord records[], size_t size)
 {
-    HiLog::Info(LABEL, "OnQuery: size of records is %{public}zu", size);
+    HILOG_INFO(LOG_CORE, "OnQuery: size of records is %{public}zu", size);
     for (size_t i = 0; i < size; i++) {
         HiSysEventRecord record = records[i];
         ASSERT_EQ(strcmp(record.domain, TEST_DOMAIN), 0);
@@ -102,13 +107,13 @@ void OnQueryTest(HiSysEventRecord records[], size_t size)
         }
         ASSERT_TRUE(strlen(record.jsonStr) > 0);
         RecordBaseParamPrint(record);
-        HiLog::Info(LABEL, "OnQuery: event=%{public}s", record.jsonStr);
+        HILOG_INFO(LOG_CORE, "OnQuery: event=%{public}s", record.jsonStr);
     }
 }
 
 void OnCompleteTest(int32_t reason, int32_t total)
 {
-    HiLog::Info(LABEL, "OnCompleted, res=%{public}d, total=%{public}d", reason, total);
+    HILOG_INFO(LOG_CORE, "OnCompleted, res=%{public}d, total=%{public}d", reason, total);
 }
 
 void InitCallback(HiSysEventQueryCallback& callback)
@@ -120,12 +125,12 @@ void InitCallback(HiSysEventQueryCallback& callback)
 void OnEventTest(HiSysEventRecordC record)
 {
     ASSERT_TRUE(strlen(record.jsonStr) > 0);
-    HiLog::Info(LABEL, "OnEvent: event=%{public}s", record.jsonStr);
+    HILOG_INFO(LOG_CORE, "OnEvent: event=%{public}s", record.jsonStr);
 }
 
 void OnServiceDiedTest()
 {
-    HiLog::Info(LABEL, "OnServiceDied");
+    HILOG_INFO(LOG_CORE, "OnServiceDied");
 }
 
 void InitWatcher(HiSysEventWatcher& watcher)
@@ -172,7 +177,7 @@ void RecordParamNameTest(const HiSysEventRecord& record, const std::map<std::str
     OH_HiSysEvent_GetParamNames(&record, &params, &len);
     ASSERT_EQ(len, recordData.size());
     for (size_t i = 0; i < len; i++) {
-        HiLog::Debug(LABEL, "param[%{public}zu]=%{public}s", i, params[i]);
+        HILOG_DEBUG(LOG_CORE, "param[%{public}zu]=%{public}s", i, params[i]);
         ASSERT_TRUE(recordData.find("\"" + std::string(params[i]) + "\"") != recordData.end());
     }
     StringUtil::DeletePointers<char>(&params, len);
@@ -361,7 +366,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest001, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest001 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest001 start");
     HiSysEventQueryArg arg;
     InitQueryArg(arg);
 
@@ -374,7 +379,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest001, TestSize.Level3)
 
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest001 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest001 end");
 }
 
 /**
@@ -391,11 +396,11 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest002, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest002 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest002 start");
     std::string cond = R"~({"version":"V1","condition":{"and":[{"param":"NAME","op":"=",
         "value":"SysEventStore"}]}})~";
     QueryTestWithCondition(cond);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest002 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest002 end");
 }
 
 /**
@@ -412,10 +417,10 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest003, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest003 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest003 start");
     std::string cond = R"~({"version":"V1","condition":{"and":[{"param":"uid_","op":"=","value":1201}]}})~";
     QueryTestWithCondition(cond);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest003 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest003 end");
 }
 
 /**
@@ -432,10 +437,10 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest004, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest004 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest004 start");
     std::string cond = R"~({"version":"V1","condition":{"and":[{"param":"pid_","op":">=","value":0}]}})~";
     QueryTestWithCondition(cond);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest004 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest004 end");
 }
 
 /**
@@ -452,10 +457,10 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest005, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest005 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest005 start");
     std::string cond = R"~({"version":"V1","condition":{"and":[{"param":"type_","op":"<=","value":4}]}})~";
     QueryTestWithCondition(cond);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest005 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest005 end");
 }
 
 /**
@@ -472,10 +477,10 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest006, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest006 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest006 start");
     std::string cond = R"~({"version":"V1","condition":{"and":[{"param":"pid_","op":">","value":0}]}})~";
     QueryTestWithCondition(cond);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest006 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest006 end");
 }
 
 /**
@@ -492,10 +497,10 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest007, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest007 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest007 start");
     std::string cond = R"~({"version":"V1","condition":{"and":[{"param":"pid_","op":"<","value":0}]}})~";
     QueryTestWithCondition(cond);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest007 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest007 end");
 }
 
 /**
@@ -512,7 +517,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest008, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest008 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest008 start");
     sleep(QUERY_INTERVAL_TIME);
     HiSysEventQueryArg arg;
     InitQueryArg(arg);
@@ -534,7 +539,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest008, TestSize.Level3)
 
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest008 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest008 end");
 }
 
 /**
@@ -551,7 +556,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest009, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest009 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest009 start");
     std::string cond1 = R"~({"version":"V1","condition":{"and":[{"param":"NAME","op":"=",
         "value":"SysEventStore"},{"param":"uid_","op":"=","value":1201}]}})~";
     QueryTestWithCondition(cond1);
@@ -559,7 +564,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest009, TestSize.Level3)
     std::string cond2 = R"~({"version":"V1","condition":{"and":[{"param":"type_","op":">","value":0},
         {"param":"uid_","op":"=","value":1201}]}})~";
     QueryTestWithCondition(cond2);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest009 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest009 end");
 }
 
 /**
@@ -576,7 +581,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest010, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest010 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest010 start");
     sleep(QUERY_INTERVAL_TIME);
     HiSysEventQueryArg arg;
     InitQueryArg(arg);
@@ -604,7 +609,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest010, TestSize.Level3)
     ASSERT_EQ(res, 0);
     StringUtil::DeletePointer<char>(&rule1.condition);
     StringUtil::DeletePointer<char>(&rule2.condition);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest010 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest010 end");
 }
 
 /**
@@ -621,7 +626,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest011, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest011 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest011 start");
 
     std::string cond1 = R"~({"version":"xx","condition":{}})~";
     QueryTestWithCondition(cond1);
@@ -652,7 +657,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest011, TestSize.Level3)
         "value":[]}]}})~";
     QueryTestWithCondition(cond8);
 
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest011 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest011 end");
 }
 
 /**
@@ -669,7 +674,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest012, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest012 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest012 start");
     sleep(QUERY_INTERVAL_TIME);
     HiSysEventQueryArg arg;
     InitQueryArg(arg);
@@ -681,7 +686,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest012, TestSize.Level3)
     InitCallback(callback);
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest012 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest012 end");
 }
 
 /**
@@ -698,7 +703,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest013, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest013 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest013 start");
     sleep(QUERY_INTERVAL_TIME);
     HiSysEventQueryArg arg;
     InitQueryArg(arg);
@@ -710,7 +715,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest013, TestSize.Level3)
     InitCallback(callback);
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest013 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest013 end");
 }
 
 /**
@@ -727,7 +732,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest014, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest014 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest014 start");
     sleep(QUERY_INTERVAL_TIME);
     HiSysEventQueryArg arg;
     InitQueryArg(arg);
@@ -743,7 +748,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest014, TestSize.Level3)
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest014 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest014 end");
 }
 
 /**
@@ -760,7 +765,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest015, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest015 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest015 start");
     sleep(QUERY_INTERVAL_TIME);
     HiSysEventQueryArg arg;
     InitQueryArg(arg);
@@ -776,7 +781,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest015, TestSize.Level3)
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest015 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest015 end");
 }
 
 /**
@@ -793,7 +798,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest016, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest016 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest016 start");
     sleep(QUERY_INTERVAL_TIME);
     HiSysEventQueryArg arg;
     InitQueryArg(arg);
@@ -808,7 +813,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest016, TestSize.Level3)
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_RULE_INVALID);
     StringUtil::DeletePointer<char>(&rule.condition);
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest016 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest016 end");
 }
 
 /**
@@ -825,7 +830,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest017, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest017 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest017 start");
     sleep(QUERY_INTERVAL_TIME);
     HiSysEventQueryArg arg;
     InitQueryArg(arg);
@@ -847,7 +852,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest017, TestSize.Level3)
         }
     }
 
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest017 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest017 end");
 }
 
 /**
@@ -864,7 +869,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest018, TestSize.Level3)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest018 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest018 start");
     sleep(QUERY_INTERVAL_TIME);
     HiSysEventQueryArg arg;
     InitQueryArg(arg);
@@ -883,7 +888,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest018, TestSize.Level3)
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_TOO_MANY_QUERY_RULES);
 
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest018 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest018 end");
 }
 
 /**
@@ -900,7 +905,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest019, TestSize.Level0)
      * @tc.steps: step3. create HiSysEventQueryCallback.
      * @tc.steps: step4. query event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest019 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest019 start");
     HiSysEventQueryRule rules[] = {};
     HiSysEventQueryCallback callback;
     InitCallback(callback);
@@ -921,7 +926,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest019, TestSize.Level0)
     res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, ERR_QUERY_CALLBACK_NULL);
 
-    HiLog::Info(LABEL, "HiSysEventMgrCQueryTest019 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest019 end");
 }
 
 /**
@@ -936,7 +941,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest001, TestSize.Level3)
      * @tc.steps: step1. build record.
      * @tc.steps: step2. check the information from record.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCRecordTest001 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCRecordTest001 start");
     const std::map<std::string, std::string> recordData = {
         {"\"domain_\"", "\"TEST_DOMAIN\""},
         {"\"name_\"", "\"TEST_NAME\""},
@@ -953,7 +958,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest001, TestSize.Level3)
     HiSysEventRecord record;
     auto res = StringUtil::CreateCString(&record.jsonStr, BuildRecordString(recordData));
     if (res != 0) {
-        HiLog::Warn(LABEL, "failed to create record string");
+        HILOG_WARN(LOG_CORE, "failed to create record string");
         return;
     }
 
@@ -980,7 +985,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest001, TestSize.Level3)
     RecordParamStrValuesTest(record, "PARAM_INTS", {"-1", "-2", "3"});
 
     StringUtil::DeletePointer<char>(&record.jsonStr);
-    HiLog::Info(LABEL, "HiSysEventMgrCRecordTest001 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCRecordTest001 end");
 }
 
 /**
@@ -995,11 +1000,11 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest002, TestSize.Level3)
      * @tc.steps: step1. build record.
      * @tc.steps: step2. check the information from record.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCRecordTest002 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCRecordTest002 start");
     HiSysEventRecord record;
     auto res = StringUtil::CreateCString(&record.jsonStr, "invalid record");
     if (res != 0) {
-        HiLog::Warn(LABEL, "failed to create record string");
+        HILOG_WARN(LOG_CORE, "failed to create record string");
         return;
     }
 
@@ -1015,7 +1020,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest002, TestSize.Level3)
     RecordParamStrValuesInvalidTest(record, "PARAM_STRS", expRes);
 
     StringUtil::DeletePointer<char>(&record.jsonStr);
-    HiLog::Info(LABEL, "HiSysEventMgrCRecordTest002 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCRecordTest002 end");
 }
 
 /**
@@ -1030,11 +1035,11 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest003, TestSize.Level3)
      * @tc.steps: step1. build record.
      * @tc.steps: step2. check the information from record.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCRecordTest003 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCRecordTest003 start");
     HiSysEventRecord record;
     auto res = StringUtil::CreateCString(&record.jsonStr, R"~({})~");
     if (res != 0) {
-        HiLog::Warn(LABEL, "failed to create record string");
+        HILOG_WARN(LOG_CORE, "failed to create record string");
         return;
     }
 
@@ -1050,7 +1055,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest003, TestSize.Level3)
     RecordParamStrValuesInvalidTest(record, "PARAM_STRS", expRes);
 
     StringUtil::DeletePointer<char>(&record.jsonStr);
-    HiLog::Info(LABEL, "HiSysEventMgrCRecordTest003 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCRecordTest003 end");
 }
 
 /**
@@ -1134,7 +1139,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCWatcherTest001, TestSize.Level0)
      * @tc.steps: step3. watch event.
      */
     // watcher is null
-    HiLog::Info(LABEL, "HiSysEventMgrCWatcherTest001 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCWatcherTest001 start");
     auto ret = OH_HiSysEvent_Add_Watcher(nullptr, nullptr, 0);
     ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
 
@@ -1168,7 +1173,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCWatcherTest001, TestSize.Level0)
     ret = OH_HiSysEvent_Remove_Watcher(&watcher);
     ASSERT_EQ(ret, 0);
 
-    HiLog::Info(LABEL, "HiSysEventMgrCWatcherTest001 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCWatcherTest001 end");
 }
 
 /**
@@ -1184,7 +1189,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCWatchTest002, TestSize.Level0)
      * @tc.steps: step2. create HiSysEventWatchRule objects.
      * @tc.steps: step3. watch event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCWatchTest002 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCWatchTest002 start");
     HiSysEventWatcher watcher;
     InitWatcher(watcher);
     HiSysEventWatchRule rule = {"HIVIEWDFX", "PLUGIN_LOAD", "", 1, 0};
@@ -1195,7 +1200,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCWatchTest002, TestSize.Level0)
     }
     auto ret = OH_HiSysEvent_Add_Watcher(&watcher, rules, sizeof(rules) / sizeof(HiSysEventWatchRule));
     ASSERT_EQ(ret, ERR_TOO_MANY_WATCH_RULES);
-    HiLog::Info(LABEL, "HiSysEventMgrCWatchTest002 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCWatchTest002 end");
 }
 
 /**
@@ -1211,7 +1216,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCWatchTest003, TestSize.Level0)
      * @tc.steps: step2. create HiSysEventWatchRule objects.
      * @tc.steps: step3. watch event.
      */
-    HiLog::Info(LABEL, "HiSysEventMgrCWatchTest003 start");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCWatchTest003 start");
     const size_t maxNum = 30;
     HiSysEventWatcher watchers[maxNum + 1];
     for (size_t i = 0; i <= maxNum; i++) {
@@ -1230,5 +1235,5 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCWatchTest003, TestSize.Level0)
     for (size_t i = 0; i <= maxNum; i++) {
         (void)OH_HiSysEvent_Remove_Watcher(&watchers[i]);
     }
-    HiLog::Info(LABEL, "HiSysEventMgrCWatchTest003 end");
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCWatchTest003 end");
 }

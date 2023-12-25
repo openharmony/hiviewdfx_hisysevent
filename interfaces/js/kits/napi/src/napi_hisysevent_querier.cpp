@@ -18,10 +18,15 @@
 #include "hilog/log.h"
 #include "napi_hisysevent_util.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "NAPI_HISYSEVENT_QUERIER"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_QUERIER" };
 constexpr char ON_QUERY_ATTR[] = "onQuery";
 constexpr char ON_COMPLETE_ATTR[] = "onComplete";
 constexpr size_t ON_QUERY_PARAM_COUNT = 1;
@@ -65,7 +70,7 @@ void NapiHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvents,
             napi_status status = napi_call_function(env, querier, onQuery, ON_QUERY_PARAM_COUNT,
                 argv, &ret);
             if (status != napi_ok) {
-                HiLog::Error(LABEL, "failed to call OnQuery JS function.");
+                HILOG_ERROR(LOG_CORE, "failed to call OnQuery JS function.");
             }
         });
 }
@@ -91,7 +96,7 @@ void NapiHiSysEventQuerier::OnComplete(int32_t reason, int32_t total, int64_t se
             napi_status status = napi_call_function(env, querier, OnComplete, ON_QUERY_COMPLTE_COUNT,
                 argv, &ret);
             if (status != napi_ok) {
-                HiLog::Error(LABEL, "failed to call OnComplete JS function.");
+                HILOG_ERROR(LOG_CORE, "failed to call OnComplete JS function.");
             }
         }, [this] (pid_t threadId) {
             if (threadId != syscall(SYS_gettid)) {

@@ -37,11 +37,16 @@ using namespace std;
 using namespace OHOS::StorageDaemon;
 #endif
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_DELEGATE"
+
 namespace OHOS {
 namespace HiviewDFX {
 
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-HiSysEventDelegate" };
 const std::string EVENT_DIR = "/data/storage/el2/base/cache/hiview/event";
 #ifdef STORAGE_SERVICE_ENABLE
 const std::string BASE_DIR = "/data/storage/el2/base";
@@ -58,7 +63,7 @@ int32_t HiSysEventDelegate::AddListener(const std::shared_ptr<HiSysEventBaseList
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
-        HiLog::Error(LABEL, "Fail to get service.");
+        HILOG_ERROR(LOG_CORE, "Fail to get service.");
         return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
     std::vector<SysEventRule> eventRules;
@@ -80,7 +85,7 @@ int32_t HiSysEventDelegate::RemoveListener(const std::shared_ptr<HiSysEventBaseL
     }
     auto service = GetSysEventService();
     if (service == nullptr) {
-        HiLog::Error(LABEL, "Fail to get service.");
+        HILOG_ERROR(LOG_CORE, "Fail to get service.");
         return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
     SysEventServiceProxy sysEventService(service);
@@ -95,7 +100,7 @@ int32_t HiSysEventDelegate::SetDebugMode(const std::shared_ptr<HiSysEventBaseLis
     }
     auto service = GetSysEventService();
     if (service == nullptr) {
-        HiLog::Error(LABEL, "Fail to get service.");
+        HILOG_ERROR(LOG_CORE, "Fail to get service.");
         return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
     SysEventServiceProxy sysEventService(service);
@@ -108,7 +113,7 @@ int32_t HiSysEventDelegate::Query(const struct QueryArg& arg,
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
-        HiLog::Error(LABEL, "Fail to get service.");
+        HILOG_ERROR(LOG_CORE, "Fail to get service.");
         return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
 
@@ -126,17 +131,17 @@ int64_t HiSysEventDelegate::Export(const struct QueryArg& arg, const std::vector
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
-        HiLog::Error(LABEL, "Fail to get service.");
+        HILOG_ERROR(LOG_CORE, "Fail to get service.");
         return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
     auto res = CreateHiviewDir();
     if (!res) {
-        HiLog::Error(LABEL, "Fail to create hiview dir.");
+        HILOG_ERROR(LOG_CORE, "Fail to create hiview dir.");
         return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
     res = SetDirPermission();
     if (!res) {
-        HiLog::Error(LABEL, "Fail to set ACL permission.");
+        HILOG_ERROR(LOG_CORE, "Fail to set ACL permission.");
         return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
     std::vector<SysEventQueryRule> hospRules;
@@ -150,18 +155,18 @@ int64_t HiSysEventDelegate::Subscribe(const std::vector<QueryRule>& rules) const
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
-        HiLog::Error(LABEL, "Fail to get service.");
+        HILOG_ERROR(LOG_CORE, "Fail to get service.");
         return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
 
     auto res = CreateHiviewDir();
     if (!res) {
-        HiLog::Error(LABEL, "Fail to create hiview dir.");
+        HILOG_ERROR(LOG_CORE, "Fail to create hiview dir.");
         return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
     res = SetDirPermission();
     if (!res) {
-        HiLog::Error(LABEL, "Fail to set ACL permission.");
+        HILOG_ERROR(LOG_CORE, "Fail to set ACL permission.");
         return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
 
@@ -176,7 +181,7 @@ int32_t HiSysEventDelegate::Unsubscribe() const
 {
     auto service = GetSysEventService();
     if (service == nullptr) {
-        HiLog::Error(LABEL, "Fail to get service.");
+        HILOG_ERROR(LOG_CORE, "Fail to get service.");
         return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
     }
     SysEventServiceProxy sysEventService(service);
@@ -185,7 +190,7 @@ int32_t HiSysEventDelegate::Unsubscribe() const
 
 HiSysEventDelegate::~HiSysEventDelegate()
 {
-    HiLog::Info(LABEL, "HiSysEventDelegate destructor");
+    HILOG_INFO(LOG_CORE, "HiSysEventDelegate destructor");
 }
 
 void HiSysEventDelegate::ConvertListenerRule(const std::vector<ListenerRule>& rules,
@@ -233,7 +238,7 @@ bool HiSysEventDelegate::CreateHiviewDir() const
         return true;
     }
     if (!FileUtil::ForceCreateDirectory(EVENT_DIR)) {
-        HiLog::Error(LABEL, "failed to create event dir, errno=%{public}d.", errno);
+        HILOG_ERROR(LOG_CORE, "failed to create event dir, errno=%{public}d.", errno);
         return false;
     }
     return true;
@@ -244,25 +249,25 @@ bool HiSysEventDelegate::SetDirPermission() const
 #ifdef STORAGE_SERVICE_ENABLE
     int aclBaseRet = AclSetAccess(BASE_DIR, PARENT_DIR_PERMISSION);
     if (aclBaseRet != ACL_SUCC) {
-        HiLog::Error(LABEL, "Set ACL failed , baseDirPath= %{public}s ret = %{public}d!!!!",
+        HILOG_ERROR(LOG_CORE, "Set ACL failed , baseDirPath= %{public}s ret = %{public}d!!!!",
             BASE_DIR.c_str(), aclBaseRet);
         return false;
     }
     int aclCacheRet = AclSetAccess(CACHE_DIR, PARENT_DIR_PERMISSION);
     if (aclCacheRet != ACL_SUCC) {
-        HiLog::Error(LABEL, "Set ACL failed , cacheDirPath= %{public}s ret = %{public}d!!!!",
+        HILOG_ERROR(LOG_CORE, "Set ACL failed , cacheDirPath= %{public}s ret = %{public}d!!!!",
             CACHE_DIR.c_str(), aclCacheRet);
         return false;
     }
     int aclHiviewRet = AclSetAccess(HIVIEW_DIR, PARENT_DIR_PERMISSION);
     if (aclHiviewRet != ACL_SUCC) {
-        HiLog::Error(LABEL, "Set ACL failed , hiviewDirPath= %{public}s ret = %{public}d!!!!",
+        HILOG_ERROR(LOG_CORE, "Set ACL failed , hiviewDirPath= %{public}s ret = %{public}d!!!!",
             HIVIEW_DIR.c_str(), aclHiviewRet);
         return false;
     }
     int aclRet = AclSetAccess(EVENT_DIR, SUB_DIR_PERMISSION);
     if (aclRet != ACL_SUCC) {
-        HiLog::Error(LABEL, "Set ACL failed , eventDirPath= %{public}s ret = %{public}d!!!!",
+        HILOG_ERROR(LOG_CORE, "Set ACL failed , eventDirPath= %{public}s ret = %{public}d!!!!",
             EVENT_DIR.c_str(), aclRet);
         return false;
     }

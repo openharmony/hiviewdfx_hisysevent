@@ -30,12 +30,14 @@
 #include "securec.h"
 #include "transport.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT"
+
 namespace OHOS {
 namespace HiviewDFX {
-namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT" };
-}
-
 WriteController HiSysEvent::controller;
 
 HiSysEvent::EventBase::EventBase(const std::string& domain, const std::string& eventName, int type,
@@ -174,10 +176,10 @@ int HiSysEvent::CheckArraySize(const size_t size)
 int HiSysEvent::ExplainThenReturnRetCode(const int retCode)
 {
     if (retCode > SUCCESS) {
-        HiLog::Warn(LABEL, "some value of param discard as invalid data, error=%{public}d, message=%{public}s",
+        HILOG_WARN(LOG_CORE, "some value of param discard as invalid data, error=%{public}d, message=%{public}s",
             retCode, ERR_MSG_LEVEL1[retCode - 1]);
     } else if (retCode < SUCCESS) {
-        HiLog::Error(LABEL, "discard data, error=%{public}d, message=%{public}s",
+        HILOG_ERROR(LOG_CORE, "discard data, error=%{public}d, message=%{public}s",
             retCode, ERR_MSG_LEVEL0[-retCode - 1]);
     }
     return retCode;
@@ -518,7 +520,7 @@ void HiSysEvent::AppendStringArrayParam(EventBase& eventBase, const HiSysEventPa
 void HiSysEvent::InnerWrite(EventBase& eventBase)
 {
     // do nothing.
-    HiLog::Debug(LABEL, "hisysevent inner writer result: %{public}d.", eventBase.GetRetCode());
+    HILOG_DEBUG(LOG_CORE, "hisysevent inner writer result: %{public}d.", eventBase.GetRetCode());
 }
 
 void HiSysEvent::InnerWrite(EventBase& eventBase, const HiSysEventParam params[], size_t size)

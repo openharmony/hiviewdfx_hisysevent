@@ -26,10 +26,15 @@
 #include "stringfilter.h"
 #include "tokenid_kit.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "NAPI_HISYSEVENT_UTIL"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_UTIL" };
 constexpr uint32_t JS_STR_PARM_LEN_LIMIT = 1024 * 10; // 10k
 constexpr uint32_t BUF_SIZE = 1024 * 11; // 11k
 constexpr int SYS_EVENT_INFO_PARAM_INDEX = 0;
@@ -73,7 +78,7 @@ napi_valuetype GetValueType(const napi_env env, const napi_value& value)
     napi_valuetype valueType = napi_undefined;
     napi_status ret = napi_typeof(env, value, &valueType);
     if (ret != napi_ok) {
-        HiLog::Error(LABEL, "failed to parse the type of napi value.");
+        HILOG_ERROR(LOG_CORE, "failed to parse the type of napi value.");
     }
     return valueType;
 }
@@ -83,7 +88,7 @@ bool IsValueTypeValid(const napi_env env, const napi_value& jsObj,
 {
     napi_valuetype valueType = GetValueType(env, jsObj);
     if (valueType != typeName) {
-        HiLog::Debug(LABEL, "napi value type not match: valueType=%{public}d, typeName=%{public}d.",
+        HILOG_DEBUG(LOG_CORE, "napi value type not match: valueType=%{public}d, typeName=%{public}d.",
             valueType, typeName);
         return false;
     }
@@ -98,7 +103,7 @@ bool CheckValueIsArray(const napi_env env, const napi_value& jsObj)
     bool isArray = false;
     napi_status ret = napi_is_array(env, jsObj, &isArray);
     if (ret != napi_ok) {
-        HiLog::Error(LABEL, "failed to check array napi value.");
+        HILOG_ERROR(LOG_CORE, "failed to check array napi value.");
     }
     return isArray;
 }
@@ -108,7 +113,7 @@ bool ParseBoolValue(const napi_env env, const napi_value& value, bool defalutVal
     bool boolValue = defalutValue;
     napi_status ret = napi_get_value_bool(env, value, &boolValue);
     if (ret != napi_ok) {
-        HiLog::Error(LABEL, "failed to parse napi value of boolean type.");
+        HILOG_ERROR(LOG_CORE, "failed to parse napi value of boolean type.");
     }
     return boolValue;
 }
@@ -118,7 +123,7 @@ double ParseNumberValue(const napi_env env, const napi_value& value, double defa
     double numValue = defaultValue;
     napi_status ret = napi_get_value_double(env, value, &numValue);
     if (ret != napi_ok) {
-        HiLog::Error(LABEL, "failed to parse napi value of number type.");
+        HILOG_ERROR(LOG_CORE, "failed to parse napi value of number type.");
     }
     return numValue;
 }
@@ -129,7 +134,7 @@ std::string ParseStringValue(const napi_env env, const napi_value& value, std::s
     size_t bufLength = 0;
     napi_status status = napi_get_value_string_utf8(env, value, buf, BUF_SIZE - 1, &bufLength);
     if (status != napi_ok) {
-        HiLog::Debug(LABEL, "failed to parse napi value of string type.");
+        HILOG_DEBUG(LOG_CORE, "failed to parse napi value of string type.");
         return defaultValue;
     }
     std::string dest = std::string {buf};
@@ -155,7 +160,7 @@ double ParseBigIntValue(const napi_env env, const napi_value& value, double defa
         ret = static_cast<double>(uint64Value);
     }
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to parse napi value of big int type.");
+        HILOG_ERROR(LOG_CORE, "failed to parse napi value of big int type.");
     }
     return ret;
 }
@@ -171,7 +176,7 @@ std::string GetTagAttribute(const napi_env env, const napi_value& object, std::s
         return ParseStringValue(env, propertyValue, defaultValue);
     }
     NapiHiSysEventUtil::ThrowParamTypeError(env, TAG_ATTR, "string");
-    HiLog::Error(LABEL, "type of listener tag is not napi_string.");
+    HILOG_ERROR(LOG_CORE, "type of listener tag is not napi_string.");
     return defaultValue;
 }
 
@@ -181,7 +186,7 @@ std::string GetStringTypeAttribute(const napi_env env, const napi_value& object,
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
     if (!IsValueTypeValid(env, propertyValue, napi_valuetype::napi_string)) {
         NapiHiSysEventUtil::ThrowParamTypeError(env, propertyName, "string");
-        HiLog::Error(LABEL, "type is not napi_string.");
+        HILOG_ERROR(LOG_CORE, "type is not napi_string.");
         return defaultValue;
     }
     return ParseStringValue(env, propertyValue, defaultValue);
@@ -194,7 +199,7 @@ long long GetLonglongTypeAttribute(const napi_env env, const napi_value& object,
     bool isNumberType = IsValueTypeValid(env, propertyValue, napi_valuetype::napi_number);
     bool isBigIntType = IsValueTypeValid(env, propertyValue, napi_valuetype::napi_bigint);
     if (!isNumberType && !isBigIntType) {
-        HiLog::Error(LABEL, "type is not napi_number or napi_bigint.");
+        HILOG_ERROR(LOG_CORE, "type is not napi_number or napi_bigint.");
         return defaultValue;
     }
     if (isBigIntType) {
@@ -208,7 +213,7 @@ int32_t ParseInt32Value(const napi_env env, const napi_value& value, int32_t def
     int32_t int32Value = 0;
     napi_status ret = napi_get_value_int32(env, value, &int32Value);
     if (ret != napi_ok) {
-        HiLog::Error(LABEL, "failed to parse napi value of number type.");
+        HILOG_ERROR(LOG_CORE, "failed to parse napi value of number type.");
         return defaultValue;
     }
     return int32Value;
@@ -220,7 +225,7 @@ int32_t GetInt32TypeAttribute(const napi_env env, const napi_value& object,
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
     if (!IsValueTypeValid(env, propertyValue, napi_valuetype::napi_number)) {
         NapiHiSysEventUtil::ThrowParamTypeError(env, propertyName, "number");
-        HiLog::Error(LABEL, "type is not napi_number.");
+        HILOG_ERROR(LOG_CORE, "type is not napi_number.");
         return defaultValue;
     }
     return ParseInt32Value(env, propertyValue);
@@ -235,7 +240,7 @@ void AppendBoolArrayData(const napi_env env, HiSysEventInfo& info, const std::st
     for (uint32_t i = 0; i < len; i++) {
         status = napi_get_element(env, array, i, &element);
         if (status != napi_ok) {
-            HiLog::Error(LABEL, "failed to get the element of bool array.");
+            HILOG_ERROR(LOG_CORE, "failed to get the element of bool array.");
             continue;
         }
         if (IsValueTypeValid(env, element, napi_valuetype::napi_boolean)) {
@@ -254,7 +259,7 @@ void AppendNumberArrayData(const napi_env env, HiSysEventInfo& info, const std::
     for (uint32_t i = 0; i < len; i++) {
         status = napi_get_element(env, array, i, &element);
         if (status != napi_ok) {
-            HiLog::Error(LABEL, "failed to get the element of number array.");
+            HILOG_ERROR(LOG_CORE, "failed to get the element of number array.");
             continue;
         }
         if (IsValueTypeValid(env, element, napi_valuetype::napi_number)) {
@@ -273,7 +278,7 @@ void AppendBigIntArrayData(const napi_env env, HiSysEventInfo& info, const std::
     for (uint32_t i = 0; i < len; i++) {
         status = napi_get_element(env, array, i, &element);
         if (status != napi_ok) {
-            HiLog::Error(LABEL, "failed to get the element of big int array.");
+            HILOG_ERROR(LOG_CORE, "failed to get the element of big int array.");
             continue;
         }
         if (IsValueTypeValid(env, element, napi_valuetype::napi_bigint)) {
@@ -292,7 +297,7 @@ void AppendStringArrayData(const napi_env env, HiSysEventInfo& info, const std::
     for (uint32_t i = 0; i < len; i++) {
         status = napi_get_element(env, array, i, &element);
         if (status != napi_ok) {
-            HiLog::Error(LABEL, "failed to get the element of string array.");
+            HILOG_ERROR(LOG_CORE, "failed to get the element of string array.");
             continue;
         }
         if (IsValueTypeValid(env, element, napi_valuetype::napi_string)) {
@@ -307,41 +312,41 @@ void AddArrayParamToEventInfo(const napi_env env, HiSysEventInfo& info, const st
     uint32_t len = 0;
     napi_status status = napi_get_array_length(env, array, &len);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get the length of param array.");
+        HILOG_ERROR(LOG_CORE, "failed to get the length of param array.");
         return;
     }
     if (len == 0) {
-        HiLog::Warn(LABEL, "array is empty.");
+        HILOG_WARN(LOG_CORE, "array is empty.");
         return;
     }
     napi_value firstItem;
     status = napi_get_element(env, array, 0, &firstItem);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get the first element in array.");
+        HILOG_ERROR(LOG_CORE, "failed to get the first element in array.");
         return;
     }
     napi_valuetype type;
     status = napi_typeof(env, firstItem, &type);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get the type of the first element in array.");
+        HILOG_ERROR(LOG_CORE, "failed to get the type of the first element in array.");
         return;
     }
     switch (type) {
         case napi_valuetype::napi_boolean:
             AppendBoolArrayData(env, info, key, array, len);
-            HiLog::Debug(LABEL, "AppendBoolArrayData: %{public}s.", key.c_str());
+            HILOG_DEBUG(LOG_CORE, "AppendBoolArrayData: %{public}s.", key.c_str());
             break;
         case napi_valuetype::napi_number:
             AppendNumberArrayData(env, info, key, array, len);
-            HiLog::Debug(LABEL, "AppendNumberArrayData: %{public}s.", key.c_str());
+            HILOG_DEBUG(LOG_CORE, "AppendNumberArrayData: %{public}s.", key.c_str());
             break;
         case napi_valuetype::napi_bigint:
             AppendBigIntArrayData(env, info, key, array, len);
-            HiLog::Debug(LABEL, "AppendBigIntArrayData: %{public}s.", key.c_str());
+            HILOG_DEBUG(LOG_CORE, "AppendBigIntArrayData: %{public}s.", key.c_str());
             break;
         case napi_valuetype::napi_string:
             AppendStringArrayData(env, info, key, array, len);
-            HiLog::Debug(LABEL, "AppendStringArrayData: %{public}s.", key.c_str());
+            HILOG_DEBUG(LOG_CORE, "AppendStringArrayData: %{public}s.", key.c_str());
             break;
         default:
             break;
@@ -378,33 +383,33 @@ void GetObjectTypeAttribute(const napi_env env, const napi_value& object,
 {
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
     if (!IsValueTypeValid(env, propertyValue, napi_valuetype::napi_object)) {
-        HiLog::Error(LABEL, "type is not napi_object.");
+        HILOG_ERROR(LOG_CORE, "type is not napi_object.");
         return;
     }
     napi_value keyArr = nullptr;
     napi_status status = napi_get_property_names(env, propertyValue, &keyArr);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to parse property names of a js object.");
+        HILOG_ERROR(LOG_CORE, "failed to parse property names of a js object.");
         return;
     }
     uint32_t len = 0;
     status = napi_get_array_length(env, keyArr, &len);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get the length of the key-value pairs.");
+        HILOG_ERROR(LOG_CORE, "failed to get the length of the key-value pairs.");
         return;
     }
     for (uint32_t i = 0; i < len; i++) {
         napi_value key = nullptr;
         napi_get_element(env, keyArr, i, &key);
         if (!IsValueTypeValid(env, key, napi_valuetype::napi_string)) {
-            HiLog::Warn(LABEL, "this param would be discarded because of invalid type of the key.");
+            HILOG_WARN(LOG_CORE, "this param would be discarded because of invalid type of the key.");
             continue;
         }
         char buf[BUF_SIZE] = {0};
         size_t valueLen = 0;
         napi_get_value_string_utf8(env, key, buf, BUF_SIZE - 1, &valueLen);
         if (!CheckKeyTypeString(buf)) {
-            HiLog::Warn(LABEL, "this param would be discarded because of invalid format of the key.");
+            HILOG_WARN(LOG_CORE, "this param would be discarded because of invalid format of the key.");
             continue;
         }
         napi_value val = NapiHiSysEventUtil::GetPropertyByName(env, propertyValue, buf);
@@ -415,7 +420,7 @@ void GetObjectTypeAttribute(const napi_env env, const napi_value& object,
 void ParseStringArray(const napi_env env, napi_value& arrayValue, std::vector<std::string>& arrayDest)
 {
     if (!CheckValueIsArray(env, arrayValue)) {
-        HiLog::Error(LABEL, "try to parse a array from a napi value without array type");
+        HILOG_ERROR(LOG_CORE, "try to parse a array from a napi value without array type");
         return;
     }
     uint32_t len = 0;
@@ -431,7 +436,7 @@ void ParseStringArray(const napi_env env, napi_value& arrayValue, std::vector<st
         }
         if (IsValueTypeValid(env, element, napi_valuetype::napi_string)) {
             std::string str = ParseStringValue(env, element);
-            HiLog::Debug(LABEL, "parse string: %{public}s.", str.c_str());
+            HILOG_DEBUG(LOG_CORE, "parse string: %{public}s.", str.c_str());
             arrayDest.emplace_back(str);
         }
     }
@@ -443,13 +448,13 @@ ListenerRule ParseListenerRule(const napi_env env, const napi_value& jsObj)
         return ListenerRule("", RuleType::WHOLE_WORD);
     }
     std::string domain = GetStringTypeAttribute(env, jsObj, NapiHiSysEventUtil::DOMAIN_ATTR);
-    HiLog::Debug(LABEL, "domain is %{public}s.", domain.c_str());
+    HILOG_DEBUG(LOG_CORE, "domain is %{public}s.", domain.c_str());
     std::string name = GetStringTypeAttribute(env, jsObj, NapiHiSysEventUtil::NAME_ATTR);
-    HiLog::Debug(LABEL, "name is %{public}s.", name.c_str());
+    HILOG_DEBUG(LOG_CORE, "name is %{public}s.", name.c_str());
     int32_t ruleType = GetInt32TypeAttribute(env, jsObj, RULE_TYPE_ATTR, RuleType::WHOLE_WORD);
-    HiLog::Debug(LABEL, "ruleType is %{public}d.", ruleType);
+    HILOG_DEBUG(LOG_CORE, "ruleType is %{public}d.", ruleType);
     std::string tag = GetTagAttribute(env, jsObj);
-    HiLog::Debug(LABEL, "tag is %{public}s.", tag.c_str());
+    HILOG_DEBUG(LOG_CORE, "tag is %{public}s.", tag.c_str());
     return ListenerRule(domain, name, tag, RuleType(ruleType));
 }
 
@@ -477,12 +482,12 @@ QueryRule ParseQueryRule(const napi_env env, napi_value& jsObj)
         return QueryRule("", names);
     }
     std::string domain = GetStringTypeAttribute(env, jsObj, NapiHiSysEventUtil::DOMAIN_ATTR);
-    HiLog::Debug(LABEL, "domain is %{public}s.", domain.c_str());
+    HILOG_DEBUG(LOG_CORE, "domain is %{public}s.", domain.c_str());
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, jsObj, NAMES_ATTR);
     ParseStringArray(env, propertyValue, names);
     propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, jsObj, CONDITION_ATTR);
     std::string condition = ParseStringValue(env, propertyValue);
-    HiLog::Debug(LABEL, "condition is %{public}s.", condition.c_str());
+    HILOG_DEBUG(LOG_CORE, "condition is %{public}s.", condition.c_str());
     return QueryRule(domain, names, RuleType::WHOLE_WORD, 0, condition);
 }
 
@@ -491,7 +496,7 @@ void SetNamedProperty(const napi_env env, napi_value& object, const std::string&
 {
     napi_status status = napi_set_named_property(env, object, propertyName.c_str(), propertyValue);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "set property %{public}s failed.", propertyName.c_str());
+        HILOG_ERROR(LOG_CORE, "set property %{public}s failed.", propertyName.c_str());
     }
 }
 
@@ -529,27 +534,27 @@ void AppendBaseInfo(const napi_env env, napi_value& sysEventInfo, const std::str
 void CreateBoolValue(const napi_env env, bool value, napi_value& val)
 {
     napi_status status = napi_get_boolean(env, value, &val);
-    HiLog::Debug(LABEL, "create napi value of bool type, value is %{public}d.", value);
+    HILOG_DEBUG(LOG_CORE, "create napi value of bool type, value is %{public}d.", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get create napi value of bool type.");
+        HILOG_ERROR(LOG_CORE, "failed to get create napi value of bool type.");
     }
 }
 
 void CreateDoubleValue(const napi_env env, double value, napi_value& val)
 {
     napi_status status = napi_create_double(env, value, &val);
-    HiLog::Debug(LABEL, "create napi value of double type, value is %{public}f.", value);
+    HILOG_DEBUG(LOG_CORE, "create napi value of double type, value is %{public}f.", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get create napi value of double type.");
+        HILOG_ERROR(LOG_CORE, "failed to get create napi value of double type.");
     }
 }
 
 void CreateUint32Value(const napi_env env, uint32_t value, napi_value& val)
 {
     napi_status status = napi_create_uint32(env, value, &val);
-    HiLog::Debug(LABEL, "create napi value of uint32 type, value is %{public}u.", value);
+    HILOG_DEBUG(LOG_CORE, "create napi value of uint32 type, value is %{public}u.", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to get create napi value of uint32 type.");
+        HILOG_ERROR(LOG_CORE, "failed to get create napi value of uint32 type.");
     }
 }
 
@@ -623,7 +628,7 @@ napi_value NapiHiSysEventUtil::GetPropertyByName(const napi_env env, const napi_
     napi_value result = nullptr;
     napi_status status = napi_get_named_property(env, object, propertyName.c_str(), &result);
     if (status != napi_ok) {
-        HiLog::Debug(LABEL, "failed to parse property named %{public}s from JS object.", propertyName.c_str());
+        HILOG_DEBUG(LOG_CORE, "failed to parse property named %{public}s from JS object.", propertyName.c_str());
     }
     return result;
 }
@@ -639,12 +644,12 @@ void NapiHiSysEventUtil::ParseHiSysEventInfo(const napi_env env, napi_value* par
         return;
     }
     info.domain = GetStringTypeAttribute(env, param[SYS_EVENT_INFO_PARAM_INDEX], NapiHiSysEventUtil::DOMAIN_ATTR);
-    HiLog::Debug(LABEL, "domain is %{public}s.", info.domain.c_str());
+    HILOG_DEBUG(LOG_CORE, "domain is %{public}s.", info.domain.c_str());
     info.name = GetStringTypeAttribute(env, param[SYS_EVENT_INFO_PARAM_INDEX], NapiHiSysEventUtil::NAME_ATTR);
-    HiLog::Debug(LABEL, "name is %{public}s.", info.name.c_str());
+    HILOG_DEBUG(LOG_CORE, "name is %{public}s.", info.name.c_str());
     info.eventType = HiSysEvent::EventType(GetInt32TypeAttribute(env,
         param[SYS_EVENT_INFO_PARAM_INDEX], EVENT_TYPE_ATTR, HiSysEvent::EventType::FAULT));
-    HiLog::Debug(LABEL, "eventType is %{public}d.", info.eventType);
+    HILOG_DEBUG(LOG_CORE, "eventType is %{public}d.", info.eventType);
     GetObjectTypeAttribute(env, param[SYS_EVENT_INFO_PARAM_INDEX], PARAMS_ATTR, info);
 }
 
@@ -674,7 +679,7 @@ void NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(const napi_env env, const 
     Json::Reader reader(Json::Features::strictMode());
     if (!reader.parse(jsonStr, eventJson)) {
 #endif
-        HiLog::Error(LABEL, "parse event detail info failed, please check the style of json infomation: %{public}s",
+        HILOG_ERROR(LOG_CORE, "parse event detail info failed, please check the style of json infomation: %{public}s",
             jsonStr.c_str());
         return;
     }
@@ -702,7 +707,7 @@ void NapiHiSysEventUtil::CreateJsSysEventInfoArray(const napi_env env, const std
         CreateHiSysEventInfoJsObject(env, originValues[i], item);
         napi_status status = napi_set_element(env, array, i, item);
         if (status != napi_ok) {
-            HiLog::Error(LABEL, "napi_set_element failed");
+            HILOG_ERROR(LOG_CORE, "napi_set_element failed");
         }
     }
 }
@@ -803,17 +808,17 @@ int32_t NapiHiSysEventUtil::ParseQueryArg(const napi_env env, napi_value& jsObj,
     }
     auto beginTime = GetLonglongTypeAttribute(env, jsObj, BEGIN_TIME_ATTR, DEFAULT_TIME_STAMP);
     queryArg.beginTime = beginTime < 0 ? 0 : beginTime;
-    HiLog::Debug(LABEL, "queryArg.beginTime is %{public}lld.", queryArg.beginTime);
+    HILOG_DEBUG(LOG_CORE, "queryArg.beginTime is %{public}lld.", queryArg.beginTime);
     auto endTime = GetLonglongTypeAttribute(env, jsObj, END_TIME_ATTR, DEFAULT_TIME_STAMP);
     queryArg.endTime = endTime < 0 ? std::numeric_limits<long long>::max() : endTime;
-    HiLog::Debug(LABEL, "queryArg.endTime is %{public}lld.", queryArg.endTime);
+    HILOG_DEBUG(LOG_CORE, "queryArg.endTime is %{public}lld.", queryArg.endTime);
     auto maxEvents = GetInt32TypeAttribute(env, jsObj, MAX_EVENTS_ATTR, DEFAULT_MAX_EVENTS);
     queryArg.maxEvents = maxEvents < 0 ? std::numeric_limits<int>::max() : maxEvents;
-    HiLog::Debug(LABEL, "queryArg.maxEvents is %{public}d.", queryArg.maxEvents);
+    HILOG_DEBUG(LOG_CORE, "queryArg.maxEvents is %{public}d.", queryArg.maxEvents);
     queryArg.fromSeq = GetLonglongTypeAttribute(env, jsObj, BEGIN_SEQ_ATTR, DEFAULT_SEQ);
-    HiLog::Debug(LABEL, "queryArg.fromSeq is %{public}lld.", queryArg.fromSeq);
+    HILOG_DEBUG(LOG_CORE, "queryArg.fromSeq is %{public}lld.", queryArg.fromSeq);
     queryArg.toSeq = GetLonglongTypeAttribute(env, jsObj, END_SEQ_ATTR, DEFAULT_SEQ);
-    HiLog::Debug(LABEL, "queryArg.endSeq is %{public}lld.", queryArg.toSeq);
+    HILOG_DEBUG(LOG_CORE, "queryArg.endSeq is %{public}lld.", queryArg.toSeq);
     return NAPI_SUCCESS;
 }
 
@@ -821,43 +826,43 @@ void NapiHiSysEventUtil::CreateNull(const napi_env env, napi_value& ret)
 {
     napi_status status = napi_get_null(env, &ret);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to create napi value of null.");
+        HILOG_ERROR(LOG_CORE, "failed to create napi value of null.");
     }
 }
 
 void NapiHiSysEventUtil::CreateInt32Value(const napi_env env, int32_t value, napi_value& ret)
 {
     napi_status status = napi_create_int32(env, value, &ret);
-    HiLog::Debug(LABEL, "create napi value of int32 type, value is %{public}d.", value);
+    HILOG_DEBUG(LOG_CORE, "create napi value of int32 type, value is %{public}d.", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to create napi value of int32 type.");
+        HILOG_ERROR(LOG_CORE, "failed to create napi value of int32 type.");
     }
 }
 
 void NapiHiSysEventUtil::CreateInt64Value(const napi_env env, int64_t value, napi_value& ret)
 {
     napi_status status = napi_create_bigint_int64(env, value, &ret);
-    HiLog::Debug(LABEL, "create napi value of int64_t type, value is %{public}" PRId64 ".", value);
+    HILOG_DEBUG(LOG_CORE, "create napi value of int64_t type, value is %{public}" PRId64 ".", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to create napi value of int64_t type.");
+        HILOG_ERROR(LOG_CORE, "failed to create napi value of int64_t type.");
     }
 }
 
 void NapiHiSysEventUtil::CreateUInt64Value(const napi_env env, uint64_t value, napi_value& ret)
 {
     napi_status status = napi_create_bigint_uint64(env, value, &ret);
-    HiLog::Debug(LABEL, "create napi value of uint64_t type, value is %{public}" PRIu64 ".", value);
+    HILOG_DEBUG(LOG_CORE, "create napi value of uint64_t type, value is %{public}" PRIu64 ".", value);
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to create napi value of uint64_t type.");
+        HILOG_ERROR(LOG_CORE, "failed to create napi value of uint64_t type.");
     }
 }
 
 void NapiHiSysEventUtil::CreateStringValue(const napi_env env, std::string value, napi_value& ret)
 {
     napi_status status = napi_create_string_utf8(env, value.c_str(), NAPI_AUTO_LENGTH, &ret);
-    HiLog::Debug(LABEL, "create napi value of string type, value is %{public}s.", value.c_str());
+    HILOG_DEBUG(LOG_CORE, "create napi value of string type, value is %{public}s.", value.c_str());
     if (status != napi_ok) {
-        HiLog::Error(LABEL, "failed to create napi value of string type.");
+        HILOG_ERROR(LOG_CORE, "failed to create napi value of string type.");
     }
 }
 
@@ -886,7 +891,7 @@ napi_value NapiHiSysEventUtil::CreateError(napi_env env, int32_t code, const std
     napi_value napiStr = nullptr;
     NapiHiSysEventUtil::CreateStringValue(env, msg, napiStr);
     if (napi_create_error(env, napiCode, napiStr, &err) != napi_ok) {
-        HiLog::Error(LABEL, "failed to create napi error");
+        HILOG_ERROR(LOG_CORE, "failed to create napi error");
     }
     return err;
 }
@@ -894,13 +899,13 @@ napi_value NapiHiSysEventUtil::CreateError(napi_env env, int32_t code, const std
 void NapiHiSysEventUtil::ThrowError(napi_env env, const int32_t code, const std::string& msg)
 {
     if (napi_throw_error(env, std::to_string(code).c_str(), msg.c_str()) != napi_ok) {
-        HiLog::Error(LABEL, "failed to throw err, code=%{public}d, msg=%{public}s.", code, msg.c_str());
+        HILOG_ERROR(LOG_CORE, "failed to throw err, code=%{public}d, msg=%{public}s.", code, msg.c_str());
     }
 }
 
 std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env env, const int32_t retCode)
 {
-    HiLog::Info(LABEL, "origin result code is %{public}d.", retCode);
+    HILOG_INFO(LOG_CORE, "origin result code is %{public}d.", retCode);
     const std::unordered_map<int32_t, std::pair<int32_t, std::string>> errMap = {
         // common
         {ERR_NO_PERMISSION, {NapiError::ERR_PERMISSION_CHECK,

@@ -19,13 +19,15 @@
 
 #include "securec.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_RAW_DATA_ENCODER"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace Encoded {
-namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-RawDataEncoder" };
-}
-
 uint8_t RawDataEncoder::EncodedTag(uint8_t type)
 {
     return (type << (TAG_BYTE_OFFSET + 1));
@@ -38,7 +40,7 @@ bool RawDataEncoder::StringValueEncoded(RawData& data, const std::string& val)
     }
     if (!data.Append(reinterpret_cast<uint8_t*>(const_cast<char*>(val.c_str())),
         val.length())) {
-        HiLog::Error(LABEL, "string value copy failed.");
+        HILOG_ERROR(LOG_CORE, "string value copy failed.");
         return false;
     }
     return true;

@@ -42,11 +42,16 @@
 #include "ret_code.h"
 #include "rule_type.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENTTEST_WRITE_RESULT_CHECK_TEST"
+
 using namespace testing::ext;
 using namespace OHOS::HiviewDFX;
 
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENTTEST_WRITE_RESULT_CHECK_TEST" };
 constexpr char DOMAIN[] = "KERNEL_VENDOR";
 constexpr char EVENT_NAME[] = "POWER_KEY";
 constexpr char PARAM_KEY[] = "key";
@@ -77,7 +82,7 @@ public:
 
     void OnServiceDied() final
     {
-        HiLog::Debug(LABEL, "OnServiceDied");
+        HILOG_DEBUG(LOG_CORE, "OnServiceDied");
     }
 
 private:
