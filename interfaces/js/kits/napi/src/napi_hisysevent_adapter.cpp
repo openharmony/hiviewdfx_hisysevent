@@ -23,10 +23,15 @@
 #include "napi_hisysevent_util.h"
 #include "native_engine/native_engine.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "NAPI_HISYSEVENT_ADAPTER"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_ADAPTER" };
 constexpr size_t ERR_INDEX = 0;
 constexpr size_t VAL_INDEX = 1;
 constexpr size_t RET_SIZE = 2;
@@ -61,25 +66,25 @@ void Split(const std::string& origin, char delimiter, std::vector<std::string>& 
 void ParseCallerInfoFromStackTrace(const std::string& stackTrace, JsCallerInfo& callerInfo)
 {
     if (stackTrace.empty()) {
-        HiLog::Error(LABEL, "js stack trace is invalid.");
+        HILOG_ERROR(LOG_CORE, "js stack trace is invalid.");
         return;
     }
     std::vector<std::string> callInfos;
     Split(stackTrace, CALL_FUNC_INFO_DELIMITER, callInfos);
     if (callInfos.size() <= FUNC_NAME_INDEX) {
-        HiLog::Error(LABEL, "js function name parsed failed.");
+        HILOG_ERROR(LOG_CORE, "js function name parsed failed.");
         return;
     }
     callerInfo.first = callInfos[FUNC_NAME_INDEX];
     if (callInfos.size() <= LINE_INFO_INDEX) {
-        HiLog::Error(LABEL, "js function line info parsed failed.");
+        HILOG_ERROR(LOG_CORE, "js function line info parsed failed.");
         return;
     }
     std::string callInfo = callInfos[LINE_INFO_INDEX];
     std::vector<std::string> lineInfos;
     Split(callInfo, CALL_LINE_INFO_DELIMITER, lineInfos);
     if (lineInfos.size() <= LINE_INDEX) {
-        HiLog::Error(LABEL, "js function line number parsed failed.");
+        HILOG_ERROR(LOG_CORE, "js function line number parsed failed.");
         return;
     }
     if (callerInfo.first == "anonymous") {
@@ -103,7 +108,7 @@ void NapiHiSysEventAdapter::ParseJsCallerInfo(const napi_env env, JsCallerInfo& 
     NativeEngine* engine = reinterpret_cast<NativeEngine*>(env);
     std::string stackTrace;
     if (!engine->BuildJsStackTrace(stackTrace)) {
-        HiLog::Error(LABEL, "js stack trace build failed.");
+        HILOG_ERROR(LOG_CORE, "js stack trace build failed.");
         return;
     }
     ParseCallerInfoFromStackTrace(stackTrace, callerInfo);

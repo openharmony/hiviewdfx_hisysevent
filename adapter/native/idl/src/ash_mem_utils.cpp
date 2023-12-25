@@ -20,10 +20,15 @@
 #include "hilog/log.h"
 #include "string_ex.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_MEMORY_UTILS"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-SharedMemory-Util" };
 constexpr char ASH_MEM_NAME[] = "HiSysEventService SharedMemory";
 constexpr int32_t ASH_MEM_SIZE = 1024 * 769; // 769k
 
@@ -42,14 +47,14 @@ sptr<Ashmem> AshMemUtils::GetAshmem()
 {
     auto ashmem = Ashmem::CreateAshmem(ASH_MEM_NAME, ASH_MEM_SIZE);
     if (ashmem == nullptr) {
-        HiLog::Error(LABEL, "ashmem init failed.");
+        HILOG_ERROR(LOG_CORE, "ashmem init failed.");
         return ashmem;
     }
     if (!ashmem->MapReadAndWriteAshmem()) {
-        HiLog::Error(LABEL, "ashmem map failed.");
+        HILOG_ERROR(LOG_CORE, "ashmem map failed.");
         return ashmem;
     }
-    HiLog::Debug(LABEL, "ashmem init succeed.");
+    HILOG_DEBUG(LOG_CORE, "ashmem init succeed.");
     return ashmem;
 }
 
@@ -59,7 +64,7 @@ void AshMemUtils::CloseAshmem(sptr<Ashmem> ashmem)
         ashmem->UnmapAshmem();
         ashmem->CloseAshmem();
     }
-    HiLog::Debug(LABEL, "ashmem closed.");
+    HILOG_DEBUG(LOG_CORE, "ashmem closed.");
 }
 
 sptr<Ashmem> AshMemUtils::WriteBulkData(MessageParcel& parcel, const std::vector<std::u16string>& src)
@@ -68,7 +73,7 @@ sptr<Ashmem> AshMemUtils::WriteBulkData(MessageParcel& parcel, const std::vector
     std::vector<uint32_t> allSize;
     ParseAllStringItemSize(src, allData, allSize);
     if (!parcel.WriteUInt32Vector(allSize)) {
-        HiLog::Error(LABEL, "writing allSize array failed.");
+        HILOG_ERROR(LOG_CORE, "writing allSize array failed.");
         return nullptr;
     }
     auto ashmem = GetAshmem();
@@ -79,14 +84,14 @@ sptr<Ashmem> AshMemUtils::WriteBulkData(MessageParcel& parcel, const std::vector
     for (uint32_t i = 0; i < allData.size(); i++) {
         auto translated = allData[i].c_str();
         if (!ashmem->WriteToAshmem(translated, strlen(translated), offset)) {
-            HiLog::Error(LABEL, "writing ashmem failed.");
+            HILOG_ERROR(LOG_CORE, "writing ashmem failed.");
             CloseAshmem(ashmem);
             return nullptr;
         }
         offset += allSize[i];
     }
     if (!parcel.WriteAshmem(ashmem)) {
-        HiLog::Error(LABEL, "writing ashmem failed.");
+        HILOG_ERROR(LOG_CORE, "writing ashmem failed.");
         CloseAshmem(ashmem);
         return nullptr;
     }
@@ -97,17 +102,17 @@ bool AshMemUtils::ReadBulkData(MessageParcel& parcel, std::vector<std::u16string
 {
     std::vector<uint32_t> allSize;
     if (!parcel.ReadUInt32Vector(&allSize)) {
-        HiLog::Error(LABEL, "reading allSize array failed.");
+        HILOG_ERROR(LOG_CORE, "reading allSize array failed.");
         return false;
     }
     auto ashmem = parcel.ReadAshmem();
     if (ashmem == nullptr) {
-        HiLog::Error(LABEL, "reading ashmem failed.");
+        HILOG_ERROR(LOG_CORE, "reading ashmem failed.");
         return false;
     }
     bool ret = ashmem->MapReadAndWriteAshmem();
     if (!ret) {
-        HiLog::Error(LABEL, "mapping read only ashmem failed.");
+        HILOG_ERROR(LOG_CORE, "mapping read only ashmem failed.");
         CloseAshmem(ashmem);
         return false;
     }

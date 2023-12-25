@@ -24,14 +24,13 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-SysEventCallbackStub" };
 int32_t SysEventCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
     MessageParcel& reply, MessageOption& option)
 {
     std::u16string descripter = SysEventCallbackStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (descripter != remoteDescripter) {
-        HiLog::Error(LABEL, "read descriptor failed.");
+        HILOG_ERROR(LOG_CORE, "read descriptor failed.");
         return ERR_INVALID_VALUE;
     }
     switch (code) {
@@ -39,25 +38,25 @@ int32_t SysEventCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel& data
             std::u16string domain;
             bool ret = data.ReadString16(domain);
             if (!ret) {
-                HiLog::Error(LABEL, "parcel read domain failed.");
+                HILOG_ERROR(LOG_CORE, "parcel read domain failed.");
                 return ERR_FLATTEN_OBJECT;
             }
             std::u16string eventName;
             ret = data.ReadString16(eventName);
             if (!ret) {
-                HiLog::Error(LABEL, "parcel read name failed.");
+                HILOG_ERROR(LOG_CORE, "parcel read name failed.");
                 return ERR_FLATTEN_OBJECT;
             }
             uint32_t eventType = 0;
             ret = data.ReadUint32(eventType);
             if (!ret) {
-                HiLog::Error(LABEL, "parcel read type failed.");
+                HILOG_ERROR(LOG_CORE, "parcel read type failed.");
                 return ERR_FLATTEN_OBJECT;
             }
             std::u16string eventDetail;
             ret = data.ReadString16(eventDetail);
             if (!ret) {
-                HiLog::Error(LABEL, "parcel read detail failed.");
+                HILOG_ERROR(LOG_CORE, "parcel read detail failed.");
                 return ERR_FLATTEN_OBJECT;
             }
             Handle(domain, eventName, eventType, eventDetail);

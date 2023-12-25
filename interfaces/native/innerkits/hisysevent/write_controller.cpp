@@ -27,10 +27,15 @@
 
 #include "hilog/log.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "WRITE_CONTROLLER"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "WRITE_CONTROLLER" };
 constexpr int SEC_TO_MILLS = 1000;
 constexpr uint64_t PRIME = 0x100000001B3ull;
 constexpr uint64_t BASIS = 0xCBF29CE484222325ull;
@@ -80,7 +85,7 @@ uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, cons
         return cur;
     }
     lruCache.Put(key, stat);
-    HiLog::Debug(LABEL, "{.period = %{public}zu, .threshold = %{public}zu} "
+    HILOG_DEBUG(LOG_CORE, "{.period = %{public}zu, .threshold = %{public}zu} "
         "[%{public}lld, %{public}lld] discard %{public}zu event(s) "
         "with domain %{public}s and name %{public}s which wrote in function %{public}s.",
         param.period, param.threshold, static_cast<long long>(stat.begin / SEC_TO_MILLS),

@@ -18,16 +18,20 @@
 #include "hilog/log.h"
 #include "hisysevent_record_convertor.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_LISTENER_C"
+
 namespace {
-constexpr OHOS::HiviewDFX::HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_LISTENER_C" };
-using OHOS::HiviewDFX::HiLog;
 using OHOS::HiviewDFX::HiSysEventRecordConvertor;
 }
 
 void HiSysEventListenerC::OnEvent(std::shared_ptr<OHOS::HiviewDFX::HiSysEventRecord> sysEvent)
 {
     if (onEvent_ == nullptr || sysEvent == nullptr) {
-        HiLog::Error(LABEL, "OnEvent callback or sys event is null.");
+        HILOG_ERROR(LOG_CORE, "OnEvent callback or sys event is null.");
         return;
     }
     HiSysEventRecordC record = {};
@@ -38,7 +42,7 @@ void HiSysEventListenerC::OnEvent(std::shared_ptr<OHOS::HiviewDFX::HiSysEventRec
 void HiSysEventListenerC::OnServiceDied()
 {
     if (onServiceDied_ == nullptr) {
-        HiLog::Error(LABEL, "OnServiceDied callback is null.");
+        HILOG_ERROR(LOG_CORE, "OnServiceDied callback is null.");
         return;
     }
     onServiceDied_();

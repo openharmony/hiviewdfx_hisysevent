@@ -32,8 +32,13 @@
 
 using namespace OHOS::HiviewDFX;
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "NAPI_HISYSEVENT_JS"
+
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "NAPI_HISYSEVENT_JS" };
 constexpr char RULES_ATTR[] = "rules";
 constexpr size_t WRITE_FUNC_MAX_PARAM_NUM = 2;
 constexpr size_t ADD_LISTENER_FUNC_MAX_PARAM_NUM = 1;
@@ -72,7 +77,7 @@ static napi_value Write(napi_env env, napi_callback_info info)
     napi_value val = nullptr;
     napi_get_undefined(env, &val);
     if (paramNum < WRITE_FUNC_MAX_PARAM_NUM - 1) {
-        HiLog::Error(LABEL,
+        HILOG_ERROR(LOG_CORE,
             "count of parameters is not equal to %{public}zu or %{public}zu.",
             WRITE_FUNC_MAX_PARAM_NUM - 1, WRITE_FUNC_MAX_PARAM_NUM);
         NapiHiSysEventUtil::ThrowParamMandatoryError(env, "info");
@@ -84,7 +89,7 @@ static napi_value Write(napi_env env, napi_callback_info info)
         .deferred = nullptr,
     };
     if (asyncContext == nullptr) {
-        HiLog::Error(LABEL, "failed to new HiSysEventAsyncContext.");
+        HILOG_ERROR(LOG_CORE, "failed to new HiSysEventAsyncContext.");
         return val;
     }
     NapiHiSysEventUtil::ParseHiSysEventInfo(env, params, paramNum, asyncContext->eventInfo);
@@ -98,7 +103,7 @@ static napi_value Write(napi_env env, napi_callback_info info)
             napi_create_reference(env, params[paramNum - 1], 1, &asyncContext->callback);
         }
     } else if (paramNum > WRITE_FUNC_MAX_PARAM_NUM) {
-        HiLog::Warn(LABEL, "count of params is invalid =%{public}d.", static_cast<int>(paramNum));
+        HILOG_WARN(LOG_CORE, "count of params is invalid =%{public}d.", static_cast<int>(paramNum));
     }
     // set promise object if callback function is null
     napi_value promise = nullptr;
@@ -122,7 +127,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
     if (paramNum < ADD_LISTENER_FUNC_MAX_PARAM_NUM) {
-        HiLog::Error(LABEL, "count of parameters is less than %{public}zu.", ADD_LISTENER_FUNC_MAX_PARAM_NUM);
+        HILOG_ERROR(LOG_CORE, "count of parameters is less than %{public}zu.", ADD_LISTENER_FUNC_MAX_PARAM_NUM);
         NapiHiSysEventUtil::ThrowParamMandatoryError(env, "watcher");
         return nullptr;
     }
@@ -131,7 +136,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
         RULES_ATTR);
     if (auto ret = NapiHiSysEventUtil::ParseListenerRules(env, jsRulesVal, rules);
         ret != SUCCESS) {
-        HiLog::Error(LABEL, "failed to parse watch rules, result code is %{public}d.", ret);
+        HILOG_ERROR(LOG_CORE, "failed to parse watch rules, result code is %{public}d.", ret);
         return nullptr;
     }
     CallbackContext* callbackContext = new CallbackContext();
@@ -141,7 +146,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
     std::shared_ptr<NapiHiSysEventListener> listener = std::make_shared<NapiHiSysEventListener>(callbackContext);
     auto ret = HiSysEventBaseManager::AddListener(listener, rules);
     if (ret != NAPI_SUCCESS) {
-        HiLog::Error(LABEL, "failed to add event listener, result code is %{public}d.", ret);
+        HILOG_ERROR(LOG_CORE, "failed to add event listener, result code is %{public}d.", ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
         return nullptr;
     }
@@ -161,21 +166,21 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
     if (paramNum < REMOVE_LISTENER_FUNC_MAX_PARAM_NUM) {
-        HiLog::Error(LABEL, "count of parameters is less than %{public}zu.", REMOVE_LISTENER_FUNC_MAX_PARAM_NUM);
+        HILOG_ERROR(LOG_CORE, "count of parameters is less than %{public}zu.", REMOVE_LISTENER_FUNC_MAX_PARAM_NUM);
         NapiHiSysEventUtil::ThrowParamMandatoryError(env, "watcher");
         return nullptr;
     }
     auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventListener>(env,
         params[REMOVE_LISTENER_LISTENER_PARAM_INDEX], listeners);
     if (iter == listeners.end()) {
-        HiLog::Error(LABEL, "listener not exist.");
+        HILOG_ERROR(LOG_CORE, "listener not exist.");
         NapiHiSysEventUtil::ThrowErrorByRet(env, ERR_NAPI_LISTENER_NOT_FOUND);
         return nullptr;
     }
     listeners.erase(iter->first);
     if (auto ret = HiSysEventBaseManager::RemoveListener(iter->second.second);
         ret != NAPI_SUCCESS) {
-        HiLog::Error(LABEL, "failed to remove event listener, result code is %{public}d.", ret);
+        HILOG_ERROR(LOG_CORE, "failed to remove event listener, result code is %{public}d.", ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
     }
     return nullptr;
@@ -198,20 +203,20 @@ static napi_value Query(napi_env env, napi_callback_info info)
             {QUERY_RULE_ARRAY_PARAM_INDEX, "rules"},
             {QUERY_QUERIER_PARAM_INDEX, "querier"},
         };
-        HiLog::Error(LABEL, "count of parameters is less than %{public}zu.", QUERY_FUNC_MAX_PARAM_NUM);
+        HILOG_ERROR(LOG_CORE, "count of parameters is less than %{public}zu.", QUERY_FUNC_MAX_PARAM_NUM);
         NapiHiSysEventUtil::ThrowParamMandatoryError(env, paramError.at(paramNum));
         return nullptr;
     }
     QueryArg queryArg = { DEFAULT_TIME_STAMP, DEFAULT_TIME_STAMP, DEFAULT_EVENT_COUNT };
     if (auto ret = NapiHiSysEventUtil::ParseQueryArg(env, params[QUERY_QUERY_ARG_PARAM_INDEX], queryArg);
         ret != SUCCESS) {
-        HiLog::Error(LABEL, "failed to parse query arg, result code is %{public}d.", ret);
+        HILOG_ERROR(LOG_CORE, "failed to parse query arg, result code is %{public}d.", ret);
         return nullptr;
     }
     std::vector<QueryRule> rules;
     if (auto ret = NapiHiSysEventUtil::ParseQueryRules(env, params[QUERY_RULE_ARRAY_PARAM_INDEX], rules);
         ret != SUCCESS) {
-        HiLog::Error(LABEL, "failed to parse query rules, result code is %{public}d.", ret);
+        HILOG_ERROR(LOG_CORE, "failed to parse query rules, result code is %{public}d.", ret);
         return nullptr;
     }
     CallbackContext* callbackContext = new CallbackContext();
@@ -229,7 +234,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
         });
     auto ret = HiSysEventBaseManager::Query(queryArg, rules, querier);
     if (ret != NAPI_SUCCESS) {
-        HiLog::Error(LABEL, "failed to query hisysevent, result code is %{public}d.", ret);
+        HILOG_ERROR(LOG_CORE, "failed to query hisysevent, result code is %{public}d.", ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
     }
     queriers[callbackContext->ref] = std::make_pair(callbackContext->threadId, querier);
@@ -252,25 +257,25 @@ static napi_value ExportSysEvents(napi_env env, napi_callback_info info)
             {EXPORT_QUERY_ARG_PARAM_INDEX, "queryArg"},
             {EXPORT_RULE_ARRAY_PARAM_INDEX, "rules"},
         };
-        HiLog::Error(LABEL, "count of parameters is less than %{public}zu.", EXPORT_FUNC_MAX_PARAM_NUM);
+        HILOG_ERROR(LOG_CORE, "count of parameters is less than %{public}zu.", EXPORT_FUNC_MAX_PARAM_NUM);
         NapiHiSysEventUtil::ThrowParamMandatoryError(env, paramError.at(paramNum));
         return nullptr;
     }
     QueryArg queryArg = { DEFAULT_TIME_STAMP, DEFAULT_TIME_STAMP, DEFAULT_EVENT_COUNT };
     if (auto ret = NapiHiSysEventUtil::ParseQueryArg(env, params[EXPORT_QUERY_ARG_PARAM_INDEX], queryArg);
         ret != SUCCESS) {
-        HiLog::Error(LABEL, "failed to parse query arg, result code is %{public}d.", ret);
+        HILOG_ERROR(LOG_CORE, "failed to parse query arg, result code is %{public}d.", ret);
         return nullptr;
     }
     std::vector<QueryRule> rules;
     if (auto ret = NapiHiSysEventUtil::ParseQueryRules(env, params[EXPORT_RULE_ARRAY_PARAM_INDEX], rules);
         ret != SUCCESS) {
-        HiLog::Error(LABEL, "failed to parse query rules, result code is %{public}d.", ret);
+        HILOG_ERROR(LOG_CORE, "failed to parse query rules, result code is %{public}d.", ret);
         return nullptr;
     }
     auto ret = HiSysEventBaseManager::Export(queryArg, rules);
     if (std::to_string(ret).length() < TIME_STAMP_LENGTH) {
-        HiLog::Error(LABEL, "failed to export event");
+        HILOG_ERROR(LOG_CORE, "failed to export event");
         int32_t retCode = static_cast<int32_t>(ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, retCode);
         return nullptr;
@@ -292,19 +297,19 @@ static napi_value Subscribe(napi_env env, napi_callback_info info)
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNum, params, &thisArg, &data));
     if (paramNum < SUBSCRIBE_FUNC_MAX_PARAM_NUM) {
-        HiLog::Error(LABEL, "count of parameters is less than %{public}zu.", SUBSCRIBE_FUNC_MAX_PARAM_NUM);
+        HILOG_ERROR(LOG_CORE, "count of parameters is less than %{public}zu.", SUBSCRIBE_FUNC_MAX_PARAM_NUM);
         NapiHiSysEventUtil::ThrowParamMandatoryError(env, "rules");
         return nullptr;
     }
     std::vector<QueryRule> rules;
     if (auto ret = NapiHiSysEventUtil::ParseQueryRules(env, params[SUBSCRIBE_RULE_ARRAY_PARAM_INDEX], rules);
         ret != SUCCESS) {
-        HiLog::Error(LABEL, "failed to parse query rules, result code is %{public}d.", ret);
+        HILOG_ERROR(LOG_CORE, "failed to parse query rules, result code is %{public}d.", ret);
         return nullptr;
     }
     auto ret = HiSysEventBaseManager::Subscribe(rules);
     if (std::to_string(ret).length() < TIME_STAMP_LENGTH) {
-        HiLog::Error(LABEL, "failed to subscribe event.");
+        HILOG_ERROR(LOG_CORE, "failed to subscribe event.");
         int32_t retCode = static_cast<int32_t>(ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, retCode);
         return nullptr;
@@ -322,7 +327,7 @@ static napi_value Unsubscribe(napi_env env, napi_callback_info info)
     }
     auto ret = HiSysEventBaseManager::Unsubscribe();
     if (ret != NAPI_SUCCESS) {
-        HiLog::Error(LABEL, "failed to unsubscribe, result code is %{public}d.", ret);
+        HILOG_ERROR(LOG_CORE, "failed to unsubscribe, result code is %{public}d.", ret);
         int32_t retCode = static_cast<int32_t>(ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, retCode);
     }

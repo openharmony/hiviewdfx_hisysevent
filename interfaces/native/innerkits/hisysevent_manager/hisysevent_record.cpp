@@ -20,10 +20,15 @@
 #include "hilog/log.h"
 #include "hisysevent_value.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_RECORD"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_RECORD" };
 constexpr int DEFAULT_INT_VAL = 0;
 constexpr uint64_t DEFAULT_UINT64_VAL = 0;
 constexpr int64_t DEFAULT_INT64_VAL = 0;
@@ -281,17 +286,17 @@ int HiSysEventRecord::GetParamValue(const std::string& param, const TypeFilter f
     const ValueAssigner assignFunc) const
 {
     if (!jsonVal_->HasInitialized()) {
-        HiLog::Debug(LABEL, "this hisysevent record is not initialized");
+        HILOG_DEBUG(LOG_CORE, "this hisysevent record is not initialized");
         return ERR_INIT_FAILED;
     }
     if (!jsonVal_->IsMember(param)) {
-        HiLog::Debug(LABEL, "key named \"%{public}s\" is not found in json.",
+        HILOG_DEBUG(LOG_CORE, "key named \"%{public}s\" is not found in json.",
             param.c_str());
         return ERR_KEY_NOT_EXIST;
     }
     auto parsedVal = std::make_shared<HiSysEventValue>(jsonVal_->GetParamValue(param));
     if (filterFunc(parsedVal)) {
-        HiLog::Debug(LABEL, "value type with key named \"%{public}s\" is %{public}d, not match.",
+        HILOG_DEBUG(LOG_CORE, "value type with key named \"%{public}s\" is %{public}d, not match.",
             param.c_str(), parsedVal->Type());
         return ERR_TYPE_NOT_MATCH;
     }
@@ -342,7 +347,7 @@ void HiSysEventValue::ParseJsonStr(const std::string jsonStr)
     Json::Reader reader(Json::Features::strictMode());
     if (!reader.parse(jsonStr, jsonVal_)) {
 #endif
-        HiLog::Error(LABEL, "parse json file failed, please check the style of json string: %{public}s.",
+        HILOG_ERROR(LOG_CORE, "parse json file failed, please check the style of json string: %{public}s.",
             jsonStr.c_str());
         return;
     }

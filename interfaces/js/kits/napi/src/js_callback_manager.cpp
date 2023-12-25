@@ -18,10 +18,15 @@
 #include "hilog/log.h"
 #include "uv.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "JS_CALLBACK_MANAGER"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "JS_CALLBACK_MANAGER" };
 constexpr int CONTEXT_INDEX = 0;
 constexpr int CALLBACK_FUNC_INDEX = 1;
 constexpr int RELEASE_FUNC_INDEX = 2;
@@ -37,14 +42,14 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
     uv_loop_t* loop = nullptr;
     napi_get_uv_event_loop(context->env, &loop);
     if (loop == nullptr) {
-        HiLog::Debug(LABEL, "failed to get uv_loop.");
+        HILOG_DEBUG(LOG_CORE, "failed to get uv_loop.");
         return;
     }
     context->callback = std::get<CALLBACK_FUNC_INDEX>(current);
     context->release = std::get<RELEASE_FUNC_INDEX>(current);
     uv_work_t* work = new(std::nothrow) uv_work_t();
     if (work == nullptr) {
-        HiLog::Debug(LABEL, "uv_work new failed, no memory left.");
+        HILOG_DEBUG(LOG_CORE, "uv_work new failed, no memory left.");
         return;
     }
     work->data = reinterpret_cast<void*>(context);
@@ -69,7 +74,7 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
             }
             napi_open_handle_scope(context->env, &scope);
             if (scope == nullptr) {
-                HiLog::Debug(LABEL, "napi scope is null.");
+                HILOG_DEBUG(LOG_CORE, "napi scope is null.");
                 DeleteWork(work);
                 return;
             }

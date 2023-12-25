@@ -25,16 +25,21 @@
 #include "ipc_object_stub.h"
 #include "ipc_types.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_CALLBACK_STUB"
+
 namespace OHOS {
 namespace HiviewDFX {
-static constexpr HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HiSysEvent-QuerySysEventCallbackStub" };
 int32_t QuerySysEventCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
     MessageParcel& reply, MessageOption& option)
 {
     std::u16string descripter = QuerySysEventCallbackStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (descripter != remoteDescripter) {
-        HiLog::Error(LABEL, "read descriptor failed.");
+        HILOG_ERROR(LOG_CORE, "read descriptor failed.");
         return ERR_INVALID_VALUE;
     }
     bool ret = false;
@@ -43,13 +48,13 @@ int32_t QuerySysEventCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel&
             std::vector<std::u16string> sysEvent;
             ret = AshMemUtils::ReadBulkData(data, sysEvent);
             if (!ret) {
-                HiLog::Error(LABEL, "parcel read sys event failed.");
+                HILOG_ERROR(LOG_CORE, "parcel read sys event failed.");
                 return ERR_FLATTEN_OBJECT;
             }
             std::vector<int64_t> seq;
             ret = data.ReadInt64Vector(&seq);
             if (!ret) {
-                HiLog::Error(LABEL, "parcel read seq failed.");
+                HILOG_ERROR(LOG_CORE, "parcel read seq failed.");
                 return ERR_FLATTEN_OBJECT;
             }
             OnQuery(sysEvent, seq);
@@ -59,19 +64,19 @@ int32_t QuerySysEventCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel&
             int32_t reason = 0;
             ret = data.ReadInt32(reason);
             if (!ret) {
-                HiLog::Error(LABEL, "parcel read reason failed.");
+                HILOG_ERROR(LOG_CORE, "parcel read reason failed.");
                 return ERR_FLATTEN_OBJECT;
             }
             int32_t total = 0;
             ret = data.ReadInt32(total);
             if (!ret) {
-                HiLog::Error(LABEL, "parcel read total failed.");
+                HILOG_ERROR(LOG_CORE, "parcel read total failed.");
                 return ERR_FLATTEN_OBJECT;
             }
             int64_t seq = 0;
             ret = data.ReadInt64(seq);
             if (!ret) {
-                HiLog::Error(LABEL, "parcel read seq failed.");
+                HILOG_ERROR(LOG_CORE, "parcel read seq failed.");
                 return ERR_FLATTEN_OBJECT;
             }
             OnComplete(reason, total, seq);

@@ -18,10 +18,14 @@
 #include "hilog/log.h"
 #include "hisysevent_record_convertor.h"
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "HISYSEVENT_RUST_QURIER"
+
 namespace {
-constexpr OHOS::HiviewDFX::HiLogLabel LABEL = { LOG_CORE, 0xD002D08, "HISYSEVENT_RUST_QURIER" };
 using HiSysEventRecordCls = OHOS::HiviewDFX::HiSysEventRecord;
-using OHOS::HiviewDFX::HiLog;
 using OHOS::HiviewDFX::HiSysEventRecordConvertor;
 }
 
@@ -38,7 +42,7 @@ HiSysEventRustQuerier::~HiSysEventRustQuerier()
 void HiSysEventRustQuerier::OnQuery(std::shared_ptr<std::vector<OHOS::HiviewDFX::HiSysEventRecord>> sysEvents)
 {
     if (querier_ == nullptr) {
-        HiLog::Error(LABEL, "OnQuery callback is null");
+        HILOG_ERROR(LOG_CORE, "OnQuery callback is null");
         return;
     }
     if (sysEvents == nullptr || sysEvents->empty()) {
@@ -50,7 +54,7 @@ void HiSysEventRustQuerier::OnQuery(std::shared_ptr<std::vector<OHOS::HiviewDFX:
     for (size_t i = 0; i < size; i++) {
         HiSysEventRecordConvertor::InitRecord(records[i]);
         if (HiSysEventRecordConvertor::ConvertRecord(sysEvents->at(i), records[i]) != 0) {
-            HiLog::Error(LABEL, "Failed to covert record, index=%{public}zu, size=%{public}zu",  i, size);
+            HILOG_ERROR(LOG_CORE, "Failed to covert record, index=%{public}zu, size=%{public}zu",  i, size);
             HiSysEventRecordConvertor::DeleteRecords(&records, i + 1); // +1 for release the current record
             return;
         }
@@ -62,7 +66,7 @@ void HiSysEventRustQuerier::OnQuery(std::shared_ptr<std::vector<OHOS::HiviewDFX:
 void HiSysEventRustQuerier::OnComplete(int32_t reason, int32_t total)
 {
     if (querier_ == nullptr) {
-        HiLog::Error(LABEL, "OnComplete callback is null");
+        HILOG_ERROR(LOG_CORE, "OnComplete callback is null");
         return;
     }
     querier_->onCompleteWrapperCb(querier_->onCompleteRustCb, reason, total);
