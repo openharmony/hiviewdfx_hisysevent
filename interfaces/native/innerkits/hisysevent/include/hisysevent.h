@@ -125,6 +125,7 @@ public:
         static constexpr char INTELLI_TV[] = "INTELLITV";
         static constexpr char ISHARE[] = "ISHARE";
         static constexpr char IVI_HARDWARE[] = "IVIHARDWARE";
+        static constexpr char LIVEVIEW_MANAGER[] = "LIVEVIEW_MANAGER";
         static constexpr char LOCATION[] = "LOCATION";
         static constexpr char MEDICAL_SENSOR[] = "MEDICAL_SENSOR";
         static constexpr char MISCDEVICE[] = "MISCDEVICE";
