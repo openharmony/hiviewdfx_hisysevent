@@ -95,6 +95,7 @@ public:
         static constexpr char BT_SERVICE[] = "BT_SERVICE";
         static constexpr char BUNDLE_MANAGER[] = "BUNDLE_MANAGER";
         static constexpr char CAMERA[] = "CAMERA";
+        static constexpr char CAMERA_IPS[] = "CAMERA_IPS";
         static constexpr char CAST_ENGINE[] = "CASTENGINE";
         static constexpr char CCRUNTIME[] = "CCRUNTIME";
         static constexpr char CERT_MANAGER[] = "CERT_MANAGER";
