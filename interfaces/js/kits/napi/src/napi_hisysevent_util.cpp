@@ -16,6 +16,8 @@
 #include "napi_hisysevent_util.h"
 
 #include <cinttypes>
+#include <tuple>
+#include <variant>
 
 #include "def.h"
 #include "hilog/log.h"
@@ -54,12 +56,44 @@ constexpr char CONDITION_ATTR[] = "condition";
 constexpr char DOMAIN__KEY[] = "domain_";
 constexpr char NAME__KEY[] = "name_";
 constexpr char TYPE__KEY[] = "type_";
+using I64ParseResult = std::pair<bool, int64_t>;
+using U64ParseResult = std::pair<bool, uint64_t>;
+using ParsedItem = std::variant<uint64_t, int64_t, double>;
+enum ParsedItemIndex {
+    U64_INDEX = 0,
+    I64_INDEX,
+    DOUBLE_INDEX,
+};
+
+enum ArrayParseStatus {
+    AS_U64_ARR,
+    AS_I64_ARR,
+    AS_DOUBLE_ARR,
+};
+
 const std::string INVALID_KEY_TYPE_ARR[] = {
     "[object Object]",
     "null",
     "()",
     ","
 };
+
+template<typename T>
+void AppendParamsToEventInfo(std::vector<ParsedItem>& src,
+    HiSysEventInfo& info, const std::string& key)
+{
+    std::vector<std::decay_t<T>> dest;
+    for (auto& item : src) {
+        if (item.index() == U64_INDEX) {
+            dest.emplace_back(static_cast<std::decay_t<T>>(std::get<U64_INDEX>(item)));
+        } else if (item.index() == I64_INDEX) {
+            dest.emplace_back(static_cast<std::decay_t<T>>(std::get<I64_INDEX>(item)));
+        } else {
+            dest.emplace_back(static_cast<std::decay_t<T>>(std::get<DOUBLE_INDEX>(item)));
+        }
+    }
+    info.params[key] = dest;
+}
 
 bool CheckKeyTypeString(const std::string& str)
 {
@@ -71,6 +105,13 @@ bool CheckKeyTypeString(const std::string& str)
         }
     }
     return ret;
+}
+
+bool IsFloatingNumber(double originalVal)
+{
+    int64_t i64Val = static_cast<int64_t>(originalVal);
+    double i64ToDVal = static_cast<double>(i64Val);
+    return fabs(i64ToDVal - originalVal) > 1e-9; // a minumum value
 }
 
 napi_valuetype GetValueType(const napi_env env, const napi_value& value)
@@ -141,28 +182,43 @@ std::string ParseStringValue(const napi_env env, const napi_value& value, std::s
     return dest;
 }
 
-double ParseBigIntValue(const napi_env env, const napi_value& value, double defaultValue = 0.0)
+I64ParseResult ParseSignedBigIntValue(const napi_env env, const napi_value& value)
 {
-    std::string strFormat = ParseStringValue(env, value);
-    if (strFormat.empty()) {
-        return defaultValue;
-    }
+    I64ParseResult ret = std::make_pair(false, 0); // default result
+    int64_t val = 0;
     bool lossless = true;
-    napi_status status;
-    double ret = defaultValue;
-    if (strFormat[0] == '-') {
-        int64_t int64Value = static_cast<int64_t>(defaultValue);
-        status = napi_get_value_bigint_int64(env, value, &int64Value, &lossless);
-        ret = static_cast<double>(int64Value);
-    } else {
-        uint64_t uint64Value = static_cast<uint64_t>(defaultValue);
-        status = napi_get_value_bigint_uint64(env, value, &uint64Value, &lossless);
-        ret = static_cast<double>(uint64Value);
-    }
+    napi_status status = napi_get_value_bigint_int64(env, value, &val, &lossless);
     if (status != napi_ok) {
-        HILOG_ERROR(LOG_CORE, "failed to parse napi value of big int type.");
+        HILOG_DEBUG(LOG_CORE, "failed to parse int64_t number.");
+        return ret;
     }
+    ret.first = lossless;
+    ret.second = val;
     return ret;
+}
+
+U64ParseResult ParseUnsignedBigIntValue(const napi_env env, const napi_value& value)
+{
+    U64ParseResult ret = std::make_pair(false, 0); // default result
+    uint64_t val = 0;
+    bool lossless = true;
+    napi_status status = napi_get_value_bigint_uint64(env, value, &val, &lossless);
+    if (status != napi_ok) {
+        HILOG_DEBUG(LOG_CORE, "failed to parse uint64_t number.");
+        return ret;
+    }
+    ret.first = lossless;
+    ret.second = val;
+    return ret;
+}
+
+void ParseBigIntResultValue(const napi_env env, const napi_value& value, U64ParseResult& u64Ret,
+    I64ParseResult& i64Ret)
+{
+    u64Ret = ParseUnsignedBigIntValue(env, value);
+    if (!u64Ret.first) {
+        i64Ret = ParseSignedBigIntValue(env, value);
+    }
 }
 
 std::string GetTagAttribute(const napi_env env, const napi_value& object, std::string defaultValue = "")
@@ -202,10 +258,11 @@ long long GetLonglongTypeAttribute(const napi_env env, const napi_value& object,
         HILOG_ERROR(LOG_CORE, "type is not napi_number or napi_bigint.");
         return defaultValue;
     }
-    if (isBigIntType) {
-        return static_cast<long long>(ParseBigIntValue(env, propertyValue));
+    if (isNumberType) {
+        return static_cast<long long>(ParseNumberValue(env, propertyValue, defaultValue));
     }
-    return static_cast<long long>(ParseNumberValue(env, propertyValue, defaultValue));
+    I64ParseResult ret = ParseSignedBigIntValue(env, propertyValue);
+    return static_cast<long long>(ret.second);
 }
 
 int32_t ParseInt32Value(const napi_env env, const napi_value& value, int32_t defaultValue = 0)
@@ -247,45 +304,75 @@ void AppendBoolArrayData(const napi_env env, HiSysEventInfo& info, const std::st
             values.emplace_back(ParseBoolValue(env, element));
         }
     }
-    info.boolArrayParams[key] = values;
+    info.params[key] = values;
 }
 
 void AppendNumberArrayData(const napi_env env, HiSysEventInfo& info, const std::string& key,
     const napi_value array, size_t len)
 {
-    std::vector<double> values;
+    std::vector<ParsedItem> parsedArray;
+    ArrayParseStatus pStatus = AS_U64_ARR;
+    double parsedVal = 0;
     napi_value element;
     napi_status status;
     for (uint32_t i = 0; i < len; i++) {
         status = napi_get_element(env, array, i, &element);
-        if (status != napi_ok) {
-            HILOG_ERROR(LOG_CORE, "failed to get the element of number array.");
+        if (status != napi_ok || !IsValueTypeValid(env, element, napi_valuetype::napi_number)) {
+            HILOG_ERROR(LOG_CORE,
+                "failed to get the element from array or type not match.");
             continue;
         }
-        if (IsValueTypeValid(env, element, napi_valuetype::napi_number)) {
-            values.emplace_back(ParseNumberValue(env, element));
+        parsedVal = ParseNumberValue(env, element);
+        if (IsFloatingNumber(parsedVal)) {
+            pStatus = AS_DOUBLE_ARR;
+            parsedArray.emplace_back(parsedVal);
+            continue;
         }
+        if (parsedVal < 0 && pStatus != AS_DOUBLE_ARR) {
+            pStatus = AS_I64_ARR;
+            parsedArray.emplace_back(static_cast<int64_t>(parsedVal));
+            continue;
+        }
+        parsedArray.emplace_back(static_cast<uint64_t>(parsedVal));
     }
-    info.doubleArrayParams[key] = values;
+    if (pStatus == AS_DOUBLE_ARR) {
+        AppendParamsToEventInfo<double>(parsedArray, info, key);
+    } else if (pStatus == AS_I64_ARR) {
+        AppendParamsToEventInfo<int64_t>(parsedArray, info, key);
+    } else {
+        AppendParamsToEventInfo<uint64_t>(parsedArray, info, key);
+    }
 }
 
 void AppendBigIntArrayData(const napi_env env, HiSysEventInfo& info, const std::string& key,
     const napi_value array, size_t len)
 {
-    std::vector<double> values;
+    std::vector<ParsedItem> parsedArray;
+    ArrayParseStatus pStatus = AS_U64_ARR;
     napi_value element;
     napi_status status;
+    U64ParseResult u64Ret = std::make_pair(false, 0); //default value
+    I64ParseResult i64Ret = std::make_pair(false, 0); //default value
     for (uint32_t i = 0; i < len; i++) {
         status = napi_get_element(env, array, i, &element);
-        if (status != napi_ok) {
-            HILOG_ERROR(LOG_CORE, "failed to get the element of big int array.");
+        if (status != napi_ok || !IsValueTypeValid(env, element, napi_valuetype::napi_bigint)) {
+            HILOG_ERROR(LOG_CORE,
+                "failed to get the element from array or type not match.");
             continue;
         }
-        if (IsValueTypeValid(env, element, napi_valuetype::napi_bigint)) {
-            values.emplace_back(ParseBigIntValue(env, element));
+        ParseBigIntResultValue(env, element, u64Ret, i64Ret);
+        if (u64Ret.first) {
+            parsedArray.emplace_back(u64Ret.second);
+            continue;
         }
+        pStatus = AS_I64_ARR;
+        parsedArray.emplace_back(i64Ret.second);
     }
-    info.doubleArrayParams[key] = values;
+    if (pStatus == AS_I64_ARR) {
+        AppendParamsToEventInfo<int64_t>(parsedArray, info, key);
+        return;
+    }
+    AppendParamsToEventInfo<uint64_t>(parsedArray, info, key);
 }
 
 void AppendStringArrayData(const napi_env env, HiSysEventInfo& info, const std::string& key,
@@ -304,7 +391,7 @@ void AppendStringArrayData(const napi_env env, HiSysEventInfo& info, const std::
             values.emplace_back(ParseStringValue(env, element));
         }
     }
-    info.stringArrayParams[key] = values;
+    info.params[key] = values;
 }
 
 void AddArrayParamToEventInfo(const napi_env env, HiSysEventInfo& info, const std::string& key, napi_value& array)
@@ -360,18 +447,37 @@ void AddParamToEventInfo(const napi_env env, HiSysEventInfo& info, const std::st
         return;
     }
     napi_valuetype type = GetValueType(env, value);
+    double parsedVal = 0;
+    U64ParseResult u64Ret = std::make_pair(false, 0); //default value
+    I64ParseResult i64Ret = std::make_pair(false, 0); //default value
     switch (type) {
         case napi_valuetype::napi_boolean:
-            info.boolParams[key] = ParseBoolValue(env, value);
+            HILOG_DEBUG(LOG_CORE, "AddBoolParamToEventInfo: %{public}s.", key.c_str());
+            info.params[key] = ParseBoolValue(env, value);
             break;
         case napi_valuetype::napi_number:
-            info.doubleParams[key] = ParseNumberValue(env, value);
+            HILOG_DEBUG(LOG_CORE, "AddNumberParamToEventInfo: %{public}s.", key.c_str());
+            parsedVal = ParseNumberValue(env, value);
+            if (IsFloatingNumber(parsedVal)) {
+                info.params[key] = parsedVal;
+            } else if (parsedVal < 0) {
+                info.params[key] = static_cast<int64_t>(parsedVal);
+            } else {
+                info.params[key] = static_cast<uint64_t>(parsedVal);
+            }
             break;
         case napi_valuetype::napi_string:
-            info.stringParams[key] = ParseStringValue(env, value);
+            HILOG_DEBUG(LOG_CORE, "AddStringParamToEventInfo: %{public}s.", key.c_str());
+            info.params[key] = ParseStringValue(env, value);
             break;
         case napi_valuetype::napi_bigint:
-            info.doubleParams[key] = ParseBigIntValue(env, value);
+            HILOG_DEBUG(LOG_CORE, "AddBigIntParamToEventInfo: %{public}s.", key.c_str());
+            ParseBigIntResultValue(env, value, u64Ret, i64Ret);
+            if (u64Ret.first) {
+                info.params[key] = u64Ret.second;
+            } else {
+                info.params[key] = i64Ret.second;
+            }
             break;
         default:
             break;
@@ -505,7 +611,7 @@ bool IsBaseInfoKey(const std::string& propertyName)
     return propertyName == DOMAIN__KEY || propertyName == NAME__KEY || propertyName == TYPE__KEY;
 }
 
-std::string translateKeyToAttrName(const std::string& key)
+std::string TranslateKeyToAttrName(const std::string& key)
 {
     if (key == DOMAIN__KEY) {
         return NapiHiSysEventUtil::DOMAIN_ATTR;
@@ -522,11 +628,11 @@ std::string translateKeyToAttrName(const std::string& key)
 void AppendBaseInfo(const napi_env env, napi_value& sysEventInfo, const std::string& key, Json::Value& value)
 {
     if ((key == DOMAIN__KEY || key == NAME__KEY) && value.isString()) {
-        NapiHiSysEventUtil::AppendStringPropertyToJsObject(env, translateKeyToAttrName(key),
+        NapiHiSysEventUtil::AppendStringPropertyToJsObject(env, TranslateKeyToAttrName(key),
             value.asString(), sysEventInfo);
     }
     if (key == TYPE__KEY && value.isInt()) {
-        NapiHiSysEventUtil::AppendInt32PropertyToJsObject(env, translateKeyToAttrName(key),
+        NapiHiSysEventUtil::AppendInt32PropertyToJsObject(env, TranslateKeyToAttrName(key),
             static_cast<int32_t>(value.asInt()), sysEventInfo);
     }
 }
@@ -655,10 +761,14 @@ void NapiHiSysEventUtil::ParseHiSysEventInfo(const napi_env env, napi_value* par
 
 bool NapiHiSysEventUtil::HasStrParamLenOverLimit(HiSysEventInfo& info)
 {
-    return any_of(info.stringParams.begin(), info.stringParams.end(), [] (auto& item) {
-        return item.second.size() > JS_STR_PARM_LEN_LIMIT;
-    }) || any_of(info.stringArrayParams.begin(), info.stringArrayParams.end(), [] (auto& item) {
-        auto allStr = item.second;
+    return any_of(info.params.begin(), info.params.end(), [] (auto& item) {
+        if (item.second.index() != STR && item.second.index() != STR_ARR) {
+            return false;
+        }
+        if (item.second.index() == STR) {
+            return std::get<STR>(item.second).size() > JS_STR_PARM_LEN_LIMIT;
+        }
+        auto allStr = std::get<STR_ARR>(item.second);
         return any_of(allStr.begin(), allStr.end(), [] (auto& item) {
             return item.size() > JS_STR_PARM_LEN_LIMIT;
         });

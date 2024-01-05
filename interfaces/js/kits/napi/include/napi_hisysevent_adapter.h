@@ -16,6 +16,8 @@
 #ifndef HIVIEWDFX_NAPI_HISYSEVENT_ADAPTER_H
 #define HIVIEWDFX_NAPI_HISYSEVENT_ADAPTER_H
 
+#include <cinttypes>
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -30,16 +32,16 @@ namespace OHOS {
 namespace HiviewDFX {
 using namespace Encoded;
 using JsCallerInfo = std::pair<std::string, int64_t>;
+enum ParamType { BL = 0, DOU, I64, U64, STR, BOOL_ARR, DOUBLE_ARR, I64_ARR, U64_ARR, STR_ARR };
+using Param = std::variant<bool, double, int64_t, uint64_t, std::string,
+    std::vector<bool>, std::vector<double>, std::vector<int64_t>, std::vector<uint64_t>,
+    std::vector<std::string>>;
+
 using HiSysEventInfo = struct HiSysEventInfo {
     std::string domain;
     std::string name;
     HiSysEvent::EventType eventType;
-    std::unordered_map<std::string, bool> boolParams;
-    std::unordered_map<std::string, std::vector<bool>> boolArrayParams;
-    std::unordered_map<std::string, double> doubleParams;
-    std::unordered_map<std::string, std::vector<double>> doubleArrayParams;
-    std::unordered_map<std::string, std::string> stringParams;
-    std::unordered_map<std::string, std::vector<std::string>> stringArrayParams;
+    std::unordered_map<std::string, Param> params;
 };
 
 using HiSysEventAsyncContext = struct HiSysEventAsyncContext {
@@ -64,11 +66,51 @@ private:
     static int Write(const HiSysEventInfo& eventInfo, uint64_t timeStamp);
 
 private:
-    template<typename T>
-    static void AppendParams(HiSysEvent::EventBase& eventBase, const std::unordered_map<std::string, T>& params)
+    static void AppendParams(HiSysEvent::EventBase& eventBase,
+        const std::unordered_map<std::string, Param>& params)
     {
+        const std::vector<std::function<void(const std::string&, const Param&)>> allParamsHandlers = {
+            [&] (const std::string& key, const Param& param) {
+                (void)HiSysEvent::InnerWrite(eventBase, key, std::get<BL>(param));
+            },
+            [&] (const std::string& key, const Param& param) {
+                (void)HiSysEvent::InnerWrite(eventBase, key, std::get<DOU>(param));
+            },
+            [&] (const std::string& key, const Param& param) {
+                (void)HiSysEvent::InnerWrite(eventBase, key, std::get<I64>(param));
+            },
+            [&] (const std::string& key, const Param& param) {
+                (void)HiSysEvent::InnerWrite(eventBase, key, std::get<U64>(param));
+            },
+            [&] (const std::string& key, const Param& param) {
+                (void)HiSysEvent::InnerWrite(eventBase, key, std::get<STR>(param));
+            },
+            [&] (const std::string& key, const Param& param) {
+                (void)HiSysEvent::InnerWrite(eventBase, key, std::get<BOOL_ARR>(param));
+            },
+            [&] (const std::string& key, const Param& param) {
+                (void)HiSysEvent::InnerWrite(eventBase, key, std::get<DOUBLE_ARR>(param));
+            },
+            [&] (const std::string& key, const Param& param) {
+                (void)HiSysEvent::InnerWrite(eventBase, key, std::get<I64_ARR>(param));
+            },
+            [&] (const std::string& key, const Param& param) {
+                (void)HiSysEvent::InnerWrite(eventBase, key, std::get<U64_ARR>(param));
+            },
+            [&] (const std::string& key, const Param& param) {
+                (void)HiSysEvent::InnerWrite(eventBase, key, std::get<STR_ARR>(param));
+            },
+        };
         for (auto iter = params.cbegin(); iter != params.cend(); ++iter) {
-            HiSysEvent::InnerWrite(eventBase, iter->first, iter->second);
+            Param param = iter->second;
+            size_t paramIndex = static_cast<size_t>(param.index());
+            if (paramIndex >= allParamsHandlers.size()) {
+                continue;
+            }
+            auto paramHandler = allParamsHandlers.at(paramIndex);
+            if (paramHandler != nullptr) {
+                paramHandler(iter->first, param);
+            }
         }
     }
 };
