@@ -50,6 +50,18 @@ describe('hiSysEventJsUnitTest', function () {
     console.info('hiSysEventJsUnitTest afterEach called')
   })
 
+  function GetParam(src, key) {
+    return src["params"][key]
+  }
+
+  function GetArrayIemParamByIndex(src, key, index) {
+    let arrayInSrc = src["params"][key]
+    if (index > arrayInSrc.length) {
+      return undefined
+    }
+    return arrayInSrc[index]
+  }
+
   function writeEventWithAsyncWork(domain, name, eventType, params, errCallback, normalCallback, done) {
     try {
       hiSysEvent.write({
@@ -849,4 +861,207 @@ describe('hiSysEventJsUnitTest', function () {
       }, done)
     }, 2500)
   })
+
+  /**
+   * @tc.desc: Test write with integer number
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest024
+   * @tc.number: hiSysEventJsUnitTest024
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+  it('hiSysEventJsUnitTest024', 0, async function (done) {
+    writeCustomizedSysEvent({
+      PID: 2222222,
+      UID: 2222222,
+      FIRST_INT_VAL: 1,
+      SECOND_INT_VAL: -1,
+      THIRD_INT_VAL: 123456789,
+      FORTH_INT_VAL: -123456789,
+    })
+    setTimeout(() => {
+      querySysEvent({
+        beginTime: -1,
+        endTime: -1,
+        maxEvents: 1,
+      }, [{
+        domain: "RELIABILITY",
+        names: ["STACK"],
+        condition: '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":2222222},' +
+          '{"param":"UID","op":"=","value":2222222}]}}'
+      }], (infos) => {
+        expect(infos.length >= 0).assertTrue()
+        expect(GetParam(infos[0], "FIRST_INT_VAL")).assertEqual(1)
+        expect(GetParam(infos[0], "SECOND_INT_VAL")).assertEqual(-1)
+        expect(GetParam(infos[0], "THIRD_INT_VAL")).assertEqual(123456789)
+        expect(GetParam(infos[0], "FORTH_INT_VAL")).assertEqual(-123456789)
+      }, (reason, total) => {
+        expect(total == 1).assertTrue()
+      }, (err) => {
+        expect(false).assertTrue()
+      }, done)
+    }, 1500)
+  })
+
+  /**
+   * @tc.desc: Test write with big integer number
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest025
+   * @tc.number: hiSysEventJsUnitTest025
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+  it('hiSysEventJsUnitTest025', 0, async function (done) {
+    writeCustomizedSysEvent({
+      PID: 3333333,
+      UID: 3333333,
+      FIRST_BIG_INT_VAL: 1n,
+      SECOND_BIG_INT_VAL: -1n,
+      THIRD_BIG_INT_VAL: 123456789n,
+      FORTH_BIG_INT_VAL: -123456789n,
+    })
+    setTimeout(() => {
+      querySysEvent({
+        beginTime: -1,
+        endTime: -1,
+        maxEvents: 1,
+      }, [{
+        domain: "RELIABILITY",
+        names: ["STACK"],
+        condition: '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":3333333},' +
+          '{"param":"UID","op":"=","value":3333333}]}}'
+      }], (infos) => {
+        expect(infos.length >= 0).assertTrue()
+        expect(GetParam(infos[0], "FIRST_BIG_INT_VAL")).assertEqual(1)
+        expect(GetParam(infos[0], "SECOND_BIG_INT_VAL")).assertEqual(-1)
+        expect(GetParam(infos[0], "THIRD_BIG_INT_VAL")).assertEqual(123456789)
+        expect(GetParam(infos[0], "FORTH_BIG_INT_VAL")).assertEqual(-123456789)
+      }, (reason, total) => {
+        expect(total == 1).assertTrue()
+      }, (err) => {
+        expect(false).assertTrue()
+      }, done)
+    }, 1500)
+  })
+
+  /**
+   * @tc.desc: Test write with max or min big integer number
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest026
+   * @tc.number: hiSysEventJsUnitTest026
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+  it('hiSysEventJsUnitTest026', 0, async function (done) {
+    writeCustomizedSysEvent({
+      PID: 4444444,
+      UID: 4444444,
+      UINT64_MAX: 18446744073709551615n,
+      INT64_MAX: 9223372036854775807n,
+      INT64_MIN: -9223372036854775808n,
+    })
+    setTimeout(() => {
+      querySysEvent({
+        beginTime: -1,
+        endTime: -1,
+        maxEvents: 1,
+      }, [{
+        domain: "RELIABILITY",
+        names: ["STACK"],
+        condition: '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":4444444},' +
+          '{"param":"UID","op":"=","value":4444444}]}}'
+      }], (infos) => {
+        expect(infos.length >= 0).assertTrue()
+        expect(GetParam(infos[0], "UINT64_MAX")).assertEqual(18446744073709551615n)
+        expect(GetParam(infos[0], "INT64_MAX")).assertEqual(9223372036854775807n)
+        expect(GetParam(infos[0], "INT64_MIN")).assertEqual(-9223372036854775808n)
+      }, (reason, total) => {
+        expect(total == 1).assertTrue()
+      }, (err) => {
+        expect(false).assertTrue()
+      }, done)
+    }, 1500)
+  })
+
+  /**
+   * @tc.desc: Test write with big integer number array
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest027
+   * @tc.number: hiSysEventJsUnitTest027
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+  it('hiSysEventJsUnitTest027', 0, async function (done) {
+    writeCustomizedSysEvent({
+      PID: 55555555,
+      UID: 55555555,
+      FIRST_BIG_INT_ARR: [4n, 5n, 6n],
+      SECOND_BIG_INT_ARR: [-4n, -5n, -6n],
+      THIRD_BIG_INT_ARR: [123456789n, -2232333n, 2222223344n],
+      FORTH_BIG_INT_ARR: [-123456789n, -2232333n, -2222223344n],
+    })
+    setTimeout(() => {
+      querySysEvent({
+        beginTime: -1,
+        endTime: -1,
+        maxEvents: 1,
+      }, [{
+        domain: "RELIABILITY",
+        names: ["STACK"],
+        condition: '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":55555555},' +
+          '{"param":"UID","op":"=","value":55555555}]}}'
+      }], (infos) => {
+        expect(infos.length >= 0).assertTrue()
+        expect(GetArrayIemParamByIndex(infos[0], "FIRST_BIG_INT_ARR", 1)).assertEqual(5)
+        expect(GetArrayIemParamByIndex(infos[0], "SECOND_BIG_INT_ARR", 2)).assertEqual(-6)
+        expect(GetArrayIemParamByIndex(infos[0], "THIRD_BIG_INT_ARR", 1)).assertEqual(-2232333)
+        expect(GetArrayIemParamByIndex(infos[0], "FORTH_BIG_INT_ARR", 2)).assertEqual(-2222223344n)
+      }, (reason, total) => {
+        expect(total == 1).assertTrue()
+      }, (err) => {
+        expect(false).assertTrue()
+      }, done)
+    }, 1500)
+  })
+
+  /**
+   * @tc.desc: Test write with integer number array
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest028
+   * @tc.number: hiSysEventJsUnitTest028
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+    it('hiSysEventJsUnitTest028', 0, async function (done) {
+      writeCustomizedSysEvent({
+        PID: 66666666,
+        UID: 66666666,
+        FIRST_INT_ARR: [1, 2, 3],
+        SECOND_INT_ARR: [-1, -2, -3],
+        THIRD_INT_ARR: [123456789, -2232333, 2222223344],
+        FORTH_INT_ARR: [-123456, 222333, -222222],
+      })
+      setTimeout(() => {
+        querySysEvent({
+          beginTime: -1,
+          endTime: -1,
+          maxEvents: 1,
+        }, [{
+          domain: "RELIABILITY",
+          names: ["STACK"],
+          condition: '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":66666666},' +
+            '{"param":"UID","op":"=","value":66666666}]}}'
+        }], (infos) => {
+          expect(infos.length >= 0).assertTrue()
+          expect(GetArrayIemParamByIndex(infos[0], "FIRST_INT_ARR", 1)).assertEqual(2)
+          expect(GetArrayIemParamByIndex(infos[0], "SECOND_INT_ARR", 2)).assertEqual(-3)
+          expect(GetArrayIemParamByIndex(infos[0], "THIRD_INT_ARR", 1)).assertEqual(-2232333)
+          expect(GetArrayIemParamByIndex(infos[0], "FORTH_INT_ARR", 2)).assertEqual(-222222)
+        }, (reason, total) => {
+          expect(total == 1).assertTrue()
+        }, (err) => {
+          expect(false).assertTrue()
+        }, done)
+      }, 1500)
+    })
 });

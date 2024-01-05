@@ -186,12 +186,7 @@ void NapiHiSysEventAdapter::Write(const napi_env env, HiSysEventAsyncContext* ev
 void NapiHiSysEventAdapter::InnerWrite(HiSysEvent::EventBase& eventBase,
     const HiSysEventInfo& eventInfo)
 {
-    AppendParams(eventBase, eventInfo.boolParams);
-    AppendParams(eventBase, eventInfo.boolArrayParams);
-    AppendParams(eventBase, eventInfo.doubleParams);
-    AppendParams(eventBase, eventInfo.doubleArrayParams);
-    AppendParams(eventBase, eventInfo.stringParams);
-    AppendParams(eventBase, eventInfo.stringArrayParams);
+    AppendParams(eventBase, eventInfo.params);
 }
 
 int NapiHiSysEventAdapter::Write(const HiSysEventInfo& eventInfo, uint64_t timeStamp)
