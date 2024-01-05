@@ -94,6 +94,8 @@ public:
         static constexpr char BLUETOOTH[] = "BLUETOOTH";
         static constexpr char BT_SERVICE[] = "BT_SERVICE";
         static constexpr char BUNDLE_MANAGER[] = "BUNDLE_MANAGER";
+        static constexpr char BUNDLE_MANAGER[] = "BUNDLE_MANAGER";
+        static constexpr char CAM_DRV[] = "CAM_DRV";
         static constexpr char CAMERA[] = "CAMERA";
         static constexpr char CAMERA_IPS[] = "CAMERA_IPS";
         static constexpr char CAST_ENGINE[] = "CASTENGINE";
