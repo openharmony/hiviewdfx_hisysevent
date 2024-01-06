@@ -176,10 +176,10 @@ int HiSysEvent::CheckArraySize(const size_t size)
 int HiSysEvent::ExplainThenReturnRetCode(const int retCode)
 {
     if (retCode > SUCCESS) {
-        HILOG_WARN(LOG_CORE, "some value of param discard as invalid data, error=%{public}d, message=%{public}s",
+        HILOG_DEBUG(LOG_CORE, "some value of param discard as invalid data, error=%{public}d, message=%{public}s",
             retCode, ERR_MSG_LEVEL1[retCode - 1]);
     } else if (retCode < SUCCESS) {
-        HILOG_ERROR(LOG_CORE, "discard data, error=%{public}d, message=%{public}s",
+        HILOG_DEBUG(LOG_CORE, "discard data, error=%{public}d, message=%{public}s",
             retCode, ERR_MSG_LEVEL0[-retCode - 1]);
     }
     return retCode;
