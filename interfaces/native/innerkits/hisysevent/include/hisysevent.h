@@ -123,6 +123,7 @@ public:
         static constexpr char DLP[] = "DLP";
         static constexpr char DSLM[] = "DSLM";
         static constexpr char DSOFTBUS[] = "DSOFTBUS";
+        static constexpr char FACEID_ALGO[] = "FACEID_ALGO";
         static constexpr char FACE_SETTINGS[] = "FACE_SETTINGS";
         static constexpr char FIDO[] = "FIDO";
         static constexpr char FILEMANAGEMENT[] = "FILEMANAGEMENT";
