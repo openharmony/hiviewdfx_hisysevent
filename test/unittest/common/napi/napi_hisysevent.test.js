@@ -127,7 +127,7 @@ describe('hiSysEventJsUnitTest', function () {
     writeCustomizedSysEvent({
       PID: 1,
       UID: 1,
-      PACKAGE_NAME: "com.huawei.testHiSysEvent",
+      PACKAGE_NAME: "com.ohos.testHiSysEvent",
       PROCESS_NAME: "hiview js test suite",
       MSG: "no msg."
     })
@@ -164,7 +164,7 @@ describe('hiSysEventJsUnitTest', function () {
       {
         PID: 1,
         UID: 1,
-        PACKAGE_NAME: "com.huawei.testHiSysEvent",
+        PACKAGE_NAME: "com.ohos.testHiSysEvent",
         PROCESS_NAME: "hiview js test suite",
         MSG: "no msg."
       },
@@ -189,7 +189,7 @@ describe('hiSysEventJsUnitTest', function () {
       {
         PID: 1,
         UID: 1,
-        PACKAGE_NAME: "com.huawei.testHiSysEvent",
+        PACKAGE_NAME: "com.ohos.testHiSysEvent",
         PROCESS_NAME: "hiview js test suite",
         MSG: "no msg."
       },
@@ -386,7 +386,7 @@ describe('hiSysEventJsUnitTest', function () {
       {
         PID: 1,
         UID: 1,
-        PACKAGE_NAME: "com.huawei.testHiSysEvent",
+        PACKAGE_NAME: "com.ohos.testHiSysEvent",
         PROCESS_NAME: "hiview js test suite",
         MSG: "no msg."
       }, (err) => {
@@ -409,7 +409,7 @@ describe('hiSysEventJsUnitTest', function () {
       {
         PID: 1,
         UID: 1,
-        PACKAGE_NAME: "com.huawei.testHiSysEvent",
+        PACKAGE_NAME: "com.ohos.testHiSysEvent",
         PROCESS_NAME: "hiview js test suite",
         MSG: "no msg."
       }, (err) => {
@@ -431,7 +431,7 @@ describe('hiSysEventJsUnitTest', function () {
     let params = {
       PID: 1,
       UID: 1,
-      PACKAGE_NAME: "com.huawei.testHiSysEvent",
+      PACKAGE_NAME: "com.ohos.testHiSysEvent",
       PROCESS_NAME: "just a testcase",
       MSG: "no msg."
     }
@@ -459,7 +459,7 @@ describe('hiSysEventJsUnitTest', function () {
       {
         PID: 1,
         UID: 1,
-        STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK: "com.huawei.testHiSysEvent",
+        STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK_STACK: "com.ohos.testHiSysEvent",
         PROCESS_NAME: "hiview js test suite",
         MSG: "no msg."
       }, (err) => {
@@ -482,7 +482,7 @@ describe('hiSysEventJsUnitTest', function () {
       {
         PID: 1,
         UID: 1,
-        PACKAGE_NAME: "com.huawei.testHiSysEvent",
+        PACKAGE_NAME: "com.ohos.testHiSysEvent",
         PROCESS_NAME: Array.from({length: 10 * 1024 + 10}).join("ohos"),
         MSG: "no msg."
       }, (err) => {
@@ -530,7 +530,7 @@ describe('hiSysEventJsUnitTest', function () {
       {
         PID: 1,
         UID: 1,
-        PACKAGE_NAME: "com.huawei.testHiSysEvent",
+        PACKAGE_NAME: "com.ohos.testHiSysEvent",
         PROCESS_NAME: "hiview js test suite",
         MSG: msgArray
       }, (err) => {
@@ -606,7 +606,7 @@ describe('hiSysEventJsUnitTest', function () {
           {
             PID: 1,
             UID: 1,
-            PACKAGE_NAME: "com.huawei.testHiSysEvent",
+            PACKAGE_NAME: "com.ohos.testHiSysEvent",
             PROCESS_NAME: "hiview js test suite",
           }, (err) => {
             expect(err.code == 11200003).assertTrue()
@@ -642,7 +642,7 @@ describe('hiSysEventJsUnitTest', function () {
     writeCustomizedSysEvent({
       PID: 1000,
       UID: 1,
-      PACKAGE_NAME: "com.huawei.testHiSysEvent2",
+      PACKAGE_NAME: "com.ohos.testHiSysEvent2",
       PROCESS_NAME: "hiview js test suite"
     })
     setTimeout(() => {
@@ -654,7 +654,7 @@ describe('hiSysEventJsUnitTest', function () {
         domain: "RELIABILITY",
         names: ["STACK"],
         condition: '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":1000},' +
-          '{"param":"PACKAGE_NAME","op":"=","value":"com.huawei.testHiSysEvent2"}]}}'
+          '{"param":"PACKAGE_NAME","op":"=","value":"com.ohos.testHiSysEvent2"}]}}'
       }], (infos) => {
         expect(infos.length >= 0).assertTrue()
       }, (reason, total) => {
