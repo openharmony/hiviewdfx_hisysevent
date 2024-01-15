@@ -817,7 +817,7 @@ void NapiHiSysEventUtil::CreateJsSysEventInfoArray(const napi_env env, const std
         CreateHiSysEventInfoJsObject(env, originValues[i], item);
         napi_status status = napi_set_element(env, array, i, item);
         if (status != napi_ok) {
-            HILOG_ERROR(LOG_CORE, "napi_set_element failed");
+            HILOG_DEBUG(LOG_CORE, "napi_set_element failed");
         }
     }
 }
@@ -1015,7 +1015,7 @@ void NapiHiSysEventUtil::ThrowError(napi_env env, const int32_t code, const std:
 
 std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env env, const int32_t retCode)
 {
-    HILOG_INFO(LOG_CORE, "origin result code is %{public}d.", retCode);
+    HILOG_DEBUG(LOG_CORE, "original result code is %{public}d.", retCode);
     const std::unordered_map<int32_t, std::pair<int32_t, std::string>> errMap = {
         // common
         {ERR_NO_PERMISSION, {NapiError::ERR_PERMISSION_CHECK,
