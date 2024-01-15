@@ -190,7 +190,6 @@ int32_t HiSysEventDelegate::Unsubscribe() const
 
 HiSysEventDelegate::~HiSysEventDelegate()
 {
-    HILOG_INFO(LOG_CORE, "HiSysEventDelegate destructor");
 }
 
 void HiSysEventDelegate::ConvertListenerRule(const std::vector<ListenerRule>& rules,
