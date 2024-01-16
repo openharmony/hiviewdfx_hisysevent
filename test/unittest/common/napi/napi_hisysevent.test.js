@@ -630,13 +630,13 @@ describe('hiSysEventJsUnitTest', function () {
     writeCustomizedSysEvent({
       PID: 323232388,
       UID: 1,
-      PACKAGE_NAME: "com.huawei.hiSysEventJsUnitTest018",
+      PACKAGE_NAME: "com.ohos.hiSysEventJsUnitTest018",
       PROCESS_NAME: "hiview js test suite"
     })
     writeCustomizedSysEvent({
       PID: 1000,
       UID: 1,
-      PACKAGE_NAME: "com.huawei.hiSysEventJsUnitTest018",
+      PACKAGE_NAME: "com.ohos.hiSysEventJsUnitTest018",
       PROCESS_NAME: "hiview js test suite"
     })
     writeCustomizedSysEvent({
@@ -677,19 +677,19 @@ describe('hiSysEventJsUnitTest', function () {
     writeCustomizedSysEvent({
       PID: 222,
       UID: 10,
-      PACKAGE_NAME: "com.huawei.hiSysEventJsUnitTest019",
+      PACKAGE_NAME: "com.ohos.hiSysEventJsUnitTest019",
       PROCESS_NAME: "hiview js test suite"
     })
     writeCustomizedSysEvent({
       PID: 222,
       UID: 20,
-      PACKAGE_NAME: "com.huawei.hiSysEventJsUnitTest019",
+      PACKAGE_NAME: "com.ohos.hiSysEventJsUnitTest019",
       PROCESS_NAME: "hiview js test suite"
     })
     writeCustomizedSysEvent({
       PID: 222,
       UID: 23,
-      PACKAGE_NAME: "com.huawei.hiSysEventJsUnitTest019",
+      PACKAGE_NAME: "com.ohos.hiSysEventJsUnitTest019",
       PROCESS_NAME: "hiview js test suite"
     })
     setTimeout(() => {
@@ -724,19 +724,19 @@ describe('hiSysEventJsUnitTest', function () {
     writeCustomizedSysEvent({
       PID: 2009,
       UID: 20001,
-      PACKAGE_NAME: "com.huawei.hiSysEventJsUnitTest020",
+      PACKAGE_NAME: "com.ohos.hiSysEventJsUnitTest020",
       PROCESS_NAME: "hiview js test suite"
     })
     writeCustomizedSysEvent({
       PID: 2010,
       UID: 20002,
-      PACKAGE_NAME: "com.huawei.hiSysEventJsUnitTest020",
+      PACKAGE_NAME: "com.ohos.hiSysEventJsUnitTest020",
       PROCESS_NAME: "hiview js test suite"
     })
     writeCustomizedSysEvent({
       PID: 2020,
       UID: 20003,
-      PACKAGE_NAME: "com.huawei.hiSysEventJsUnitTest020",
+      PACKAGE_NAME: "com.ohos.hiSysEventJsUnitTest020",
       PROCESS_NAME: "hiview js test suite"
     })
     setTimeout(() => {
@@ -771,19 +771,19 @@ describe('hiSysEventJsUnitTest', function () {
     writeCustomizedSysEvent({
       PID: 22,
       UID: 88888,
-      PACKAGE_NAME: "com.huawei.hiSysEventJsUnitTest021",
+      PACKAGE_NAME: "com.ohos.hiSysEventJsUnitTest021",
       PROCESS_NAME: "hiview js test suite"
     })
     writeCustomizedSysEvent({
       PID: 23,
       UID: 88888,
-      PACKAGE_NAME: "com.huawei.hiSysEventJsUnitTest021",
+      PACKAGE_NAME: "com.ohos.hiSysEventJsUnitTest021",
       PROCESS_NAME: "hiview js test suite"
     })
     writeCustomizedSysEvent({
       PID: 24,
       UID: 88888,
-      PACKAGE_NAME: "com.huawei.hiSysEventJsUnitTest021",
+      PACKAGE_NAME: "com.ohos.hiSysEventJsUnitTest021",
       PROCESS_NAME: "hiview js test suite"
     })
     setTimeout(() => {
