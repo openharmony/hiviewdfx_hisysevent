@@ -21,6 +21,7 @@
 #include <memory>
 #include <ostream>
 #include <string>
+#include <unistd.h>
 
 #include "hisysevent_json_decorator.h"
 
@@ -41,7 +42,7 @@ void HiSysEventToolListener::OnEvent(std::shared_ptr<HiSysEventRecord> sysEvent)
 void HiSysEventToolListener::OnServiceDied()
 {
     std::cout << std::string("service disconnect, exit") << std::endl;
-    exit(0);
+    _exit(0);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
