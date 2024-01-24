@@ -23,6 +23,7 @@
 #include <memory>
 #include <ostream>
 #include <vector>
+#include <unistd.h>
 
 #include "hisysevent_json_decorator.h"
 
@@ -47,7 +48,7 @@ void HiSysEventToolQuery::OnComplete(int32_t reason, int32_t total)
     if (!autoExit) {
         return;
     }
-    exit(0);
+    _exit(0);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
