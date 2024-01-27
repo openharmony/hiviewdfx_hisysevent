@@ -121,17 +121,6 @@ RawData::~RawData()
     }
 }
 
-void RawData::Reset()
-{
-    if (data_ != nullptr) {
-        len_ = 0;
-        return;
-    }
-    data_ = new(std::nothrow) uint8_t[EXPAND_BUF_SIZE];
-    capacity_ = EXPAND_BUF_SIZE;
-    len_ = 0;
-}
-
 bool RawData::Append(uint8_t* data, size_t len)
 {
     if (len == 0) {

@@ -17,11 +17,15 @@ module_output_path = "hisysevent_native/frameworks_native"
 
 group("unittest") {
   testonly = true
-  deps = [ ":HiSysEventToolUnitTest" ]
+  deps = [
+    ":HiSysEventCWrapperTest",
+    ":HiSysEventToolUnitTest",
+  ]
 }
 
 config("unittest_config") {
   include_dirs = [
+    "//base/hiviewdfx/hisysevent/frameworks/native/c_wrapper/include",
     "//base/hiviewdfx/hisysevent/frameworks/native/include",
     "//third_party/jsoncpp/include",
   ]
@@ -48,6 +52,31 @@ ohos_unittest("HiSysEventToolUnitTest") {
   deps = [
     "../../../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd",
     "../../../../../interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_static_lib_for_tdd",
+    "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+    "samgr:samgr_proxy",
+  ]
+}
+
+ohos_unittest("HiSysEventCWrapperTest") {
+  module_out_path = module_output_path
+
+  configs = [ ":unittest_config" ]
+
+  sources = [ "./hisysevent_c_wrapper_test.cpp" ]
+
+  cflags_cc = [ "-DTEST_LOCAL_SRC" ]
+
+  deps = [
+    "../../../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd",
+    "../../../../../interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_static_lib_for_tdd",
+    "../../../c_wrapper:hisysevent_c_wrapper",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
   ]
