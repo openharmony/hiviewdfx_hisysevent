@@ -35,7 +35,6 @@ public:
     RawData& operator=(const RawData& data);
 
 public:
-    void Reset();
     bool Append(uint8_t* data, size_t len);
     bool Update(uint8_t* data, size_t len, size_t pos);
     bool IsEmpty();
