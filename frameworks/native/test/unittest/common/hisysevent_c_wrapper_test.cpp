@@ -230,7 +230,7 @@ HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest005, testing::ext
     ASSERT_TRUE(events != nullptr);
     std::string eventStrListeral = "{\"domain_\": \"DEMO\",\"name_\": \"EVENT_NAME_A\",\"type_\": 4,\
         \"PARAM_A\": 3.4,\"UINT64_T\": 18446744073709551610,\"DOUBLE_T\": 3.3,\"INT64_T\": 9223372036854775800,\
-        \"PARAM_B\":[\"123\", \"456\", \"789\"],\"PARAM_C\":[]}";
+        \"PARAM_B\": [\"123\", \"456\", \"789\"],\"PARAM_C\": []}";
     OHOS::HiviewDFX::HiSysEventRecord event(eventStrListeral);
     events->emplace_back(event);
     events->emplace_back(event);
@@ -262,7 +262,7 @@ HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest006, testing::ext
     ASSERT_TRUE(watcher != nullptr);
     std::string eventStrListeral = "{\"domain_\": \"DEMO\",\"name_\": \"EVENT_NAME_A\",\"type_\": 4,\
         \"PARAM_A\": 3.4,\"UINT64_T\": 18446744073709551610,\"DOUBLE_T\": 3.3,\"INT64_T\": 9223372036854775800,\
-        \"PARAM_B\":[\"123\", \"456\", \"789\"],\"PARAM_C\":[]}";
+        \"PARAM_B\": [\"123\", \"456\", \"789\"],\"PARAM_C\": []}";
     auto event = std::make_shared<OHOS::HiviewDFX::HiSysEventRecord>(eventStrListeral);
     listerner2.OnEvent(event);
     listerner2.OnServiceDied();
