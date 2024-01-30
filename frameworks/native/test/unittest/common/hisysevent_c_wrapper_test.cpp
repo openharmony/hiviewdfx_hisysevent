@@ -20,6 +20,7 @@
 #include "hisysevent_rust_listener.h"
 #include "hisysevent_rust_manager.h"
 #include "hisysevent_rust_querier.h"
+#include "ret_code.h"
 #include "securec.h"
 
 using namespace std;
@@ -55,7 +56,50 @@ void TestOnCompleteWrapperCb(OnRustCb callback, int reason, int total)
 {
     // do nothing
 }
+
+HiSysEventWatchRule CreateWatchRule(const std::string& domain, const std::string& eventName, const std::string& tag)
+{
+    HiSysEventWatchRule rule;
+    auto ret = memcpy_s(rule.domain, MAX_LENGTH_OF_EVENT_DOMAIN, domain.c_str(),
+        domain.length() + 1); // copy length + 1 bytes
+    if (ret != EOK) {
+        return rule;
+    }
+    ret = memcpy_s(rule.name, MAX_LENGTH_OF_EVENT_NAME, eventName.c_str(),
+        eventName.length() + 1); // copy length + 1 bytes
+    if (ret != EOK) {
+        return rule;
+    }
+    ret = memcpy_s(rule.tag, MAX_LENGTH_OF_EVENT_TAG, tag.c_str(),
+        tag.length() + 1); // copy length + 1 bytes
+    if (ret != EOK) {
+        return rule;
+    }
+    rule.ruleType = 1; // 1 means whole_word
+    rule.eventType = 1; // 1 means event type is fault
+    return rule;
 }
+
+HiSysEventQueryRuleWrapper CreateQueryRule(const std::string& domain, const std::string& eventName,
+    const std::string& condition)
+{
+    HiSysEventQueryRuleWrapper rule;
+    auto ret = memcpy_s(rule.domain, MAX_LENGTH_OF_EVENT_DOMAIN, domain.c_str(),
+        domain.length() + 1); // copy length + 1 bytes
+    if (ret != EOK) {
+        return rule;
+    }
+    ret = memcpy_s(rule.eventList, MAX_EVENT_LIST_LEN, eventName.c_str(),
+        eventName.length() + 1); // copy length + 1 bytes
+    if (ret != EOK) {
+        return rule;
+    }
+    rule.eventListSize = eventName.length();
+    rule.condition = const_cast<char*>(condition.c_str());
+    return rule;
+}
+}
+
 void HiSysEventCWrapperUnitTest::SetUpTestCase() {}
 
 void HiSysEventCWrapperUnitTest::TearDownTestCase() {}
@@ -81,9 +125,17 @@ HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest001, testing::ext
         if (ret != EOK) {
             ASSERT_TRUE(false);
         }
-        wrapper.paramType = HISYSEVENT_UINT64;
+        if (i == 0) {
+            wrapper.paramType = HISYSEVENT_STRING;
+        } else {
+            wrapper.paramType = HISYSEVENT_UINT64;
+        }
         HiSysEventParamValue value;
-        value.ui64 = 18; // 18 is a test value
+        if (i == 0) {
+            value.s = new char[5]; // 5 is a random length
+        } else {
+            value.ui64 = 18;
+        }
         wrapper.paramValue = value;
         wrapper.arraySize = 0; // 0 means value is not an array
         wroteEvents[i] = wrapper;
@@ -103,36 +155,16 @@ HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest002, testing::ext
 {
     HiSysEventRustWatcherC* watcher = CreateRustEventWatcher(reinterpret_cast<const void*>(TestCallback),
         TestOnEventWrapperCb, reinterpret_cast<const void*>(TestCallback), TestOnServiceDiedWrapperCb);
-
-    const std::string testDomain = "KERNEL_VENDOR";
-    const std::string testEventName = "POWER_KEY";
-    const std::string testTag = "";
-    HiSysEventWatchRule rule;
-    auto ret = memcpy_s(rule.domain, MAX_LENGTH_OF_EVENT_DOMAIN, testDomain.c_str(),
-        testDomain.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
-        ASSERT_TRUE(false);
-    }
-    ret = memcpy_s(rule.name, MAX_LENGTH_OF_EVENT_NAME, testEventName.c_str(),
-        testEventName.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
-        ASSERT_TRUE(false);
-    }
-    ret = memcpy_s(rule.tag, MAX_LENGTH_OF_EVENT_TAG, testTag.c_str(),
-        testTag.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
-        ASSERT_TRUE(false);
-    }
-    rule.ruleType = 1; // 1 means whole_word
-    rule.eventType = 1; // 1 means event type is fault
     const HiSysEventWatchRule rules[TEST_RULE_CNT] = {
-        rule
+        CreateWatchRule("KERNEL_VENDOR", "POWER_KEY", "")
     };
-
     auto watchRet = HiSysEventAddWatcherWrapper(watcher, rules, TEST_RULE_CNT);
     ASSERT_EQ(watchRet, SUCCESS);
     watchRet = HiSysEventRemoveWatcherWrapper(watcher);
     ASSERT_EQ(watchRet, SUCCESS);
+    watchRet = HiSysEventRemoveWatcherWrapper(watcher);
+    ASSERT_EQ(watchRet, ERR_LISTENER_NOT_EXIST);
+    RecycleRustEventWatcher(watcher);
 }
 
 /**
@@ -143,30 +175,33 @@ HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest002, testing::ext
  */
 HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest003, testing::ext::TestSize.Level3)
 {
-    std::string testDomain = "KERNEL_VENDOR";
-    std::string testEventName = "POWER_KEY";
-    std::string testTimeZone = "+0800";
+    const std::string testDomain3 = "KERNEL_VENDOR";
+    const std::string testEventName3 = "POWER_KEY";
+    const std::string testTimeZone3 = "+0800";
     HiSysEventRecordC record;
-    auto ret = memcpy_s(record.domain, MAX_LENGTH_OF_EVENT_DOMAIN, testDomain.c_str(),
-        testDomain.length() + 1); // copy length + 1 bytes
+    auto ret = memcpy_s(record.domain, MAX_LENGTH_OF_EVENT_DOMAIN, testDomain3.c_str(),
+        testDomain3.length() + 1); // copy length + 1 bytes
     if (ret != EOK) {
         ASSERT_TRUE(false);
     }
-    ret = memcpy_s(record.eventName, MAX_LENGTH_OF_EVENT_NAME, testEventName.c_str(),
-        testEventName.length() + 1); // copy length + 1 bytes
+    ret = memcpy_s(record.eventName, MAX_LENGTH_OF_EVENT_NAME, testEventName3.c_str(),
+        testEventName3.length() + 1); // copy length + 1 bytes
     if (ret != EOK) {
         ASSERT_TRUE(false);
     }
     record.type = 1; // 1 means event type is fault
     record.time = 0; // 0 is a test timestamp
-    ret = memcpy_s(record.tz, MAX_LENGTH_OF_TIME_ZONE, testTimeZone.c_str(),
-        testTimeZone.length() + 1); // copy length + 1 bytes
+    ret = memcpy_s(record.tz, MAX_LENGTH_OF_TIME_ZONE, testTimeZone3.c_str(),
+        testTimeZone3.length() + 1); // copy length + 1 bytes
     const HiSysEventRecordC records[RECORDS_CNT] = {
         record
     };
     HiSysEventRecordC recordRet = GetHiSysEventRecordByIndexWrapper(records, RECORDS_CNT, 0);
-    ASSERT_EQ(recordRet.domain, testDomain);
-    ASSERT_EQ(recordRet.eventName, testEventName);
+    ASSERT_EQ(recordRet.domain, testDomain3);
+    ASSERT_EQ(recordRet.eventName, testEventName3);
+    recordRet = GetHiSysEventRecordByIndexWrapper(records, RECORDS_CNT, RECORDS_CNT);
+    ASSERT_TRUE(recordRet.domain != testDomain3);
+    ASSERT_TRUE(recordRet.eventName != testEventName3);
 }
 
 /**
@@ -178,29 +213,12 @@ HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest003, testing::ext
 HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest004, testing::ext::TestSize.Level3)
 {
     HiSysEventQueryArg quertArg {
-        .beginTime = -1, // -1 means no time fit
-        .endTime = -1,   // -1 means no time fit
+        .beginTime = -1, // -1 means querying without beginning time limit
+        .endTime = -1,   // -1 means querying without ending time limit
         .maxEvents = 10, // query 10 events
     };
-
-    std::string testDomain = "KERNEL_VENDOR";
-    std::string testEventName = "POWER_KEY";
-    std::string testCondition = "";
-    HiSysEventQueryRuleWrapper rule;
-    auto ret = memcpy_s(rule.domain, MAX_LENGTH_OF_EVENT_DOMAIN, testDomain.c_str(),
-        testDomain.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
-        ASSERT_TRUE(false);
-    }
-    ret = memcpy_s(rule.eventList, MAX_EVENT_LIST_LEN, testEventName.c_str(),
-        testEventName.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
-        ASSERT_TRUE(false);
-    }
-    rule.eventListSize = testEventName.length();
-    rule.condition = const_cast<char*>(testCondition.c_str());
     const HiSysEventQueryRuleWrapper rules[TEST_RULE_CNT] = {
-        rule
+        CreateQueryRule("KERNEL_VENDOR", "POWER_KEY", "")
     };
     HiSysEventRustQuerierC* querier = CreateRustEventQuerier(reinterpret_cast<const void*>(TestCallback),
         TestOnQueryWrapperCb, reinterpret_cast<const void*>(TestCallback), TestOnCompleteWrapperCb);
@@ -261,12 +279,63 @@ HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest006, testing::ext
     listerner2.OnEvent(nullptr);
     ASSERT_TRUE(watcher != nullptr);
     std::string eventStrListeral = "{\"domain_\": \"DEMO\",\"name_\": \"EVENT_NAME_A\",\"type_\": 4,\
-        \"PARAM_A\": 3.4,\"UINT64_T\": 18446744073709551610,\"DOUBLE_T\": 3.3,\"INT64_T\": 9223372036854775800,\
+        \"PARAM_A\": 3.4,\"UINT64_T\": 18446744073709551611,\"DOUBLE_T\": 3.3,\"INT64_T\": 9223372036854775801,\
         \"PARAM_B\": [\"123\", \"456\", \"789\"],\"PARAM_C\": []}";
     auto event = std::make_shared<OHOS::HiviewDFX::HiSysEventRecord>(eventStrListeral);
     listerner2.OnEvent(event);
     listerner2.OnServiceDied();
     ASSERT_TRUE(event != nullptr);
+}
+
+/**
+ * @tc.name: HiSysEventCWrapperUnitTest007
+ * @tc.desc: Test APIs of HiSysEventRustQuerier with invalid querier
+ * @tc.type: FUNC
+ * @tc.require: issueI8ZXDD
+ */
+HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest007, testing::ext::TestSize.Level3)
+{
+    HiSysEventQueryArg quertArg {
+        .beginTime = -1, // -1 means querying without beginning time limit
+        .endTime = -1,   // -1 means querying without ending time limit
+        .maxEvents = 10, // query 10 events
+    };
+    const HiSysEventQueryRuleWrapper rules[TEST_RULE_CNT] = {
+        CreateQueryRule("", "", "")
+    };
+    HiSysEventRustQuerierC* querier = CreateRustEventQuerier(reinterpret_cast<const void*>(TestCallback),
+        TestOnQueryWrapperCb, reinterpret_cast<const void*>(TestCallback), TestOnCompleteWrapperCb);
+    auto queryRet = HiSysEventQueryWrapper(&quertArg, rules, TEST_RULE_CNT, querier);
+    sleep(3);
+    ASSERT_EQ(queryRet, ERR_QUERY_RULE_INVALID);
+    HiSysEventRustQuerierC* invalidQuerier = CreateRustEventQuerier(nullptr, nullptr, nullptr, nullptr);
+    ASSERT_TRUE(invalidQuerier == nullptr);
+    queryRet = HiSysEventQueryWrapper(&quertArg, rules, TEST_RULE_CNT, invalidQuerier);
+    ASSERT_EQ(queryRet, ERR_LISTENER_NOT_EXIST);
+}
+
+/**
+ * @tc.name: HiSysEventCWrapperUnitTest008
+ * @tc.desc: Test APIs of HiSysEventRustListener with invlaid watcher
+ * @tc.type: FUNC
+ * @tc.require: issueI8ZXDD
+ */
+HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest008, testing::ext::TestSize.Level3)
+{
+    HiSysEventRustWatcherC* watcher = CreateRustEventWatcher(nullptr, nullptr, nullptr, nullptr);
+    ASSERT_TRUE(watcher == nullptr);
+    const HiSysEventWatchRule rules[TEST_RULE_CNT] = {
+        CreateWatchRule("", "", "")
+    };
+    auto watchRet = HiSysEventAddWatcherWrapper(watcher, rules, TEST_RULE_CNT);
+    ASSERT_EQ(watchRet, ERR_LISTENER_NOT_EXIST);
+    watchRet = HiSysEventRemoveWatcherWrapper(watcher);
+    ASSERT_EQ(watchRet, ERR_LISTENER_NOT_EXIST);
+    watchRet = HiSysEventRemoveWatcherWrapper(nullptr);
+    ASSERT_EQ(watchRet, ERR_LISTENER_NOT_EXIST);
+    RecycleRustEventWatcher(watcher);
+    watchRet = HiSysEventRemoveWatcherWrapper(watcher);
+    ASSERT_EQ(watchRet, ERR_LISTENER_NOT_EXIST);
 }
 } // HiviewDFX
 } // OHOS
