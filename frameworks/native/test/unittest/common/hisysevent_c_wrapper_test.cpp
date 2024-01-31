@@ -31,6 +31,7 @@ namespace {
 constexpr int TEST_WROTE_EVENT_SIZE = 5;
 constexpr int TEST_RULE_CNT = 1;
 constexpr int RECORDS_CNT = 1;
+constexpr int EXT_BYTE_CNT = 1;
 
 void TestCallback()
 {
@@ -57,22 +58,12 @@ void TestOnCompleteWrapperCb(OnRustCb callback, int reason, int total)
     // do nothing
 }
 
-HiSysEventWatchRule CreateWatchRule(const std::string& domain, const std::string& eventName, const std::string& tag)
+HiSysEventWatchRule CreateWatchRule(const std::string& domain, const std::string& name, const std::string& tag)
 {
     HiSysEventWatchRule rule;
-    auto ret = memcpy_s(rule.domain, MAX_LENGTH_OF_EVENT_DOMAIN, domain.c_str(),
-        domain.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
-        return rule;
-    }
-    ret = memcpy_s(rule.name, MAX_LENGTH_OF_EVENT_NAME, eventName.c_str(),
-        eventName.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
-        return rule;
-    }
-    ret = memcpy_s(rule.tag, MAX_LENGTH_OF_EVENT_TAG, tag.c_str(),
-        tag.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
+    if (memcpy_s(rule.domain, MAX_LENGTH_OF_EVENT_DOMAIN, domain.c_str(), domain.length() + EXT_BYTE_CNT) != EOK ||
+        memcpy_s(rule.name, MAX_LENGTH_OF_EVENT_NAME, name.c_str(), name.length() + EXT_BYTE_CNT) != EOK ||
+        memcpy_s(rule.tag, MAX_LENGTH_OF_EVENT_TAG, tag.c_str(), tag.length() + EXT_BYTE_CNT) != EOK) {
         return rule;
     }
     rule.ruleType = 1; // 1 means whole_word
@@ -80,23 +71,31 @@ HiSysEventWatchRule CreateWatchRule(const std::string& domain, const std::string
     return rule;
 }
 
-HiSysEventQueryRuleWrapper CreateQueryRule(const std::string& domain, const std::string& eventName,
+HiSysEventQueryRuleWrapper CreateQueryRule(const std::string& domain, const std::string& name,
     const std::string& condition)
 {
     HiSysEventQueryRuleWrapper rule;
-    auto ret = memcpy_s(rule.domain, MAX_LENGTH_OF_EVENT_DOMAIN, domain.c_str(),
-        domain.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
+    if (memcpy_s(rule.domain, MAX_LENGTH_OF_EVENT_DOMAIN, domain.c_str(), domain.length() + EXT_BYTE_CNT) != EOK ||
+        memcpy_s(rule.eventList, MAX_EVENT_LIST_LEN, name.c_str(), name.length() + EXT_BYTE_CNT) != EOK) {
         return rule;
     }
-    ret = memcpy_s(rule.eventList, MAX_EVENT_LIST_LEN, eventName.c_str(),
-        eventName.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
-        return rule;
-    }
-    rule.eventListSize = eventName.length();
+    rule.eventListSize = name.length();
     rule.condition = const_cast<char*>(condition.c_str());
     return rule;
+}
+
+HiSysEventRecordC CreateSysEventRecord(const std::string& domain, const std::string& name,
+    const std::string& timeZone)
+{
+    HiSysEventRecordC record;
+    if (memcpy_s(record.domain, MAX_LENGTH_OF_EVENT_DOMAIN, domain.c_str(), domain.length() + EXT_BYTE_CNT) != EOK ||
+        memcpy_s(record.eventName, MAX_LENGTH_OF_EVENT_NAME, name.c_str(), name.length() + EXT_BYTE_CNT) != EOK ||
+        memcpy_s(record.tz, MAX_LENGTH_OF_TIME_ZONE, timeZone.c_str(), timeZone.length() + EXT_BYTE_CNT) != EOK) {
+        return record;
+    }
+    record.type = 1; // 1 means event type is fault
+    record.time = 0; // 0 is a test timestamp
+    return record;
 }
 }
 
@@ -175,33 +174,17 @@ HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest002, testing::ext
  */
 HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest003, testing::ext::TestSize.Level3)
 {
-    const std::string testDomain3 = "KERNEL_VENDOR";
-    const std::string testEventName3 = "POWER_KEY";
-    const std::string testTimeZone3 = "+0800";
-    HiSysEventRecordC record;
-    auto ret = memcpy_s(record.domain, MAX_LENGTH_OF_EVENT_DOMAIN, testDomain3.c_str(),
-        testDomain3.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
-        ASSERT_TRUE(false);
-    }
-    ret = memcpy_s(record.eventName, MAX_LENGTH_OF_EVENT_NAME, testEventName3.c_str(),
-        testEventName3.length() + 1); // copy length + 1 bytes
-    if (ret != EOK) {
-        ASSERT_TRUE(false);
-    }
-    record.type = 1; // 1 means event type is fault
-    record.time = 0; // 0 is a test timestamp
-    ret = memcpy_s(record.tz, MAX_LENGTH_OF_TIME_ZONE, testTimeZone3.c_str(),
-        testTimeZone3.length() + 1); // copy length + 1 bytes
+    const std::string testDomain = "KERNEL_VENDOR";
+    const std::string testEventName = "POWER_KEY";
     const HiSysEventRecordC records[RECORDS_CNT] = {
-        record
+        CreateSysEventRecord(testDomain, testEventName, "+0800")
     };
     HiSysEventRecordC recordRet = GetHiSysEventRecordByIndexWrapper(records, RECORDS_CNT, 0);
-    ASSERT_EQ(recordRet.domain, testDomain3);
-    ASSERT_EQ(recordRet.eventName, testEventName3);
+    ASSERT_EQ(recordRet.domain, testDomain);
+    ASSERT_EQ(recordRet.eventName, testEventName);
     recordRet = GetHiSysEventRecordByIndexWrapper(records, RECORDS_CNT, RECORDS_CNT);
-    ASSERT_TRUE(recordRet.domain != testDomain3);
-    ASSERT_TRUE(recordRet.eventName != testEventName3);
+    ASSERT_TRUE(recordRet.domain != testDomain);
+    ASSERT_TRUE(recordRet.eventName != testEventName);
 }
 
 /**
@@ -246,9 +229,9 @@ HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest005, testing::ext
     ASSERT_TRUE(querier == nullptr);
     auto events = std::make_shared<std::vector<OHOS::HiviewDFX::HiSysEventRecord>>();
     ASSERT_TRUE(events != nullptr);
-    std::string eventStrListeral = "{\"domain_\": \"DEMO\",\"name_\": \"EVENT_NAME_A\",\"type_\": 4,\
-        \"PARAM_A\": 3.4,\"UINT64_T\": 18446744073709551610,\"DOUBLE_T\": 3.3,\"INT64_T\": 9223372036854775800,\
-        \"PARAM_B\": [\"123\", \"456\", \"789\"],\"PARAM_C\": []}";
+    std::string eventStrListeral = "{\"domain_\": \"DEMO\", \"name_\": \"EVENT_NAME_A\", \"type_\": 4,\
+        \"PARAM_A\": 3.4, \"UINT64_T\": 18446744073709551610, \"DOUBLE_T\": 3.3, \"INT64_T\": 9223372036854775800,\
+        \"PARAM_B\": [\"123\", \"456\", \"789\"], \"PARAM_C\": []}";
     OHOS::HiviewDFX::HiSysEventRecord event(eventStrListeral);
     events->emplace_back(event);
     events->emplace_back(event);
@@ -278,9 +261,9 @@ HWTEST_F(HiSysEventCWrapperUnitTest, HiSysEventCWrapperUnitTest006, testing::ext
     HiSysEventRustListener listerner2(watcher);
     listerner2.OnEvent(nullptr);
     ASSERT_TRUE(watcher != nullptr);
-    std::string eventStrListeral = "{\"domain_\": \"DEMO\",\"name_\": \"EVENT_NAME_A\",\"type_\": 4,\
-        \"PARAM_A\": 3.4,\"UINT64_T\": 18446744073709551611,\"DOUBLE_T\": 3.3,\"INT64_T\": 9223372036854775801,\
-        \"PARAM_B\": [\"123\", \"456\", \"789\"],\"PARAM_C\": []}";
+    std::string eventStrListeral = "{\"domain_\": \"DEMO\", \"name_\": \"EVENT_NAME_A\", \"type_\": 4,\
+        \"PARAM_A\": 3.4, \"UINT64_T\": 18446744073709551611, \"DOUBLE_T\": 3.3, \"INT64_T\": 9223372036854775801,\
+        \"PARAM_B\": [\"123\", \"456\", \"789\"], \"PARAM_C\": []}";
     auto event = std::make_shared<OHOS::HiviewDFX::HiSysEventRecord>(eventStrListeral);
     listerner2.OnEvent(event);
     listerner2.OnServiceDied();
