@@ -157,6 +157,7 @@ public:
         static constexpr char MULTI_MODAL_INPUT[] = "MULTIMODALINPUT";
         static constexpr char MULTIWINDOW_UE[] = "MULTIWINDOW_UE";
         static constexpr char NETMANAGER_STANDARD[] = "NETMANAGER";
+        static constexpr char NETMANAGER_UE[] = "NETMANAGER_UE";
         static constexpr char NFC[] = "NFC";
         static constexpr char NFC_EXT[] = "NFC_EXT";
         static constexpr char NOTIFICATION[] = "NOTIFICATION";
