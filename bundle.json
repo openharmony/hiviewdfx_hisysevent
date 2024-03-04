@@ -23,10 +23,12 @@
     "deps": {
       "components": [
         "access_token",
+        "bounds_checking_function",
         "c_utils",
         "hilog",
         "hitrace",
         "ipc",
+        "jsoncpp",
         "napi",
         "safwk",
         "samgr",

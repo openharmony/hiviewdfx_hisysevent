@@ -20,8 +20,6 @@ config("hisyseventmanager_config") {
     "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager/include",
     "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/include",
     "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/encode/include",
-    "//third_party/bounds_checking_function/include",
-    "//third_party/jsoncpp/include",
     "include",
   ]
 }
@@ -58,15 +56,16 @@ ohos_shared_library("libhisyseventmanager") {
     "../../../../adapter/native/idl:sys_event_service_gen_src_client",
     "../../../../frameworks/native/util:hisysevent_util",
     "../hisysevent:libhisysevent",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   version_script = "libhisyseventmanager.map"
 
   external_deps = [
+    "bounds_checking_function:libsec_shared",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
+    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
   ]
 }
@@ -99,13 +98,13 @@ ohos_static_library("hisyseventmanager_static_lib_for_tdd") {
     "../../../../adapter/native/idl:sys_event_service_gen_src_client",
     "../../../../frameworks/native/util:hisysevent_util",
     "../hisysevent:hisysevent_static_lib_for_tdd",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
+    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
   ]
 }
