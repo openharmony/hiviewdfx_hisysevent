@@ -136,6 +136,7 @@ public:
         static constexpr char GLOBAL[] = "GLOBAL";
         static constexpr char GRAPHIC[] = "GRAPHIC";
         static constexpr char HDF_USB[] = "HDF_USB";
+        static constexpr char HIDUMPER[] = "HIDUMPER";
         static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
         static constexpr char HUKS[] = "HUKS";
         static constexpr char IAWARE[] = "IAWARE";
