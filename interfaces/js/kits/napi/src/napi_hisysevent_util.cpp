@@ -248,20 +248,18 @@ std::string GetStringTypeAttribute(const napi_env env, const napi_value& object,
     return ParseStringValue(env, propertyValue, defaultValue);
 }
 
-long long GetLonglongTypeAttribute(const napi_env env, const napi_value& object,
-    const std::string& propertyName, long long defaultValue = 0)
+long long GetLonglongTypeAttribute(const napi_env env, const napi_value& val, long long defaultValue = 0)
 {
-    napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
-    bool isNumberType = IsValueTypeValid(env, propertyValue, napi_valuetype::napi_number);
-    bool isBigIntType = IsValueTypeValid(env, propertyValue, napi_valuetype::napi_bigint);
+    bool isNumberType = IsValueTypeValid(env, val, napi_valuetype::napi_number);
+    bool isBigIntType = IsValueTypeValid(env, val, napi_valuetype::napi_bigint);
     if (!isNumberType && !isBigIntType) {
         HILOG_ERROR(LOG_CORE, "type is not napi_number or napi_bigint.");
         return defaultValue;
     }
     if (isNumberType) {
-        return static_cast<long long>(ParseNumberValue(env, propertyValue, defaultValue));
+        return static_cast<long long>(ParseNumberValue(env, val, defaultValue));
     }
-    I64ParseResult ret = ParseSignedBigIntValue(env, propertyValue);
+    I64ParseResult ret = ParseSignedBigIntValue(env, val);
     return static_cast<long long>(ret.second);
 }
 
@@ -916,19 +914,31 @@ int32_t NapiHiSysEventUtil::ParseQueryArg(const napi_env env, napi_value& jsObj,
         ThrowParamTypeError(env, "queryArg", "object");
         return ERR_QUERY_ARG_TYPE_INVALID;
     }
-    auto beginTime = GetLonglongTypeAttribute(env, jsObj, BEGIN_TIME_ATTR, DEFAULT_TIME_STAMP);
+    auto beginTimeVal = NapiHiSysEventUtil::GetPropertyByName(env, jsObj, BEGIN_TIME_ATTR);
+    auto endTimeVal = NapiHiSysEventUtil::GetPropertyByName(env, jsObj, END_TIME_ATTR);
+    auto fromSeqVal = NapiHiSysEventUtil::GetPropertyByName(env, jsObj, BEGIN_SEQ_ATTR);
+    auto toSeqVal = NapiHiSysEventUtil::GetPropertyByName(env, jsObj, END_SEQ_ATTR);
+    if ((IsNullOrUndefined(env, beginTimeVal) || IsNullOrUndefined(env, endTimeVal)) &&
+        (IsNullOrUndefined(env, fromSeqVal) || IsNullOrUndefined(env, toSeqVal))) {
+        ThrowParamTypeError(env, "queryArg's member", "not null or undefined");
+        return ERR_QUERY_ARG_TYPE_INVALID;
+    }
+
+    auto beginTime = GetLonglongTypeAttribute(env, beginTimeVal, DEFAULT_TIME_STAMP);
     queryArg.beginTime = beginTime < 0 ? 0 : beginTime;
     HILOG_DEBUG(LOG_CORE, "queryArg.beginTime is %{public}lld.", queryArg.beginTime);
-    auto endTime = GetLonglongTypeAttribute(env, jsObj, END_TIME_ATTR, DEFAULT_TIME_STAMP);
+    auto endTime = GetLonglongTypeAttribute(env, endTimeVal, DEFAULT_TIME_STAMP);
     queryArg.endTime = endTime < 0 ? std::numeric_limits<long long>::max() : endTime;
     HILOG_DEBUG(LOG_CORE, "queryArg.endTime is %{public}lld.", queryArg.endTime);
+    queryArg.fromSeq = GetLonglongTypeAttribute(env, fromSeqVal, DEFAULT_SEQ);
+    HILOG_DEBUG(LOG_CORE, "queryArg.fromSeq is %{public}lld.", queryArg.fromSeq);
+    queryArg.toSeq = GetLonglongTypeAttribute(env, toSeqVal, DEFAULT_SEQ);
+    HILOG_DEBUG(LOG_CORE, "queryArg.endSeq is %{public}lld.", queryArg.toSeq);
+
     auto maxEvents = GetInt32TypeAttribute(env, jsObj, MAX_EVENTS_ATTR, DEFAULT_MAX_EVENTS);
     queryArg.maxEvents = maxEvents < 0 ? std::numeric_limits<int>::max() : maxEvents;
     HILOG_DEBUG(LOG_CORE, "queryArg.maxEvents is %{public}d.", queryArg.maxEvents);
-    queryArg.fromSeq = GetLonglongTypeAttribute(env, jsObj, BEGIN_SEQ_ATTR, DEFAULT_SEQ);
-    HILOG_DEBUG(LOG_CORE, "queryArg.fromSeq is %{public}lld.", queryArg.fromSeq);
-    queryArg.toSeq = GetLonglongTypeAttribute(env, jsObj, END_SEQ_ATTR, DEFAULT_SEQ);
-    HILOG_DEBUG(LOG_CORE, "queryArg.endSeq is %{public}lld.", queryArg.toSeq);
+
     return NAPI_SUCCESS;
 }
 
@@ -1084,6 +1094,12 @@ bool NapiHiSysEventUtil::IsSystemAppCall()
 {
     uint64_t tokenId = IPCSkeleton::GetCallingFullTokenID();
     return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(tokenId);
+}
+
+bool NapiHiSysEventUtil::IsNullOrUndefined(napi_env env, const napi_value& val)
+{
+    return IsValueTypeValid(env, val, napi_valuetype::napi_null) ||
+        IsValueTypeValid(env, val, napi_valuetype::napi_undefined);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
