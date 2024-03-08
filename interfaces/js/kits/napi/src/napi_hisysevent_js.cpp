@@ -219,6 +219,11 @@ static napi_value Query(napi_env env, napi_callback_info info)
         HILOG_ERROR(LOG_CORE, "failed to parse query rules, result code is %{public}d.", ret);
         return nullptr;
     }
+    if (NapiHiSysEventUtil::IsNullOrUndefined(env, params[QUERY_QUERIER_PARAM_INDEX])) {
+        NapiHiSysEventUtil::ThrowParamTypeError(env, "querier", "Querier");
+        HILOG_ERROR(LOG_CORE, "querier is null or undefined.");
+        return nullptr;
+    }
     CallbackContext* callbackContext = new CallbackContext();
     callbackContext->env = env;
     callbackContext->threadId = syscall(SYS_gettid);
