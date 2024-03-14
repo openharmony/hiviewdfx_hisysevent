@@ -97,6 +97,7 @@ public:
         static constexpr char CAM_DRV[] = "CAM_DRV";
         static constexpr char CAMERA[] = "CAMERA";
         static constexpr char CAMERA_ARCH[] = "CAMERA_ARCH";
+        static constexpr char CAMERA_HAL[] = "CAMERA_HAL";
         static constexpr char CAMERA_IPS[] = "CAMERA_IPS";
         static constexpr char CAST_ENGINE[] = "CASTENGINE";
         static constexpr char CCRUNTIME[] = "CCRUNTIME";
