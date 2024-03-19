@@ -45,7 +45,7 @@ NapiHiSysEventQuerier::~NapiHiSysEventQuerier()
     if (jsCallbackManager != nullptr) {
         jsCallbackManager->Release();
     }
-    if (callbackContext->threadId == syscall(SYS_gettid)) {
+    if (callbackContext->threadId == getproctid()) {
         napi_delete_reference(callbackContext->env, callbackContext->ref);
     }
     delete callbackContext;
@@ -56,7 +56,7 @@ void NapiHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvents,
 {
     jsCallbackManager->Add(callbackContext,
         [this, sysEvents, seq] (const napi_env env, const napi_ref ref, pid_t threadId) {
-            if (threadId != syscall(SYS_gettid)) {
+            if (threadId != getproctid()) {
                 return;
             }
             napi_value sysEventInfoJsArray = nullptr;
@@ -79,7 +79,7 @@ void NapiHiSysEventQuerier::OnComplete(int32_t reason, int32_t total, int64_t se
 {
     jsCallbackManager->Add(callbackContext,
         [this, reason, total, seq] (const napi_env env, const napi_ref ref, pid_t threadId) {
-            if (threadId != syscall(SYS_gettid)) {
+            if (threadId != getproctid()) {
                 return;
             }
             napi_value reasonJsParam = nullptr;
@@ -99,7 +99,7 @@ void NapiHiSysEventQuerier::OnComplete(int32_t reason, int32_t total, int64_t se
                 HILOG_ERROR(LOG_CORE, "failed to call OnComplete JS function.");
             }
         }, [this] (pid_t threadId) {
-            if (threadId != syscall(SYS_gettid)) {
+            if (threadId != getproctid()) {
                 return;
             }
             if (this->onCompleteHandler != nullptr && this->callbackContext != nullptr) {

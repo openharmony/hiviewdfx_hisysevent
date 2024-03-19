@@ -94,8 +94,8 @@ void HiSysEvent::EventBase::WritebaseInfo()
     }
     tzset();
     header_.timeZone = static_cast<uint8_t>(ParseTimeZone(timezone));
-    header_.pid = static_cast<uint32_t>(getpid());
-    header_.tid = static_cast<uint32_t>(gettid());
+    header_.pid = static_cast<uint32_t>(getprocpid());
+    header_.tid = static_cast<uint32_t>(getproctid());
     header_.uid = static_cast<uint32_t>(getuid());
 #ifdef HIVIEWDFX_HITRACE_ENABLED
     HiTraceId hitraceId = HiTraceChain::GetId();

@@ -141,7 +141,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
     }
     CallbackContext* callbackContext = new CallbackContext();
     callbackContext->env = env;
-    callbackContext->threadId = syscall(SYS_gettid);
+    callbackContext->threadId = getproctid();
     napi_create_reference(env, params[ADD_LISTENER_LISTENER_PARAM_INDEX], 1, &callbackContext->ref);
     std::shared_ptr<NapiHiSysEventListener> listener = std::make_shared<NapiHiSysEventListener>(callbackContext);
     auto ret = HiSysEventBaseManager::AddListener(listener, rules);
@@ -226,7 +226,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
     }
     CallbackContext* callbackContext = new CallbackContext();
     callbackContext->env = env;
-    callbackContext->threadId = syscall(SYS_gettid);
+    callbackContext->threadId = getproctid();
     napi_create_reference(env, params[QUERY_QUERIER_PARAM_INDEX], 1, &callbackContext->ref);
     std::shared_ptr<NapiHiSysEventQuerier> querier = std::make_shared<NapiHiSysEventQuerier>(callbackContext,
         [] (const napi_env env, const napi_ref ref) {
