@@ -44,7 +44,7 @@ NapiHiSysEventListener::~NapiHiSysEventListener()
     if (jsCallbackManager != nullptr) {
         jsCallbackManager->Release();
     }
-    if (callbackContext->threadId == syscall(SYS_gettid)) {
+    if (callbackContext->threadId == getproctid()) {
         napi_delete_reference(callbackContext->env, callbackContext->ref);
     }
     delete callbackContext;
@@ -55,7 +55,7 @@ void NapiHiSysEventListener::OnEvent(const std::string& domain, const std::strin
 {
     jsCallbackManager->Add(callbackContext,
         [this, domain, eventName, eventType, eventDetail] (const napi_env env, const napi_ref ref, pid_t threadId) {
-            if (threadId != syscall(SYS_gettid)) {
+            if (threadId != getproctid()) {
                 return;
             }
             napi_value sysEventInfo = nullptr;
@@ -79,7 +79,7 @@ void NapiHiSysEventListener::OnServiceDied()
 {
     jsCallbackManager->Add(callbackContext,
         [this] (const napi_env env, const napi_ref ref, pid_t threadId) {
-            if (threadId != syscall(SYS_gettid)) {
+            if (threadId != getproctid()) {
                 return;
             }
             napi_value listener = nullptr;
