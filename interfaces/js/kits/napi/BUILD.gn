@@ -18,7 +18,6 @@ ohos_shared_library("hisysevent_napi") {
     ".",
     "include/",
     "//third_party/jsoncpp/include",
-    "//third_party/node/src",
   ]
 
   configs = []

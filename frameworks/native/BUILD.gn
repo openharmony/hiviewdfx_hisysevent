@@ -26,14 +26,13 @@ ohos_executable("hisysevent") {
     "include",
   ]
 
-  public_configs =
-      [ "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_config" ]
+  public_configs = [ "../../adapter/native/idl:sys_event_impl_config" ]
 
   deps = [
+    "../../adapter/native/idl:sys_event_impl_client",
+    "../../adapter/native/idl:sys_event_service_gen_src_client",
     "../../interfaces/native/innerkits/hisysevent:libhisysevent",
     "../../interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
-    "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_impl_client",
-    "//base/hiviewdfx/hisysevent/adapter/native/idl:sys_event_service_gen_src_client",
   ]
 
   external_deps = [

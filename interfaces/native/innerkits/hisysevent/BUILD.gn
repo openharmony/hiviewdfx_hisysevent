@@ -81,7 +81,6 @@ ohos_shared_library("libhisysevent") {
 ohos_static_library("hisysevent_static_lib_for_tdd") {
   configs = [ ":hisysevent_config" ]
 
-  all_dependent_configs = [ ":hisysevent_config" ]
   public_configs = [ ":hisysevent_config" ]
 
   sources = [
