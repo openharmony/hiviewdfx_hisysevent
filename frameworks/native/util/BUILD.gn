@@ -15,14 +15,17 @@ import("//build/ohos.gni")
 
 config("hisysevent_util_config") {
   visibility = [ "*:*" ]
-  include_dirs = [
-    "include",
-    "//third_party/bounds_checking_function/include",
-  ]
+  include_dirs = [ "include" ]
 }
 
 ohos_source_set("hisysevent_util") {
   public_configs = [ ":hisysevent_util_config" ]
 
   sources = [ "string_util.cpp" ]
+
+  external_deps = [ "bounds_checking_function:libsec_shared" ]
+
+  part_name = "hisysevent"
+
+  subsystem_name = "hiviewdfx"
 }
