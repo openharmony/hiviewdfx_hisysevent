@@ -84,6 +84,7 @@ public:
         static constexpr char ACE[] = "ACE";
         static constexpr char AI[] = "AI";
         static constexpr char APPEXECFWK[] = "APPEXECFWK";
+        static constexpr char ARKTS_RUNTIME[] = "ARKTS_RUNTIME";
         static constexpr char AUDIO[] = "AUDIO";
         static constexpr char AV_SESSION[] = "AV_SESSION";
         static constexpr char AV_CODEC[] = "AV_CODEC";
