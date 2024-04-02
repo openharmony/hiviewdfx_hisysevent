@@ -177,12 +177,12 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
         NapiHiSysEventUtil::ThrowErrorByRet(env, ERR_NAPI_LISTENER_NOT_FOUND);
         return nullptr;
     }
-    listeners.erase(iter->first);
     if (auto ret = HiSysEventBaseManager::RemoveListener(iter->second.second);
         ret != NAPI_SUCCESS) {
         HILOG_ERROR(LOG_CORE, "failed to remove event listener, result code is %{public}d.", ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
     }
+    listeners.erase(iter->first);
     return nullptr;
 }
 
