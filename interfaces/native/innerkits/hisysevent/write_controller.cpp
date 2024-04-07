@@ -37,8 +37,8 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 constexpr int SEC_TO_MILLS = 1000;
-constexpr uint64_t PRIME = 0x100000001B3ull;
-constexpr uint64_t BASIS = 0xCBF29CE484222325ull;
+constexpr uint64_t PRIME = 0x100000001B3ULL;
+constexpr uint64_t BASIS = 0xCBF29CE484222325ULL;
 constexpr char CONNECTOR[] = "_";
 
 uint64_t GenerateHash(const std::string& info)
