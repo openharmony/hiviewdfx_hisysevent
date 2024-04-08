@@ -16,6 +16,7 @@
 #include "napi_hisysevent_init.h"
 
 #include <memory>
+#include <mutex>
 #include <unordered_map>
 
 #include "def.h"
@@ -59,6 +60,7 @@ constexpr int DEFAULT_EVENT_COUNT = 1000;
 constexpr int TIME_STAMP_LENGTH = 13;
 using NAPI_LISTENER_PAIR = std::pair<pid_t, std::shared_ptr<NapiHiSysEventListener>>;
 using NAPI_QUERIER_PAIR = std::pair<pid_t, std::shared_ptr<NapiHiSysEventQuerier>>;
+std::mutex mapMutex;
 std::unordered_map<napi_ref, NAPI_LISTENER_PAIR> listeners;
 std::unordered_map<napi_ref, NAPI_QUERIER_PAIR> queriers;
 }
@@ -182,6 +184,7 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
         HILOG_ERROR(LOG_CORE, "failed to remove event listener, result code is %{public}d.", ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
     }
+    std::lock_guard<std::mutex> lock(mapMutex);
     listeners.erase(iter->first);
     return nullptr;
 }
@@ -233,6 +236,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
             napi_value querier = nullptr;
             napi_get_reference_value(env, ref, &querier);
             auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventQuerier>(env, querier, queriers);
+            std::lock_guard<std::mutex> lock(mapMutex);
             if (iter != queriers.end()) {
                 queriers.erase(iter->first);
             }

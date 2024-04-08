@@ -15,8 +15,9 @@
 
 #include "hisysevent_manager_c.h"
 
-#include <string>
 #include <map>
+#include <mutex>
+#include <string>
 
 #include "hisysevent_base_manager.h"
 #include "hisysevent_listener_c.h"
@@ -37,6 +38,7 @@ using OHOS::HiviewDFX::ERR_LISTENER_NOT_EXIST;
 using OHOS::HiviewDFX::RuleType;
 
 static std::map<std::pair<OnEventFunc, OnServiceDiedFunc>, std::shared_ptr<HiSysEventBaseListener>> watchers;
+std::mutex mapMutex;
 
 int HiSysEventQuery(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], size_t ruleSize,
     HiSysEventQueryCallback& callback)
@@ -83,6 +85,7 @@ int HiSysEventRemoveWatcher(HiSysEventWatcher& watcher)
         return ERR_LISTENER_NOT_EXIST;
     }
     auto ret = HiSysEventBaseManager::RemoveListener(watcherIter->second);
+    std::lock_guard<std::mutex> lock(mapMutex);
     if (ret == IPC_CALL_SUCCEED) {
         watchers.erase(watcherIter->first);
     }
