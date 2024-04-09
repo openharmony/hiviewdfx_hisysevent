@@ -35,8 +35,7 @@
         "storage_service"
       ],
       "third_party": [
-        "bounds_checking_function",
-        "jsoncpp"
+        "bounds_checking_function"
       ]
     },
     "build": {
