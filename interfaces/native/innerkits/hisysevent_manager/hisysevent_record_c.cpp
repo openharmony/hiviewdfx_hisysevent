@@ -61,6 +61,9 @@ int GetParamValues(const HiSysEventRecordC& record, const char* name, T** value,
     }
     len = dataVec.size();
     T* data = new(std::nothrow) T[len];
+    if (data == nullptr) {
+        return ERR_NULL;
+    }
     for (size_t i = 0; i < len; i++) {
         data[i] = dataVec[i];
     }
