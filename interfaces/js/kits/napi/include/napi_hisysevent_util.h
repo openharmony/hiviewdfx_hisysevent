@@ -82,7 +82,7 @@ public:
         napi_status status;
         auto iter = resources.begin();
         for (; iter != resources.end(); iter++) {
-            if (iter->second.first != syscall(SYS_gettid)) { // avoid error caused by vm run in multi-thread
+            if (iter->second.first != getproctid()) { // avoid error caused by vm run in multi-thread
                 continue;
             }
             napi_value val = nullptr;
