@@ -60,8 +60,9 @@ constexpr int DEFAULT_EVENT_COUNT = 1000;
 constexpr int TIME_STAMP_LENGTH = 13;
 using NAPI_LISTENER_PAIR = std::pair<pid_t, std::shared_ptr<NapiHiSysEventListener>>;
 using NAPI_QUERIER_PAIR = std::pair<pid_t, std::shared_ptr<NapiHiSysEventQuerier>>;
-std::mutex g_mapMutex;
+std::mutex g_listenerMapMutex;
 std::unordered_map<napi_ref, NAPI_LISTENER_PAIR> listeners;
+std::mutex g_querierMapMutex;
 std::unordered_map<napi_ref, NAPI_QUERIER_PAIR> queriers;
 }
 
@@ -152,6 +153,7 @@ static napi_value AddWatcher(napi_env env, napi_callback_info info)
         NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
         return nullptr;
     }
+    std::lock_guard<std::mutex> lock(g_listenerMapMutex);
     listeners[callbackContext->ref] = std::make_pair(callbackContext->threadId, listener);
     return nullptr;
 }
@@ -183,8 +185,9 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
         ret != NAPI_SUCCESS) {
         HILOG_ERROR(LOG_CORE, "failed to remove event listener, result code is %{public}d.", ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
+        return nullptr;
     }
-    std::lock_guard<std::mutex> lock(g_mapMutex);
+    std::lock_guard<std::mutex> lock(g_listenerMapMutex);
     listeners.erase(iter->first);
     return nullptr;
 }
@@ -236,7 +239,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
             napi_value querier = nullptr;
             napi_get_reference_value(env, ref, &querier);
             auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventQuerier>(env, querier, queriers);
-            std::lock_guard<std::mutex> lock(g_mapMutex);
+            std::lock_guard<std::mutex> lock(g_querierMapMutex);
             if (iter != queriers.end()) {
                 queriers.erase(iter->first);
             }
@@ -246,6 +249,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
         HILOG_ERROR(LOG_CORE, "failed to query hisysevent, result code is %{public}d.", ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
     }
+    std::lock_guard<std::mutex> lock(g_querierMapMutex);
     queriers[callbackContext->ref] = std::make_pair(callbackContext->threadId, querier);
     return nullptr;
 }
