@@ -77,26 +77,25 @@ void Transport::InitRecvBuffer(int socketId)
 
 int Transport::SendToHiSysEventDataSource(RawData& rawData)
 {
-    if (socketId_ < 0) {
-        socketId_ = TEMP_FAILURE_RETRY(socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0));
-        if (socketId_ < 0) {
-            strerror_r(errno, g_errMsg, BUF_SIZE);
-            HILOG_DEBUG(LOG_CORE, "create hisysevent client socket failed, error=%{public}d, msg=%{public}s",
-                errno, g_errMsg);
-            return ERR_DOES_NOT_INIT;
-        }
-        InitRecvBuffer(socketId_);
+    // reopen the socket with an new id each time is neccessary here, which is more efficient than that
+    // reuse id of the opened socket and then use a mutex to avoid multi-threading race.
+    auto socketId = TEMP_FAILURE_RETRY(socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0));
+    if (socketId < 0) {
+        strerror_r(errno, g_errMsg, BUF_SIZE);
+        HILOG_DEBUG(LOG_CORE, "create hisysevent client socket failed, error=%{public}d, msg=%{public}s",
+            errno, g_errMsg);
+        return ERR_DOES_NOT_INIT;
     }
+    InitRecvBuffer(socketId);
     auto sendRet = 0;
     auto retryTimes = RETRY_TIMES;
     do {
-        sendRet = sendto(socketId_, rawData.GetData(), rawData.GetDataLength(), 0,
+        sendRet = sendto(socketId, rawData.GetData(), rawData.GetDataLength(), 0,
             reinterpret_cast<sockaddr*>(&g_serverAddr), sizeof(g_serverAddr));
         retryTimes--;
     } while (sendRet < 0 && retryTimes > 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
     if (sendRet < 0) {
-        close(socketId_);
-        socketId_ = INVALID_SOCKET_ID;
+        close(socketId);
         strerror_r(errno, g_errMsg, BUF_SIZE);
         HILOG_DEBUG(LOG_CORE, "send data to hisysevent server failed, error=%{public}d, msg=%{public}s",
             errno, g_errMsg);

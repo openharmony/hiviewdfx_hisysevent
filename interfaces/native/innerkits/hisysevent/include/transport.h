@@ -25,8 +25,6 @@
 namespace OHOS {
 namespace HiviewDFX {
 using namespace Encoded;
-constexpr int INVALID_SOCKET_ID = -1;
-
 class Transport {
 public:
     Transport() {}
@@ -48,7 +46,6 @@ private:
     static constexpr int RETRY_TIMES = 3;
     std::mutex mutex_;
     std::list<RawData> retryDataList_;
-    int socketId_ = INVALID_SOCKET_ID; // uninit
 };
 } // namespace HiviewDFX
 } // namespace OHOS
