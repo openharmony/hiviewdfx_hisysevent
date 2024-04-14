@@ -101,6 +101,8 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
             errno, g_errMsg);
         return ERR_SEND_FAIL;
     }
+    close(socketId);
+    HILOG_DEBUG(LOG_CORE, "hisysevent send data successful");
     return SUCCESS;
 }
 
