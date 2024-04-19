@@ -183,6 +183,7 @@ public:
         static constexpr char STATS[] = "STATS";
         static constexpr char TELEPHONY[] = "TELEPHONY";
         static constexpr char THEME[] = "THEME";
+        static constexpr char THEME_MGR[] = "THEME_MGR";
         static constexpr char THERMAL[] = "THERMAL";
         static constexpr char TIME[] = "TIME";
         static constexpr char UPDATE[] = "UPDATE";
