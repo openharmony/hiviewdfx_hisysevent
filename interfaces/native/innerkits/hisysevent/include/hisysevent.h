@@ -138,6 +138,7 @@ public:
         static constexpr char GLOBAL_RESMGR[] = "GLOBAL_RESMGR";
         static constexpr char GLOBAL[] = "GLOBAL";
         static constexpr char GRAPHIC[] = "GRAPHIC";
+        static constexpr char GRAPHICS_GAME[] = "GRAPHICS_GAME";
         static constexpr char HDF_USB[] = "HDF_USB";
         static constexpr char HIDUMPER[] = "HIDUMPER";
         static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
