@@ -182,6 +182,7 @@ public:
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
         static constexpr char STARTUP[] = "STARTUP";
         static constexpr char STATS[] = "STATS";
+        static constexpr char TASK_MANAGER[] = "TASK_MANAGER";
         static constexpr char TELEPHONY[] = "TELEPHONY";
         static constexpr char THEME[] = "THEME";
         static constexpr char THEME_MGR[] = "THEME_MGR";
