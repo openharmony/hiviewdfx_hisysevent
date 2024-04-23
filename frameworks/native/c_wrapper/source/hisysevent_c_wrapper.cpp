@@ -49,7 +49,7 @@ static void SplitStringToArray(const char src[], unsigned int srcMaxLen, char de
             ++curPos;
             continue;
         }
-        sliceEnd = static_cast<int>(curPos - 1);
+        sliceEnd = static_cast<int>(curPos) - 1;
         cpyLen = sliceEnd - sliceBegin + 1;
         if ((cpyLen <= 0) || (cpyLen > MAX_LENGTH_OF_EVENT_NAME) ||
             (memcpy_s(dest[destItemIndex], cpyLen, src + sliceBegin, cpyLen) != EOK)) {
@@ -66,7 +66,7 @@ static void SplitStringToArray(const char src[], unsigned int srcMaxLen, char de
         }
     }
     if (curPos >= srcMaxLen || src[curPos] == '\0') {
-        sliceEnd = static_cast<int>(curPos - 1);
+        sliceEnd = static_cast<int>(curPos) - 1;
     }
     cpyLen = sliceEnd - sliceBegin + 1;
     if ((cpyLen <= 0) || (cpyLen > MAX_LENGTH_OF_EVENT_NAME) || (destItemIndex >= destSize) ||

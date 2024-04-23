@@ -50,6 +50,9 @@ int ConvertCString(const std::string& str, char** sp, size_t len)
         return -1;
     }
     char* data = new(std::nothrow) char[str.length() + 1]{0};
+    if (data == nullptr) {
+        return -1;
+    }
     if (auto res = strcpy_s(data, str.length() + 1, str.c_str()); res != 0) {
         StringUtil::DeletePointer<char>(&data);
         return res;
