@@ -56,22 +56,20 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
     uv_queue_work_with_qos(
         loop,
         work,
-        [] (uv_work_t* work) {},
+        [] (uv_work_t* work) {
+            HILOG_DEBUG(LOG_CORE, "enter uv work callback.");
+        },
         [] (uv_work_t* work, int status) {
             if (work == nullptr || work->data == nullptr) {
                 DeleteWork(work);
                 return;
             }
             CallbackContext* context = reinterpret_cast<CallbackContext*>(work->data);
-            if (context == nullptr) {
+            if (context == nullptr || context->env == nullptr) {
                 DeleteWork(work);
                 return;
             }
             napi_handle_scope scope = nullptr;
-            if (context->env == nullptr) {
-                DeleteWork(work);
-                return;
-            }
             napi_open_handle_scope(context->env, &scope);
             if (scope == nullptr) {
                 HILOG_DEBUG(LOG_CORE, "napi scope is null.");
