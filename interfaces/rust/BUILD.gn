@@ -24,6 +24,7 @@ ohos_rust_shared_library("hisysevent_rust") {
 
   crate_name = "hisysevent"
   crate_type = "dylib"
+  rustflags = [ "-Zstack-protector=all" ]
 
   part_name = "hisysevent"
   subsystem_name = "hiviewdfx"
