@@ -73,6 +73,9 @@ RawData::RawData(const RawData& data)
     auto rawData = data.GetData();
     if (dataLen == 0 || rawData == nullptr) {
         data_ = new(std::nothrow) uint8_t[EXPAND_BUF_SIZE];
+        if (data_ == nullptr) {
+            return;
+        }
         capacity_ = EXPAND_BUF_SIZE;
         len_ = 0;
         return;

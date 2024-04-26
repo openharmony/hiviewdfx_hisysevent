@@ -86,24 +86,6 @@ std::string GetFilePathByDir(const std::string& dir, const std::string& fileName
     return filePath;
 }
 
-int CopyFile(const std::string &src, const std::string &des)
-{
-    std::ifstream fin(src, std::ios::binary);
-    std::ofstream fout(des, std::ios::binary);
-    if (!fin.is_open()) {
-        return -1;
-    }
-    if (!fout.is_open()) {
-        return -1;
-    }
-    fout << fin.rdbuf();
-    if (fout.fail()) {
-        fout.clear();
-    }
-    fout.flush();
-    return 0;
-}
-
 bool IsLegalPath(const std::string& path)
 {
     if (path.find("./") != std::string::npos ||
