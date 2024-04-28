@@ -30,7 +30,6 @@ bool RemoveFile(const std::string& file);
 bool RemoveDirectory(const std::string& dir);
 bool ForceCreateDirectory(const std::string& dir);
 std::string GetFilePathByDir(const std::string& dir, const std::string& fileName);
-int CopyFile(const std::string &src, const std::string &des);
 bool IsLegalPath(const std::string& path);
 } // namespace FileUtil
 } // namespace HiviewDFX
