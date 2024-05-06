@@ -95,10 +95,13 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
         retryTimes--;
     } while (sendRet < 0 && retryTimes > 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
     if (sendRet < 0) {
-        close(socketId);
         strerror_r(errno, g_errMsg, BUF_SIZE);
-        HILOG_DEBUG(LOG_CORE, "send data to hisysevent server failed, error=%{public}d, msg=%{public}s",
-            errno, g_errMsg);
+        if (errno == EACCES) {
+            HILOG_DEBUG(LOG_CORE, "sysevent write failed, err=%{public}d", errno);
+        } else {
+            HILOG_ERROR(LOG_CORE, "sysevent write failed, err=%{public}d", errno);
+        }
+        close(socketId);
         return ERR_SEND_FAIL;
     }
     close(socketId);
