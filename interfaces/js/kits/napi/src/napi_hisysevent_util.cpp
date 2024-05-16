@@ -1032,50 +1032,55 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
             "Permission denied. An attempt was made to read sysevent forbidden"
             " by permission: ohos.permission.READ_DFX_SYSEVENT."}},
         // write refer
-        {ERR_DOMAIN_NAME_INVALID, {NapiError::ERR_INVALID_DOMAIN, "Domain is invalid"}},
-        {ERR_EVENT_NAME_INVALID, {NapiError::ERR_INVALID_EVENT_NAME, "Event name is invalid"}},
-        {ERR_DOES_NOT_INIT, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
-        {ERR_OVER_SIZE, {NapiError::ERR_CONTENT_OVER_LIMIT, "Size of event content is over limit"}},
-        {ERR_KEY_NAME_INVALID, {NapiError::ERR_INVALID_PARAM_NAME, "Name of param is invalid"}},
+        {ERR_DOMAIN_NAME_INVALID, {NapiError::ERR_INVALID_DOMAIN, "Invalid event domain"}},
+        {ERR_EVENT_NAME_INVALID, {NapiError::ERR_INVALID_EVENT_NAME, "Invalid event name"}},
+        {ERR_DOES_NOT_INIT, {NapiError::ERR_ENV_ABNORMAL, "Abnormal environment"}},
+        {ERR_OVER_SIZE, {NapiError::ERR_CONTENT_OVER_LIMIT, "The event length exceeds the limit"}},
+        {ERR_KEY_NAME_INVALID, {NapiError::ERR_INVALID_PARAM_NAME, "Invalid event parameter"}},
         {ERR_VALUE_LENGTH_TOO_LONG, {NapiError::ERR_STR_LEN_OVER_LIMIT,
-            "Size of string type param is over limit"}},
-        {ERR_KEY_NUMBER_TOO_MUCH, {NapiError::ERR_PARAM_COUNT_OVER_LIMIT, "Count of params is over limit"}},
-        {ERR_ARRAY_TOO_MUCH, {NapiError::ERR_ARRAY_SIZE_OVER_LIMIT, "Size of array type param is over limit"}},
+            "The size of the event parameter of the string type exceeds the limit"}},
+        {ERR_KEY_NUMBER_TOO_MUCH, {NapiError::ERR_PARAM_COUNT_OVER_LIMIT,
+            "The number of event parameters exceeds the limit"}},
+        {ERR_ARRAY_TOO_MUCH, {NapiError::ERR_ARRAY_SIZE_OVER_LIMIT,
+            "The number of event parameters of the array type exceeds the limit"}},
         // ipc common
-        {ERR_SYS_EVENT_SERVICE_NOT_FOUND, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
-        {ERR_CAN_NOT_WRITE_DESCRIPTOR, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
-        {ERR_CAN_NOT_WRITE_PARCEL, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
-        {ERR_CAN_NOT_WRITE_REMOTE_OBJECT, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
-        {ERR_CAN_NOT_SEND_REQ, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
-        {ERR_CAN_NOT_READ_PARCEL, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
-        {ERR_SEND_FAIL, {NapiError::ERR_ENV_ABNORMAL, "Environment is abnormal"}},
+        {ERR_SYS_EVENT_SERVICE_NOT_FOUND, {NapiError::ERR_ENV_ABNORMAL, "Abnormal environment"}},
+        {ERR_CAN_NOT_WRITE_DESCRIPTOR, {NapiError::ERR_ENV_ABNORMAL, "Abnormal environment"}},
+        {ERR_CAN_NOT_WRITE_PARCEL, {NapiError::ERR_ENV_ABNORMAL, "Abnormal environment"}},
+        {ERR_CAN_NOT_WRITE_REMOTE_OBJECT, {NapiError::ERR_ENV_ABNORMAL, "Abnormal environment"}},
+        {ERR_CAN_NOT_SEND_REQ, {NapiError::ERR_ENV_ABNORMAL, "Abnormal environment"}},
+        {ERR_CAN_NOT_READ_PARCEL, {NapiError::ERR_ENV_ABNORMAL, "Abnormal environment"}},
+        {ERR_SEND_FAIL, {NapiError::ERR_ENV_ABNORMAL, "Abnormal environment"}},
         // add watcher
-        {ERR_TOO_MANY_WATCHERS, {NapiError::ERR_WATCHER_COUNT_OVER_LIMIT, "Count of watchers is over limit"}},
+        {ERR_TOO_MANY_WATCHERS, {NapiError::ERR_WATCHER_COUNT_OVER_LIMIT,
+            "The number of watchers exceeds the limit"}},
         {ERR_TOO_MANY_WATCH_RULES, {NapiError::ERR_WATCH_RULE_COUNT_OVER_LIMIT,
-            "Count of watch rules is over limit"}},
+            "The number of watch rules exceeds the limit"}},
         // remove watcher
         {ERR_LISTENER_NOT_EXIST, {NapiError::ERR_WATCHER_NOT_EXIST, "Watcher is not exist"}},
         {ERR_NAPI_LISTENER_NOT_FOUND, {NapiError::ERR_WATCHER_NOT_EXIST, "Watcher is not exist"}},
         // query refer
         {ERR_TOO_MANY_QUERY_RULES, {NapiError::ERR_QUERY_RULE_COUNT_OVER_LIMIT,
-            "Count of query rules is over limit"}},
+            "The number of query rules exceeds the limit"}},
         {ERR_TOO_MANY_CONCURRENT_QUERIES, {NapiError::ERR_CONCURRENT_QUERY_COUNT_OVER_LIMIT,
-            "cCount of concurrent queries is over limit"}},
-        {ERR_QUERY_TOO_FREQUENTLY, {NapiError::ERR_QUERY_TOO_FREQUENTLY, "Frequency of event query is over limit"}},
+            "The number of concurrent queries exceeds the limit"}},
+        {ERR_QUERY_TOO_FREQUENTLY, {NapiError::ERR_QUERY_TOO_FREQUENTLY, "The query frequency exceeds the limit"}},
         {NapiInnerError::ERR_INVALID_DOMAIN_IN_QUERY_RULE,
-            {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
-        {ERR_QUERY_RULE_INVALID, {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
+            {NapiError::ERR_INVALID_QUERY_RULE, "Invalid query rule"}},
+        {ERR_QUERY_RULE_INVALID, {NapiError::ERR_INVALID_QUERY_RULE, "Invalid query rule"}},
         {NapiInnerError::ERR_INVALID_EVENT_NAME_IN_QUERY_RULE,
-            {NapiError::ERR_INVALID_QUERY_RULE, "Query rule is invalid"}},
+            {NapiError::ERR_INVALID_QUERY_RULE, "Invalid query rule"}},
         // export
-        {ERR_EXPORT_FREQUENCY_OVER_LIMIT, {NapiError::ERR_QUERY_TOO_FREQUENTLY, "Export frequency is over limit."}},
+        {ERR_EXPORT_FREQUENCY_OVER_LIMIT, {NapiError::ERR_QUERY_TOO_FREQUENTLY,
+            "The query frequency exceeds the limit"}},
         // add subscriber
-        {ERR_TOO_MANY_EVENTS, {NapiError::ERR_QUERY_RULE_COUNT_OVER_LIMIT, "Count of query rules is over limit"}},
+        {ERR_TOO_MANY_EVENTS, {NapiError::ERR_QUERY_RULE_COUNT_OVER_LIMIT,
+            "The number of query rules exceeds the limit"}},
         // remove subscriber
-        {ERR_REMOVE_SUBSCRIBE, {NapiError::ERR_REMOVE_SUBSCRIBE, "unsubscribe failed"}},
+        {ERR_REMOVE_SUBSCRIBE, {NapiError::ERR_REMOVE_SUBSCRIBE, "Failed to unsubscribe"}},
     };
     return errMap.find(retCode) == errMap.end() ?
-        std::make_pair(NapiError::ERR_ENV_ABNORMAL, "environment is abnormal") : errMap.at(retCode);
+        std::make_pair(NapiError::ERR_ENV_ABNORMAL, "Abnormal environment") : errMap.at(retCode);
 }
 
 napi_value NapiHiSysEventUtil::CreateErrorByRet(napi_env env, const int32_t retCode)
