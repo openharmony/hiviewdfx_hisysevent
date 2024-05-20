@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -50,8 +50,8 @@ void WriteStringWithLength(const std::string testCaseName, const std::string tes
             param);
         wroteRet.emplace_back(ret);
     }
-    ASSERT_TRUE((wroteRet.size() == WROTE_TOTAL_CNT) &&
-        (std::count(wroteRet.begin(), wroteRet.end(), SUCCESS) == WROTE_TOTAL_CNT));
+    ASSERT_EQ(wroteRet.size(), WROTE_TOTAL_CNT);
+    ASSERT_EQ(std::count(wroteRet.begin(), wroteRet.end(), SUCCESS), WROTE_TOTAL_CNT);
 }
 
 template<typename T>
@@ -64,8 +64,8 @@ void WriteSingleValue(const std::string testCaseName, const std::string testCase
             val);
         wroteRet.emplace_back(ret);
     }
-    ASSERT_TRUE((wroteRet.size() == WROTE_TOTAL_CNT) &&
-        (std::count(wroteRet.begin(), wroteRet.end(), SUCCESS) == WROTE_TOTAL_CNT));
+    ASSERT_EQ(wroteRet.size(), WROTE_TOTAL_CNT);
+    ASSERT_EQ(std::count(wroteRet.begin(), wroteRet.end(), SUCCESS), WROTE_TOTAL_CNT);
 }
 }
 
@@ -99,8 +99,8 @@ HWTEST_F(HiSysEventDelayTest, HiSysEventDelayTest001, TestSize.Level1)
         ret = HiSysEventWrite(HiSysEvent::Domain::AAFWK, "LIFECYCLE_TIMEOUT", HiSysEvent::EventType::FAULT);
         wroteRet.emplace_back(ret);
     }
-    ASSERT_TRUE((wroteRet.size() == WROTE_TOTAL_CNT) &&
-        (std::count(wroteRet.begin(), wroteRet.end(), SUCCESS) == WROTE_TOTAL_CNT));
+    ASSERT_EQ(wroteRet.size(), WROTE_TOTAL_CNT);
+    ASSERT_EQ(std::count(wroteRet.begin(), wroteRet.end(), SUCCESS), WROTE_TOTAL_CNT);
 }
 
 /**
