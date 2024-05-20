@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -144,12 +144,13 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestAshMemory, TestSize.Level1)
         Str8ToStr16(std::string("1")),
     };
     auto ret = AshMemUtils::WriteBulkData(data, src);
-    ASSERT_TRUE(ret != nullptr);
+    ASSERT_NE(ret, nullptr);
     std::vector<std::u16string> dest;
     auto ret1 = AshMemUtils::ReadBulkData(data, dest);
     ASSERT_TRUE(ret1);
-    ASSERT_TRUE(src.size() == dest.size());
-    ASSERT_TRUE(Str16ToStr8(dest[0]) == "0" && Str16ToStr8(dest[1]) == "1");
+    ASSERT_EQ(src.size(), dest.size());
+    ASSERT_EQ(Str16ToStr8(dest[0]), "0");
+    ASSERT_EQ(Str16ToStr8(dest[1]), "1");
     AshMemUtils::CloseAshmem(nullptr);
     ASSERT_TRUE(true);
     AshMemUtils::CloseAshmem(GetAshmem());
@@ -171,22 +172,22 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestHiSysEventDelegateApisWithInvalidInsta
     });
     t.detach();
     auto ret = delegate->RemoveListener(nullptr);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     ret = delegate->SetDebugMode(nullptr, true);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     auto listener = std::make_shared<HiSysEventBaseListener>();
     std::vector<ListenerRule> rules;
     ListenerRule listenerRule("DOMAIN", "EVENT_NAME", "TAG", RuleType::WHOLE_WORD);
     rules.emplace_back(listenerRule);
     ret = delegate->AddListener(listener, rules);
-    ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
+    ASSERT_EQ(ret, IPC_CALL_SUCCEED);
     ret = delegate->SetDebugMode(listener, true);
     if (ret == IPC_CALL_SUCCEED) {
         ret = delegate->SetDebugMode(listener, false);
-        ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
+        ASSERT_EQ(ret, IPC_CALL_SUCCEED);
     }
     ret = delegate->RemoveListener(listener);
-    ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
+    ASSERT_EQ(ret, IPC_CALL_SUCCEED);
     long long defaultTimeStap = -1;
     int queryCount = 10;
     struct QueryArg args(defaultTimeStap, defaultTimeStap, queryCount);
@@ -196,12 +197,12 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestHiSysEventDelegateApisWithInvalidInsta
     queryRules.emplace_back(rule);
     auto baseQuerier = std::make_shared<HiSysEventBaseQueryCallback>();
     ret = delegate->Query(args, queryRules, baseQuerier);
-    ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
+    ASSERT_EQ(ret, IPC_CALL_SUCCEED);
     int64_t currentTime = static_cast<int64_t>(GetMilliseconds());
     auto result = delegate->Subscribe(queryRules);
-    ASSERT_TRUE(std::to_string(result).length() >= std::to_string(currentTime).length());
+    ASSERT_GE(std::to_string(result).length(), std::to_string(currentTime).length());
     ret = delegate->Unsubscribe();
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
 }
 
 /**
@@ -257,7 +258,7 @@ HWTEST_F(HiSysEventAdapterNativeTest, FileUtilOhosTest001, TestSize.Level3)
     ret = FileUtil::IsDirectory(LOG_DIR_PATH);
     ASSERT_TRUE(!ret);
     auto result = FileUtil::GetFilePathByDir(LOG_DIR_PATH, "test.log");
-    ASSERT_TRUE(result == FILE_PATH);
+    ASSERT_EQ(result, FILE_PATH);
 }
 
 /**
@@ -293,23 +294,28 @@ HWTEST_F(HiSysEventAdapterNativeTest, MarshallingTAndUnmarshallingTest, TestSize
     auto ret = args.Marshalling(parcel1);
     ASSERT_TRUE(ret);
     QueryArgument* argsPtr = args.Unmarshalling(parcel1);
-    ASSERT_TRUE(argsPtr != nullptr && argsPtr->maxEvents == 10 && argsPtr->beginTime == -1);
+    ASSERT_NE(argsPtr, nullptr);
+    ASSERT_EQ(argsPtr->maxEvents, 10); // 10 is a expcted test value
+    ASSERT_EQ(argsPtr->beginTime, -1); // -1 is a expcted test value
     OHOS::HiviewDFX::SysEventRule sysEventRule("DOMAIN", "EVENT_NAME", "TAG", OHOS::HiviewDFX::RuleType::WHOLE_WORD);
     MessageParcel parcel2;
     ret = sysEventRule.Marshalling(parcel2);
     ASSERT_TRUE(ret);
     OHOS::HiviewDFX::SysEventRule* sysEventRulePtr = sysEventRule.Unmarshalling(parcel2);
-    ASSERT_TRUE(sysEventRulePtr != nullptr && sysEventRulePtr->domain == "DOMAIN" &&
-        sysEventRulePtr->eventName == "EVENT_NAME" && sysEventRulePtr->tag == "TAG");
-
+    ASSERT_NE(sysEventRulePtr, nullptr);
+    ASSERT_EQ(sysEventRulePtr->domain, "DOMAIN");
+    ASSERT_EQ(sysEventRulePtr->eventName, "EVENT_NAME");
+    ASSERT_EQ(sysEventRulePtr->tag, "TAG");
     std::vector<std::string> eventNames { "EVENT_NAME1", "EVENT_NAME2" };
     OHOS::HiviewDFX::SysEventQueryRule queryRule("DOMAIN", eventNames);
     MessageParcel parcel3;
     ret = queryRule.Marshalling(parcel3);
     ASSERT_TRUE(ret);
     OHOS::HiviewDFX::SysEventQueryRule* queryRulePtr = queryRule.Unmarshalling(parcel3);
-    ASSERT_TRUE(queryRulePtr != nullptr && queryRulePtr->domain == "DOMAIN" &&
-        queryRulePtr->eventList.size() == 2 && queryRulePtr->eventList[0] == "EVENT_NAME1");
+    ASSERT_NE(queryRulePtr, nullptr);
+    ASSERT_EQ(queryRulePtr->domain, "DOMAIN");;
+    ASSERT_EQ(queryRulePtr->eventList.size(), 2); // 2 is a expcted test value
+    ASSERT_EQ(queryRulePtr->eventList[0], "EVENT_NAME1");
 }
 
 /**
@@ -320,22 +326,23 @@ HWTEST_F(HiSysEventAdapterNativeTest, MarshallingTAndUnmarshallingTest, TestSize
  */
 HWTEST_F(HiSysEventAdapterNativeTest, CStringUtilTest, TestSize.Level1)
 {
-    char dest[100] {};
+    char dest[100] {}; // 100 is a test length
     std::string src = "01234567";
-    auto ret = StringUtil::CopyCString(dest, src, 3);
-    ASSERT_TRUE(ret == -1);
-    ret = StringUtil::CopyCString(dest, src, 10);
-    ASSERT_TRUE(ret != -1);
+
+    auto ret = StringUtil::CopyCString(dest, src, 3); // 3 is a test length
+    ASSERT_EQ(ret, -1); // -1 is a expected result
+    ret = StringUtil::CopyCString(dest, src, 10); // 3 is a test length
+    ASSERT_NE(ret, -1); // -1 is a expected result
     char* dest2p = dest;
     char** dest2pp = &dest2p;
-    ret = StringUtil::CreateCString(dest2pp, src, 3);
-    ASSERT_TRUE(ret == -1);
-    ret = StringUtil::CreateCString(dest2pp, src, 10);
-    ASSERT_TRUE(ret != -1);
-    ret = StringUtil::ConvertCString(src, dest2pp, 3);
-    ASSERT_TRUE(ret == -1);
-    ret = StringUtil::ConvertCString(src, dest2pp, 10);
-    ASSERT_TRUE(ret != -1);
+    ret = StringUtil::CreateCString(dest2pp, src, 3); // 3 is a test length
+    ASSERT_EQ(ret, -1); // -1 is a expected result
+    ret = StringUtil::CreateCString(dest2pp, src, 10); // 3 is a test length
+    ASSERT_NE(ret, -1); // -1 is a expected result
+    ret = StringUtil::ConvertCString(src, dest2pp, 3); // 3 is a test length
+    ASSERT_EQ(ret, -1); // -1 is a expected result
+    ret = StringUtil::ConvertCString(src, dest2pp, 10); // 3 is a test length
+    ASSERT_NE(ret, -1); // -1 is a expected result
     char v3[10][100] {};
     char* dest3p = v3[0];
     char** dest3pp = &dest3p;
@@ -347,12 +354,16 @@ HWTEST_F(HiSysEventAdapterNativeTest, CStringUtilTest, TestSize.Level1)
     };
     size_t len;
     ret = StringUtil::ConvertCStringVec(srcs1, dest3ppp, len);
-    ASSERT_TRUE(ret == 0 && len == 0);
+    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(len, 0);
     ret = StringUtil::ConvertCStringVec(srcs2, dest3ppp, len);
-    ASSERT_TRUE(ret == 0 && len == 2);
+    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(len, 2); // 2 is a expected length
     char dest4[3] = {'0', '1', '2'};
-    StringUtil::MemsetSafe(reinterpret_cast<void*>(dest4), 3);
-    ASSERT_TRUE(dest4[0] == 0 && dest4[1] == 0 && dest4[2] == 0);
+    StringUtil::MemsetSafe(reinterpret_cast<void*>(dest4), 3); // 3 is a test length
+    ASSERT_EQ(dest4[0], 0);
+    ASSERT_EQ(dest4[1], 0); // 1 is a test index
+    ASSERT_EQ(dest4[2], 0); // 2 is a test index
 }
 
 /**
@@ -368,12 +379,12 @@ HWTEST_F(HiSysEventAdapterNativeTest, HiSysEventListenerProxyTest, TestSize.Leve
     proxy.Handle(Str8ToStr16(std::string("DOMAIN")), Str8ToStr16(std::string("EVENT_NAME")), 0,
         Str8ToStr16(std::string("{}")));
     auto listener = proxy.GetEventListener();
-    ASSERT_TRUE(listener != nullptr);
+    ASSERT_NE(listener, nullptr);
     auto deathRecipient = proxy.GetCallbackDeathRecipient();
-    ASSERT_TRUE(deathRecipient != nullptr);
+    ASSERT_NE(deathRecipient, nullptr);
     if (deathRecipient != nullptr) {
         deathRecipient->OnRemoteDied(nullptr);
-        ASSERT_TRUE(deathRecipient->GetEventListener() != nullptr);
+        ASSERT_NE(deathRecipient->GetEventListener(), nullptr);
     }
 }
 

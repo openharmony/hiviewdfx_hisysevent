@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -91,21 +91,21 @@ void OnQueryTest(HiSysEventRecord records[], size_t size)
     for (size_t i = 0; i < size; i++) {
         HiSysEventRecord record = records[i];
         ASSERT_EQ(strcmp(record.domain, TEST_DOMAIN), 0);
-        ASSERT_TRUE(strlen(record.eventName) > 0);
-        ASSERT_TRUE(strlen(record.tz) > 0);
-        ASSERT_TRUE(record.type > 0);
-        ASSERT_TRUE(record.time > 0);
-        ASSERT_TRUE(record.pid >= 0);
-        ASSERT_TRUE(record.tid >= 0);
-        ASSERT_TRUE(record.uid >= 0);
-        ASSERT_TRUE(record.traceId >= 0);
-        ASSERT_TRUE(record.spandId >= 0);
-        ASSERT_TRUE(record.pspanId >= 0);
-        ASSERT_TRUE(strlen(record.level) > 0);
+        ASSERT_GT(strlen(record.eventName), 0);
+        ASSERT_GT(strlen(record.tz), 0);
+        ASSERT_GT(record.type, 0);
+        ASSERT_GT(record.time, 0);
+        ASSERT_GE(record.pid, 0);
+        ASSERT_GE(record.tid, 0);
+        ASSERT_GE(record.uid, 0);
+        ASSERT_GE(record.traceId, 0);
+        ASSERT_GE(record.spandId, 0);
+        ASSERT_GE(record.pspanId, 0);
+        ASSERT_GT(strlen(record.level), 0);
         if (record.tag != nullptr) {
-            ASSERT_TRUE(strlen(record.tag) > 0);
+            ASSERT_GT(strlen(record.tag), 0);
         }
-        ASSERT_TRUE(strlen(record.jsonStr) > 0);
+        ASSERT_GT(strlen(record.jsonStr), 0);
         RecordBaseParamPrint(record);
         HILOG_INFO(LOG_CORE, "OnQuery: event=%{public}s", record.jsonStr);
     }
@@ -124,7 +124,7 @@ void InitCallback(HiSysEventQueryCallback& callback)
 
 void OnEventTest(HiSysEventRecordC record)
 {
-    ASSERT_TRUE(strlen(record.jsonStr) > 0);
+    ASSERT_GT(strlen(record.jsonStr), 0);
     HILOG_INFO(LOG_CORE, "OnEvent: event=%{public}s", record.jsonStr);
 }
 
@@ -178,7 +178,7 @@ void RecordParamNameTest(const HiSysEventRecord& record, const std::map<std::str
     ASSERT_EQ(len, recordData.size());
     for (size_t i = 0; i < len; i++) {
         HILOG_DEBUG(LOG_CORE, "param[%{public}zu]=%{public}s", i, params[i]);
-        ASSERT_TRUE(recordData.find("\"" + std::string(params[i]) + "\"") != recordData.end());
+        ASSERT_NE(recordData.find("\"" + std::string(params[i]) + "\""), recordData.end());
     }
     StringUtil::DeletePointers<char>(&params, len);
 }
@@ -1073,56 +1073,56 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest004, TestSize.Level3)
     ASSERT_TRUE(true);
     int64_t value1;
     auto ret = OH_HiSysEvent_GetParamInt64Value(&record, "KEY", &value1);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     ret = OH_HiSysEvent_GetParamInt64Value(&record, nullptr, &value1);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     uint64_t value2;
     ret = OH_HiSysEvent_GetParamUint64Value(&record, "KEY", &value2);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     ret = OH_HiSysEvent_GetParamUint64Value(&record, nullptr, &value2);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     double value3;
     ret = OH_HiSysEvent_GetParamDoubleValue(&record, "KEY", &value3);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     ret = OH_HiSysEvent_GetParamDoubleValue(&record, nullptr, &value3);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     char value4[100];
     char* value4p = value4;
     char** value4pp = &value4p;
     ret = OH_HiSysEvent_GetParamStringValue(&record, "KEY", value4pp);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     ret = OH_HiSysEvent_GetParamStringValue(&record, nullptr, value4pp);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     size_t dataLen;
     int64_t value5[10];
     int64_t* value5p = value5;
     int64_t** value5pp = &value5p;
     ret = OH_HiSysEvent_GetParamInt64Values(&record, "KEY", value5pp, &dataLen);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     ret = OH_HiSysEvent_GetParamInt64Values(&record, nullptr, value5pp, &dataLen);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     uint64_t value6[10];
     uint64_t* value6p = value6;
     uint64_t** value6pp = &value6p;
     ret = OH_HiSysEvent_GetParamUint64Values(&record, "KEY", value6pp, &dataLen);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     ret = OH_HiSysEvent_GetParamUint64Values(&record, nullptr, value6pp, &dataLen);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     double value7[10];
     double* value7p = value7;
     double** value7pp = &value7p;
     ret = OH_HiSysEvent_GetParamDoubleValues(&record, "KEY", value7pp, &dataLen);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     ret = OH_HiSysEvent_GetParamDoubleValues(&record, nullptr, value7pp, &dataLen);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     char v3[10][100] {};
     char* dest3p = v3[0];
     char** dest3pp = &dest3p;
     char*** dest3ppp = &dest3pp;
     ret = OH_HiSysEvent_GetParamStringValues(&record, "KEY", dest3ppp, &dataLen);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
     ret = OH_HiSysEvent_GetParamStringValues(&record, nullptr, dest3ppp, &dataLen);
-    ASSERT_TRUE(ret == ERR_NULL);
+    ASSERT_EQ(ret, ERR_NULL);
 }
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -59,7 +59,8 @@ constexpr int ARRAY_TOTAL_CNT = 3;
 constexpr int FIRST_ITEM_INDEX = 0;
 constexpr int SECOND_ITEM_INDEX = 1;
 constexpr int THIRD_ITEM_INDEX = 2;
-constexpr int USLEEP_DURATION = 1000000;
+constexpr int USLEEP_SHORT_DURATION = 1000000;
+constexpr int USLEEP_LONG_DURATION = 8000000;
 constexpr int EVENT_QUERY_CNT = 1000;
 constexpr long long DEFAULT_TIME_STAMP = -1;
 
@@ -113,20 +114,16 @@ private:
     bool matched = false;
 };
 
-void Sleep()
-{
-    usleep(USLEEP_DURATION);
-}
-
 void QueryAndComparedSysEvent(std::shared_ptr<Querier> querier)
 {
+    usleep(USLEEP_LONG_DURATION);
     struct OHOS::HiviewDFX::QueryArg args(DEFAULT_TIME_STAMP, DEFAULT_TIME_STAMP, EVENT_QUERY_CNT);
     std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
     std::vector<std::string> eventNames {EVENT_NAME};
     OHOS::HiviewDFX::QueryRule rule(DOMAIN, eventNames);
     queryRules.emplace_back(rule);
     auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
-    ASSERT_TRUE(ret == SUCCESS);
+    ASSERT_EQ(ret, SUCCESS);
 }
 
 template<typename T>
@@ -137,13 +134,13 @@ void WriteAndWatchThenQuery(std::shared_ptr<Watcher> watcher, std::shared_ptr<Qu
     std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
     sysRules.emplace_back(listenerRule);
     auto ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
-    ASSERT_TRUE(ret == SUCCESS);
+    ASSERT_EQ(ret, SUCCESS);
     ret = HiSysEventWrite(DOMAIN, EVENT_NAME, HiSysEvent::EventType::FAULT, PARAM_KEY,
         val);
-    ASSERT_TRUE(ret == SUCCESS);
-    Sleep();
+    ASSERT_EQ(ret, SUCCESS);
+    usleep(USLEEP_SHORT_DURATION);
     ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(watcher);
-    ASSERT_TRUE(ret == SUCCESS);
+    ASSERT_EQ(ret, SUCCESS);
     QueryAndComparedSysEvent(querier);
 }
 
@@ -198,7 +195,7 @@ void HiSysEventWroteResultCheckTest::TearDown(void)
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest001, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     bool val = true;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
@@ -222,7 +219,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest001, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest002, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     int64_t val = -18888888882321;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
@@ -246,7 +243,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest002, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest003, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     uint64_t val = 18888888882326141;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
@@ -270,7 +267,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest003, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest004, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     double val = 30949.374;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
@@ -293,7 +290,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest004, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest005, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     std::string val = "value";
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
@@ -317,7 +314,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest005, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest006, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     std::vector<bool> val = {
         true,
         false,
@@ -346,7 +343,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest006, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest007, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     std::vector<int64_t> val = {
         std::numeric_limits<int64_t>::min(),
         std::numeric_limits<int64_t>::max(),
@@ -377,7 +374,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest007, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest008, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     std::vector<uint64_t> val = {
         std::numeric_limits<uint64_t>::min(),
         std::numeric_limits<uint64_t>::max(),
@@ -408,7 +405,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest008, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest009, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     std::vector<double> val = {
         1.5,
         2.5,
@@ -435,7 +432,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest009, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest010, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     std::vector<std::string> val = {
         "value1\n\r",
         "value2\n\r",
@@ -465,7 +462,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest010, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest011, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     float val = 230.47;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
@@ -488,7 +485,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest011, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest012, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     std::vector<float> val = {
         1.1,
         2.2,
@@ -517,7 +514,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest012, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest013, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     std::string val = "with valid hitracechain";
     auto traceId = HiTraceChain::Begin("TestCase1", HITRACE_FLAG_INCLUDE_ASYNC | HITRACE_FLAG_DONOT_CREATE_SPAN);
     auto watcher = std::make_shared<Watcher>([&val, &traceId] (std::shared_ptr<HiSysEventRecord> sysEvent) {
@@ -542,7 +539,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest013, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest014, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     double val = -3.5;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
@@ -565,7 +562,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest014, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest015, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     std::vector<float> val;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
@@ -588,7 +585,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest015, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest016, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     int64_t val = std::numeric_limits<int64_t>::max();
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
@@ -613,7 +610,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest016, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest017, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     int64_t val = std::numeric_limits<int64_t>::min();
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
@@ -638,7 +635,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest017, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest018, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     uint64_t val = std::numeric_limits<uint64_t>::max();
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {
@@ -663,7 +660,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest018, Test
  */
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest019, TestSize.Level1)
 {
-    Sleep();
+    usleep(USLEEP_SHORT_DURATION);
     uint64_t val = std::numeric_limits<uint64_t>::min();
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         if (sysEvent == nullptr) {

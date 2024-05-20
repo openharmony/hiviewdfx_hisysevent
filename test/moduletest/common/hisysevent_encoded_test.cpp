@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -69,14 +69,15 @@ HWTEST_F(HiSysEventEncodedTest, EncodeParamTest001, TestSize.Level1)
     uint64_t val = 39912344; // a random numeber
     std::shared_ptr<EncodedParam> param = std::make_shared<UnsignedVarintEncodedParam<uint64_t>>("KEY", val);
     auto data = param->GetRawData();
-    ASSERT_TRUE(data == nullptr);
+    ASSERT_EQ(data, nullptr);
     ASSERT_TRUE(!param->Encode());
     auto rawData = std::make_shared<Encoded::RawData>();
     param->SetRawData(rawData);
     ASSERT_TRUE(param->Encode());
     data = param->GetRawData();
-    ASSERT_TRUE(data != nullptr);
-    ASSERT_TRUE((data->GetData() != nullptr) && (data->GetDataLength() > 0));
+    ASSERT_NE(data, nullptr);
+    ASSERT_NE(data->GetData(), nullptr);
+    ASSERT_GT(data->GetDataLength(), 0);
 }
 
 /**
@@ -88,9 +89,9 @@ HWTEST_F(HiSysEventEncodedTest, EncodeParamTest001, TestSize.Level1)
 HWTEST_F(HiSysEventEncodedTest, RawDatabaseDefTest001, TestSize.Level1)
 {
     auto tzIndex = ParseTimeZone(3600); // 3600 is a valid timezone value
-    ASSERT_TRUE(tzIndex == 0); // reference to ALL_TIME_ZONES defined in raw_data_base_def.cpp
+    ASSERT_EQ(tzIndex, 0); // reference to ALL_TIME_ZONES defined in raw_data_base_def.cpp
     tzIndex = ParseTimeZone(15); // 15 is an invalid timezone value
-    ASSERT_TRUE(tzIndex == 14); // default index
+    ASSERT_EQ(tzIndex, 14); // default index
 }
 
 /**
@@ -131,7 +132,7 @@ HWTEST_F(HiSysEventEncodedTest, TransportTest001, TestSize.Level1)
     ASSERT_EQ(Transport::GetInstance().SendData(*rawData1), ERR_EMPTY_EVENT);
     uint64_t val = 2323232; // 2323232 is a random test numeber
     std::shared_ptr<EncodedParam> param = std::make_shared<UnsignedVarintEncodedParam<uint64_t>>("KEY1", val);
-    ASSERT_TRUE(param != nullptr);
+    ASSERT_NE(param, nullptr);
     param->SetRawData(rawData1);
     param->Encode();
     auto rawData2 = param->GetRawData();

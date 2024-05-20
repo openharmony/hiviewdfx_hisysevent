@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -193,9 +193,9 @@ HWTEST_F(HiSysEventNativeTest, TestSubscribeSysEventByTag, TestSize.Level1)
     std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
     sysRules.emplace_back(listenerRule);
     auto ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
-    ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
+    ASSERT_EQ(ret, IPC_CALL_SUCCEED);
     ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(watcher);
-    ASSERT_TRUE(ret == IPC_CALL_SUCCEED);
+    ASSERT_EQ(ret, IPC_CALL_SUCCEED);
 }
 
 /**
@@ -333,7 +333,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventDomainSpecialChar002, TestSize.Leve
     HILOG_INFO(LOG_CORE, "test hisysevent domain has special char");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT);
     HILOG_INFO(LOG_CORE, "domain has special char, retCode=%{public}d", result);
-    ASSERT_TRUE(result < 0);
+    ASSERT_LT(result, 0);
 }
 
 /**
@@ -352,7 +352,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventDomainEmpty003, TestSize.Level1)
     HILOG_INFO(LOG_CORE, "test hisysevent domain is empty");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT);
     HILOG_INFO(LOG_CORE, "domain is empty, retCode=%{public}d", result);
-    ASSERT_TRUE(result < 0);
+    ASSERT_LT(result, 0);
 }
 
 /**
@@ -379,7 +379,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventDomainTooLong004, TestSize.Level1)
     eventName = "DOMAIN_TOO_LONG_17";
     result = HiSysEventWrite(domain17, eventName, HiSysEvent::EventType::FAULT);
     HILOG_INFO(LOG_CORE, "domain is too long, more than 16 retCode=%{public}d", result);
-    ASSERT_TRUE(result < 0);
+    ASSERT_LT(result, 0);
 }
 
 /**
@@ -398,7 +398,7 @@ HWTEST_F(HiSysEventNativeTest, TesetHiSysEventSpecailEventName005, TestSize.Leve
     HILOG_INFO(LOG_CORE, "test hisysevent event name has special char");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT);
     HILOG_INFO(LOG_CORE, "event name has special char, retCode=%{public}d", result);
-    ASSERT_TRUE(result < 0);
+    ASSERT_LT(result, 0);
 }
 
 /**
@@ -417,7 +417,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventNameEmpty006, TestSize.Level1)
     HILOG_INFO(LOG_CORE, "test hisysevent event name is empty");
     int result = HiSysEventWrite(domain, eventName, HiSysEvent::EventType::FAULT);
     HILOG_INFO(LOG_CORE, "event name is empty, retCode=%{public}d", result);
-    ASSERT_TRUE(result < 0);
+    ASSERT_LT(result, 0);
 }
 
 /**
@@ -448,7 +448,7 @@ HWTEST_F(HiSysEventNativeTest, TesetHiSysEventNameTooLong007, TestSize.Level1)
     eventName.append("L");
     result = HiSysEventWrite(domain33, eventName, HiSysEvent::EventType::FAULT);
     HILOG_INFO(LOG_CORE, "event name is too long, more than 32, retCode=%{public}d", result);
-    ASSERT_TRUE(result < 0);
+    ASSERT_LT(result, 0);
 }
 
 /**
@@ -1002,16 +1002,16 @@ HWTEST_F(HiSysEventNativeTest, TestAddAndRemoveListener, TestSize.Level1)
     std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
     sysRules.emplace_back(listenerRule);
     auto ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(nullptr, sysRules);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(nullptr);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     auto newWatcher = std::make_shared<Watcher>();
     ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(newWatcher);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(watcher);
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
 }
 
 /**
@@ -1027,19 +1027,19 @@ HWTEST_F(HiSysEventNativeTest, TestEnableAndDisableDebugMode, TestSize.Level1)
     std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
     sysRules.emplace_back(listenerRule);
     auto ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     auto firstDebugRet = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(watcher, true);
     ret = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(nullptr, true);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     if (firstDebugRet == 0 || ret == ERR_DEBUG_MODE_SET_REPEAT) {
         ret = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(watcher, true);
-        ASSERT_TRUE(ret == ERR_DEBUG_MODE_SET_REPEAT);
+        ASSERT_EQ(ret, ERR_DEBUG_MODE_SET_REPEAT);
         ret = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(watcher, false);
-        ASSERT_TRUE(ret == 0);
+        ASSERT_EQ(ret, 0);
     }
     auto newWatcher = std::make_shared<Watcher>();
     ret = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(newWatcher, true);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
 }
 
 /**
@@ -1056,16 +1056,16 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventBaseManagerAddAndRemoveListener, Te
     std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
     sysRules.emplace_back(listenerRule);
     auto ret = OHOS::HiviewDFX::HiSysEventBaseManager::AddListener(nullptr, sysRules);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     ret = OHOS::HiviewDFX::HiSysEventBaseManager::AddListener(baseWatcher, sysRules);
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     ret = OHOS::HiviewDFX::HiSysEventBaseManager::RemoveListener(nullptr);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     auto newBaseWatcher = std::make_shared<HiSysEventBaseListener>(watcher);
     ret = OHOS::HiviewDFX::HiSysEventBaseManager::RemoveListener(newBaseWatcher);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     ret = OHOS::HiviewDFX::HiSysEventBaseManager::RemoveListener(baseWatcher);
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
 }
 
 /**
@@ -1082,19 +1082,19 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventBaseManagerSetDebugMode, TestSize.L
     std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
     sysRules.emplace_back(listenerRule);
     auto ret = OHOS::HiviewDFX::HiSysEventBaseManager::AddListener(baseWatcher, sysRules);
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     auto firstDebugRet = OHOS::HiviewDFX::HiSysEventBaseManager::SetDebugMode(baseWatcher, true);
     ret = OHOS::HiviewDFX::HiSysEventBaseManager::SetDebugMode(nullptr, true);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     if (firstDebugRet == 0 || ret == ERR_DEBUG_MODE_SET_REPEAT) {
         ret = OHOS::HiviewDFX::HiSysEventBaseManager::SetDebugMode(baseWatcher, true);
-        ASSERT_TRUE(ret == ERR_DEBUG_MODE_SET_REPEAT);
+        ASSERT_EQ(ret, ERR_DEBUG_MODE_SET_REPEAT);
         ret = OHOS::HiviewDFX::HiSysEventBaseManager::SetDebugMode(baseWatcher, false);
-        ASSERT_TRUE(ret == 0);
+        ASSERT_EQ(ret, 0);
     }
     auto newBaseWatcher = std::make_shared<HiSysEventBaseListener>(watcher);
     ret = OHOS::HiviewDFX::HiSysEventBaseManager::SetDebugMode(newBaseWatcher, true);
-    ASSERT_TRUE(ret == ERR_LISTENER_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
 }
 
 /**
@@ -1112,7 +1112,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventBaseManagerQueryEvent, TestSize.Lev
     std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
     auto baseQuerier = std::make_shared<HiSysEventBaseQueryCallback>(querier);
     auto ret = OHOS::HiviewDFX::HiSysEventBaseManager::Query(args, queryRules, baseQuerier);
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
 }
 
 /**
@@ -1131,10 +1131,10 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddListenerWithTooManyRules,
         sysRules.emplace_back(listenerRule);
     }
     auto ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     sysRules.emplace_back(listenerRule);
     ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_TOO_MANY_WATCH_RULES);
+    ASSERT_EQ(ret, OHOS::HiviewDFX::ERR_TOO_MANY_WATCH_RULES);
 }
 
 /**
@@ -1153,7 +1153,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerAddTooManyEventListener, Tes
     while (cnt-- > 0) {
         ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(std::make_shared<Watcher>(), sysRules);
     }
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_TOO_MANY_WATCHERS);
+    ASSERT_EQ(ret, OHOS::HiviewDFX::ERR_TOO_MANY_WATCHERS);
 }
 
 /**
@@ -1176,7 +1176,7 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithTooManyRules, TestS
         queryRules.emplace_back(rule);
     }
     auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::ERR_TOO_MANY_QUERY_RULES);
+    ASSERT_EQ(ret, OHOS::HiviewDFX::ERR_TOO_MANY_QUERY_RULES);
 }
 
 /**
@@ -1243,7 +1243,7 @@ HWTEST_F(HiSysEventNativeTest, TestInitHiSysEventRecordWithIncorrectStr, TestSiz
     HiSysEventRecord record(JSON_STR);
     int64_t val = 0;
     int ret = record.GetParamValue("type_", val);
-    ASSERT_TRUE(ret == ERR_INIT_FAILED);
+    ASSERT_EQ(ret, ERR_INIT_FAILED);
 }
 
 /**
@@ -1259,7 +1259,7 @@ HWTEST_F(HiSysEventNativeTest, TestParseValueByInvalidKeyFromHiSysEventRecord, T
     HiSysEventRecord record(JSON_STR);
     int64_t val = 0;
     int ret = record.GetParamValue("XXX", val);
-    ASSERT_TRUE(ret == ERR_KEY_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_KEY_NOT_EXIST);
 }
 
 /**
@@ -1275,7 +1275,7 @@ HWTEST_F(HiSysEventNativeTest, TestParseValueByInvalidTypeFromHiSysEventRecord, 
     HiSysEventRecord record(JSON_STR);
     int64_t val = 0;
     int ret = record.GetParamValue("PARAM_B", val);
-    ASSERT_TRUE(ret == ERR_TYPE_NOT_MATCH);
+    ASSERT_EQ(ret, ERR_TYPE_NOT_MATCH);
 }
 
 /**
@@ -1289,9 +1289,9 @@ HWTEST_F(HiSysEventNativeTest, TestParseEventDomainNameTypeFromHiSysEventRecord,
     constexpr char JSON_STR[] = "{\"domain_\":\"DEMO\",\"name_\":\"EVENT_NAME_A\",\"type_\":4,\
         \"PARAM_A\":\"param a\",\"PARAM_B\":\"param b\"}";
     HiSysEventRecord record(JSON_STR);
-    ASSERT_TRUE(record.GetDomain() == "DEMO");
-    ASSERT_TRUE(record.GetEventName() == "EVENT_NAME_A");
-    ASSERT_TRUE(record.GetEventType() == 4);
+    ASSERT_EQ(record.GetDomain(), "DEMO");
+    ASSERT_EQ(record.GetEventName(), "EVENT_NAME_A");
+    ASSERT_EQ(record.GetEventType(), 4);
 }
 
 /**
@@ -1307,7 +1307,8 @@ HWTEST_F(HiSysEventNativeTest, TestParseInt64ValueFromHiSysEventRecord, TestSize
     HiSysEventRecord record(JSON_STR);
     int64_t val = 0;
     int ret = record.GetParamValue("PARAM_A", val);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val == -1);
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
+    ASSERT_EQ(val, -1);
 }
 
 /**
@@ -1323,7 +1324,8 @@ HWTEST_F(HiSysEventNativeTest, TestParseUInt64ValueFromHiSysEventRecord, TestSiz
     HiSysEventRecord record(JSON_STR);
     uint64_t val = 0;
     int ret = record.GetParamValue("PARAM_A", val);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val == 3);
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
+    ASSERT_EQ(val, 3);
 }
 
 /**
@@ -1339,7 +1341,8 @@ HWTEST_F(HiSysEventNativeTest, TestParseDoubleValueFromHiSysEventRecord, TestSiz
     HiSysEventRecord record(JSON_STR);
     double val = 0;
     int ret = record.GetParamValue("PARAM_A", val);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && abs(val - 3.4) < 1e-8);
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
+    ASSERT_LT(abs(val - 3.4), 1e-8);
 }
 
 /**
@@ -1355,7 +1358,8 @@ HWTEST_F(HiSysEventNativeTest, TestParseStringValueFromHiSysEventRecord, TestSiz
     HiSysEventRecord record(JSON_STR);
     std::string val;
     int ret = record.GetParamValue("PARAM_B", val);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val == "param b");
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
+    ASSERT_EQ(val, "param b");
 }
 
 /**
@@ -1371,7 +1375,9 @@ HWTEST_F(HiSysEventNativeTest, TestParseInt64ArrayFromHiSysEventRecord, TestSize
     HiSysEventRecord record(JSON_STR);
     std::vector<int64_t> val;
     int ret = record.GetParamValue("PARAM_B", val);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val.size() == 3 && val[0] == -1);
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
+    ASSERT_EQ(val.size(), 3);
+    ASSERT_EQ(val[0], -1);
 }
 
 /**
@@ -1387,7 +1393,9 @@ HWTEST_F(HiSysEventNativeTest, TestParseUInt64ArrayFromHiSysEventRecord, TestSiz
     HiSysEventRecord record(JSON_STR);
     std::vector<uint64_t> val;
     int ret = record.GetParamValue("PARAM_B", val);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val.size() == 3 && val[0] == 1);
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
+    ASSERT_EQ(val.size(), 3);
+    ASSERT_EQ(val[0], 1);
 }
 
 /**
@@ -1403,7 +1411,9 @@ HWTEST_F(HiSysEventNativeTest, TestParseDoubleArrayFromHiSysEventRecord, TestSiz
     HiSysEventRecord record(JSON_STR);
     std::vector<double> val;
     int ret = record.GetParamValue("PARAM_B", val);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val.size() == 3 && abs(val[0] - 2.1) < 1e-8);
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
+    ASSERT_EQ(val.size(), 3);
+    ASSERT_LT(abs(val[0] - 2.1), 1e-8);
 }
 
 /**
@@ -1419,7 +1429,9 @@ HWTEST_F(HiSysEventNativeTest, TestParseStringArrayFromHiSysEventRecord, TestSiz
     HiSysEventRecord record(JSON_STR);
     std::vector<std::string> val;
     int ret = record.GetParamValue("PARAM_B", val);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED && val.size() == 3 && val[0] == "123");
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
+    ASSERT_EQ(val.size(), 3);
+    ASSERT_EQ(val[0], "123");
 }
 
 /**
@@ -1437,27 +1449,27 @@ HWTEST_F(HiSysEventNativeTest, TestParseParamsFromHiSysEventRecord, TestSize.Lev
         \"pspanid_\":28408891,\"trace_flag_\":1,\"info_\":\"\"}";
     HiSysEventRecord record(JSON_STR);
     auto time = record.GetTime();
-    ASSERT_TRUE(time > 0);
+    ASSERT_GT(time, 0);
     auto timeZone = record.GetTimeZone();
-    ASSERT_TRUE(timeZone.size() == 5);
+    ASSERT_EQ(timeZone.size(), 5);
     auto pid = record.GetPid();
-    ASSERT_TRUE(pid > 0);
+    ASSERT_GT(pid, 0);
     auto tid = record.GetTid();
-    ASSERT_TRUE(tid > 0);
+    ASSERT_GT(tid, 0);
     auto uid = record.GetUid();
-    ASSERT_TRUE(uid > 0);
+    ASSERT_GT(uid, 0);
     auto traceId = record.GetTraceId();
-    ASSERT_TRUE(traceId >= 0);
+    ASSERT_GE(traceId, 0);
     auto spanId = record.GetSpanId();
-    ASSERT_TRUE(spanId >= 0);
+    ASSERT_GE(spanId, 0);
     auto pspanId = record.GetPspanId();
-    ASSERT_TRUE(pspanId >= 0);
+    ASSERT_GE(pspanId, 0);
     auto traceFlag = record.GetTraceFlag();
-    ASSERT_TRUE(traceFlag >= 0);
+    ASSERT_GE(traceFlag, 0);
     auto level = record.GetLevel();
-    ASSERT_TRUE(level == "CRITICAL" || level == "MINOR");
+    ASSERT_EQ(level, "CRITICAL");
     auto tag = record.GetTag();
-    ASSERT_TRUE(timeZone.size() >= 0);
+    ASSERT_GE(timeZone.size(), 0);
     std::vector<std::string> paramNames;
     record.GetParamNames(paramNames);
     ASSERT_TRUE(std::any_of(paramNames.begin(), paramNames.end(), [] (auto& name) {
@@ -1476,11 +1488,11 @@ HWTEST_F(HiSysEventNativeTest, TestParseParamsFromUninitializedHiSysEventRecord,
     constexpr char JSON_STR[] = "";
     HiSysEventRecord record(JSON_STR);
     auto time = record.GetTime();
-    ASSERT_TRUE(time == 0);
+    ASSERT_EQ(time, 0);
     auto timeZone = record.GetTimeZone();
-    ASSERT_TRUE(timeZone.size() == 0);
+    ASSERT_EQ(timeZone.size(), 0);
     auto traceId = record.GetTraceId();
-    ASSERT_TRUE(traceId == 0);
+    ASSERT_EQ(traceId, 0);
 }
 
 /**
@@ -1497,24 +1509,24 @@ HWTEST_F(HiSysEventNativeTest, TestParseWrongTypeParamsFromUninitializedHiSysEve
     HiSysEventRecord record(JSON_STR);
     double num = 0;
     auto ret = record.GetParamValue("domain_", num);
-    ASSERT_TRUE(ret == ERR_TYPE_NOT_MATCH);
+    ASSERT_EQ(ret, ERR_TYPE_NOT_MATCH);
     std::vector<std::string> paramC;
     ret = record.GetParamValue("name_", paramC);
-    ASSERT_TRUE(ret == ERR_TYPE_NOT_MATCH);
+    ASSERT_EQ(ret, ERR_TYPE_NOT_MATCH);
     ret = record.GetParamValue("PARAM_C", paramC);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED);
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
     uint64_t uint64TypeParam = 0;
     ret = record.GetParamValue("UINT64_T", uint64TypeParam);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED);
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
     int64_t int64TypeParam = 0;
     ret = record.GetParamValue("INT64_T", int64TypeParam);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED);
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
     double doubleTypeParam = 0;
     ret = record.GetParamValue("DOUBLE_T", doubleTypeParam);
-    ASSERT_TRUE(ret == VALUE_PARSED_SUCCEED);
+    ASSERT_EQ(ret, VALUE_PARSED_SUCCEED);
     double doubleTypeParam2 = 0;
     ret = record.GetParamValue("DOUBLE_T_NOT_EXIST", doubleTypeParam2);
-    ASSERT_TRUE(ret == ERR_KEY_NOT_EXIST);
+    ASSERT_EQ(ret, ERR_KEY_NOT_EXIST);
 }
 
 /**
@@ -1543,6 +1555,6 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithDefaultQueryArgumen
     OHOS::HiviewDFX::QueryRule rule("KERNEL_VENDOR", eventNames); // empty domain
     queryRules.emplace_back(rule);
     auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
-    ASSERT_TRUE(ret == OHOS::HiviewDFX::IPC_CALL_SUCCEED);
+    ASSERT_EQ(ret, OHOS::HiviewDFX::IPC_CALL_SUCCEED);
 }
 
