@@ -14,7 +14,7 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("HiSysEventManagerFuzzTest") {
-  module_out_path = "hisysevent/hisysevent"
+  module_out_path = "hisysevent/hisysevent_fuzz"
 
   include_dirs = [ "hisyseventmanager_fuzzer.h" ]
 
