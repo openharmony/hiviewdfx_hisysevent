@@ -183,6 +183,7 @@ public:
         static constexpr char STARTUP[] = "STARTUP";
         static constexpr char STATS[] = "STATS";
         static constexpr char TASK_MANAGER[] = "TASK_MANAGER";
+        static constexpr char TASK_MANAGER_UE[] = "TASK_MANAGER_UE";
         static constexpr char TELEPHONY[] = "TELEPHONY";
         static constexpr char THEME[] = "THEME";
         static constexpr char THEME_MGR[] = "THEME_MGR";
