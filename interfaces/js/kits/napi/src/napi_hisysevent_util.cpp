@@ -1057,8 +1057,8 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
         {ERR_TOO_MANY_WATCH_RULES, {NapiError::ERR_WATCH_RULE_COUNT_OVER_LIMIT,
             "The number of watch rules exceeds the limit"}},
         // remove watcher
-        {ERR_LISTENER_NOT_EXIST, {NapiError::ERR_WATCHER_NOT_EXIST, "Watcher is not exist"}},
-        {ERR_NAPI_LISTENER_NOT_FOUND, {NapiError::ERR_WATCHER_NOT_EXIST, "Watcher is not exist"}},
+        {ERR_LISTENER_NOT_EXIST, {NapiError::ERR_WATCHER_NOT_EXIST, "The watcher does not exist"}},
+        {ERR_NAPI_LISTENER_NOT_FOUND, {NapiError::ERR_WATCHER_NOT_EXIST, "The watcher does not exist"}},
         // query refer
         {ERR_TOO_MANY_QUERY_RULES, {NapiError::ERR_QUERY_RULE_COUNT_OVER_LIMIT,
             "The number of query rules exceeds the limit"}},
@@ -1077,7 +1077,7 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
         {ERR_TOO_MANY_EVENTS, {NapiError::ERR_QUERY_RULE_COUNT_OVER_LIMIT,
             "The number of query rules exceeds the limit"}},
         // remove subscriber
-        {ERR_REMOVE_SUBSCRIBE, {NapiError::ERR_REMOVE_SUBSCRIBE, "Failed to unsubscribe"}},
+        {ERR_REMOVE_SUBSCRIBE, {NapiError::ERR_REMOVE_SUBSCRIBE, "Unsubscription failed"}},
     };
     return errMap.find(retCode) == errMap.end() ?
         std::make_pair(NapiError::ERR_ENV_ABNORMAL, "Abnormal environment") : errMap.at(retCode);
