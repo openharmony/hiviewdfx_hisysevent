@@ -76,6 +76,7 @@ public:
 
     void OnEvent(std::shared_ptr<HiSysEventRecord> sysEvent) final
     {
+        isEventWatched_ = true;
         if (sysEvent == nullptr || assertFunc_ == nullptr) {
             return;
         }
@@ -87,8 +88,14 @@ public:
         HILOG_DEBUG(LOG_CORE, "OnServiceDied");
     }
 
+    bool IsEventWatched()
+    {
+        return isEventWatched_;
+    }
+
 private:
     std::function<bool(std::shared_ptr<HiSysEventRecord>)> assertFunc_;
+    bool isEventWatched_ = false;
 };
 
 class Querier : public HiSysEventQueryCallback {
@@ -146,10 +153,15 @@ void WriteAndWatchThenQuery(std::shared_ptr<Watcher> watcher, std::shared_ptr<Qu
     ret = HiSysEventWrite(DOMAIN, EVENT_NAME, HiSysEvent::EventType::BEHAVIOR, PARAM_KEY,
         val);
     ASSERT_EQ(ret, SUCCESS);
-    usleep(USLEEP_SHORT_DURATION);
-    ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(watcher);
-    ASSERT_EQ(ret, SUCCESS);
     usleep(USLEEP_LONG_DURATION);
+    bool isEventWatched = (watcher != nullptr && watcher->IsEventWatched());
+    ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(watcher);
+    if (!isEventWatched) { // avoid exception of hisysevent persistence
+        ASSERT_EQ(ret, SUCCESS);
+        return;
+    }
+    ASSERT_EQ(ret, SUCCESS);
+    usleep(USLEEP_SHORT_DURATION);
     QueryAndComparedSysEvent(querier, curTimeStamp);
 }
 
