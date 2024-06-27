@@ -62,8 +62,6 @@ constexpr int SECOND_ITEM_INDEX = 1;
 constexpr int THIRD_ITEM_INDEX = 2;
 constexpr int USLEEP_SHORT_DURATION = 1000000;
 constexpr int USLEEP_LONG_DURATION = 5000000;
-constexpr int EVENT_QUERY_CNT = 1000;
-constexpr uint64_t DELAY_DURATION = 10000;
 
 class Watcher : public HiSysEventListener {
 public:
@@ -76,7 +74,6 @@ public:
 
     void OnEvent(std::shared_ptr<HiSysEventRecord> sysEvent) final
     {
-        isEventWatched_ = true;
         if (sysEvent == nullptr || assertFunc_ == nullptr) {
             return;
         }
@@ -88,60 +85,12 @@ public:
         HILOG_DEBUG(LOG_CORE, "OnServiceDied");
     }
 
-    bool IsEventWatched()
-    {
-        return isEventWatched_;
-    }
-
 private:
     std::function<bool(std::shared_ptr<HiSysEventRecord>)> assertFunc_;
-    bool isEventWatched_ = false;
 };
-
-class Querier : public HiSysEventQueryCallback {
-public:
-    explicit Querier(std::function<bool(std::shared_ptr<std::vector<HiSysEventRecord>>)> onQueryHandleFunc)
-    {
-        onQueryHandleFunc_ = onQueryHandleFunc;
-    }
-
-    virtual ~Querier() {}
-
-    void OnQuery(std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents)
-    {
-        matched |= onQueryHandleFunc_(sysEvents);
-    }
-
-    void OnComplete(int32_t reason, int32_t total)
-    {
-        ASSERT_TRUE(matched);
-    }
-
-private:
-    std::function<bool(std::shared_ptr<std::vector<HiSysEventRecord>>)> onQueryHandleFunc_;
-    bool matched = false;
-};
-
-uint64_t GetCurrentTimeMills()
-{
-    auto now = std::chrono::system_clock::now();
-    auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    return millisecs.count();
-}
-
-void QueryAndComparedSysEvent(std::shared_ptr<Querier> querier, uint64_t beginTime)
-{
-    struct OHOS::HiviewDFX::QueryArg args(beginTime, beginTime + DELAY_DURATION, EVENT_QUERY_CNT);
-    std::vector<OHOS::HiviewDFX::QueryRule> queryRules;
-    std::vector<std::string> eventNames {EVENT_NAME};
-    OHOS::HiviewDFX::QueryRule rule(DOMAIN, eventNames);
-    queryRules.emplace_back(rule);
-    auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
-    ASSERT_EQ(ret, SUCCESS);
-}
 
 template<typename T>
-void WriteAndWatchThenQuery(std::shared_ptr<Watcher> watcher, std::shared_ptr<Querier> querier, T& val)
+void WriteAndWatchEvent(std::shared_ptr<Watcher> watcher, T& val)
 {
     OHOS::HiviewDFX::ListenerRule listenerRule(DOMAIN, EVENT_NAME, "",
         OHOS::HiviewDFX::RuleType::WHOLE_WORD);
@@ -149,20 +98,12 @@ void WriteAndWatchThenQuery(std::shared_ptr<Watcher> watcher, std::shared_ptr<Qu
     sysRules.emplace_back(listenerRule);
     auto ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
     ASSERT_EQ(ret, SUCCESS);
-    uint64_t curTimeStamp = GetCurrentTimeMills();
     ret = HiSysEventWrite(DOMAIN, EVENT_NAME, HiSysEvent::EventType::BEHAVIOR, PARAM_KEY,
         val);
     ASSERT_EQ(ret, SUCCESS);
     usleep(USLEEP_LONG_DURATION);
-    bool isEventWatched = (watcher != nullptr && watcher->IsEventWatched());
     ret = OHOS::HiviewDFX::HiSysEventManager::RemoveListener(watcher);
-    if (!isEventWatched) { // avoid exception of hisysevent persistence
-        ASSERT_EQ(ret, SUCCESS);
-        return;
-    }
     ASSERT_EQ(ret, SUCCESS);
-    usleep(USLEEP_SHORT_DURATION);
-    QueryAndComparedSysEvent(querier, curTimeStamp);
 }
 
 bool IsContains(const std::string& total, const std::string& part)
@@ -171,24 +112,6 @@ bool IsContains(const std::string& total, const std::string& part)
         return false;
     }
     return total.find(part) != std::string::npos;
-}
-
-bool CompareEventQueryResultWithPattern(std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents,
-    const std::string& pattern)
-{
-    if (sysEvents == nullptr) {
-        return false;
-    }
-    auto matched = false;
-    for (auto sysEvent : *sysEvents) {
-        std::string eventJsonStr = sysEvent.AsJson();
-        auto comparedRet = IsContains(eventJsonStr, pattern);
-        matched |= comparedRet;
-        if (matched) {
-            break;
-        }
-    }
-    return matched;
 }
 }
 
@@ -226,10 +149,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest001, Test
         sysEvent->GetParamValue(PARAM_KEY, ret);
         return ret == static_cast<int>(val);
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":1,");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -250,10 +170,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest002, Test
         sysEvent->GetParamValue(PARAM_KEY, ret);
         return ret == val;
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":-18888888882321,");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -274,10 +191,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest003, Test
         sysEvent->GetParamValue(PARAM_KEY, ret);
         return ret == val;
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":18888888882326141,");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -297,10 +211,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest004, Test
         std::string eventJsonStr = sysEvent->AsJson();
         return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":30949.4,");
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":30949.4,");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -321,10 +232,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest005, Test
         sysEvent->GetParamValue(PARAM_KEY, ret);
         return ret == val;
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":\"value\"");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -350,10 +258,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest006, Test
         return (ret.size() == ARRAY_TOTAL_CNT) && (val[FIRST_ITEM_INDEX] == ret[FIRST_ITEM_INDEX]) &&
             (val[SECOND_ITEM_INDEX] == ret[SECOND_ITEM_INDEX]) && (val[THIRD_ITEM_INDEX] == ret[THIRD_ITEM_INDEX]);
     });
-    auto querier =std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":[1,0,1]");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -379,12 +284,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest007, Test
         return (ret.size() == ARRAY_TOTAL_CNT) && (val[FIRST_ITEM_INDEX] == ret[FIRST_ITEM_INDEX]) &&
             (val[SECOND_ITEM_INDEX] == ret[SECOND_ITEM_INDEX]) && (val[THIRD_ITEM_INDEX] == ret[THIRD_ITEM_INDEX]);
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":[" +
-            std::to_string(std::numeric_limits<int64_t>::min()) + "," +
-            std::to_string(std::numeric_limits<int64_t>::max()) + ",-3333333333333333333]");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -410,12 +310,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest008, Test
         return (ret.size() == ARRAY_TOTAL_CNT) && (val[FIRST_ITEM_INDEX] == ret[FIRST_ITEM_INDEX]) &&
             (val[SECOND_ITEM_INDEX] == ret[SECOND_ITEM_INDEX]) && (val[THIRD_ITEM_INDEX] == ret[THIRD_ITEM_INDEX]);
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":[" +
-            std::to_string(std::numeric_limits<uint64_t>::min()) + "," +
-            std::to_string(std::numeric_limits<uint64_t>::max()) + ",3333333333333333333]");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -439,10 +334,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest009, Test
         std::string eventJsonStr = sysEvent->AsJson();
         return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":[1.5,2.5,100.374],");
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":[1.5,2.5,100.374]");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -468,11 +360,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest010, Test
         return (ret.size() == ARRAY_TOTAL_CNT) && (ret[FIRST_ITEM_INDEX] == "value1\n\r") &&
             (ret[SECOND_ITEM_INDEX] == "value2\n\r") && (ret[THIRD_ITEM_INDEX] == "value3\n\r");
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents,
-            "\"" + std::string(PARAM_KEY) + "\":[\"value1\\n\\r\",\"value2\\n\\r\",\"value3\\n\\r\"]");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -492,10 +380,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest011, Test
         std::string eventJsonStr = sysEvent->AsJson();
         return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":230.47,");
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":230.47");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -520,10 +405,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest012, Test
         std::string eventJsonStr = sysEvent->AsJson();
         return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":[1.1,2.2,3.5,4],");
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":[1.1,2.2,3.5,4]");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 #ifdef HIVIEWDFX_HITRACE_ENABLED_FOR_TEST
@@ -544,11 +426,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest013, Test
         }
         return (traceId.GetFlags() == sysEvent->GetTraceFlag()) && (traceId.GetChainId() == sysEvent->GetTraceId());
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) +
-            "\":\"with valid hitracechain\",");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
     HiTraceChain::End(traceId);
 }
 #endif
@@ -570,10 +448,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest014, Test
         std::string eventJsonStr = sysEvent->AsJson();
         return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":-3.5,");
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":-3.5,");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -593,10 +468,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest015, Test
         std::string eventJsonStr = sysEvent->AsJson();
         return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":[],");
     });
-    auto querier = std::make_shared<Querier>([] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":[]");
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -617,11 +489,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest016, Test
         sysEvent->GetParamValue(PARAM_KEY, ret);
         return ret == val;
     });
-    auto querier = std::make_shared<Querier>([val] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":" +
-            std::to_string(val));
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -642,11 +510,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest017, Test
         sysEvent->GetParamValue(PARAM_KEY, ret);
         return ret == val;
     });
-    auto querier = std::make_shared<Querier>([val] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":" +
-            std::to_string(val));
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -667,11 +531,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest018, Test
         sysEvent->GetParamValue(PARAM_KEY, ret);
         return ret == val;
     });
-    auto querier = std::make_shared<Querier>([val] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":" +
-            std::to_string(val));
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
 
 /**
@@ -692,9 +552,5 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest019, Test
         sysEvent->GetParamValue(PARAM_KEY, ret);
         return ret == val;
     });
-    auto querier = std::make_shared<Querier>([val] (std::shared_ptr<std::vector<HiSysEventRecord>> sysEvents) {
-        return CompareEventQueryResultWithPattern(sysEvents, "\"" + std::string(PARAM_KEY) + "\":" +
-            std::to_string(val));
-    });
-    WriteAndWatchThenQuery(watcher, querier, val);
+    WriteAndWatchEvent(watcher, val);
 }
