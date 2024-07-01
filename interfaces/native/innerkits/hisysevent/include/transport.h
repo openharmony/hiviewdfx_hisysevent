@@ -27,12 +27,12 @@ namespace HiviewDFX {
 using namespace Encoded;
 class Transport {
 public:
-    Transport() {}
-    ~Transport() {}
-
-public:
     static Transport& GetInstance();
     int SendData(RawData& rawData);
+
+private:
+    Transport() {}
+    ~Transport() {}
 
 private:
     void AddFailedData(RawData& rawData);
