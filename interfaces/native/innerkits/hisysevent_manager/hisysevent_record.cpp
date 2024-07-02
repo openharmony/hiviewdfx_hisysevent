@@ -220,8 +220,9 @@ int HiSysEventRecord::GetParamValue(const std::string& param, std::vector<int64_
 {
     return GetParamValue(param,
         [this] (JsonValue val) {
-            return !(this->IsArray(val,
-                std::bind(&HiSysEventRecord::IsInt64ValueType, this, std::placeholders::_1)));
+            return !(this->IsArray(val, [this] (const JsonValue val) {
+                    return this->IsInt64ValueType(val);
+                }));
         },
         [&value] (JsonValue src) {
             int arraySize = src->Size();
@@ -235,8 +236,9 @@ int HiSysEventRecord::GetParamValue(const std::string& param, std::vector<uint64
 {
     return GetParamValue(param,
         [this] (JsonValue val) {
-            return !(this->IsArray(val,
-                std::bind(&HiSysEventRecord::IsUInt64ValueType, this, std::placeholders::_1)));
+            return !(this->IsArray(val, [this] (const JsonValue val) {
+                    return this->IsUInt64ValueType(val);
+                }));
         },
         [&value] (JsonValue src) {
             int arraySize = src->Size();
@@ -250,8 +252,9 @@ int HiSysEventRecord::GetParamValue(const std::string& param, std::vector<double
 {
     return GetParamValue(param,
         [this] (JsonValue val) {
-            return !(this->IsArray(val,
-                std::bind(&HiSysEventRecord::IsDoubleValueType, this, std::placeholders::_1)));
+            return !(this->IsArray(val, [this] (const JsonValue val) {
+                    return this->IsDoubleValueType(val);
+                }));
         },
         [&value] (JsonValue src) {
             int arraySize = src->Size();
@@ -265,8 +268,9 @@ int HiSysEventRecord::GetParamValue(const std::string& param, std::vector<std::s
 {
     return GetParamValue(param,
         [this] (JsonValue val) {
-            return !(this->IsArray(val,
-                std::bind(&HiSysEventRecord::IsStringValueType, this, std::placeholders::_1)));
+            return !(this->IsArray(val, [this] (const JsonValue val) {
+                    return this->IsStringValueType(val);
+                }));
         },
         [&value] (JsonValue src) {
             int arraySize = src->Size();
