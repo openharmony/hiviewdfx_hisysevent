@@ -22,15 +22,15 @@
 #include <vector>
 
 #include "parcel.h"
-#include "rule_type.h"
 
 namespace OHOS {
 namespace HiviewDFX {
+constexpr uint32_t DEFAULT_QUERY_RULE_TYPE = 1; // WHOLE_WORD
 class SysEventQueryRule : public Parcelable {
 public:
     SysEventQueryRule() {};
     SysEventQueryRule(const std::string& domain, const std::vector<std::string>& events,
-        uint32_t ruleType = RuleType::WHOLE_WORD, uint32_t eventType = 0, const std::string& cond = "")
+        uint32_t ruleType = DEFAULT_QUERY_RULE_TYPE, uint32_t eventType = 0, const std::string& cond = "")
         : domain(domain), eventList(events), ruleType(ruleType), eventType(eventType), condition(cond) {};
     ~SysEventQueryRule() {}
 
@@ -39,7 +39,7 @@ public:
 
     std::string domain;
     std::vector<std::string> eventList;
-    uint32_t ruleType = RuleType::WHOLE_WORD;
+    uint32_t ruleType = DEFAULT_QUERY_RULE_TYPE;
     uint32_t eventType = 0;
     std::string condition;
 };
