@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,20 +21,20 @@
 #include <string>
 
 #include "parcel.h"
+#include "rule_type.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-constexpr uint32_t DEFAULT_EVENT_RULE_TYPE = 1; // WHOLE_WORD
 class SysEventRule : public Parcelable {
 public:
     SysEventRule() {};
     SysEventRule(const std::string& domain, const std::string& eventName,
-        const std::string& tag, uint32_t ruleType = DEFAULT_EVENT_RULE_TYPE, uint32_t eventType = 0)
+        const std::string& tag, uint32_t ruleType = RuleType::WHOLE_WORD, uint32_t eventType = 0)
         : domain(domain), eventName(eventName), tag(tag), ruleType(ruleType), eventType(eventType) {}
     SysEventRule(const std::string& domain, const std::string& eventName,
-        uint32_t ruleType = DEFAULT_EVENT_RULE_TYPE, uint32_t eventType = 0)
+        uint32_t ruleType = RuleType::WHOLE_WORD, uint32_t eventType = 0)
         : SysEventRule(domain, eventName, "", ruleType, eventType) {}
-    SysEventRule(const std::string& tag, uint32_t ruleType = DEFAULT_EVENT_RULE_TYPE, uint32_t eventType = 0)
+    SysEventRule(const std::string& tag, uint32_t ruleType = RuleType::WHOLE_WORD, uint32_t eventType = 0)
         : SysEventRule("", "", tag, ruleType, eventType) {}
     ~SysEventRule() = default;
 
@@ -44,7 +44,7 @@ public:
     std::string domain;
     std::string eventName;
     std::string tag;
-    uint32_t ruleType = DEFAULT_EVENT_RULE_TYPE;
+    uint32_t ruleType = RuleType::WHOLE_WORD;
     uint32_t eventType = 0;
 };
 } // namespace HiviewDFX
