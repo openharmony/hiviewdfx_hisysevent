@@ -21,7 +21,7 @@
 #include "def.h"
 #include "hilog/log.h"
 #include "napi_hisysevent_util.h"
-#include "native_engine/native_engine.h"
+#include "napi/native_node_api.h"
 
 #undef LOG_DOMAIN
 #define LOG_DOMAIN 0xD002D08
@@ -105,9 +105,8 @@ void ParseCallerInfoFromStackTrace(const std::string& stackTrace, JsCallerInfo& 
 
 void NapiHiSysEventAdapter::ParseJsCallerInfo(const napi_env env, JsCallerInfo& callerInfo)
 {
-    NativeEngine* engine = reinterpret_cast<NativeEngine*>(env);
     std::string stackTrace;
-    if (!engine->BuildJsStackTrace(stackTrace)) {
+    if (napi_get_stack_trace(env, stackTrace) != napi_ok) {
         HILOG_ERROR(LOG_CORE, "js stack trace build failed.");
         return;
     }
