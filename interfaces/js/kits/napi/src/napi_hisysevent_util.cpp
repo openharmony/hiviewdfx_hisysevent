@@ -242,7 +242,7 @@ std::string GetStringTypeAttribute(const napi_env env, const napi_value& object,
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
     if (!IsValueTypeValid(env, propertyValue, napi_valuetype::napi_string)) {
         NapiHiSysEventUtil::ThrowParamTypeError(env, propertyName, "string");
-        HILOG_ERROR(LOG_CORE, "type is not napi_string.");
+        HILOG_DEBUG(LOG_CORE, "type is not napi_string.");
         return defaultValue;
     }
     return ParseStringValue(env, propertyValue, defaultValue);
@@ -253,7 +253,7 @@ long long GetLonglongTypeAttribute(const napi_env env, const napi_value& val, lo
     bool isNumberType = IsValueTypeValid(env, val, napi_valuetype::napi_number);
     bool isBigIntType = IsValueTypeValid(env, val, napi_valuetype::napi_bigint);
     if (!isNumberType && !isBigIntType) {
-        HILOG_ERROR(LOG_CORE, "type is not napi_number or napi_bigint.");
+        HILOG_DEBUG(LOG_CORE, "type is not napi_number or napi_bigint.");
         return defaultValue;
     }
     if (isNumberType) {
@@ -268,7 +268,7 @@ int32_t ParseInt32Value(const napi_env env, const napi_value& value, int32_t def
     int32_t int32Value = 0;
     napi_status ret = napi_get_value_int32(env, value, &int32Value);
     if (ret != napi_ok) {
-        HILOG_ERROR(LOG_CORE, "failed to parse napi value of number type.");
+        HILOG_DEBUG(LOG_CORE, "failed to parse napi value of number type.");
         return defaultValue;
     }
     return int32Value;
@@ -280,7 +280,7 @@ int32_t GetInt32TypeAttribute(const napi_env env, const napi_value& object,
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
     if (!IsValueTypeValid(env, propertyValue, napi_valuetype::napi_number)) {
         NapiHiSysEventUtil::ThrowParamTypeError(env, propertyName, "number");
-        HILOG_ERROR(LOG_CORE, "type is not napi_number.");
+        HILOG_DEBUG(LOG_CORE, "type is not napi_number.");
         return defaultValue;
     }
     return ParseInt32Value(env, propertyValue);
@@ -487,7 +487,7 @@ void GetObjectTypeAttribute(const napi_env env, const napi_value& object,
 {
     napi_value propertyValue = NapiHiSysEventUtil::GetPropertyByName(env, object, propertyName);
     if (!IsValueTypeValid(env, propertyValue, napi_valuetype::napi_object)) {
-        HILOG_ERROR(LOG_CORE, "type is not napi_object.");
+        HILOG_DEBUG(LOG_CORE, "type is not napi_object.");
         return;
     }
     napi_value keyArr = nullptr;
