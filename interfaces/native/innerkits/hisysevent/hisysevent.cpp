@@ -421,7 +421,7 @@ void HiSysEvent::AppendInt32ArrayParam(EventBase& eventBase, const HiSysEventPar
         return;
     }
     std::vector<int32_t> value(array, array + param.arraySize);
-    if (CheckArrayParamsValidity(eventBase, param.name, value)) {
+    if (!CheckArrayParamsValidity(eventBase, param.name, value)) {
         return;
     }
     eventBase.AppendParam(std::make_shared<Encoded::SignedVarintEncodedArrayParam<int32_t>>(param.name, value));
