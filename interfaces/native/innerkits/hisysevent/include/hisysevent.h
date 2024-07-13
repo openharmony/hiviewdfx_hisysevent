@@ -210,6 +210,7 @@ public:
         static constexpr char WEBVIEW[] = "WEBVIEW";
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
         static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
+        static constexpr char SWING_UE[] = "SWING_UE";
         static constexpr char OTHERS[] = "OTHERS";
     };
 
