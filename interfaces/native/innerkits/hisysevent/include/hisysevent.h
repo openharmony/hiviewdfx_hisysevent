@@ -186,6 +186,7 @@ public:
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
         static constexpr char STARTUP[] = "STARTUP";
         static constexpr char STATS[] = "STATS";
+        static constexpr char SWING_UE[] = "SWING_UE";
         static constexpr char TASK_MANAGER[] = "TASK_MANAGER";
         static constexpr char TASK_MANAGER_UE[] = "TASK_MANAGER_UE";
         static constexpr char TELEPHONY[] = "TELEPHONY";
