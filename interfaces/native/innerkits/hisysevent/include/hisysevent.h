@@ -206,6 +206,7 @@ public:
         static constexpr char USERIAM_PIN_HDF[] = "USERIAM_PIN_HDF";
         static constexpr char VIR_SERVICE[] = "VIR_SERVICE";
         static constexpr char VM_SERVICE[] = "VM_SERVICE";
+        static constexpr char WATCH_SENSORHUB[] = "WATCH_SENSORHUB";
         static constexpr char WEARABLE_HARDWARE[] = "WEARABLEHW";
         static constexpr char WEARABLE[] = "WEARABLE";
         static constexpr char WEBVIEW[] = "WEBVIEW";
