@@ -51,7 +51,6 @@ ohos_unittest("HiSysEventToolUnitTest") {
   deps = [
     "../../../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd",
     "../../../../../interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_static_lib_for_tdd",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
@@ -76,7 +75,6 @@ ohos_unittest("HiSysEventCWrapperTest") {
     "../../../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd",
     "../../../../../interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_static_lib_for_tdd",
     "../../../c_wrapper:hisysevent_c_wrapper",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
