@@ -10,6 +10,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import("//build/ohos.gni")
 
 group("moduletest") {
   testonly = true
@@ -28,7 +29,9 @@ group("unittest") {
       "//base/hiviewdfx/hisysevent/frameworks/native:unittest",
     ]
   }
-  deps += [ "unittest/rust:rust_hisysevent_test" ]
+  if (!use_clang_coverage) {
+    deps += [ "unittest/rust:rust_hisysevent_test" ]
+  }
 }
 
 group("fuzztest") {
