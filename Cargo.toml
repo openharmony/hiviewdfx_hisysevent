@@ -11,5 +11,5 @@
 
 [workspace]
 members = [
-    "interfaces/rust"
+    "interfaces/rust/innerkits"
 ]
