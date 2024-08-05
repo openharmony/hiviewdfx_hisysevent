@@ -52,7 +52,6 @@ void HiSysEventRustQuerier::OnQuery(std::shared_ptr<std::vector<OHOS::HiviewDFX:
     size_t size = sysEvents->size();
     auto records = new(std::nothrow) HiSysEventRecordC[size];
     if (records == nullptr) {
-        HILOG_ERROR(LOG_CORE, "Failed to allocate memory");
         return;
     }
     for (size_t i = 0; i < size; i++) {
