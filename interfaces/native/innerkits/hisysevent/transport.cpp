@@ -45,18 +45,14 @@ struct sockaddr_un g_serverAddr = {
 
 void LogErrorInfo(const std::string& logFormatStr, bool isLogLevel)
 {
-    std::string formatStr { ", errno=%{public}d, msg=%{public}s" };
-    if (!logFormatStr.empty()) {
-        formatStr = logFormatStr + formatStr;
-    }
     const size_t buffSize { 256 };
     char errMsg[buffSize] { };
     strerror_r(errno, errMsg, buffSize);
     if (isLogLevel) {
-        HILOG_DEBUG(LOG_CORE, formatStr.c_str(), errno, errMsg);
+        HILOG_DEBUG(LOG_CORE, "%{public}s, errno=%{public}d, msg=%{public}s", logFormatStr.c_str(), errno, errMsg);
         return;
     }
-    HILOG_ERROR(LOG_CORE,  formatStr.c_str(), errno, errMsg);
+    HILOG_ERROR(LOG_CORE, "%{public}s, errno=%{public}d, msg=%{public}s", logFormatStr.c_str(), errno, errMsg);
 }
 }
 
