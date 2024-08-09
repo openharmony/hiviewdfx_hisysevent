@@ -38,13 +38,28 @@
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr size_t BUF_SIZE = 2000;
-char g_errMsg[BUF_SIZE] = { 0 };
 struct sockaddr_un g_serverAddr = {
     .sun_family = AF_UNIX,
     .sun_path = "/dev/unix/socket/hisysevent",
 };
+
+void LogErrorInfo(const std::string& logFormatStr, bool isLogLevel)
+{
+    std::string formatStr { ", errno=%{public}d, msg=%{public}s" };
+    if (!logFormatStr.empty()) {
+        formatStr = logFormatStr + formatStr;
+    }
+    const size_t buffSize { 256 };
+    char errMsg[buffSize] { };
+    strerror_r(errno, errMsg, buffSize);
+    if (isLogLevel) {
+        HILOG_DEBUG(LOG_CORE, formatStr.c_str(), errno, errMsg);
+        return;
+    }
+    HILOG_ERROR(LOG_CORE,  formatStr.c_str(), errno, errMsg);
 }
+}
+
 Transport Transport::instance_;
 
 Transport& Transport::GetInstance()
@@ -57,21 +72,18 @@ void Transport::InitRecvBuffer(int socketId)
     int oldN = 0;
     socklen_t oldOutSize = static_cast<socklen_t>(sizeof(int));
     if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&oldN), &oldOutSize) < 0) {
-        strerror_r(errno, g_errMsg, BUF_SIZE);
-        HILOG_DEBUG(LOG_CORE, "get socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
+        LogErrorInfo("get socket send buffer failed", true);
     }
 
     int sendBuffSize = MAX_DATA_SIZE;
     if (setsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&sendBuffSize), sizeof(int)) < 0) {
-        strerror_r(errno, g_errMsg, BUF_SIZE);
-        HILOG_DEBUG(LOG_CORE, "set socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
+        LogErrorInfo("set socket send buffer failed", true);
     }
 
     int newN = 0;
     socklen_t newOutSize = static_cast<socklen_t>(sizeof(int));
     if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, static_cast<void *>(&newN), &newOutSize) < 0) {
-        strerror_r(errno, g_errMsg, BUF_SIZE);
-        HILOG_DEBUG(LOG_CORE, "get new socket send buffer error=%{public}d, msg=%{public}s", errno, g_errMsg);
+        LogErrorInfo("get new socket send buffer failed", true);
     }
 }
 
@@ -81,9 +93,7 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
     // reuse id of the opened socket and then use a mutex to avoid multi-threading race.
     auto socketId = TEMP_FAILURE_RETRY(socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0));
     if (socketId < 0) {
-        strerror_r(errno, g_errMsg, BUF_SIZE);
-        HILOG_DEBUG(LOG_CORE, "create hisysevent client socket failed, error=%{public}d, msg=%{public}s",
-            errno, g_errMsg);
+        LogErrorInfo("create hisysevent client socket failed", true);
         return ERR_DOES_NOT_INIT;
     }
     InitRecvBuffer(socketId);
@@ -95,11 +105,10 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
         retryTimes--;
     } while (sendRet < 0 && retryTimes > 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
     if (sendRet < 0) {
-        strerror_r(errno, g_errMsg, BUF_SIZE);
         if (errno == EACCES) {
-            HILOG_DEBUG(LOG_CORE, "sysevent write failed, err=%{public}d", errno);
+            LogErrorInfo("sysevent write failed", true);
         } else {
-            HILOG_ERROR(LOG_CORE, "sysevent write failed, err=%{public}d", errno);
+            LogErrorInfo("sysevent write failed", false);
         }
         close(socketId);
         return ERR_SEND_FAIL;
