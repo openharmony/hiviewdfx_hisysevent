@@ -125,7 +125,7 @@ HWTEST_F(HiSysEventToolUnitTest, HiSysEventToolUnitTest003, testing::ext::TestSi
     HiSysEventJsonDecorator decorator;
     auto ret = decorator.DecorateEventJsonStr(record0);
     ASSERT_EQ(std::string(origin0), ret);
-    constexpr char origin1[] = "{\"domain_\":\"USERIAM_PIN\",\"name_\":\"USERIAM_TEMPLATE_CHANGE\",\"type_\":3,"
+    constexpr char origin1[] = "{\"domain_\":\"HIVIEWDFX\",\"name_\":\"BREAK\",\"type_\":3,"
         "\"time_\":1502965663170,\"tz_\":\"+0800\",\"pid_\":1710,\"tid_\":1747,"
         "\"uid_\":20010037,\"UID\":1,\"PID\":1,\"PROCESS_NAME\":\"hiview js test suite\","
         "\"PACKAGE_NAME\":\"com.test.testHiSysEvent\",\"level_\":\"CRITICAL\","
@@ -133,14 +133,14 @@ HWTEST_F(HiSysEventToolUnitTest, HiSysEventToolUnitTest003, testing::ext::TestSi
     HiSysEventRecord record1(origin1);
     ret = decorator.DecorateEventJsonStr(record1);
     ASSERT_TRUE(ret.find("\033[31m") != string::npos);
-    constexpr char origin2[] = "{\"domain_\":\"USERIAM_PIN\",\"name_\":\"USERIAM_TEMPLATE_CHANGE\",\"type_\":3,"
+    constexpr char origin2[] = "{\"domain_\":\"HIVIEWDFX\",\"name_\":\"BREAK\",\"type_\":3,"
         "\"time_\":1502965663170,\"tz_\":\"+0800\",\"pid_\":1710,\"tid_\":1747,"
         "\"uid_\":20010037,\"level_\":\"CRITICAL\","
         "\"id_\":\"14645518577780955344\",\"info_\":\"\"}";
     HiSysEventRecord record2(origin2);
     ret = decorator.DecorateEventJsonStr(record2);
     ASSERT_TRUE(ret.find("\033[31m") == string::npos);
-    constexpr char origin3[] = "{\"domain_\":\"USERIAM_PIN\",\"name_\":\"USERIAM_TEMPLATE_CHANGE\",\"type_\":3,"
+    constexpr char origin3[] = "{\"domain_\":\"HIVIEWDFX\",\"name_\":\"BREAK\",\"type_\":3,"
         "\"time_\":1502965663170,\"tz_\":\"+0800\",\"pid_\":1710,\"tid_\":1747,"
         "\"uid_\":20010037,\"CHANGE_TYPE\":\"hiview js test suite\",\"level_\":\"CRITICAL\","
         "\"id_\":\"14645518577780955344\",\"info_\":\"\",\"seq_\":357}";
