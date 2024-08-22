@@ -52,9 +52,9 @@ private:
     bool JudgeDataType(const std::string& dataType, const Json::Value& eventJson);
 
 private:
-    Json::Value root;
-    DecorateMarks decoratedMarks;
-    bool isRootValid = false;
+    Json::Value jsonRoot_;
+    DecorateMarks decoratedMarks_;
+    bool isJsonRootValid_ = false;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
