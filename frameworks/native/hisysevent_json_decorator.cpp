@@ -35,7 +35,7 @@ namespace {
 constexpr char ARRY_SIZE[] = "arrsize";
 constexpr char DECORATE_PREFIX[] = "\033[31m";
 constexpr char DECORATE_SUFFIX[] = "\033[0m";
-constexpr char HISYSEVENT_YAML_DEF_JSON_PATH[] = "/system/etc/hiview/hisysevent.def";
+constexpr char HISYSEVENT_YAML_DEF_JSON_PATH[] = "/data/system/hiview/unzip_configs/sys_event_def/hisysevent.def";
 constexpr char LEVEL[] = "level";
 constexpr char LEVEL_[] = "level_";
 constexpr char TYPE[] = "type";
@@ -57,15 +57,15 @@ HiSysEventJsonDecorator::HiSysEventJsonDecorator()
     Json::CharReaderBuilder jsonRBuilder;
     Json::CharReaderBuilder::strictMode(&jsonRBuilder.settings_);
     JSONCPP_STRING errs;
-    if (!parseFromStream(jsonRBuilder, fin, &root, &errs)) {
+    if (!parseFromStream(jsonRBuilder, fin, &jsonRoot_, &errs)) {
 #else
     Json::Reader reader(Json::Features::strictMode());
-    if (!reader.parse(fin, root)) {
+    if (!reader.parse(fin, jsonRoot_)) {
 #endif
         HILOG_ERROR(LOG_CORE, "parse json file failed, please check the style of json file: %{public}s.",
             HISYSEVENT_YAML_DEF_JSON_PATH);
     } else {
-        isRootValid = true;
+        isJsonRootValid_ = true;
     }
 }
 
@@ -73,7 +73,7 @@ bool HiSysEventJsonDecorator::CheckAttrDecorationNeed(const Json::Value& eventJs
     const Json::Value& standard)
 {
     auto ret = CheckAttrValidity(eventJson, key, standard);
-    decoratedMarks[key] = ret;
+    decoratedMarks_[key] = ret;
     return ret != Validity::KV_BOTH_VALID;
 }
 
@@ -113,15 +113,15 @@ Validity HiSysEventJsonDecorator::CheckLevelValidity(const Json::Value& baseInfo
 bool HiSysEventJsonDecorator::CheckEventDecorationNeed(const Json::Value& eventJson,
     BaseInfoHandler baseJsonInfoHandler, ExtensiveInfoHander extensiveJsonInfoHandler)
 {
-    if (!isRootValid || !root.isObject() || !eventJson.isObject()) {
+    if (!isJsonRootValid_ || !jsonRoot_.isObject() || !eventJson.isObject()) {
         return true;
     }
     std::string domain = eventJson[INNER_BUILD_KEYS[DOMAIN_INDEX]].asString();
     std::string name = eventJson[INNER_BUILD_KEYS[NAME_INDEX]].asString();
-    if (!root.isMember(domain)) {
+    if (!jsonRoot_.isMember(domain)) {
         return true;
     }
-    Json::Value definedDomain = root[domain];
+    Json::Value definedDomain = jsonRoot_[domain];
     if (!definedDomain.isObject() || !definedDomain.isMember(name)) {
         return true;
     }
@@ -161,8 +161,8 @@ std::string HiSysEventJsonDecorator::Decorate(Validity validity, std::string& ke
 std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const HiSysEventRecord& record)
 {
     std::string origin = record.AsJson();
-    decoratedMarks.clear(); // reset marked keys.
-    if (!isRootValid) {
+    decoratedMarks_.clear(); // reset marked keys.
+    if (!isJsonRootValid_) {
         HILOG_ERROR(LOG_CORE, "root json value is not valid, failed to decorate.");
         return origin;
     }
@@ -184,7 +184,7 @@ std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const HiSysEventRecord
     auto needDecorate = CheckEventDecorationNeed(eventJson,
         [this] (const Json::Value& definedBase) {
             auto levelValidity = this->CheckLevelValidity(definedBase);
-            this->decoratedMarks[LEVEL_] = levelValidity;
+            decoratedMarks_[LEVEL_] = levelValidity;
             return levelValidity != Validity::KV_BOTH_VALID;
         }, [this] (const Json::Value& eventJson, const Json::Value& definedName) {
                 auto attrList = eventJson.getMemberNames();
@@ -205,7 +205,7 @@ std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const HiSysEventRecord
         return origin;
     }
     HILOG_DEBUG(LOG_CORE, "all invalid key or value will be high-lighted with red color.");
-    return DecorateJsonStr(origin, decoratedMarks);
+    return DecorateJsonStr(origin, decoratedMarks_);
 }
 
 std::string HiSysEventJsonDecorator::DecorateJsonStr(const std::string& origin, DecorateMarks marks)
