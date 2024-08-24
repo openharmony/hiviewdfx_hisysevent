@@ -36,26 +36,91 @@
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr int SEC_TO_MILLS = 1000;
-constexpr uint64_t PRIME = 0x100000001B3ull;
-constexpr uint64_t BASIS = 0xCBF29CE484222325ull;
-constexpr char CONNECTOR[] = "_";
-
 uint64_t GenerateHash(const std::string& info)
 {
-    uint64_t ret {BASIS};
     const char* p = info.c_str();
     size_t infoLen = info.size();
     size_t infoLenLimit = 256;
     size_t hashLen = (infoLen < infoLenLimit) ? infoLen : infoLenLimit;
     size_t i = 0;
+    uint64_t ret { 0xCBF29CE484222325ULL }; // hash basis value
     while (i < hashLen) {
         ret ^= *(p + i);
-        ret *= PRIME;
+        ret *= 0x100000001B3ULL; // hash prime value
         i++;
     }
     return ret;
 }
+
+struct EventWroteRecord {
+    size_t count = 0;
+    uint64_t timestamp = INVALID_TIME_STAMP;
+};
+
+struct EventWroteCacheNode {
+    std::list<uint64_t>::const_iterator iter;
+    struct EventWroteRecord record;
+};
+}
+
+class EventWroteLruCache {
+public:
+    explicit EventWroteLruCache(size_t capacity): capacity_(capacity) {}
+
+    ~EventWroteLruCache()
+    {
+        key2Index_.clear();
+    }
+
+public:
+    struct EventWroteRecord Get(uint64_t key)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        EventWroteRecord record;
+        if (key2Index_.count(key) == 0) {
+            return record;
+        }
+        Modify(key);
+        return key2Index_[key].record;
+    }
+
+    void Put(int64_t key, struct EventWroteRecord record)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (key2Index_.count(key) > 0) {
+            key2Index_[key].record = record;
+            Modify(key);
+            return;
+        }
+        if (keyCache_.size() == capacity_) {
+            key2Index_.erase(keyCache_.back());
+            keyCache_.pop_back();
+        }
+        keyCache_.push_front(key);
+        key2Index_[key] = {
+            .iter = keyCache_.cbegin(),
+            .record = record
+        };
+    }
+
+private:
+    void Modify(int64_t key)
+    {
+        keyCache_.splice(keyCache_.begin(), keyCache_, key2Index_[key].iter);
+        key2Index_[key].iter = keyCache_.cbegin();
+    }
+
+private:
+    std::mutex mutex_;
+    std::unordered_map<uint64_t, EventWroteCacheNode> key2Index_;
+    std::list<uint64_t> keyCache_;
+    size_t capacity_ = 0;
+};
+
+WriteController::WriteController()
+{
+    const size_t defaultCacheCapacity = 30;
+    recordCache_ = std::make_shared<EventWroteLruCache>(defaultCacheCapacity);
 }
 
 uint64_t WriteController::GetCurrentTimeMills()
@@ -68,28 +133,28 @@ uint64_t WriteController::GetCurrentTimeMills()
 uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
     const CallerInfo& callerInfo)
 {
-    std::lock_guard<std::mutex> lock(lmtMutex);
     uint64_t key = ConcatenateInfoAsKey(eventName, callerInfo.func, callerInfo.line);
-    EventLimitStat stat = lruCache.Get(key);
+    auto record = recordCache_->Get(key);
     uint64_t cur = callerInfo.timeStamp;
-    if (!stat.IsValid() || ((stat.begin / SEC_TO_MILLS) + param.period < (cur / SEC_TO_MILLS)) ||
-        ((stat.begin / SEC_TO_MILLS) > (cur / SEC_TO_MILLS))) {
-        stat.count = 1; // record the first event writing during one cycle
-        stat.begin = cur;
-        lruCache.Put(key, stat);
+    const uint64_t secToMillis = 1000; // second to millisecond
+    if ((record.count == 0) || ((record.timestamp / secToMillis) + param.period < (cur / secToMillis)) ||
+        ((record.timestamp / secToMillis) > (cur / secToMillis))) {
+        record.count = 1; // record the first event writing during one cycle
+        record.timestamp = cur;
+        recordCache_->Put(key, record);
         return cur;
     }
-    stat.count++;
-    if (stat.count <= param.threshold) {
-        lruCache.Put(key, stat);
+    record.count++;
+    if (record.count <= param.threshold) {
+        recordCache_->Put(key, record);
         return cur;
     }
-    lruCache.Put(key, stat);
+    recordCache_->Put(key, record);
     HILOG_DEBUG(LOG_CORE, "{.period = %{public}zu, .threshold = %{public}zu} "
         "[%{public}lld, %{public}lld] discard %{public}zu event(s) "
         "with domain %{public}s and name %{public}s which wrote in function %{public}s.",
-        param.period, param.threshold, static_cast<long long>(stat.begin / SEC_TO_MILLS),
-        static_cast<long long>(cur / SEC_TO_MILLS), stat.count - param.threshold,
+        param.period, param.threshold, static_cast<long long>(record.timestamp / secToMillis),
+        static_cast<long long>(cur / secToMillis), record.count - param.threshold,
         domain, eventName, callerInfo.func);
     return INVALID_TIME_STAMP;
 }
@@ -108,7 +173,7 @@ uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, cons
 uint64_t WriteController::ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line) const
 {
     std::string key;
-    key.append(eventName).append(CONNECTOR).append(func).append(CONNECTOR).append(std::to_string(line));
+    key.append(eventName).append("_").append(func).append("_").append(std::to_string(line));
     return GenerateHash(key);
 }
 } // HiviewDFX
