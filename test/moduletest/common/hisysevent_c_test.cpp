@@ -547,7 +547,7 @@ HWTEST_F(HiSysEventCTest, HiSysEventCTest008, TestSize.Level3)
         };
         std::string key = "key" + std::to_string(i);
         if (strcpy_s(param.name, sizeof(param.name), key.c_str()) != EOK) {
-            return;
+            ASSERT_TRUE(false);
         }
         params[i] = param;
     }

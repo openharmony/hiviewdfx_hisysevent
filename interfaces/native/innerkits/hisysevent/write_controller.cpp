@@ -84,7 +84,7 @@ public:
         return key2Index_[key].record;
     }
 
-    void Put(int64_t key, struct EventWroteRecord record)
+    void Put(uint64_t key, struct EventWroteRecord record)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (key2Index_.count(key) > 0) {
@@ -104,7 +104,7 @@ public:
     }
 
 private:
-    void Modify(int64_t key)
+    void Modify(uint64_t key)
     {
         keyCache_.splice(keyCache_.begin(), keyCache_, key2Index_[key].iter);
         key2Index_[key].iter = keyCache_.cbegin();

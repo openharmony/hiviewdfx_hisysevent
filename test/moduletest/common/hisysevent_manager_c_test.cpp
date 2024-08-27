@@ -959,7 +959,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest001, TestSize.Level3)
     auto res = StringUtil::CreateCString(&record.jsonStr, BuildRecordString(recordData));
     if (res != 0) {
         HILOG_WARN(LOG_CORE, "failed to create record string");
-        return;
+        ASSERT_TRUE(false);
     }
 
     RecordParamNameTest(record, recordData);
@@ -1005,7 +1005,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest002, TestSize.Level3)
     auto res = StringUtil::CreateCString(&record.jsonStr, "invalid record");
     if (res != 0) {
         HILOG_WARN(LOG_CORE, "failed to create record string");
-        return;
+        ASSERT_TRUE(false);
     }
 
     int expRes = -1;
@@ -1040,7 +1040,7 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCRecordTest003, TestSize.Level3)
     auto res = StringUtil::CreateCString(&record.jsonStr, R"~({})~");
     if (res != 0) {
         HILOG_WARN(LOG_CORE, "failed to create record string");
-        return;
+        ASSERT_TRUE(false);
     }
 
     int expRes = -2;
