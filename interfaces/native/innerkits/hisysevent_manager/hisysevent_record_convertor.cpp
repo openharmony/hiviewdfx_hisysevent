@@ -92,13 +92,13 @@ int HiSysEventRecordConvertor::ConvertRecord(const HiSysEventRecordCls& recordOb
         return res;
     }
     if (int res = ConvertEventName(recordObj, recordStruct); res != 0) {
-        HILOG_ERROR(LOG_CORE, "Failed to covert name=%{public}s",  recordObj.GetEventName().c_str());
+        HILOG_ERROR(LOG_CORE, "Failed to convert name=%{public}s",  recordObj.GetEventName().c_str());
         return res;
     }
     recordStruct.type = HiSysEventEventType(recordObj.GetEventType());
     recordStruct.time = recordObj.GetTime();
     if (int res = ConvertTimeZone(recordObj, recordStruct); res != 0) {
-        HILOG_ERROR(LOG_CORE, "Failed to covert tz=%{public}s",  recordObj.GetTimeZone().c_str());
+        HILOG_ERROR(LOG_CORE, "Failed to convert tz=%{public}s",  recordObj.GetTimeZone().c_str());
         return res;
     }
     recordStruct.pid = recordObj.GetPid();
@@ -109,15 +109,14 @@ int HiSysEventRecordConvertor::ConvertRecord(const HiSysEventRecordCls& recordOb
     recordStruct.pspanId = recordObj.GetPspanId();
     recordStruct.traceFlag = recordObj.GetTraceFlag();
     if (int res = ConvertLevel(recordObj, recordStruct); res != 0) {
-        HILOG_ERROR(LOG_CORE, "Failed to covert level=%{public}s",  recordObj.GetLevel().c_str());
+        HILOG_ERROR(LOG_CORE, "Failed to convert level=%{public}s",  recordObj.GetLevel().c_str());
         return res;
     }
     if (int res = ConvertTag(recordObj, recordStruct); res != 0) {
-        HILOG_ERROR(LOG_CORE, "Failed to covert tag=%{public}s",  recordObj.GetTag().c_str());
+        HILOG_ERROR(LOG_CORE, "Failed to convert tag=%{public}s",  recordObj.GetTag().c_str());
         return res;
     }
     if (int res = ConvertJsonStr(recordObj, recordStruct); res != 0) {
-        HILOG_ERROR(LOG_CORE, "Failed to covert jsonStr=%{public}s",  recordObj.AsJson().c_str());
         return res;
     }
     return 0;
