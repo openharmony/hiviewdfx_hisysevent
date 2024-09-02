@@ -69,7 +69,7 @@ int ConvertCStringVec(const std::vector<std::string>& vec, char*** strs, size_t&
     len = vec.size();
     char** data = new(std::nothrow) char* [len]{0};
     if (data == nullptr) {
-        return -1;
+        return 0;
     }
     for (size_t i = 0; i < len; i++) {
         if (int res = ConvertCString(vec[i], &data[i]); res != 0) {

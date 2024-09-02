@@ -1,19 +1,21 @@
-// Copyright (C) 2023 Huawei Device Co., Ltd.
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-use std::ffi::{c_char, c_int, c_longlong, c_uint, c_ulonglong, c_void, CString};
+use std::ffi::{CString, c_char, c_int, c_uint, c_longlong, c_ulonglong, c_void};
 
-use crate::{EventType, QueryArg, QueryRule, WatchRule};
+use crate::{EventType, WatchRule, QueryArg, QueryRule};
 
 /// Length limit for event domain definition.
 const MAX_LENGTH_OF_EVENT_DOMAIN: usize = 17;
@@ -135,20 +137,17 @@ pub struct HiSysEventRecord {
 }
 
 impl HiSysEventRecord {
+
     /// Get domain name
     pub fn get_domain(&self) -> String {
-        std::str::from_utf8(&self.domain)
-            .expect("need valid domain array")
-            .trim_end_matches(char::from(0))
-            .to_string()
+        std::str::from_utf8(&self.domain).expect("need valid domain array")
+            .trim_end_matches(char::from(0)).to_string()
     }
 
     /// Get event name
     pub fn get_event_name(&self) -> String {
-        std::str::from_utf8(&self.event_name)
-            .expect("need valid event name array")
-            .trim_end_matches(char::from(0))
-            .to_string()
+        std::str::from_utf8(&self.event_name).expect("need valid event name array")
+            .trim_end_matches(char::from(0)).to_string()
     }
 
     /// Get event name
@@ -169,10 +168,8 @@ impl HiSysEventRecord {
 
     /// Get time zone
     pub fn get_time_zone(&self) -> String {
-        std::str::from_utf8(&self.tz)
-            .expect("need valid time zone array")
-            .trim_end_matches(char::from(0))
-            .to_string()
+        std::str::from_utf8(&self.tz).expect("need valid time zone array")
+            .trim_end_matches(char::from(0)).to_string()
     }
 
     /// Get process id
@@ -212,43 +209,49 @@ impl HiSysEventRecord {
 
     /// Get level
     pub fn get_level(&self) -> String {
-        let level_arr = unsafe { std::ffi::CString::from_raw(self.level as *mut std::ffi::c_char) };
-        std::str::from_utf8(level_arr.to_bytes())
-            .expect("need valid level pointer")
-            .trim_end_matches(char::from(0))
-            .to_owned()
+        let level_arr = unsafe {
+            std::ffi::CString::from_raw(self.level as *mut std::ffi::c_char)
+        };
+        std::str::from_utf8(level_arr.to_bytes()).expect("need valid level pointer")
+            .trim_end_matches(char::from(0)).to_owned()
     }
 
     /// Get tag
     pub fn get_tag(&self) -> String {
-        let tag_arr = unsafe { std::ffi::CString::from_raw(self.tag as *mut std::ffi::c_char) };
-        let tag = std::str::from_utf8(tag_arr.to_bytes())
-            .expect("need valid tag pointer")
+        let tag_arr = unsafe {
+            std::ffi::CString::from_raw(self.tag as *mut std::ffi::c_char)
+        };
+        let tag = std::str::from_utf8(tag_arr.to_bytes()).expect("need valid tag pointer")
             .trim_end_matches(char::from(0));
         String::from(tag)
     }
 
     /// Get json string
     pub fn get_json_str(&self) -> String {
-        let json_str_arr =
-            unsafe { std::ffi::CString::from_raw(self.json_str as *mut std::ffi::c_char) };
-        let json_str = std::str::from_utf8(json_str_arr.to_bytes())
-            .expect("need valid json str pointer")
+        let json_str_arr = unsafe {
+            std::ffi::CString::from_raw(self.json_str as *mut std::ffi::c_char)
+        };
+        let json_str = std::str::from_utf8(json_str_arr.to_bytes()).expect("need valid json str pointer")
             .trim_end_matches(char::from(0));
         String::from(json_str)
     }
 }
 
-/// Callback for handling query result, the query result will be send in several
-/// times.
-pub type OnQuery =
-    unsafe extern "C" fn(callback: *mut c_void, records: *const HiSysEventRecord, size: c_uint);
+/// Callback for handling query result, the query result will be send in several times.
+pub type OnQuery = unsafe extern "C" fn (
+    callback: *mut c_void,
+    records: *const HiSysEventRecord,
+    size: c_uint
+);
 
 /// Callback when event quering finish.
-pub type OnComplete = unsafe extern "C" fn(callback: *mut c_void, reason: c_int, total: c_int);
+pub type OnComplete = unsafe extern "C" fn (
+    callback: *mut c_void,
+    reason: c_int,
+    total: c_int
+);
 
-/// This type represent a rust HiSysEventRustQuerierC which like C++
-/// HiSysEventRustQuerierC.
+/// This type represent a rust HiSysEventRustQuerierC which like C++ HiSysEventRustQuerierC.
 #[repr(C)]
 struct HiSysEventRustQuerierC {
     pub on_query_cb: *mut c_void,
@@ -280,12 +283,8 @@ impl Querier {
         let on_query_callback = Box::into_raw(Box::new(on_query_callback));
         let on_complete_callback = Box::into_raw(Box::new(on_complete_callback));
         let native = unsafe {
-            CreateRustEventQuerier(
-                on_query_callback as *mut c_void,
-                Self::on_query_callback::<F1>,
-                on_complete_callback as *mut c_void,
-                Self::on_complete_callback::<F2>,
-            )
+            CreateRustEventQuerier(on_query_callback as *mut c_void, Self::on_query_callback::<F1>,
+                on_complete_callback as *mut c_void, Self::on_complete_callback::<F2>)
         };
         if native.is_null() {
             None
@@ -298,24 +297,23 @@ impl Querier {
         }
     }
 
-    /// Callback for handling query result, the query result will be send in
-    /// several times.
+    /// Callback for handling query result, the query result will be send in several times.
     ///
     /// # Safety
     ///
     /// The callback parameter will be kept valid during native
     /// HiSysEventRustQuerierC object lifetime.
-    unsafe extern "C" fn on_query_callback<F>(
-        callback: *mut c_void,
-        records: *const HiSysEventRecord,
-        size: c_uint,
-    ) where
+    ///
+    unsafe extern "C" fn on_query_callback<F>(callback: *mut c_void, records: *const HiSysEventRecord,
+        size: c_uint)
+    where
         F: Fn(&[HiSysEventRecord]) + Send + Sync + 'static,
     {
         let mut transalted_records: Vec<HiSysEventRecord> = vec![];
         for i in 0..size {
-            let record_item =
-                unsafe { GetHiSysEventRecordByIndexWrapper(records, size, i as c_uint) };
+            let record_item = unsafe {
+                GetHiSysEventRecordByIndexWrapper(records, size, i as c_uint)
+            };
             transalted_records.push(record_item);
         }
         let callback = (callback as *const F).as_ref().unwrap();
@@ -328,7 +326,9 @@ impl Querier {
     ///
     /// The callback parameter will be kept valid during native
     /// HiSysEventRustQuerierC object lifetime.
-    unsafe extern "C" fn on_complete_callback<F>(callback: *mut c_void, reason: c_int, total: c_int)
+    ///
+    unsafe extern "C" fn on_complete_callback<F>(callback: *mut c_void, reason: c_int,
+        total: c_int)
     where
         F: Fn(i32, i32) + Send + Sync + 'static,
     {
@@ -338,7 +338,9 @@ impl Querier {
 
     /// free memories allocated for Querier
     pub fn try_to_recycle(&self) {
-        unsafe { RecycleRustEventQuerier(self.as_raw()) }
+        unsafe {
+            RecycleRustEventQuerier(self.as_raw())
+        }
     }
 }
 
@@ -348,6 +350,7 @@ impl Querier {
 ///
 /// A `Querier` is always constructed with a valid raw pointer
 /// to a `HiSysEventRustQuerierC`.
+///
 unsafe impl AsRawPtr<HiSysEventRustQuerierC> for Querier {
     fn as_raw(&self) -> *const HiSysEventRustQuerierC {
         self.native
@@ -367,18 +370,14 @@ pub(crate) fn query(query_arg: &QueryArg, query_rules: &[QueryRule], querier: &Q
     };
     let mut query_rules_wrapper: Vec<HiSysEventQueryRuleWrapper> = vec![];
     for i in 0..query_rules.len() {
-        let condition_wrapper =
-            CString::new(query_rules[i].condition).expect("Need a condition for query.");
+        let condition_wrapper = CString::new(query_rules[i].condition).expect("Need a condition for query.");
         query_rules_wrapper.push(HiSysEventQueryRuleWrapper {
             domain: [0; MAX_LENGTH_OF_EVENT_DOMAIN],
             event_list: [0; MAX_EVENT_LIST_LEN],
             event_list_size: MAX_NUMBER_OF_EVENT_LIST as c_uint,
             condition: condition_wrapper.as_ptr() as *const c_char,
         });
-        crate::utils::trans_slice_to_array(
-            query_rules[i].domain,
-            &mut query_rules_wrapper[i].domain,
-        );
+        crate::utils::trans_slice_to_array(query_rules[i].domain, &mut query_rules_wrapper[i].domain);
         let src_len = query_rules[i].event_list.len();
         let dest_len = query_rules_wrapper[i].event_list.len();
         let total_cnt = if src_len <= dest_len {
@@ -393,8 +392,7 @@ pub(crate) fn query(query_arg: &QueryArg, query_rules: &[QueryRule], querier: &Q
     }
     // Safty: call C ffi border function, all risks are under control.
     unsafe {
-        HiSysEventQueryWrapper(
-            &query_arg_wrapper as *const HiSysEventQueryArg,
+        HiSysEventQueryWrapper(&query_arg_wrapper as *const HiSysEventQueryArg,
             query_rules_wrapper.as_mut_ptr(),
             query_rules.len() as c_uint,
             querier.as_raw(),
@@ -403,13 +401,17 @@ pub(crate) fn query(query_arg: &QueryArg, query_rules: &[QueryRule], querier: &Q
 }
 
 /// Callback when receive system event.
-pub type OnEvent = unsafe extern "C" fn(callback: *mut c_void, record: HiSysEventRecord);
+pub type OnEvent = unsafe extern "C" fn (
+    callback: *mut c_void,
+    record: HiSysEventRecord
+);
 
 /// Callback when hisysevent service shutdown.
-pub type OnServiceDied = unsafe extern "C" fn(callback: *mut c_void);
+pub type OnServiceDied = unsafe extern "C" fn (
+    callback: *mut c_void,
+);
 
-/// This type represent a rust HiSysEventWatcher which like C++
-/// HiSysEventWatcher.
+/// This type represent a rust HiSysEventWatcher which like C++ HiSysEventWatcher.
 #[repr(C)]
 struct HiSysEventRustWatcherC {
     pub on_event_cb: *mut c_void,
@@ -441,12 +443,8 @@ impl Watcher {
         let on_event_callback = Box::into_raw(Box::new(on_event_callback));
         let on_service_died_callback = Box::into_raw(Box::new(on_service_died_callback));
         let native = unsafe {
-            CreateRustEventWatcher(
-                on_event_callback as *mut c_void,
-                Self::on_event::<F1>,
-                on_service_died_callback as *mut c_void,
-                Self::on_service_died::<F2>,
-            )
+            CreateRustEventWatcher(on_event_callback as *mut c_void, Self::on_event::<F1>,
+                on_service_died_callback as *mut c_void, Self::on_service_died::<F2>)
         };
         if native.is_null() {
             None
@@ -465,6 +463,7 @@ impl Watcher {
     ///
     /// The callback parameter will be kept valid during native
     /// HiSysEventRustWatcherC object lifetime.
+    ///
     unsafe extern "C" fn on_event<F>(callback: *mut c_void, record: HiSysEventRecord)
     where
         F: Fn(HiSysEventRecord) + Send + Sync + 'static,
@@ -479,6 +478,7 @@ impl Watcher {
     ///
     /// The callback parameter will be kept valid during native
     /// HiSysEventRustWatcherC object lifetime.
+    ///
     unsafe extern "C" fn on_service_died<F>(callback: *mut c_void)
     where
         F: Fn() + Send + Sync + 'static,
@@ -489,7 +489,9 @@ impl Watcher {
 
     /// free memories allocated for Watcher
     pub fn try_to_recycle(&self) {
-        unsafe { RecycleRustEventWatcher(self.as_raw()) }
+        unsafe {
+            RecycleRustEventWatcher(self.as_raw())
+        }
     }
 }
 
@@ -499,6 +501,7 @@ impl Watcher {
 ///
 /// A `Watcher` is always constructed with a valid raw pointer
 /// to a `HiSysEventRustWatcherC`.
+///
 unsafe impl AsRawPtr<HiSysEventRustWatcherC> for Watcher {
     fn as_raw(&self) -> *const HiSysEventRustWatcherC {
         self.native
@@ -520,10 +523,7 @@ pub(crate) fn add_watcher(watcher: &Watcher, watch_rules: &[WatchRule]) -> i32 {
             rule_type: 0,
             event_type: 0,
         });
-        crate::utils::trans_slice_to_array(
-            watch_rules[i].domain,
-            &mut watch_rules_wrapper[i].domain,
-        );
+        crate::utils::trans_slice_to_array(watch_rules[i].domain, &mut watch_rules_wrapper[i].domain);
         crate::utils::trans_slice_to_array(watch_rules[i].name, &mut watch_rules_wrapper[i].name);
         crate::utils::trans_slice_to_array(watch_rules[i].tag, &mut watch_rules_wrapper[i].tag);
         watch_rules_wrapper[i].rule_type = watch_rules[i].rule_type as i32 as c_int;
@@ -531,18 +531,18 @@ pub(crate) fn add_watcher(watcher: &Watcher, watch_rules: &[WatchRule]) -> i32 {
     }
     // Safty: call C ffi border function, all risks are under control.
     unsafe {
-        HiSysEventAddWatcherWrapper(
-            watcher.as_raw(),
+        HiSysEventAddWatcherWrapper(watcher.as_raw(),
             watch_rules_wrapper.as_mut_ptr(),
-            watch_rules.len() as c_uint,
-        )
+            watch_rules.len() as c_uint)
     }
 }
 
 /// Remove watcher.
 pub(crate) fn remove_watcher(watcher: &Watcher) -> i32 {
     // Safty: call C ffi border function, all risks are under control.
-    unsafe { HiSysEventRemoveWatcherWrapper(watcher.as_raw()) }
+    unsafe {
+        HiSysEventRemoveWatcherWrapper(watcher.as_raw())
+    }
 }
 
 /// Trait for transparent Rust wrappers around native raw pointer types.
@@ -551,12 +551,13 @@ pub(crate) fn remove_watcher(watcher: &Watcher) -> i32 {
 ///
 /// The pointer return by this trait's methods should be immediately passed to
 /// native and not stored by Rust. The pointer is valid only as long as the
-/// underlying native object is alive, so users must be careful to take this
-/// into account, as Rust cannot enforce this.
+/// underlying native object is alive, so users must be careful to take this into
+/// account, as Rust cannot enforce this.
 ///
 /// For this trait to be a correct implementation, `T` must be a valid native
 /// type. Since we cannot constrain this via the type system, this trait is
 /// marked as unsafe.
+///
 unsafe trait AsRawPtr<T> {
     /// Return a pointer to the native version of `self`
     fn as_raw(&self) -> *const T;
@@ -567,48 +568,34 @@ unsafe trait AsRawPtr<T> {
 
 extern "C" {
     /// ffi border function.
-    fn HiSysEventAddWatcherWrapper(
-        watcher: *const HiSysEventRustWatcherC,
-        rules: *const HiSysEventWatchRule,
-        rule_size: c_uint,
-    ) -> c_int;
+    fn HiSysEventAddWatcherWrapper(watcher: *const HiSysEventRustWatcherC, rules: *const HiSysEventWatchRule,
+        rule_size: c_uint) -> c_int;
 
     /// ffi border function.
     fn HiSysEventRemoveWatcherWrapper(watcher: *const HiSysEventRustWatcherC) -> c_int;
 
     /// ffi border function.
-    fn HiSysEventQueryWrapper(
-        query_arg: *const HiSysEventQueryArg,
-        rules: *const HiSysEventQueryRuleWrapper,
-        rule_size: c_uint,
-        querier: *const HiSysEventRustQuerierC,
-    ) -> c_int;
+    fn HiSysEventQueryWrapper(query_arg: *const HiSysEventQueryArg, rules: *const HiSysEventQueryRuleWrapper,
+        rule_size: c_uint, querier: *const HiSysEventRustQuerierC) -> c_int;
 
     /// ffi border function.
-    fn GetHiSysEventRecordByIndexWrapper(
-        records: *const HiSysEventRecord,
-        total: c_uint,
-        index: c_uint,
-    ) -> HiSysEventRecord;
+    fn GetHiSysEventRecordByIndexWrapper(records: *const HiSysEventRecord, total: c_uint,
+        index: c_uint) -> HiSysEventRecord;
 
     /// ffi border function.
-    fn CreateRustEventWatcher(
-        on_event_callback: *const c_void,
+    fn CreateRustEventWatcher(on_event_callback: *const c_void,
         on_event_wrapper_callback: OnEvent,
         on_service_died_callback: *const c_void,
-        on_service_died_wrapper_callback: OnServiceDied,
-    ) -> *mut HiSysEventRustWatcherC;
+        on_service_died_wrapper_callback: OnServiceDied) -> *mut HiSysEventRustWatcherC;
 
     /// ffi border function.
     fn RecycleRustEventWatcher(watcher: *const HiSysEventRustWatcherC);
 
     /// ffi border function.
-    fn CreateRustEventQuerier(
-        on_query_callback: *const c_void,
+    fn CreateRustEventQuerier(on_query_callback: *const c_void,
         on_query_wrapper_callback: OnQuery,
         on_complete_callback: *const c_void,
-        on_complete_wrapper_callback: OnComplete,
-    ) -> *mut HiSysEventRustQuerierC;
+        on_complete_wrapper_callback: OnComplete) -> *mut HiSysEventRustQuerierC;
 
     /// ffi border function.
     fn RecycleRustEventQuerier(querier: *const HiSysEventRustQuerierC);

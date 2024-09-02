@@ -14,12 +14,18 @@
 import("//build/ohos.gni")
 
 ohos_rust_shared_library("hisysevent_rust") {
-  sources = [ "src/lib.rs" ]
+  sources = [
+    "src/lib.rs",
+    "src/macros.rs",
+    "src/sys_event.rs",
+    "src/sys_event_manager.rs",
+    "src/utils.rs",
+  ]
 
   deps = [
-    "../../frameworks/native/c_wrapper:hisysevent_c_wrapper",
-    "../native/innerkits/hisysevent:libhisysevent",
-    "../native/innerkits/hisysevent_manager:libhisyseventmanager",
+    "../../../frameworks/native/c_wrapper:hisysevent_c_wrapper",
+    "../../native/innerkits/hisysevent:libhisysevent",
+    "../../native/innerkits/hisysevent_manager:libhisyseventmanager",
   ]
 
   crate_name = "hisysevent"
