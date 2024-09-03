@@ -57,7 +57,7 @@ void HiSysEventRustQuerier::OnQuery(std::shared_ptr<std::vector<OHOS::HiviewDFX:
     for (size_t i = 0; i < size; i++) {
         HiSysEventRecordConvertor::InitRecord(records[i]);
         if (HiSysEventRecordConvertor::ConvertRecord(sysEvents->at(i), records[i]) != 0) {
-            HILOG_ERROR(LOG_CORE, "Failed to covert record, index=%{public}zu, size=%{public}zu",  i, size);
+            HILOG_ERROR(LOG_CORE, "Failed to convert record, index=%{public}zu, size=%{public}zu",  i, size);
             HiSysEventRecordConvertor::DeleteRecords(&records, i + 1); // +1 for release the current record
             return;
         }

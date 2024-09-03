@@ -540,7 +540,6 @@ void ParseStringArray(const napi_env env, napi_value& arrayValue, std::vector<st
         }
         if (IsValueTypeValid(env, element, napi_valuetype::napi_string)) {
             std::string str = ParseStringValue(env, element);
-            HILOG_DEBUG(LOG_CORE, "parse string: %{public}s.", str.c_str());
             arrayDest.emplace_back(str);
         }
     }
@@ -638,7 +637,6 @@ void AppendBaseInfo(const napi_env env, napi_value& sysEventInfo, const std::str
 void CreateBoolValue(const napi_env env, bool value, napi_value& val)
 {
     napi_status status = napi_get_boolean(env, value, &val);
-    HILOG_DEBUG(LOG_CORE, "create napi value of bool type, value is %{public}d.", value);
     if (status != napi_ok) {
         HILOG_ERROR(LOG_CORE, "failed to get create napi value of bool type.");
     }
@@ -647,7 +645,6 @@ void CreateBoolValue(const napi_env env, bool value, napi_value& val)
 void CreateDoubleValue(const napi_env env, double value, napi_value& val)
 {
     napi_status status = napi_create_double(env, value, &val);
-    HILOG_DEBUG(LOG_CORE, "create napi value of double type, value is %{public}f.", value);
     if (status != napi_ok) {
         HILOG_ERROR(LOG_CORE, "failed to get create napi value of double type.");
     }
@@ -656,7 +653,6 @@ void CreateDoubleValue(const napi_env env, double value, napi_value& val)
 void CreateUint32Value(const napi_env env, uint32_t value, napi_value& val)
 {
     napi_status status = napi_create_uint32(env, value, &val);
-    HILOG_DEBUG(LOG_CORE, "create napi value of uint32 type, value is %{public}u.", value);
     if (status != napi_ok) {
         HILOG_ERROR(LOG_CORE, "failed to get create napi value of uint32 type.");
     }
@@ -926,18 +922,13 @@ int32_t NapiHiSysEventUtil::ParseQueryArg(const napi_env env, napi_value& jsObj,
 
     auto beginTime = GetLonglongTypeAttribute(env, beginTimeVal, DEFAULT_TIME_STAMP);
     queryArg.beginTime = beginTime < 0 ? 0 : beginTime;
-    HILOG_DEBUG(LOG_CORE, "queryArg.beginTime is %{public}lld.", queryArg.beginTime);
     auto endTime = GetLonglongTypeAttribute(env, endTimeVal, DEFAULT_TIME_STAMP);
     queryArg.endTime = endTime < 0 ? std::numeric_limits<long long>::max() : endTime;
-    HILOG_DEBUG(LOG_CORE, "queryArg.endTime is %{public}lld.", queryArg.endTime);
     queryArg.fromSeq = GetLonglongTypeAttribute(env, fromSeqVal, DEFAULT_SEQ);
-    HILOG_DEBUG(LOG_CORE, "queryArg.fromSeq is %{public}lld.", queryArg.fromSeq);
     queryArg.toSeq = GetLonglongTypeAttribute(env, toSeqVal, DEFAULT_SEQ);
-    HILOG_DEBUG(LOG_CORE, "queryArg.endSeq is %{public}lld.", queryArg.toSeq);
 
     auto maxEvents = GetInt32TypeAttribute(env, jsObj, MAX_EVENTS_ATTR, DEFAULT_MAX_EVENTS);
     queryArg.maxEvents = maxEvents < 0 ? std::numeric_limits<int>::max() : maxEvents;
-    HILOG_DEBUG(LOG_CORE, "queryArg.maxEvents is %{public}d.", queryArg.maxEvents);
 
     return NAPI_SUCCESS;
 }
@@ -953,7 +944,6 @@ void NapiHiSysEventUtil::CreateNull(const napi_env env, napi_value& ret)
 void NapiHiSysEventUtil::CreateInt32Value(const napi_env env, int32_t value, napi_value& ret)
 {
     napi_status status = napi_create_int32(env, value, &ret);
-    HILOG_DEBUG(LOG_CORE, "create napi value of int32 type, value is %{public}d.", value);
     if (status != napi_ok) {
         HILOG_ERROR(LOG_CORE, "failed to create napi value of int32 type.");
     }
@@ -962,7 +952,6 @@ void NapiHiSysEventUtil::CreateInt32Value(const napi_env env, int32_t value, nap
 void NapiHiSysEventUtil::CreateInt64Value(const napi_env env, int64_t value, napi_value& ret)
 {
     napi_status status = napi_create_bigint_int64(env, value, &ret);
-    HILOG_DEBUG(LOG_CORE, "create napi value of int64_t type, value is %{public}" PRId64 ".", value);
     if (status != napi_ok) {
         HILOG_ERROR(LOG_CORE, "failed to create napi value of int64_t type.");
     }
@@ -971,7 +960,6 @@ void NapiHiSysEventUtil::CreateInt64Value(const napi_env env, int64_t value, nap
 void NapiHiSysEventUtil::CreateUInt64Value(const napi_env env, uint64_t value, napi_value& ret)
 {
     napi_status status = napi_create_bigint_uint64(env, value, &ret);
-    HILOG_DEBUG(LOG_CORE, "create napi value of uint64_t type, value is %{public}" PRIu64 ".", value);
     if (status != napi_ok) {
         HILOG_ERROR(LOG_CORE, "failed to create napi value of uint64_t type.");
     }
@@ -980,7 +968,6 @@ void NapiHiSysEventUtil::CreateUInt64Value(const napi_env env, uint64_t value, n
 void NapiHiSysEventUtil::CreateStringValue(const napi_env env, std::string value, napi_value& ret)
 {
     napi_status status = napi_create_string_utf8(env, value.c_str(), NAPI_AUTO_LENGTH, &ret);
-    HILOG_DEBUG(LOG_CORE, "create napi value of string type, value is %{public}s.", value.c_str());
     if (status != napi_ok) {
         HILOG_ERROR(LOG_CORE, "failed to create napi value of string type.");
     }
