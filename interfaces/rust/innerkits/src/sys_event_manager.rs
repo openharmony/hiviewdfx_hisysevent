@@ -248,10 +248,10 @@ pub type OnQuery = unsafe extern "C" fn (
 pub type OnComplete = unsafe extern "C" fn (
     callback: *mut c_void,
     reason: c_int,
-    total: c_int
+    total: c_int,
 );
 
-/// This type represent a rust HiSysEventRustQuerierC which like C++ HiSysEventRustQuerierC.
+/// This type represent a rust HiSysEventRustQuerierC which like C++ HiSysEventRustQuerierC. 
 #[repr(C)]
 struct HiSysEventRustQuerierC {
     pub on_query_cb: *mut c_void,
@@ -309,7 +309,7 @@ impl Querier {
     where
         F: Fn(&[HiSysEventRecord]) + Send + Sync + 'static,
     {
-        let mut transalted_records: Vec<HiSysEventRecord> = vec![];
+        let mut transalted_records:Vec<HiSysEventRecord> = vec![];
         for i in 0..size {
             let record_item = unsafe {
                 GetHiSysEventRecordByIndexWrapper(records, size, i as c_uint)
