@@ -34,11 +34,12 @@ int MemoryInit(uint8_t* data, const size_t dataLen);
 /**
  * @brief Copy memory with designated length
  *
- * @param dest  pointer to the memory to which to copy
- * @param src   pointer to the memory from which to copy
- * @param len   byte count of memory to copy
+ * @param dest     pointer to the dest memory
+ * @param destLen  length of the dest memory
+ * @param src      pointer to the src memory
+ * @param srcLen   length of the dest memory
  */
-int MemoryCpy(uint8_t* dest, uint8_t* src, const size_t len);
+int MemoryCopy(uint8_t* dest, size_t destLen, uint8_t* src, const size_t srcLen);
 
 #ifdef __cplusplus
 }

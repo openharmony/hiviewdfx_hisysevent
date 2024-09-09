@@ -34,14 +34,14 @@ int MemoryInit(uint8_t* data, const size_t dataLen)
     return SUCCESS;
 }
 
-int MemoryCpy(uint8_t* dest, uint8_t* src, const size_t len)
+int MemoryCopy(uint8_t* dest, size_t destLen, uint8_t* src, const size_t srcLen)
 {
-    if (dest == NULL || src == NULL) {
+    if ((dest == NULL) || (src == NULL) || (destLen < srcLen)) {
         return ERR_MEM_OPT_FAILED;
     }
     uint8_t* destTmpData = dest;
     uint8_t* srcTmpData = src;
-    for (size_t index = 0; index < len; ++index) {
+    for (size_t index = 0; index < srcLen; ++index) {
         *destTmpData = *srcTmpData;
         ++destTmpData;
         ++srcTmpData;

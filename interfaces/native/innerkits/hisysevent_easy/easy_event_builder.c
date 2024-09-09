@@ -28,32 +28,28 @@
 extern "C" {
 #endif
 
-static const uint8_t STR_PARAM_VALUE_TYPE = 12; // ValueType::STRING
-
+static const uint8_t STR_PARAM_VALUE_TYPE = 12; // refer to enum ValueType: ValueType::STRING
 static const int DATA_MAX_LEN = 1024;
 
 int AppendHeader(uint8_t* eventBuffer, const size_t bufferLen, size_t* offset, struct HiSysEventEasyHeader* header)
 {
-    if (eventBuffer == NULL || offset == NULL) {
+    if ((eventBuffer == NULL) || (offset == NULL) || (header == NULL)) {
         return ERR_EVENT_BUF_INVALID;
-    }
-    if ((header == NULL) || (bufferLen - *offset) < sizeof(struct HiSysEventEasyHeader)) {
-        return ERR_MEM_OPT_FAILED;
     }
     if ((bufferLen < *offset) || ((bufferLen - *offset) < sizeof(struct HiSysEventEasyHeader))) {
-        return ERR_EVENT_BUF_INVALID;
+        return ERR_MEM_OPT_FAILED;
     }
     *((struct HiSysEventEasyHeader*)(eventBuffer + *offset)) = *header;
-    *offset = *offset + sizeof(struct HiSysEventEasyHeader);
+    *offset += sizeof(struct HiSysEventEasyHeader);
     return SUCCESS;
 }
 
 int AppendStringParam(uint8_t* eventBuffer, const size_t bufferLen, size_t* offset, const char* key, const char* val)
 {
-    if (eventBuffer == NULL || offset == NULL || key == NULL) {
+    if ((eventBuffer == NULL) || (offset == NULL) || (key == NULL)) {
         return ERR_EVENT_BUF_INVALID;
     }
-    if (val == NULL || strlen(val) > DATA_MAX_LEN) {
+    if ((val == NULL) || (strlen(val) > DATA_MAX_LEN)) {
         return ERR_PARAM_VALUE_INVALID;
     }
     // append key
@@ -62,7 +58,7 @@ int AppendStringParam(uint8_t* eventBuffer, const size_t bufferLen, size_t* offs
         return ret;
     }
     // append value type
-    struct HiSysEventParamValueType paramValueType;
+    struct HiSysEventEasyParamValueType paramValueType;
     paramValueType.isArray = 0;
     paramValueType.valueType = STR_PARAM_VALUE_TYPE;
     paramValueType.valueByteCnt = 0;

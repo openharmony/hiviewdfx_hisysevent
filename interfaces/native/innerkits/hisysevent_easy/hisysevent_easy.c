@@ -30,7 +30,6 @@ extern "C" {
 #endif
 
 static const char CUSTOMIZED_PARAM_KEY[] = "DATA";
-
 static const int SEC_2_MILLIS = 1000;
 static const int MILLS_2_NANOS = 1000000;
 
@@ -53,7 +52,7 @@ static uint8_t ParseTimeZone(long tz)
         -30420, -32400, -33480, -36000, -37080, -39600, -43200,
         -44820, -46800, -50400
     };
-    uint8_t ret = 14; // default "+0000"
+    uint8_t ret = 14; // 14 is the index of "+0000" in array
     for (uint8_t index = 0; index < (sizeof(allTimeZones) / sizeof(long)); ++index) {
         if (allTimeZones[index] == tz) {
             ret = index;
@@ -65,7 +64,7 @@ static uint8_t ParseTimeZone(long tz)
 
 static int CheckEventType(uint8_t eventType)
 {
-    if (eventType < EASY_EVENT_TYPE_FAULT || eventType > EASY_EVENT_TYPE_BEHAVIOR) {
+    if ((eventType < EASY_EVENT_TYPE_FAULT) || (eventType > EASY_EVENT_TYPE_BEHAVIOR)) {
         return ERR_TYPE_INVALID;
     }
     return SUCCESS;
@@ -74,11 +73,11 @@ static int CheckEventType(uint8_t eventType)
 static int InitEventHeader(struct HiSysEventEasyHeader* header, const char* domain, const char* name,
     const uint8_t eventType)
 {
-    if ((MemoryCpy((uint8_t*)(header->domain), (uint8_t*)domain, strlen(domain)) != SUCCESS) ||
-        (MemoryCpy((uint8_t*)(header->name), (uint8_t*)name, strlen(name)) != SUCCESS)) {
+    if ((MemoryCopy((uint8_t*)(header->domain), DOMAIN_ARRAY_LEN, (uint8_t*)domain, strlen(domain)) != SUCCESS) ||
+        (MemoryCopy((uint8_t*)(header->name), NAME_ARRAY_LEN, (uint8_t*)name, strlen(name)) != SUCCESS)) {
         return ERR_MEM_OPT_FAILED;
     }
-    header->type = eventType;
+    header->type = eventType - 1; // only 2 bits to store event type
     header->timestamp = GetTimestamp();
     tzset();
     header->timeZone = ParseTimeZone(timezone);
@@ -91,14 +90,14 @@ static int InitEventHeader(struct HiSysEventEasyHeader* header, const char* doma
 
 int HiSysEventEasyWrite(const char* domain, const char* name, enum HiSysEventEasyType eventType, const char* data)
 {
-    if (domain == NULL || strlen(domain) > MAX_DOMAIN_LENGTH) {
+    if ((domain == NULL) || (strlen(domain) > MAX_DOMAIN_LENGTH)) {
         return ERR_DOMAIN_INVALID;
     }
-    if (name == NULL || strlen(name) > MAX_EVENT_NAME_LENGTH) {
+    if ((name == NULL) || (strlen(name) > MAX_EVENT_NAME_LENGTH)) {
         return ERR_NAME_INVALID;
     }
     int ret = CheckEventType(eventType);
-    if ( ret != SUCCESS) {
+    if (ret != SUCCESS) {
         return ret;
     }
     uint8_t eventBuffer[EVENT_BUFF_LEN] = { 0 };
@@ -112,8 +111,7 @@ int HiSysEventEasyWrite(const char* domain, const char* name, enum HiSysEventEas
     if (ret != SUCCESS) {
         return ret;
     }
-    // only 2 bits to store event type
-    ret = InitEventHeader(&header, domain, name, eventType - 1);
+    ret = InitEventHeader(&header, domain, name, eventType);
     if (ret != SUCCESS) {
         return ret;
     }

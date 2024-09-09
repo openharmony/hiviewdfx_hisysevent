@@ -27,13 +27,10 @@ extern "C" {
 static const unsigned int TAG_BYTE_OFFSET = 5;
 static const unsigned int TAG_BYTE_BOUND = (1 << TAG_BYTE_OFFSET);
 static const unsigned int TAG_BYTE_MASK = (TAG_BYTE_BOUND - 1);
-
 static const unsigned int NON_TAG_BYTE_OFFSET = 7;
 static const unsigned int NON_TAG_BYTE_BOUND = (1 << NON_TAG_BYTE_OFFSET);
 static const unsigned int NON_TAG_BYTE_MASK = (NON_TAG_BYTE_BOUND - 1);
-
 static uint8_t LENGTH_DELIMITED_ENCODE_TYPE = 1;
-
 static const int VAR_INT_ENCODE_SUCCESS = 0;
 static const int VAR_INT_ENCODE_FAIL = 1;
 
@@ -65,26 +62,24 @@ static int EncodeUnsignedVarint(uint8_t* data, const size_t dataLen, size_t* off
     return VAR_INT_ENCODE_SUCCESS;
 }
 
-int EncodeValueType(uint8_t* data, const size_t dataLen, size_t* offset, struct HiSysEventParamValueType* valueType)
+int EncodeValueType(uint8_t* data, const size_t dataLen, size_t* offset,
+    struct HiSysEventEasyParamValueType* valueType)
 {
-    if (data == NULL || offset == NULL) {
+    if ((data == NULL) || (offset == NULL) || (valueType == NULL)) {
         return ERR_EVENT_BUF_INVALID;
     }
-    if (valueType == NULL) {
-        return ERR_MEM_OPT_FAILED;
-    }
-    if ((dataLen < *offset) || ((dataLen - *offset) < sizeof(struct HiSysEventParamValueType))) {
+    if ((dataLen < *offset) || ((dataLen - *offset) < sizeof(struct HiSysEventEasyParamValueType))) {
         return ERR_ENCODE_VALUE_TYPE_FAILED;
     }
-    *((struct HiSysEventParamValueType*)(data + *offset)) = *valueType;
-    *offset += sizeof(struct HiSysEventParamValueType);
+    *((struct HiSysEventEasyParamValueType*)(data + *offset)) = *valueType;
+    *offset += sizeof(struct HiSysEventEasyParamValueType);
     return SUCCESS;
 }
 
 int EncodeStringValue(uint8_t* data, const size_t dataLen, size_t* offset, const char* content)
 {
-    if (data == NULL || offset == NULL) {
-        return ERR_ENCODE_STR_FAILED;
+    if ((data == NULL) || (offset == NULL) || (content == NULL)) {
+        return ERR_EVENT_BUF_INVALID;
     }
     size_t contentLen = strlen(content);
     if (EncodeUnsignedVarint(data, dataLen, offset, LENGTH_DELIMITED_ENCODE_TYPE, contentLen) !=
@@ -94,7 +89,7 @@ int EncodeStringValue(uint8_t* data, const size_t dataLen, size_t* offset, const
     if ((dataLen < *offset) || ((dataLen - *offset) < contentLen)) {
         return ERR_ENCODE_STR_FAILED;
     }
-    int cpyRet = MemoryCpy(data + *offset, (uint8_t*)content, contentLen);
+    int cpyRet = MemoryCopy(data + *offset, dataLen - *offset, (uint8_t*)content, contentLen);
     if (cpyRet != SUCCESS) {
         return cpyRet;
     }

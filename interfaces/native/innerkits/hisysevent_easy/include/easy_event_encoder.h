@@ -24,14 +24,9 @@ extern "C" {
 #endif
 
 #pragma pack(1)
-struct HiSysEventParamValueType {
-    /* Array flag */
+struct HiSysEventEasyParamValueType {
     uint8_t isArray : 1;
-
-    /* Type of parameter value */
     uint8_t valueType : 4;
-
-    /* Byte count of parameter value */
     uint8_t valueByteCnt : 3;
 };
 #pragma pack()
@@ -45,7 +40,8 @@ struct HiSysEventParamValueType {
  * @param valueType  value type
  * @return 0 means success, others means failure
  */
-int EncodeValueType(uint8_t* data, const size_t dataLen, size_t* offset, struct HiSysEventParamValueType* valueType);
+int EncodeValueType(uint8_t* data, const size_t dataLen, size_t* offset,
+    struct HiSysEventEasyParamValueType* valueType);
 
 
 /**

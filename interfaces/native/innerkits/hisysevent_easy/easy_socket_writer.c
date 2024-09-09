@@ -34,20 +34,28 @@ static const char SOCKET_PATH[] = "/dev/unix/socket/hisysevent";
 
 static int InitSendBuffer(int socketId)
 {
-    int oldN = 0;
-    socklen_t oldOutSize = (socklen_t)(sizeof(int));
-    if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, (void*)(&oldN), &oldOutSize) < 0) {
-        return ERR_SOCKET_OPT + errno;
-    }
     int sendBuffSize = 384 * 1024; // max buffer of socket is 384K
     if (setsockopt(socketId, SOL_SOCKET, SO_SNDBUF, (void*)(&sendBuffSize), sizeof(int)) < 0) {
-        return ERR_SOCKET_OPT + errno;
+        return ERR_SET_SOCKET_OPT_FAILED;
     }
-    int newN = 0;
-    socklen_t newOutSize = (socklen_t)(sizeof(int));
-    if (getsockopt(socketId, SOL_SOCKET, SO_SNDBUF, (void*)(&newN), &newOutSize) < 0) {
-        return ERR_SOCKET_OPT + errno;
+    return SUCCESS;
+}
+
+static int InitSocket(struct sockaddr_un* socketAddr)
+{
+    if (socketAddr == NULL) {
+        return ERR_SOCKET_ADDR_INVALID;
     }
+    int ret = MemoryInit((uint8_t*)(socketAddr), sizeof(struct sockaddr_un));
+    if (ret != SUCCESS) {
+        return ret;
+    }
+    ret = MemoryCopy((uint8_t*)(socketAddr->sun_path), sizeof(socketAddr->sun_path), (uint8_t*)SOCKET_PATH,
+        strlen(SOCKET_PATH));
+    if (ret != SUCCESS) {
+        return ret;
+    }
+    socketAddr->sun_family = AF_UNIX;
     return SUCCESS;
 }
 
@@ -58,24 +66,20 @@ int Write(const uint8_t* data, const size_t dataLen)
     }
     int socketId = TEMP_FAILURE_RETRY(socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0));
     if (socketId < 0) {
-        return ERR_SOCKET_OPT + errno;
+        close(socketId);
+        return ERR_INIT_SOCKET_FAILED;
     }
     int ret = InitSendBuffer(socketId);
     if (ret != SUCCESS) {
+        close(socketId);
         return ret;
     }
     struct sockaddr_un socketAddr;
-    ret = MemoryInit((uint8_t*)(&socketAddr), sizeof(struct sockaddr_un));
+    ret = InitSocket(&socketAddr);
     if (ret != SUCCESS) {
         close(socketId);
         return ret;
     }
-    ret = MemoryCpy((uint8_t*)(socketAddr.sun_path), (uint8_t*)SOCKET_PATH, strlen(SOCKET_PATH));
-    if (ret != SUCCESS) {
-        close(socketId);
-        return ret;
-    }
-    socketAddr.sun_family = AF_UNIX;
 
     int sendRet = 0;
     int retryTimes = 3; // retry 3 times to write socket
@@ -86,7 +90,7 @@ int Write(const uint8_t* data, const size_t dataLen)
     } while (sendRet < 0 && retryTimes > 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
     if (sendRet < 0) {
         close(socketId);
-        return ERR_SOCKET_OPT + errno;
+        return ERR_SOCKET_SEND_ERROR_BASE + errno;
     }
     close(socketId);
     return SUCCESS;

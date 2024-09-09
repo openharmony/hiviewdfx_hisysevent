@@ -145,7 +145,7 @@ HWTEST_F(HiSysEventEasyTest, HiSysEventEasyTest006, TestSize.Level3)
     ret = AppendHeader(testEventBuff, EVENT_BUFF_LEN, nullptr, &header);
     ASSERT_EQ(ret, ERR_EVENT_BUF_INVALID);
     ret = AppendHeader(testEventBuff, EVENT_BUFF_LEN, &offset, nullptr);
-    ASSERT_EQ(ret, ERR_MEM_OPT_FAILED);
+    ASSERT_EQ(ret, ERR_EVENT_BUF_INVALID);
     offset = EVENT_BUFF_LEN - 2; // 2 is a test value
     ret = AppendHeader(testEventBuff, EVENT_BUFF_LEN, &offset, &header);
     ASSERT_EQ(ret, ERR_MEM_OPT_FAILED);
@@ -192,7 +192,7 @@ HWTEST_F(HiSysEventEasyTest, HiSysEventEasyTest007, TestSize.Level3)
 HWTEST_F(HiSysEventEasyTest, HiSysEventEasyTest008, TestSize.Level3)
 {
     size_t offset = 0;
-    struct HiSysEventParamValueType valueType;
+    struct HiSysEventEasyParamValueType valueType;
     valueType.isArray = 0;
     valueType.valueType = 0;
     valueType.valueByteCnt = 0;
@@ -202,10 +202,10 @@ HWTEST_F(HiSysEventEasyTest, HiSysEventEasyTest008, TestSize.Level3)
     ret = EncodeValueType(data, EVENT_BUFF_LEN, nullptr, &valueType);
     ASSERT_EQ(ret, ERR_EVENT_BUF_INVALID);
     ret = EncodeValueType(data, EVENT_BUFF_LEN, &offset, nullptr);
-    ASSERT_EQ(ret, ERR_MEM_OPT_FAILED);
-    offset = EVENT_BUFF_LEN - 2; // 2 is a test value
-    ret = EncodeValueType(data, EVENT_BUFF_LEN, &offset, nullptr);
-    ASSERT_EQ(ret, ERR_MEM_OPT_FAILED);
+    ASSERT_EQ(ret, ERR_EVENT_BUF_INVALID);
+    offset = EVENT_BUFF_LEN; // 2 is a test value
+    ret = EncodeValueType(data, EVENT_BUFF_LEN, &offset, &valueType);
+    ASSERT_EQ(ret, ERR_ENCODE_VALUE_TYPE_FAILED);
     offset = 0;
     ret = EncodeValueType(data, EVENT_BUFF_LEN, &offset, &valueType);
     ASSERT_EQ(ret, SUCCESS);
@@ -221,10 +221,12 @@ HWTEST_F(HiSysEventEasyTest, HiSysEventEasyTest009, TestSize.Level3)
 {
     size_t offset = 0;
     int ret = EncodeStringValue(nullptr, EVENT_BUFF_LEN, &offset, nullptr);
-    ASSERT_EQ(ret, ERR_ENCODE_STR_FAILED);
+    ASSERT_EQ(ret, ERR_EVENT_BUF_INVALID);
     uint8_t data[EVENT_BUFF_LEN];
     ret = EncodeStringValue(data, EVENT_BUFF_LEN, nullptr, nullptr);
-    ASSERT_EQ(ret, ERR_ENCODE_STR_FAILED);
+    ASSERT_EQ(ret, ERR_EVENT_BUF_INVALID);
+    ret = EncodeStringValue(data, EVENT_BUFF_LEN, &offset, nullptr);
+    ASSERT_EQ(ret, ERR_EVENT_BUF_INVALID);
     std::string val = "TEST";
     offset = EVENT_BUFF_LEN - val.size() + 1; // 1 is a test value
     ret = EncodeStringValue(data, EVENT_BUFF_LEN, &offset, val.c_str());
@@ -274,18 +276,20 @@ HWTEST_F(HiSysEventEasyTest, HiSysEventEasyTest011, TestSize.Level3)
 
 /**
  * @tc.name: HiSysEventEasyTest012
- * @tc.desc: Test MemoryCpy
+ * @tc.desc: Test MemoryCopy
  * @tc.type: FUNC
  * @tc.require: issueIAKQGU
  */
 HWTEST_F(HiSysEventEasyTest, HiSysEventEasyTest012, TestSize.Level3)
 {
     uint8_t data[EVENT_BUFF_LEN];
-    int ret = MemoryCpy(nullptr, data, 0);
+    int ret = MemoryCopy(nullptr, 0, data, 0);
     ASSERT_EQ(ret, ERR_MEM_OPT_FAILED);
-    ret = MemoryCpy(data, nullptr, 0);
+    ret = MemoryCopy(data, 0, nullptr, 0);
     ASSERT_EQ(ret, ERR_MEM_OPT_FAILED);
     uint8_t dataNew[EVENT_BUFF_LEN];
-    ret = MemoryCpy(data, dataNew, EVENT_BUFF_LEN);
+    ret = MemoryCopy(data, EVENT_BUFF_LEN - 1, dataNew, EVENT_BUFF_LEN); // 1 is a test value
+    ASSERT_EQ(ret, ERR_MEM_OPT_FAILED);
+    ret = MemoryCopy(data, EVENT_BUFF_LEN, dataNew, EVENT_BUFF_LEN);
     ASSERT_EQ(ret, SUCCESS);
 }

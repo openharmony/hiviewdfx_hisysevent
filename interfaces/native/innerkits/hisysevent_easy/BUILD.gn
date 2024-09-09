@@ -20,6 +20,7 @@ config("hisysevent_easy_config") {
 }
 
 ohos_static_library("libhisysevent_easy") {
+  branch_protector_ret = "pac_ret"
   sanitize = {
     cfi = true
     cfi_cross_dso = true
