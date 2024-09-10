@@ -184,6 +184,7 @@ public:
         static constexpr char SECURITY_GUARD[] = "SECURITY_GUARD";
         static constexpr char SEC_COMPONENT[] = "SEC_COMPONENT";
         static constexpr char SENSOR[] = "SENSOR";
+        static constexpr char SECURITY_UE[] = "SECURITY_UE";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
         static constexpr char STARTUP[] = "STARTUP";
         static constexpr char STATS[] = "STATS";
