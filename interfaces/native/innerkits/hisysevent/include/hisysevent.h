@@ -114,6 +114,7 @@ public:
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
         static constexpr char DEVICE_AUTH[] = "DEVICE_AUTH";
         static constexpr char DEVICE_PROFILE[] = "DEVICE_PROFILE";
+        static constexpr char DISK_DECRYPT_UE[] = "DISK_DECRYPT_UE";
         static constexpr char DISPLAY[] = "DISPLAY";
         static constexpr char DISTRIBUTED_AUDIO[] = "DISTAUDIO";
         static constexpr char DISTRIBUTED_CAMERA[] = "DISTCAMERA";
