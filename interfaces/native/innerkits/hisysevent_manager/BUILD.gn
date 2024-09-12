@@ -25,6 +25,8 @@ config("hisyseventmanager_config") {
 }
 
 ohos_shared_library("libhisyseventmanager") {
+  branch_protector_ret = "pac_ret"
+
   sources = [
     "hisysevent_base_manager.cpp",
     "hisysevent_listener_c.cpp",

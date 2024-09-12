@@ -28,6 +28,8 @@ config("hisysevent_config") {
 }
 
 ohos_shared_library("libhisysevent") {
+  branch_protector_ret = "pac_ret"
+
   configs = [ ":hisysevent_config" ]
 
   all_dependent_configs = [ ":hisysevent_config" ]
