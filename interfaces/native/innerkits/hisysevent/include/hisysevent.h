@@ -162,6 +162,7 @@ public:
         static constexpr char MEMMGR[] = "MEMMGR";
         static constexpr char MISCDEVICE[] = "MISCDEVICE";
         static constexpr char MSDP[] = "MSDP";
+        static constexpr char MSDP_USS_UE[] = "MSDP_USS_UE";
         static constexpr char MULTI_MEDIA[] = "MULTIMEDIA";
         static constexpr char MULTI_MODAL_INPUT[] = "MULTIMODALINPUT";
         static constexpr char MULTIWINDOW_UE[] = "MULTIWINDOW_UE";
