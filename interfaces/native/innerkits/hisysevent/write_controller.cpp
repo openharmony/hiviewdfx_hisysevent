@@ -52,6 +52,13 @@ uint64_t GenerateHash(const std::string& info)
     return ret;
 }
 
+uint64_t ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line)
+{
+    std::string key;
+    key.append(eventName).append("_").append(func).append("_").append(std::to_string(line));
+    return GenerateHash(key);
+}
+
 struct EventWroteRecord {
     size_t count = 0;
     uint64_t timestamp = INVALID_TIME_STAMP;
@@ -165,13 +172,6 @@ uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, cons
         .timeStamp = GetCurrentTimeMills(),
     };
     return CheckLimitWritingEvent(param, domain, eventName, info);
-}
-
-uint64_t WriteController::ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line) const
-{
-    std::string key;
-    key.append(eventName).append("_").append(func).append("_").append(std::to_string(line));
-    return GenerateHash(key);
 }
 } // HiviewDFX
 } // OHOS
