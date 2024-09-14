@@ -31,7 +31,8 @@ extern "C" {
 static const uint8_t STR_PARAM_VALUE_TYPE = 12; // refer to enum ValueType: ValueType::STRING
 static const int DATA_MAX_LEN = 1024;
 
-int AppendHeader(uint8_t* eventBuffer, const size_t bufferLen, size_t* offset, struct HiSysEventEasyHeader* header)
+int AppendHeader(uint8_t* eventBuffer, const size_t bufferLen, size_t* offset,
+    const struct HiSysEventEasyHeader* header)
 {
     if ((eventBuffer == NULL) || (offset == NULL) || (header == NULL)) {
         return ERR_EVENT_BUF_INVALID;

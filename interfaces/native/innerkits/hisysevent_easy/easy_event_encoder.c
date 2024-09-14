@@ -63,7 +63,7 @@ static int EncodeUnsignedVarint(uint8_t* data, const size_t dataLen, size_t* off
 }
 
 int EncodeValueType(uint8_t* data, const size_t dataLen, size_t* offset,
-    struct HiSysEventEasyParamValueType* valueType)
+    const struct HiSysEventEasyParamValueType* valueType)
 {
     if ((data == NULL) || (offset == NULL) || (valueType == NULL)) {
         return ERR_EVENT_BUF_INVALID;

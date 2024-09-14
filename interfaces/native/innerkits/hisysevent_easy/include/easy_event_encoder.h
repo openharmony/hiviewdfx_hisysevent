@@ -41,7 +41,7 @@ struct HiSysEventEasyParamValueType {
  * @return 0 means success, others means failure
  */
 int EncodeValueType(uint8_t* data, const size_t dataLen, size_t* offset,
-    struct HiSysEventEasyParamValueType* valueType);
+    const struct HiSysEventEasyParamValueType* valueType);
 
 
 /**
