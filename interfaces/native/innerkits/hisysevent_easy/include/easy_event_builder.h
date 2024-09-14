@@ -52,7 +52,8 @@ struct HiSysEventEasyHeader {
  * @param header       event header
  * @return 0 means success, others means failure
  */
-int AppendHeader(uint8_t* eventBuffer, const size_t bufferLen, size_t* offset, struct HiSysEventEasyHeader* header);
+int AppendHeader(uint8_t* eventBuffer, const size_t bufferLen, size_t* offset,
+    const struct HiSysEventEasyHeader* header);
 
 /**
  * @brief Append customized param with string type to event
