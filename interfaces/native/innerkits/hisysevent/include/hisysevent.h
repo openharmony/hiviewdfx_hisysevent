@@ -244,7 +244,7 @@ public:
             .threshold = HISYSEVENT_DEFAULT_THRESHOLD,
 #endif
         };
-        uint64_t timeStamp = controller.CheckLimitWritingEvent(param, domain.c_str(), eventName.c_str(),
+        uint64_t timeStamp = WriteController::CheckLimitWritingEvent(param, domain.c_str(), eventName.c_str(),
             func, line);
         if (timeStamp == INVALID_TIME_STAMP) {
             return ERR_WRITE_IN_HIGH_FREQ;
@@ -268,7 +268,7 @@ public:
             .threshold = HISYSEVENT_DEFAULT_THRESHOLD,
 #endif
         };
-        uint64_t timeStamp = controller.CheckLimitWritingEvent(param, domain, eventName.c_str(),
+        uint64_t timeStamp = WriteController::CheckLimitWritingEvent(param, domain, eventName.c_str(),
             func, line);
         if (timeStamp == INVALID_TIME_STAMP) {
             return ERR_WRITE_IN_HIGH_FREQ;
@@ -759,8 +759,6 @@ private:
     static void AppendDoubleArrayParam(EventBase& eventBase, const HiSysEventParam& param);
     static void AppendStringArrayParam(EventBase& eventBase, const HiSysEventParam& param);
     static void AppendParam(EventBase& eventBase, const HiSysEventParam& param);
-
-    static WriteController controller;
 };
 
 /**

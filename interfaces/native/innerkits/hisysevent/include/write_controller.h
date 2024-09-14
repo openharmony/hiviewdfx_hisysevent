@@ -42,21 +42,14 @@ class EventWroteLruCache;
 
 class WriteController {
 public:
-    WriteController();
-    ~WriteController() = default;
-
-public:
-    uint64_t GetCurrentTimeMills();
-    uint64_t CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
+    static uint64_t GetCurrentTimeMills();
+    static uint64_t CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
         const CallerInfo& callerInfo);
-    uint64_t CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
+    static uint64_t CheckLimitWritingEvent(const ControlParam& param, const char* domain, const char* eventName,
         const char* func, int64_t line);
 
 private:
-    uint64_t ConcatenateInfoAsKey(const char* eventName, const char* func, int64_t line) const;
-
-private:
-    std::shared_ptr<EventWroteLruCache> recordCache_;
+    static std::shared_ptr<EventWroteLruCache> eventWroteLruCache_;
 };
 } // HiviewDFX
 } // OHOS
