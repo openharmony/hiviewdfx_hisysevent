@@ -173,6 +173,7 @@ public:
         static constexpr char NOTIFICATION[] = "NOTIFICATION";
         static constexpr char PASTEBOARD[] = "PASTEBOARD";
         static constexpr char POWER[] = "POWER";
+        static constexpr char POWER_UE[] = "POWER_UE";
         static constexpr char PUSH_MANAGER[] = "PUSH_MANAGER";
         static constexpr char RELIABILITY[] = "RELIABILITY";
         static constexpr char REQUEST[] = "REQUEST";
