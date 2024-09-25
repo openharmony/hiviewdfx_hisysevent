@@ -113,6 +113,7 @@ public:
         static constexpr char CUSTOMIZATION_EDM[] = "CUST_EDM";
         static constexpr char DEVELOPTOOLS[] = "DEVELOPTOOLS";
         static constexpr char DEVICE_AUTH[] = "DEVICE_AUTH";
+        static constexpr char DEVICE_AUTH_UE[] = "DEVICE_AUTH_UE";
         static constexpr char DEVICE_PROFILE[] = "DEVICE_PROFILE";
         static constexpr char DISK_DECRYPT_UE[] = "DISK_DECRYPT_UE";
         static constexpr char DISPLAY[] = "DISPLAY";
