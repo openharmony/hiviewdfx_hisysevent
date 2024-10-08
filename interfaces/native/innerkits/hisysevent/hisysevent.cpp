@@ -38,8 +38,6 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-WriteController HiSysEvent::controller;
-
 HiSysEvent::EventBase::EventBase(const std::string& domain, const std::string& eventName, int type,
     uint64_t timeStamp)
 {
