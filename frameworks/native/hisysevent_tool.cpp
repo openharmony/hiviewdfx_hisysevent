@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <iostream>
 #include <regex>
+#include <regex.h>
 #include <sstream>
 #include <unistd.h>
 
@@ -136,6 +137,20 @@ void InitOptHandlers(std::map<int, OptHandler>& optHandlers)
     };
     optHandlers.insert(tmpHandlers.begin(), tmpHandlers.end());
 }
+
+bool IsValidRegex(const std::string& regStr)
+{
+    if (regStr.length() > 32) { // 32 is the length limit of regex
+        return false;
+    }
+    int flags = REG_EXTENDED;
+    regex_t reg;
+    // check whether the pattern is valid
+    int status = regcomp(&reg, regStr.c_str(), flags);
+    // free regex
+    regfree(&reg);
+    return (status == REG_OK);
+}
 }
 
 HiSysEventTool::HiSysEventTool(bool autoExit) : clientCmdArg {
@@ -231,6 +246,11 @@ void HiSysEventTool::DoCmdHelp()
 
 bool HiSysEventTool::DoAction()
 {
+    if (clientCmdArg.ruleType == RuleType::REGULAR && (!IsValidRegex(clientCmdArg.domain)
+        || !IsValidRegex(clientCmdArg.eventName) || !IsValidRegex(clientCmdArg.tag))) {
+        cout << "invalid regex" << endl;
+        return false;
+    }
     if (clientCmdArg.real) {
         auto toolListener = std::make_shared<HiSysEventToolListener>(clientCmdArg.checkValidEvent);
         if (toolListener == nullptr) {
