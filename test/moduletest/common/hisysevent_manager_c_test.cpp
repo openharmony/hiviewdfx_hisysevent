@@ -930,6 +930,28 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest019, TestSize.Level0)
 }
 
 /**
+ * @tc.name: HiSysEventMgrCQueryTest020
+ * @tc.desc: Testing to query events with invalid condition.
+ * @tc.type: FUNC
+ * @tc.require: issueIAXEER
+ */
+HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest020, TestSize.Level3)
+{
+    /**
+     * @tc.steps: step1. create HiSysEventQueryArg.
+     * @tc.steps: step2. create HiSysEventQueryRule.
+     * @tc.steps: step3. create HiSysEventQueryCallback.
+     * @tc.steps: step4. query event.
+     */
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest020 start");
+    std::string rootIsArrayCond = R"~([])~";
+    QueryTestWithCondition(rootIsArrayCond);
+    std::string condIsArrayCond = R"~({"version":"V1","condition":[]})~";
+    QueryTestWithCondition(condIsArrayCond);
+    HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest020 end");
+}
+
+/**
  * @tc.name: HiSysEventMgrCRecordTest001
  * @tc.desc: Testing to get the record information.
  * @tc.type: FUNC

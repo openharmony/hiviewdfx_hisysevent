@@ -382,7 +382,7 @@ bool HiSysEventValue::IsArray() const
 
 bool HiSysEventValue::IsMember(const std::string key) const
 {
-    if (!hasInitialized_) {
+    if (!hasInitialized_ || !jsonVal_.isObject()) {
         return false;
     }
     return jsonVal_.isMember(key);
@@ -455,7 +455,9 @@ Json::Value HiSysEventValue::Index(const int index) const
 }
 Json::Value HiSysEventValue::GetParamValue(const std::string& key) const
 {
-    if (!hasInitialized_) {
+    if (!hasInitialized_ ||
+        (jsonVal_.type() != Json::ValueType::nullValue &&
+        jsonVal_.type() != Json::ValueType::objectValue)) {
         return Json::Value(Json::ValueType::nullValue);
     }
     return jsonVal_[key];
