@@ -25,7 +25,6 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "napi_callback_context.h"
-#include "napi_hisysevent_init.h"
 #include "napi_hisysevent_listener.h"
 #include "napi_hisysevent_querier.h"
 #include "napi_hisysevent_util.h"

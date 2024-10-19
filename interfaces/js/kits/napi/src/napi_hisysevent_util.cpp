@@ -787,6 +787,10 @@ void NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(const napi_env env, const 
             jsonStr.c_str());
         return;
     }
+    if (!eventJson.isObject()) {
+        HILOG_ERROR(LOG_CORE, "event json parsed isn't a json object");
+        return;
+    }
     napi_create_object(env, &sysEventInfo);
     napi_value params = nullptr;
     napi_create_object(env, &params);
