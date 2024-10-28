@@ -126,6 +126,7 @@ public:
         static constexpr char DISTRIBUTED_SCREEN[] = "DISTSCREEN";
         static constexpr char DLP_CRE_SERVICE[] = "DLP_CRE_SERVICE";
         static constexpr char DLP[] = "DLP";
+        static constexpr char DRAG_UE[] = "DRAG_UE";
         static constexpr char DSLM[] = "DSLM";
         static constexpr char DSOFTBUS[] = "DSOFTBUS";
         static constexpr char EL5_FILEKEY_MGR[] = "EL5_FILEKEY_MGR";
