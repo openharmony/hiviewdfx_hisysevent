@@ -90,7 +90,6 @@ void HiSysEvent::EventBase::WritebaseInfo()
         SetRetCode(ERR_RAW_DATA_WROTE_EXCEPTION);
         return;
     }
-    tzset();
     header_.timeZone = static_cast<uint8_t>(ParseTimeZone(timezone));
     header_.pid = static_cast<uint32_t>(getprocpid());
     header_.tid = static_cast<uint32_t>(getproctid());
