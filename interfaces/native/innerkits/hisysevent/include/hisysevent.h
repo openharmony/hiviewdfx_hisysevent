@@ -175,9 +175,9 @@ public:
         static constexpr char NFC_EXT[] = "NFC_EXT";
         static constexpr char NOTIFICATION[] = "NOTIFICATION";
         static constexpr char PASTEBOARD[] = "PASTEBOARD";
-        static constexpr char PROFILER[] = "PROFILER";
         static constexpr char POWER[] = "POWER";
         static constexpr char POWER_UE[] = "POWER_UE";
+        static constexpr char PROFILER[] = "PROFILER";
         static constexpr char PUSH_MANAGER[] = "PUSH_MANAGER";
         static constexpr char RELIABILITY[] = "RELIABILITY";
         static constexpr char REQUEST[] = "REQUEST";
