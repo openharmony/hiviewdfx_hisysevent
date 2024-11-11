@@ -223,6 +223,7 @@ public:
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
         static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
         static constexpr char OTHERS[] = "OTHERS";
+        static constexpr char INPUTMETHOD_UE[] = "INPUTMETHOD_UE";
     };
 
     enum EventType {
