@@ -153,6 +153,7 @@ public:
         static constexpr char IFAA[] = "IFAA";
         static constexpr char IMS_UT[] = "IMS_UT";
         static constexpr char INPUTMETHOD[] = "INPUTMETHOD";
+        static constexpr char INPUTMETHOD_UE[] = "INPUTMETHOD_UE";
         static constexpr char INPUT_UE[] = "INPUT_UE";
         static constexpr char INTELLI_ACCESSORIES[] = "INTELLIACC";
         static constexpr char INTELLI_TV[] = "INTELLITV";
@@ -223,7 +224,6 @@ public:
         static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
         static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
         static constexpr char OTHERS[] = "OTHERS";
-        static constexpr char INPUTMETHOD_UE[] = "INPUTMETHOD_UE";
     };
 
     enum EventType {
