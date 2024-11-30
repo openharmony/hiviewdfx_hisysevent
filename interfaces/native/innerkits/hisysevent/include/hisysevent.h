@@ -85,6 +85,7 @@ public:
         static constexpr char ACE[] = "ACE";
         static constexpr char AI[] = "AI";
         static constexpr char APPEXECFWK[] = "APPEXECFWK";
+        static constexpr char APPSPAWN[] = "APPSPAWN";
         static constexpr char ARKTS_RUNTIME[] = "ARKTS_RUNTIME";
         static constexpr char AUDIO[] = "AUDIO";
         static constexpr char AV_SESSION[] = "AV_SESSION";
@@ -153,6 +154,7 @@ public:
         static constexpr char IAWARE[] = "IAWARE";
         static constexpr char IFAA[] = "IFAA";
         static constexpr char IMS_UT[] = "IMS_UT";
+        static constexpr char INIT[] = "INIT";
         static constexpr char INPUTMETHOD[] = "INPUTMETHOD";
         static constexpr char INPUTMETHOD_UE[] = "INPUTMETHOD_UE";
         static constexpr char INPUT_UE[] = "INPUT_UE";
