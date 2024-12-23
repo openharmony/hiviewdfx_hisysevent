@@ -26,7 +26,7 @@
 #include "ret_code.h"
 #include "ret_def.h"
 #include "stringfilter.h"
-#include "tokenid_kit.h"
+#include "accesstoken_kit.h"
 
 #undef LOG_DOMAIN
 #define LOG_DOMAIN 0xD002D08
@@ -1089,7 +1089,7 @@ void NapiHiSysEventUtil::ThrowErrorByRet(napi_env env, const int32_t retCode)
 bool NapiHiSysEventUtil::IsSystemAppCall()
 {
     uint64_t tokenId = IPCSkeleton::GetCallingFullTokenID();
-    return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(tokenId);
+    return Security::AccessToken::AccessTokenKit::IsSystemAppByFullTokenID(tokenId);
 }
 
 bool NapiHiSysEventUtil::IsNullOrUndefined(napi_env env, const napi_value& val)
