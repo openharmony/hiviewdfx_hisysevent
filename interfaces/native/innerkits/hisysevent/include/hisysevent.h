@@ -80,6 +80,7 @@ public:
         static constexpr char AAFWK[] = "AAFWK";
         static constexpr char ACCESS_TOKEN[] = "ACCESS_TOKEN";
         static constexpr char ACCESSIBILITY[] = "ACCESSIBILITY";
+        static constexpr char ACCESSIBILITY_UE[] = "ACCESSIBILITY_UE";
         static constexpr char ACCOUNT[] = "ACCOUNT";
         static constexpr char ACE[] = "ACE";
         static constexpr char AI[] = "AI";
