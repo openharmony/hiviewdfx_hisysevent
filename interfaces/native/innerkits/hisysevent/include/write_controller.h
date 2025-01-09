@@ -49,7 +49,7 @@ public:
         const char* func, int64_t line);
 
 private:
-    static std::shared_ptr<EventWroteLruCache> eventWroteLruCache_;
+    static EventWroteLruCache eventWroteLruCache_;
 };
 } // HiviewDFX
 } // OHOS

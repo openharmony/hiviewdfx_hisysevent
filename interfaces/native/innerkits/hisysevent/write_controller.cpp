@@ -35,6 +35,7 @@
 
 namespace OHOS {
 namespace HiviewDFX {
+constexpr size_t LRU_CACHE_DEFAULT_SIZE = 30;
 namespace {
 uint64_t GenerateHash(const std::string& info)
 {
@@ -124,8 +125,7 @@ private:
     size_t capacity_ = 0;
 };
 
-std::shared_ptr<EventWroteLruCache> WriteController::eventWroteLruCache_ =
-    std::make_shared<EventWroteLruCache>(30); // 30 is the capacity of the lrucache
+__attribute__((no_destroy)) EventWroteLruCache WriteController::eventWroteLruCache_(LRU_CACHE_DEFAULT_SIZE);
 
 uint64_t WriteController::GetCurrentTimeMills()
 {
@@ -138,22 +138,22 @@ uint64_t WriteController::CheckLimitWritingEvent(const ControlParam& param, cons
     const CallerInfo& callerInfo)
 {
     uint64_t key = ConcatenateInfoAsKey(eventName, callerInfo.func, callerInfo.line);
-    auto record = eventWroteLruCache_->Get(key);
+    auto record = eventWroteLruCache_.Get(key);
     uint64_t cur = callerInfo.timeStamp;
     const uint64_t secToMillis = 1000; // second to millisecond
     if ((record.count == 0) || ((record.timestamp / secToMillis) + param.period < (cur / secToMillis)) ||
         ((record.timestamp / secToMillis) > (cur / secToMillis))) {
         record.count = 1; // record the first event writing during one cycle
         record.timestamp = cur;
-        eventWroteLruCache_->Put(key, record);
+        eventWroteLruCache_.Put(key, record);
         return cur;
     }
     record.count++;
     if (record.count <= param.threshold) {
-        eventWroteLruCache_->Put(key, record);
+        eventWroteLruCache_.Put(key, record);
         return cur;
     }
-    eventWroteLruCache_->Put(key, record);
+    eventWroteLruCache_.Put(key, record);
     HILOG_DEBUG(LOG_CORE, "{.period = %{public}zu, .threshold = %{public}zu} "
         "[%{public}lld, %{public}lld] discard %{public}zu event(s) "
         "with domain %{public}s and name %{public}s which wrote in function %{public}s.",
