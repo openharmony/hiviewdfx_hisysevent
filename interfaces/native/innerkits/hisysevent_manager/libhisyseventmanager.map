@@ -21,6 +21,7 @@
         "OHOS::HiviewDFX::HiSysEventBaseManager::SetDebugMode(std::__h::shared_ptr<OHOS::HiviewDFX::HiSysEventBaseListener>, bool)";
         "OHOS::HiviewDFX::HiSysEventRecord::ParseJsonStr(std::__h::basic_string<char, std::__h::char_traits<char>, std::__h::allocator<char>>)";
         "OHOS::HiviewDFX::HiSysEventRecordConvertor::InitRecord(HiSysEventRecord&)";
+        "OHOS::HiviewDFX::HiSysEventRecordConvertor::DeleteRecord(HiSysEventRecord&)";
         "OHOS::HiviewDFX::HiSysEventRecordConvertor::DeleteRecords(HiSysEventRecord**, unsigned int)";
         "OHOS::HiviewDFX::HiSysEventRecordConvertor::DeleteRecords(HiSysEventRecord**, unsigned long)";
         "OHOS::HiviewDFX::HiSysEventBaseManager::Export(OHOS::HiviewDFX::QueryArg&, std::__h::vector<OHOS::HiviewDFX::QueryRule, std::__h::allocator<OHOS::HiviewDFX::QueryRule>>&)";
