@@ -212,6 +212,26 @@ ohos_moduletest("HiSysEventEncodedTest") {
   }
 }
 
+ohos_moduletest("HiSysEventEasyTest") {
+  module_out_path = module_output_path
+
+  sources = [ "hisysevent_easy_test.cpp" ]
+
+  configs = [ ":hisysevent_native_test_config" ]
+
+  deps = [
+    "../../../interfaces/native/innerkits/hisysevent_easy:libhisysevent_easy",
+  ]
+
+  external_deps = [ "hilog:libhilog" ]
+
+  if (build_public_version) {
+    external_deps += [ "bounds_checking_function:libsec_shared" ]
+  } else {
+    external_deps += [ "bounds_checking_function:libsec_static" ]
+  }
+}
+
 group("moduletest") {
   testonly = true
   deps = []
@@ -220,6 +240,7 @@ group("moduletest") {
     ":HiSysEventAdapterNativeTest",
     ":HiSysEventCTest",
     ":HiSysEventDelayTest",
+    ":HiSysEventEasyTest",
     ":HiSysEventEncodedTest",
     ":HiSysEventManagerCTest",
     ":HiSysEventNativeTest",
