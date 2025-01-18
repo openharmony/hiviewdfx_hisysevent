@@ -241,16 +241,16 @@ public:
     static int Write(const char* func, int64_t line, const std::string &domain,
         const std::string &eventName, EventType type, Types... keyValues)
     {
-        ControlParam param {
+        ControlParam param = {
 #ifdef HISYSEVENT_PERIOD
-            .period = HISYSEVENT_PERIOD,
+            HISYSEVENT_PERIOD,
 #else
-            .period = HISYSEVENT_DEFAULT_PERIOD,
+            HISYSEVENT_DEFAULT_PERIOD,
 #endif
 #ifdef HISYSEVENT_THRESHOLD
-            .threshold = HISYSEVENT_THRESHOLD,
+            HISYSEVENT_THRESHOLD
 #else
-            .threshold = HISYSEVENT_DEFAULT_THRESHOLD,
+            HISYSEVENT_DEFAULT_THRESHOLD
 #endif
         };
         uint64_t timeStamp = WriteController::CheckLimitWritingEvent(param, domain.c_str(), eventName.c_str(),
@@ -265,16 +265,16 @@ public:
     static int Write(const char* func, int64_t line, const std::string& eventName,
         EventType type, Types... keyValues)
     {
-        ControlParam param {
+        ControlParam param = {
 #ifdef HISYSEVENT_PERIOD
-            .period = HISYSEVENT_PERIOD,
+            HISYSEVENT_PERIOD,
 #else
-            .period = HISYSEVENT_DEFAULT_PERIOD,
+            HISYSEVENT_DEFAULT_PERIOD,
 #endif
 #ifdef HISYSEVENT_THRESHOLD
-            .threshold = HISYSEVENT_THRESHOLD,
+            HISYSEVENT_THRESHOLD
 #else
-            .threshold = HISYSEVENT_DEFAULT_THRESHOLD,
+            HISYSEVENT_DEFAULT_THRESHOLD
 #endif
         };
         uint64_t timeStamp = WriteController::CheckLimitWritingEvent(param, domain, eventName.c_str(),
@@ -311,22 +311,10 @@ private:
         size_t paramCnt_ = 0;
         size_t paramCntWroteOffset_ = 0;
         struct Encoded::HiSysEventHeader header_ = {
-            .domain = {0},
-            .name = {0},
-            .timestamp = 0,
-            .timeZone = 0,
-            .uid = 0,
-            .pid = 0,
-            .tid = 0,
-            .id = 0,
-            .type = 0,
-            .isTraceOpened = 0,
+            {0}, {0}, 0, 0, 0, 0, 0, 0, 0, 0
         };
         struct Encoded::TraceInfo traceInfo_ = {
-            .traceFlag = 0,
-            .traceId = 0,
-            .spanId = 0,
-            .pSpanId = 0,
+            0, 0, 0, 0
         };
         std::shared_ptr<Encoded::RawData> rawData_ = nullptr;
     };
