@@ -142,6 +142,9 @@ HiSysEventRustWatcherC* CreateRustEventWatcher(OnRustCb onEventRustCb,
         return nullptr;
     }
     HiSysEventRustWatcherC* watcher = new(std::nothrow) HiSysEventRustWatcherC;
+    if (watcher == nullptr) {
+        return nullptr;
+    }
     watcher->onEventRustCb = onEventRustCb;
     watcher->onEventWrapperCb = onEventWrapperCb;
     watcher->onServiceDiedRustCb = onServiceDiedRustCb;
@@ -164,6 +167,9 @@ HiSysEventRustQuerierC* CreateRustEventQuerier(OnRustCb onQueryRustCb,
         return nullptr;
     }
     HiSysEventRustQuerierC* querier = new(std::nothrow) HiSysEventRustQuerierC;
+    if (querier == nullptr) {
+        return nullptr;
+    }
     querier->onQueryRustCb = onQueryRustCb;
     querier->onQueryWrapperCb = onQueryWrapperCb;
     querier->onCompleteRustCb = onCompleteRustCb;
