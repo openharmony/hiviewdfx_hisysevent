@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -10,7 +10,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import("//build/config/components/idl_tool/idl.gni")
 import("//build/ohos.gni")
 
 config("sys_event_impl_config") {
@@ -18,24 +18,52 @@ config("sys_event_impl_config") {
 
   include_dirs = [
     ".",
+    "../../../interfaces/native/innerkits/hisysevent_manager/include",
     "include",
+    "${target_gen_dir}",
   ]
+}
+
+idl_gen_interface("sys_event_interface") {
+  sources = [
+    "ISysEventCallback.idl",
+    "ISysEventService.idl",
+  ]
+
+  sub_include = [ "include" ]
+
+  log_domainid = "0xD002D08"
+  log_tag = "HISYSEVENT"
+
+  part_name = "hisyevent"
+  subsystem_name = "hiviewdfx"
 }
 
 ohos_source_set("sys_event_impl_client") {
   include_dirs = [ "include" ]
 
   sources = [
+    "src/ash_mem_utils.cpp",
     "src/file_util.cpp",
     "src/hisysevent_delegate.cpp",
     "src/hisysevent_listener_proxy.cpp",
     "src/hisysevent_query_proxy.cpp",
+    "src/query_argument.cpp",
+    "src/query_sys_event_callback_stub.cpp",
+    "src/sys_event_query_rule.cpp",
+    "src/sys_event_rule.cpp",
   ]
 
-  public_configs = [
-    "../../../interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_config",
-    ":sys_event_impl_config",
-  ]
+  output_values = get_target_outputs(":sys_event_interface")
+  sources += filter_include(output_values,
+                            [
+                              "${target_gen_dir}/sys_event_callback_stub.cpp",
+                              "${target_gen_dir}/sys_event_service_proxy.cpp",
+                            ])
+
+  deps = [ ":sys_event_interface" ]
+
+  public_configs = [ ":sys_event_impl_config" ]
 
   defines = []
 
@@ -54,36 +82,6 @@ ohos_source_set("sys_event_impl_client") {
     external_deps += [ "storage_service:storage_manager_acl" ]
     defines += [ "STORAGE_SERVICE_ENABLE" ]
   }
-
-  part_name = "hisysevent"
-  subsystem_name = "hiviewdfx"
-}
-
-ohos_source_set("sys_event_service_gen_src_client") {
-  include_dirs = [
-    "../../../interfaces/native/innerkits/hisysevent_manager/include",
-    "include",
-  ]
-
-  sources = [
-    "src/ash_mem_utils.cpp",
-    "src/query_argument.cpp",
-    "src/query_sys_event_callback_stub.cpp",
-    "src/sys_event_callback_stub.cpp",
-    "src/sys_event_query_rule.cpp",
-    "src/sys_event_rule.cpp",
-    "src/sys_event_service_proxy.cpp",
-  ]
-
-  public_configs = [ ":sys_event_impl_config" ]
-
-  external_deps = [
-    "bounds_checking_function:libsec_shared",
-    "c_utils:utils",
-    "hilog:libhilog",
-    "ipc:ipc_single",
-    "samgr:samgr_proxy",
-  ]
 
   part_name = "hisysevent"
   subsystem_name = "hiviewdfx"

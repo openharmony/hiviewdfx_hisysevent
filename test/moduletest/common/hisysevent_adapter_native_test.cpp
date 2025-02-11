@@ -73,37 +73,6 @@ uint64_t GetMilliseconds()
     auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     return millisecs.count();
 }
-
-class QuerySysEventCallbackStubTest : public QuerySysEventCallbackStub {
-public:
-    QuerySysEventCallbackStubTest() {}
-    virtual ~QuerySysEventCallbackStubTest() {}
-
-    void OnQuery(const std::vector<std::u16string>& sysEvent, const std::vector<int64_t>& seq) {}
-    void OnComplete(int32_t reason, int32_t total, int64_t seq) {}
-
-public:
-    enum Code {
-        DEFAULT = -1,
-        ON_QUERY = 0,
-        ON_COMPLETE,
-    };
-};
-
-class SysEventCallbackStubTest : public SysEventCallbackStub {
-public:
-    SysEventCallbackStubTest() {}
-    virtual ~SysEventCallbackStubTest() {}
-
-    void Handle(const std::u16string& domain, const std::u16string& eventName, uint32_t eventType,
-        const std::u16string& eventDetail) {}
-
-public:
-    enum Code {
-        DEFAULT = -1,
-        HANDLE = 0,
-    };
-};
 }
 
 class HiSysEventAdapterNativeTest : public testing::Test {
@@ -203,42 +172,6 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestHiSysEventDelegateApisWithInvalidInsta
     ASSERT_GE(std::to_string(result).length(), std::to_string(currentTime).length());
     ret = delegate->Unsubscribe();
     ASSERT_EQ(ret, 0);
-}
-
-/**
- * @tc.name: TestQuerySysEventCallback
- * @tc.desc: QuerySysEventCallbackStub test
- * @tc.type: FUNC
- * @tc.require: issueI62WJT
- */
-HWTEST_F(HiSysEventAdapterNativeTest, TestQuerySysEventCallback, TestSize.Level1)
-{
-    QuerySysEventCallbackStub* querySysEventCallbackStub = new(std::nothrow) QuerySysEventCallbackStubTest();
-    MessageParcel data, reply;
-    MessageOption option;
-    querySysEventCallbackStub->OnRemoteRequest(QuerySysEventCallbackStubTest::Code::DEFAULT, data, reply, option);
-    ASSERT_TRUE(true);
-    querySysEventCallbackStub->OnRemoteRequest(QuerySysEventCallbackStubTest::Code::ON_QUERY, data, reply, option);
-    ASSERT_TRUE(true);
-    querySysEventCallbackStub->OnRemoteRequest(QuerySysEventCallbackStubTest::Code::ON_COMPLETE, data, reply, option);
-    ASSERT_TRUE(true);
-}
-
-/**
- * @tc.name: TestSysEventCallback
- * @tc.desc: SysEventCallbackStub test
- * @tc.type: FUNC
- * @tc.require: issueI62WJT
- */
-HWTEST_F(HiSysEventAdapterNativeTest, TestSysEventCallback, TestSize.Level1)
-{
-    SysEventCallbackStub* sysEventCallbackStub = new(std::nothrow) SysEventCallbackStubTest();
-    MessageParcel data, reply;
-    MessageOption option;
-    sysEventCallbackStub->OnRemoteRequest(SysEventCallbackStubTest::Code::DEFAULT, data, reply, option);
-    ASSERT_TRUE(true);
-    sysEventCallbackStub->OnRemoteRequest(SysEventCallbackStubTest::Code::HANDLE, data, reply, option);
-    ASSERT_TRUE(true);
 }
 
 /**
@@ -376,8 +309,7 @@ HWTEST_F(HiSysEventAdapterNativeTest, HiSysEventListenerProxyTest, TestSize.Leve
 {
     auto baseListener = std::make_shared<HiSysEventBaseListener>();
     HiSysEventListenerProxy proxy(baseListener);
-    proxy.Handle(Str8ToStr16(std::string("DOMAIN")), Str8ToStr16(std::string("EVENT_NAME")), 0,
-        Str8ToStr16(std::string("{}")));
+    proxy.Handle("DOMAIN", "EVENT_NAME", 0, "{}");
     auto listener = proxy.GetEventListener();
     ASSERT_NE(listener, nullptr);
     auto deathRecipient = proxy.GetCallbackDeathRecipient();
