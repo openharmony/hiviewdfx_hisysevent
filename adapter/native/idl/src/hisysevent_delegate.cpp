@@ -148,7 +148,12 @@ int64_t HiSysEventDelegate::Export(const struct QueryArg& arg, const std::vector
     ConvertQueryRule(rules, hospRules);
     SysEventServiceProxy sysEventService(service);
     QueryArgument queryArgument(arg.beginTime, arg.endTime, arg.maxEvents, arg.fromSeq, arg.toSeq);
-    return sysEventService.Export(queryArgument, hospRules);
+    int64_t result = 0;
+    if (auto retCode = sysEventService.Export(queryArgument, hospRules, result); retCode != IPC_CALL_SUCCEED) {
+        HILOG_ERROR(LOG_CORE, "Fail to invoke interface Export.");
+        return retCode;
+    }
+    return result;
 }
 
 int64_t HiSysEventDelegate::Subscribe(const std::vector<QueryRule>& rules) const
@@ -174,7 +179,12 @@ int64_t HiSysEventDelegate::Subscribe(const std::vector<QueryRule>& rules) const
     ConvertQueryRule(rules, hospRules);
 
     SysEventServiceProxy sysEventService(service);
-    return sysEventService.AddSubscriber(hospRules);
+    int64_t result = 0;
+    if (auto retCode = sysEventService.AddSubscriber(hospRules, result); retCode != IPC_CALL_SUCCEED) {
+        HILOG_ERROR(LOG_CORE, "Fail to invoke interface Subscribe.");
+        return retCode;
+    }
+    return result;
 }
 
 int32_t HiSysEventDelegate::Unsubscribe() const
@@ -186,10 +196,6 @@ int32_t HiSysEventDelegate::Unsubscribe() const
     }
     SysEventServiceProxy sysEventService(service);
     return sysEventService.RemoveSubscriber();
-}
-
-HiSysEventDelegate::~HiSysEventDelegate()
-{
 }
 
 void HiSysEventDelegate::ConvertListenerRule(const std::vector<ListenerRule>& rules,

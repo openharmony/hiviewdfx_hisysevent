@@ -19,14 +19,14 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-void HiSysEventListenerProxy::Handle(const std::u16string& domain, const std::u16string& eventName,
-    uint32_t eventType, const std::u16string& eventDetail)
+ErrCode HiSysEventListenerProxy::Handle(const std::string& domain, const std::string& eventName,
+    uint32_t eventType, const std::string& eventDetail)
 {
     auto eventListener = GetEventListener();
     if (eventListener != nullptr) {
-        eventListener->OnEvent(Str16ToStr8(domain), Str16ToStr8(eventName),
-            eventType, Str16ToStr8(eventDetail));
+        eventListener->OnEvent(domain, eventName, eventType, eventDetail);
     }
+    return ERR_OK;
 }
 
 sptr<CallbackDeathRecipient> HiSysEventListenerProxy::GetCallbackDeathRecipient() const
