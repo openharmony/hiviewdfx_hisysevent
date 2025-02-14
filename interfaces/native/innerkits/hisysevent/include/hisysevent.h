@@ -106,6 +106,7 @@ public:
         static constexpr char CCRUNTIME[] = "CCRUNTIME";
         static constexpr char CDS[] = "CDS";
         static constexpr char CERT_MANAGER[] = "CERT_MANAGER";
+        static constexpr char CJ_RUNTIME[] = "CJ_RUNTIME";
         static constexpr char CODE_SIGN[] = "CODE_SIGN";
         static constexpr char COMMONEVENT[] = "COMMONEVENT";
         static constexpr char COMMUNICATION[] = "COMMUNICATION";
