@@ -134,6 +134,7 @@ public:
         static constexpr char DSLM[] = "DSLM";
         static constexpr char DSOFTBUS[] = "DSOFTBUS";
         static constexpr char EL5_FILEKEY_MGR[] = "EL5_FILEKEY_MGR";
+        static constexpr char EXTERNAL_DEVICE[] = "EXTERNAL_DEVICE";
         static constexpr char FACEID_ALGO[] = "FACEID_ALGO";
         static constexpr char FACE_SETTINGS[] = "FACE_SETTINGS";
         static constexpr char FIDO[] = "FIDO";
