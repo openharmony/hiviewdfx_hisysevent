@@ -44,7 +44,6 @@
 #include "string_util.h"
 #include "sys_event_service_proxy.h"
 
-
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::HiviewDFX;
@@ -65,13 +64,6 @@ sptr<Ashmem> GetAshmem()
         return ashmem;
     }
     return ashmem;
-}
-
-uint64_t GetMilliseconds()
-{
-    auto now = std::chrono::system_clock::now();
-    auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    return millisecs.count();
 }
 }
 
@@ -167,11 +159,14 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestHiSysEventDelegateApisWithInvalidInsta
     auto baseQuerier = std::make_shared<HiSysEventBaseQueryCallback>();
     ret = delegate->Query(args, queryRules, baseQuerier);
     ASSERT_EQ(ret, IPC_CALL_SUCCEED);
-    int64_t currentTime = static_cast<int64_t>(GetMilliseconds());
+
+    // invalid call
     auto result = delegate->Subscribe(queryRules);
-    ASSERT_GE(std::to_string(result).length(), std::to_string(currentTime).length());
+    ASSERT_EQ(result, ERR_NO_PERMISSION);
     ret = delegate->Unsubscribe();
-    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(ret, ERR_NO_PERMISSION);
+    ret = delegate->Export(args, queryRules);
+    ASSERT_EQ(ret, ERR_NO_PERMISSION);
 }
 
 /**
