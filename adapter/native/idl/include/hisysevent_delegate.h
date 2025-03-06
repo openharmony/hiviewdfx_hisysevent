@@ -41,8 +41,6 @@ public:
     int32_t RemoveListener(const std::shared_ptr<HiSysEventBaseListener> listener);
     int32_t Query(const struct QueryArg& arg, const std::vector<QueryRule>& rules,
         const std::shared_ptr<HiSysEventBaseQueryCallback> callback) const;
-    int32_t SetDebugMode(const std::shared_ptr<HiSysEventBaseListener> listener,
-        const bool mode);
     int64_t Export(const struct QueryArg& arg, const std::vector<QueryRule>& rules) const;
     int64_t Subscribe(const std::vector<QueryRule>& rules) const;
     int32_t Unsubscribe() const;

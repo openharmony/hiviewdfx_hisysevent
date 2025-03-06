@@ -33,7 +33,6 @@ struct ArgStuct {
     std::string tag;
     RuleType ruleType;
     bool history;
-    bool isDebug;
     long long beginTime;
     long long endTime;
     int maxEvents;

@@ -60,14 +60,6 @@ public:
     static int32_t Query(struct QueryArg& arg, std::vector<QueryRule>& rules,
         std::shared_ptr<HiSysEventQueryCallback> callback);
 
-    /**
-     * @brief Set debug mode for event watcher.
-     * @param listener  event watcher.
-     * @param mode      debug mode.
-     * @return 0 means success, others means failure.
-     */
-    static int32_t SetDebugMode(std::shared_ptr<HiSysEventListener> listener, bool mode);
-
 private:
     static std::unordered_map<std::shared_ptr<HiSysEventListener>,
         std::shared_ptr<HiSysEventBaseListener>> listenerToBaseMap_;
