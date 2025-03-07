@@ -204,6 +204,7 @@ public:
         static constexpr char SWING_UE[] = "SWING_UE";
         static constexpr char TASK_MANAGER[] = "TASK_MANAGER";
         static constexpr char TASK_MANAGER_UE[] = "TASK_MANAGER_UE";
+        static constexpr char TELEMETRY[] = "TELEMETRY";
         static constexpr char TELEPHONY[] = "TELEPHONY";
         static constexpr char THEME[] = "THEME";
         static constexpr char THEME_MGR[] = "THEME_MGR";
