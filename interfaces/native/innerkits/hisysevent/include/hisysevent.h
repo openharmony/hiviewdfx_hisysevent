@@ -73,6 +73,7 @@ class HiSysEvent {
 public:
     friend class HiSysEvent;
     friend class NapiHiSysEventAdapter;
+    friend class HiSysEventAni;
 
     // system event domain list
     class Domain {
