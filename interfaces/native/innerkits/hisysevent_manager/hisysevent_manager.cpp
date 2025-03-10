@@ -73,20 +73,5 @@ int32_t HiSysEventManager::Query(struct QueryArg& arg, std::vector<QueryRule>& r
     auto baseQueryCallback = std::make_shared<HiSysEventBaseQueryCallback>(callback);
     return HiSysEventBaseManager::Query(arg, rules, baseQueryCallback);
 }
-
-int32_t HiSysEventManager::SetDebugMode(std::shared_ptr<HiSysEventListener> listener, bool mode)
-{
-    if (listener == nullptr) {
-        HILOG_WARN(LOG_CORE, "set debug mode on a null listener is not allowed.");
-        return ERR_LISTENER_NOT_EXIST;
-    }
-    std::lock_guard<std::mutex> lock(listenersMutex_);
-    auto baseListener = listenerToBaseMap_[listener];
-    if (baseListener == nullptr) {
-        HILOG_WARN(LOG_CORE, "no need to set debug mode on a listener which has not been added.");
-        return ERR_LISTENER_NOT_EXIST;
-    }
-    return HiSysEventBaseManager::SetDebugMode(baseListener, mode);
-}
 } // namespace HiviewDFX
 } // namespace OHOS

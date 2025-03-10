@@ -34,7 +34,7 @@ using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr char ARG_SELECTION[] = "vrc:o:n:t:lS:s:E:e:m:dhg:";
+constexpr char ARG_SELECTION[] = "vrc:o:n:t:lS:s:E:e:m:hg:";
 constexpr uint32_t INVALID_EVENT_TYPE = 0;
 constexpr int INVALID_ARG_OPT = -1;
 constexpr long long DEFAULT_TIME_STAMP = -1;
@@ -129,8 +129,6 @@ void InitOptHandlers(std::map<int, OptHandler>& optHandlers)
             cmdArg.endTime = ParseTimeStampFromArgs(std::string(optarg));
         }}, {'m', [] (struct ArgStuct& cmdArg, const char* optarg) {
             cmdArg.maxEvents = strtol(optarg, nullptr, 0);
-        }}, {'d', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.isDebug = true;
         }}, {'g', [] (struct ArgStuct& cmdArg, const char* optarg) {
             cmdArg.eventType = GetEventTypeFromArg(optarg);
         }},
@@ -155,7 +153,7 @@ bool IsValidRegex(const std::string& regStr)
 
 HiSysEventTool::HiSysEventTool(bool autoExit) : clientCmdArg {
     false, false, "", "", "", RuleType::WHOLE_WORD,
-    false, false, -1, -1, 10000, 0}, autoExit(autoExit)
+    false, -1, -1, 10000, 0}, autoExit(autoExit)
 {
     InitOptHandlers(optHandlers);
 }
@@ -179,11 +177,6 @@ bool HiSysEventTool::CheckCmdLine()
 
     if (clientCmdArg.real && clientCmdArg.history) {
         cout << "canot read both read && history hisysevent" << endl;
-        return false;
-    }
-
-    if (clientCmdArg.isDebug && !clientCmdArg.real) {
-        cout << "debug must follow with real log" << endl;
         return false;
     }
 
@@ -229,7 +222,6 @@ void HiSysEventTool::DoCmdHelp()
         << ", subscribe on domain and event name." << endl;
     cout << "-r -g [FAULT|STATISTIC|SECURITY|BEHAVIOR]"
         << ", subscribe on event type." << endl;
-    cout << "-r -d set debug mode, both options must appear at the same time." << endl;
     cout << "-l -s <begin time> -e <end time> -m <max hisysevent count>"
         << ", get history hisysevent log with time stamps, end time should not be "
         << "earlier than begin time." << endl;
@@ -261,8 +253,7 @@ bool HiSysEventTool::DoAction()
             clientCmdArg.tag, clientCmdArg.ruleType, clientCmdArg.eventType);
         sysRules.emplace_back(listenerRule);
         auto retCode = HiSysEventManager::AddListener(toolListener, sysRules);
-        if (retCode != IPC_CALL_SUCCEED ||
-            (clientCmdArg.isDebug && HiSysEventManager::SetDebugMode(toolListener, true) != 0)) {
+        if (retCode != IPC_CALL_SUCCEED) {
             cout << "failed to subscribe system event: " << GetErrorDescription(retCode) << endl;
         }
         return true;

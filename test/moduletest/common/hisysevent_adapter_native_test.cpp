@@ -120,7 +120,7 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestAshMemory, TestSize.Level1)
 
 /**
  * @tc.name: TestHiSysEventDelegateApisWithInvalidInstance
- * @tc.desc: Call Add/Removelistener/SetDebugMode with a HiSysEventDelegate instance directly
+ * @tc.desc: Call Add/Removelistener with a HiSysEventDelegate instance directly
  * @tc.type: FUNC
  * @tc.require: issueI62BDW
  */
@@ -134,19 +134,12 @@ HWTEST_F(HiSysEventAdapterNativeTest, TestHiSysEventDelegateApisWithInvalidInsta
     t.detach();
     auto ret = delegate->RemoveListener(nullptr);
     ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
-    ret = delegate->SetDebugMode(nullptr, true);
-    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     auto listener = std::make_shared<HiSysEventBaseListener>();
     std::vector<ListenerRule> rules;
     ListenerRule listenerRule("DOMAIN", "EVENT_NAME", "TAG", RuleType::WHOLE_WORD);
     rules.emplace_back(listenerRule);
     ret = delegate->AddListener(listener, rules);
     ASSERT_EQ(ret, IPC_CALL_SUCCEED);
-    ret = delegate->SetDebugMode(listener, true);
-    if (ret == IPC_CALL_SUCCEED) {
-        ret = delegate->SetDebugMode(listener, false);
-        ASSERT_EQ(ret, IPC_CALL_SUCCEED);
-    }
     ret = delegate->RemoveListener(listener);
     ASSERT_EQ(ret, IPC_CALL_SUCCEED);
     long long defaultTimeStap = -1;

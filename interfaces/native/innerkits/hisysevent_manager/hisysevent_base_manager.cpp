@@ -62,15 +62,6 @@ int32_t HiSysEventBaseManager::Query(struct QueryArg& arg, std::vector<QueryRule
     return ERR_LISTENER_NOT_EXIST;
 }
 
-int32_t HiSysEventBaseManager::SetDebugMode(std::shared_ptr<HiSysEventBaseListener> listener, bool mode)
-{
-    if (listener == nullptr || listener->listenerProxy == nullptr) {
-        HILOG_WARN(LOG_CORE, "no need to set debug mode on a base listener which has not been added.");
-        return ERR_LISTENER_NOT_EXIST;
-    }
-    return listener->listenerProxy->SetDebugMode(listener, mode);
-}
-
 int64_t HiSysEventBaseManager::Export(struct QueryArg& arg, std::vector<QueryRule>& rules)
 {
     auto proxy = std::make_unique<HiSysEventDelegate>();

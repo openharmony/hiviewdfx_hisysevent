@@ -92,21 +92,6 @@ int32_t HiSysEventDelegate::RemoveListener(const std::shared_ptr<HiSysEventBaseL
     return sysEventService.RemoveListener(spListenerCallBack);
 }
 
-int32_t HiSysEventDelegate::SetDebugMode(const std::shared_ptr<HiSysEventBaseListener> listener,
-    const bool mode)
-{
-    if (!spListenerCallBack) {
-        return ERR_LISTENER_NOT_EXIST;
-    }
-    auto service = GetSysEventService();
-    if (service == nullptr) {
-        HILOG_ERROR(LOG_CORE, "Fail to get service.");
-        return ERR_SYS_EVENT_SERVICE_NOT_FOUND;
-    }
-    SysEventServiceProxy sysEventService(service);
-    return sysEventService.SetDebugMode(spListenerCallBack, mode);
-}
-
 int32_t HiSysEventDelegate::Query(const struct QueryArg& arg,
     const std::vector<QueryRule>& rules,
     const std::shared_ptr<HiSysEventBaseQueryCallback> callback) const

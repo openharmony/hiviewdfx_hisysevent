@@ -1028,18 +1028,6 @@ HWTEST_F(HiSysEventNativeTest, TestEnableAndDisableDebugMode, TestSize.Level1)
     sysRules.emplace_back(listenerRule);
     auto ret = OHOS::HiviewDFX::HiSysEventManager::AddListener(watcher, sysRules);
     ASSERT_EQ(ret, 0);
-    auto firstDebugRet = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(watcher, true);
-    ret = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(nullptr, true);
-    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
-    if (firstDebugRet == 0 || ret == ERR_DEBUG_MODE_SET_REPEAT) {
-        ret = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(watcher, true);
-        ASSERT_EQ(ret, ERR_DEBUG_MODE_SET_REPEAT);
-        ret = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(watcher, false);
-        ASSERT_EQ(ret, 0);
-    }
-    auto newWatcher = std::make_shared<Watcher>();
-    ret = OHOS::HiviewDFX::HiSysEventManager::SetDebugMode(newWatcher, true);
-    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
 }
 
 /**
@@ -1066,35 +1054,6 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventBaseManagerAddAndRemoveListener, Te
     ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
     ret = OHOS::HiviewDFX::HiSysEventBaseManager::RemoveListener(baseWatcher);
     ASSERT_EQ(ret, 0);
-}
-
-/**
- * @tc.name: TestHiSysEventBaseManagerSetDebugMode
- * @tc.desc: Enable debug mode and then disable it on base listener
- * @tc.type: FUNC
- * @tc.require: issueI5KDIG
- */
-HWTEST_F(HiSysEventNativeTest, TestHiSysEventBaseManagerSetDebugMode, TestSize.Level1)
-{
-    auto watcher = std::make_shared<Watcher>();
-    auto baseWatcher = std::make_shared<HiSysEventBaseListener>(watcher);
-    OHOS::HiviewDFX::ListenerRule listenerRule("DOMAIN", "EVENT_NAME", "", OHOS::HiviewDFX::RuleType::WHOLE_WORD);
-    std::vector<OHOS::HiviewDFX::ListenerRule> sysRules;
-    sysRules.emplace_back(listenerRule);
-    auto ret = OHOS::HiviewDFX::HiSysEventBaseManager::AddListener(baseWatcher, sysRules);
-    ASSERT_EQ(ret, 0);
-    auto firstDebugRet = OHOS::HiviewDFX::HiSysEventBaseManager::SetDebugMode(baseWatcher, true);
-    ret = OHOS::HiviewDFX::HiSysEventBaseManager::SetDebugMode(nullptr, true);
-    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
-    if (firstDebugRet == 0 || ret == ERR_DEBUG_MODE_SET_REPEAT) {
-        ret = OHOS::HiviewDFX::HiSysEventBaseManager::SetDebugMode(baseWatcher, true);
-        ASSERT_EQ(ret, ERR_DEBUG_MODE_SET_REPEAT);
-        ret = OHOS::HiviewDFX::HiSysEventBaseManager::SetDebugMode(baseWatcher, false);
-        ASSERT_EQ(ret, 0);
-    }
-    auto newBaseWatcher = std::make_shared<HiSysEventBaseListener>(watcher);
-    ret = OHOS::HiviewDFX::HiSysEventBaseManager::SetDebugMode(newBaseWatcher, true);
-    ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
 }
 
 /**

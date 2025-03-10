@@ -33,7 +33,6 @@ public:
     virtual int32_t AddListener(const std::shared_ptr<HiSysEventBaseListener> listener,
         const std::vector<ListenerRule>& rules);
     virtual int32_t RemoveListener(const std::shared_ptr<HiSysEventBaseListener> listener);
-    virtual int32_t SetDebugMode(const std::shared_ptr<HiSysEventBaseListener> listener, const bool mode);
 
 private:
     HiSysEventListenningOperate(const HiSysEventListenningOperate&) = delete;
