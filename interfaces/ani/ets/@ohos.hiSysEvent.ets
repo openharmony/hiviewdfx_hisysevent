@@ -16,7 +16,7 @@
 class SysEventInfoAni implements hiSysEvent.SysEventInfo {
   domain: string = ""
   name: string = ""
-  eventType: hiSysEvent.EventType
+  eventType: hiSysEvent.EventType = hiSysEvent.EventType.FAULT
   params?: undefined | Record<string, number | string | boolean | bigint | number[] | string[] | boolean[] | bigint[]>
 }
 

@@ -247,18 +247,8 @@ static void AddParamToEventInfo(ani_env *env, ani_ref element, std::string key, 
     return;
 }
 
-static ani_status EnumEventTypeGetInt32(ani_env *env, ani_int enumIndex, int32_t &value)
+static ani_status EnumEventTypeGetInt32(ani_env *env, ani_enum_item enumItem, int32_t &value)
 {
-    ani_enum aniEnum {};
-    if (ANI_OK != env->FindEnum(ENUM_NAME_EVENTTYPE.c_str(), &aniEnum)) {
-        HILOG_ERROR(LOG_CORE, "FindEnum %{public}s Failed", ENUM_NAME_EVENTTYPE.c_str());
-        return ANI_ERROR;
-    }
-    ani_enum_item enumItem {};
-    if (ANI_OK != env->Enum_GetEnumItemByIndex(aniEnum, static_cast<ani_size>(enumIndex), &enumItem)) {
-        HILOG_ERROR(LOG_CORE, "Enum_GetEnumItemByIndex %{public}d Failed", static_cast<int32_t>(enumIndex));
-        return ANI_ERROR;
-    }
     ani_int aniInt {};
     if (ANI_OK != env->EnumItem_GetValue_Int(enumItem, &aniInt)) {
         HILOG_ERROR(LOG_CORE, "EnumItem_GetValue_Int Failed");
@@ -415,13 +405,14 @@ static bool ParseSysEventInfo(ani_env *env, ani_object info, HiSysEventInfo& eve
         return false;
     }
     eventInfo.name = ParseStringValue(env, static_cast<ani_string>(nameRef));
-    ani_int eventTypeIndex;
-    if (ANI_OK != env->Object_GetPropertyByName_Int(info, "eventType", &eventTypeIndex)) {
-        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Int eventType Failed");
+    ani_ref eventTypeRef;
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(info, "eventType", &eventTypeRef)) {
+        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref eventType Failed");
         return false;
     }
+    ani_enum_item eventTypeItem = static_cast<ani_enum_item>(eventTypeRef);
     int32_t eventTypeValue;
-    if (ANI_OK != EnumEventTypeGetInt32(env, eventTypeIndex, eventTypeValue)) {
+    if (ANI_OK != EnumEventTypeGetInt32(env, eventTypeItem, eventTypeValue)) {
         HILOG_ERROR(LOG_CORE, "EnumEventTypeGetInt32 Failed");
         return false;
     }
