@@ -13,23 +13,18 @@
  * limitations under the License.
  */
 
+import { AsyncCallback, BusinessError } from '@ohos.base';
+
 class SysEventInfoAni implements hiSysEvent.SysEventInfo {
   domain: string = ""
   name: string = ""
-  eventType: hiSysEvent.EventType
+  eventType: hiSysEvent.EventType = hiSysEvent.EventType.FAULT
   params?: undefined | Record<string, number | string | boolean | bigint | number[] | string[] | boolean[] | bigint[]>
 }
 
 class HiSysEventAni {
   native static write(info: hiSysEvent.SysEventInfo): int;
 }
-
-export class BusinessError<T = void> {
-    code: int = 0;
-    data?: T;
-}
-
-export type AsyncCallback<T, E = void> = (err: BusinessError<E>, data?: T) => void;
 
 export default namespace hiSysEvent {
   loadLibrary("ani_hisysevent");
@@ -48,30 +43,35 @@ export default namespace hiSysEvent {
   }
 
   export function write(info: SysEventInfo, callback: AsyncCallback<int, void>): void {
-      let task = taskpool.execute(HiSysEventAni.write, info);
+      let task = taskpool.execute(()=>HiSysEventAni.write(info));
       task.then((ret: NullishType) => {
-          let eNull = new BusinessError<void>();
+          let retError: BusinessError<void>;
           if (ret === null || ret === undefined) {
-              eNull.code = -1;
-              callback(eNull, undefined);
+              retError.code = -1;
+              retError.name = "";
+              retError.message = "Operation failed";
+              callback(retError, retError.code as int);
           } else {
-              eNull.code = 0;
-              callback(eNull, ret as int);
+              retError.code = 0;
+              callback(retError, ret as int);
           }
       });
   }
 
-  export function write(info: SysEventInfo): Promise<int> {
-      return new Promise<int>((resolve: (v: int) => void, reject: (e: BusinessError<string>) => void) => {
-          let task = taskpool.execute(HiSysEventAni.write, info);
+  export function write(info: SysEventInfo): Promise<void> {
+      return new Promise<void>((resolve: (v: PromiseLike<void>) => void,
+                               reject: (e: BusinessError<string>) => void) => {
+          let task = taskpool.execute(()=>HiSysEventAni.write(info));
           task.then((ret: NullishType) => {
               if (ret === null || ret === undefined) {
-                  let retError = new BusinessError<string>();
-                  retError.code = -1;
-                  retError.data = "Operation failed";
-                  reject(retError);
+                    let retError: BusinessError<string>;
+                    retError.code = -1;
+                    retError.name = "";
+                    retError.message = "Operation failed";
+                    reject(retError);
               } else {
-                  resolve(ret as int);
+                    let result = ret as PromiseLike<void>;
+                    resolve(result);
               }
           });
       });

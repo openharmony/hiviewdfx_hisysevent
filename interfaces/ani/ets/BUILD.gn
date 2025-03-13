@@ -36,10 +36,9 @@ ohos_shared_library("ani_hisysevent") {
   output_extension = "so"
 }
 
-generate_static_abc("hisysevent_abc") {
-  arktsconfig = "./arktsconfig.json"
-  dst_file = "$target_out_dir/hisysevent.abc"
-  out_puts = [ "$target_out_dir/hisysevent.abc" ]
+generate_static_abc("hisysevent") {
+  base_url = "."
+  files = [ "./@ohos.hiSysEvent.ets" ]
   is_boot_abc = "True"
   device_dst_file = "/system/framework/hisysevent.abc"
 }
@@ -49,5 +48,5 @@ ohos_prebuilt_etc("hisysevent_abc_etc") {
   module_install_dir = "framework"
   subsystem_name = "hiviewdfx"
   part_name = "hisysevent"
-  deps = [ ":hisysevent_abc" ]
+  deps = [ ":hisysevent" ]
 }
