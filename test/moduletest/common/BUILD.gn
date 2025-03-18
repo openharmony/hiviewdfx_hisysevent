@@ -13,7 +13,7 @@
 
 import("//build/test.gni")
 
-module_output_path = "hisysevent/hisysevent_native"
+module_output_path = "hisysevent/hisysevent/hisysevent_native"
 
 config("hisysevent_native_test_config") {
   visibility = [ ":*" ]
