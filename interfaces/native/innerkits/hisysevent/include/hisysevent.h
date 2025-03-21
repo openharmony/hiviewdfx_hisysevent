@@ -211,6 +211,8 @@ public:
         static constexpr char THEME_MGR[] = "THEME_MGR";
         static constexpr char THERMAL[] = "THERMAL";
         static constexpr char TIME[] = "TIME";
+        static constexpr char TV_ACCESSORY[] = "TV_ACCESSORY";
+        static constexpr char TV_ACCESSORY_UE[] = "TV_ACCESSORY_UE";
         static constexpr char UPDATE[] = "UPDATE";
         static constexpr char UPDATE_DUE[] = "UPDATE_DUE";
         static constexpr char UPDATE_OUC[] = "UPDATE_OUC";
