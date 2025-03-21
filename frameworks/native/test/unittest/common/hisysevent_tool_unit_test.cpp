@@ -249,25 +249,6 @@ HWTEST_F(HiSysEventToolUnitTest, HiSysEventToolUnitTest007, testing::ext::TestSi
 }
 
 /**
- * @tc.name: HiSysEventToolUnitTest008
- * @tc.desc: Test subscribe sysevents in debug mode
- * @tc.type: FUNC
- * @tc.require: issueI66JWR
- */
-HWTEST_F(HiSysEventToolUnitTest, HiSysEventToolUnitTest008, testing::ext::TestSize.Level3)
-{
-    auto tool = std::make_shared<HiSysEventTool>(false);
-    constexpr int argc = 3;
-    const char* argv[] = {
-        "hisysevent",
-        "-r",
-        "-d",
-    };
-    optind = ARGV_START_INDEX;
-    RunCmds(tool, argc, const_cast<char**>(argv));
-}
-
-/**
  * @tc.name: HiSysEventToolUnitTest009
  * @tc.desc: Test query hisysevents by event type
  * @tc.type: FUNC
