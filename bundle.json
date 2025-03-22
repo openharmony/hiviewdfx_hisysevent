@@ -43,7 +43,7 @@
         "//base/hiviewdfx/hisysevent/interfaces/js/kits:hisysevent_napi_ref",
         "//base/hiviewdfx/hisysevent/interfaces/rust/innerkits:hisysevent_rust",
         "//base/hiviewdfx/hisysevent/frameworks/native:hisysevent",
-        "//base/hiviewdfx/hisysevent/interfaces/ani:ani_hisysevent_package"
+        "//base/hiviewdfx/hisysevent/interfaces/ets/ani:ani_hisysevent_package"
       ],
       "inner_kits": [
         {

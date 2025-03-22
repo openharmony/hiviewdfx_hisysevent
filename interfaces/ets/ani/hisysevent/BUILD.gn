@@ -14,12 +14,16 @@
 import("//build/config/components/ets_frontend/ets2abc_config.gni")
 import("//build/ohos.gni")
 
-ohos_shared_library("ani_hisysevent") {
-  sources = [ "./hisysevent_ani.cpp" ]
+ohos_shared_library("hisysevent_ani") {
+  include_dirs = [ "./include/"]
+  sources = [
+    "./src/hisysevent_ani.cpp",
+    "./src/hisysevent_ani_util.cpp",
+  ]
 
   deps = [
-    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent:libhisysevent",
-    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
+    "../../../native/innerkits/hisysevent:libhisysevent",
+    "../../../native/innerkits/hisysevent_manager:libhisyseventmanager",
   ]
 
   external_deps = [
@@ -37,13 +41,13 @@ ohos_shared_library("ani_hisysevent") {
 }
 
 generate_static_abc("hisysevent") {
-  base_url = "."
-  files = [ "./@ohos.hiSysEvent.ets" ]
+  base_url = "./ets"
+  files = [ "./ets/@ohos.hiSysEvent.ets" ]
   is_boot_abc = "True"
   device_dst_file = "/system/framework/hisysevent.abc"
 }
 
-ohos_prebuilt_etc("hisysevent_abc_etc") {
+ohos_prebuilt_etc("hisysevent_etc") {
   source = "$target_out_dir/hisysevent.abc"
   module_install_dir = "framework"
   subsystem_name = "hiviewdfx"

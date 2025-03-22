@@ -11,15 +11,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/config/components/ets_frontend/ets2abc_config.gni")
 import("//build/ohos.gni")
 
 group("ani_hisysevent_package") {
   deps = []
   if (support_jsapi) {
     deps += [
-      "ets:ani_hisysevent",
-      "ets:hisysevent_abc_etc",
+      "hisysevent:hisysevent_ani",
+      "hisysevent:hisysevent_etc",
     ]
   }
 }
