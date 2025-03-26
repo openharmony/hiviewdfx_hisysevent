@@ -45,8 +45,7 @@ struct ParamArray {
 enum ParamType { BL = 0, DOU, I64, U64, STR, BOOL_ARR, DOUBLE_ARR, I64_ARR, U64_ARR, STR_ARR };
 
 enum AniArgsType {
-    ANI_UNEXPECTED = -1,
-    ANI_INT = 0,
+    ANI_UNKNOWN = 0,
     ANI_BOOLEAN = 1,
     ANI_NUMBER = 2,
     ANI_STRING = 3,
@@ -56,13 +55,12 @@ enum AniArgsType {
 
 class HiSysEventAni {
 public:
-    static ani_status HiSysEventInit(ani_env *env);
-    static ani_int Write(ani_env *env, ani_object object, ani_object info);
-    static int WriteInner(HiSysEventInfo eventInfo);
+    static ani_object Write(ani_env *env, ani_object object, ani_object info);
 
 private:
-    static void AppendParams(HiSysEvent::EventBase& eventBase,
-        const std::unordered_map<std::string, Param>& params)
+    static int32_t WriteInner(const HiSysEventInfo &eventInfo);
+    static void AppendParams(HiSysEvent::EventBase &eventBase,
+                             const std::unordered_map<std::string, Param> &params)
     {
         const std::vector<std::function<void(const std::string&, const Param&)>> allParamsHandlers = {
             [&] (const std::string& key, const Param& param) {
@@ -111,4 +109,5 @@ private:
 };
 } // namespace HiviewDFX
 } // namespace OHOS
-#endif
+
+#endif // HITRACE_METER_ANI_H
