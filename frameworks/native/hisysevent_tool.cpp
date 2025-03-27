@@ -210,7 +210,7 @@ void HiSysEventTool::HandleInput(int argc, char** argv, const char* selection)
 
 void HiSysEventTool::DoCmdHelp()
 {
-    cout << "hisysevent [[-v] -r [-d | -c [WHOLE_WORD|PREFIX|REGULAR] -t <tag> "
+    cout << "hisysevent [[-v] -r [-c [WHOLE_WORD|PREFIX|REGULAR] -t <tag> "
         << "| -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName> "
         << "| -g [FAULT|STATISTIC|SECURITY|BEHAVIOR]] "
         << "| -l [[-s <begin time> -e <end time> | -S <formatted begin time> -E <formatted end time>] "
