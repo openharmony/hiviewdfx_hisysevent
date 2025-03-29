@@ -182,6 +182,7 @@ public:
         static constexpr char NFC_EXT[] = "NFC_EXT";
         static constexpr char NOTIFICATION[] = "NOTIFICATION";
         static constexpr char PASTEBOARD[] = "PASTEBOARD";
+        static constexpr char PIN_AUTH_SA[] = "PIN_AUTH_SA";
         static constexpr char POWER[] = "POWER";
         static constexpr char POWER_UE[] = "POWER_UE";
         static constexpr char PROFILER[] = "PROFILER";
