@@ -60,6 +60,7 @@ static AniArgsType GetArgType(ani_env *env, ani_object elementObj)
         }
         ani_boolean isInstance = ANI_FALSE;
         if (ANI_OK != env->Object_InstanceOf(elementObj, cls, &isInstance)) {
+            HILOG_ERROR(LOG_CORE, "Object_InstanceOf %{public}s failed", objType.first);
             continue;
         }
         if (static_cast<bool>(isInstance)) {
@@ -118,29 +119,40 @@ static bool IsValidParamType(AniArgsType type)
             type < static_cast<int32_t>(AniArgsType::ANI_UNDEFINED));
 }
 
+static AniArgsType GetArrayType(ani_env *env, ani_array_ref arrayRef)
+{
+    ani_size index = 0;
+    ani_ref valueRef {};
+    if (ANI_OK != env->Array_Get_Ref(static_cast<ani_array_ref>(arrayRef), index, &valueRef)) {
+        HILOG_ERROR(LOG_CORE, "fail to get first element in array.");
+        return AniArgsType::ANI_UNKNOWN;
+    }
+    return GetArgType(env, static_cast<ani_object>(valueRef));
+}
+
 static bool AddArrayParamToEventInfo(ani_env *env, const std::string& key, ani_ref arrayRef, HiSysEventInfo& info)
 {
     ani_size size = 0;
     if (ANI_OK != env->Array_GetLength(static_cast<ani_array_ref>(arrayRef), &size)) {
-        HILOG_ERROR(LOG_CORE, "Array_GetLength Failed");
+        HILOG_ERROR(LOG_CORE, "get array length failed");
         return false;
     }
     ParamArray paramArray;
-    AniArgsType arrayType = AniArgsType::ANI_UNKNOWN;
+    AniArgsType arrayType = GetArrayType(env, static_cast<ani_array_ref>(arrayRef));
+    if (!IsValidParamType(arrayType)) {
+        return false;
+    }
     for (ani_size i = 0; i < size; i++) {
         ani_ref valueRef {};
         if (ANI_OK != env->Array_Get_Ref(static_cast<ani_array_ref>(arrayRef), i, &valueRef)) {
-            HILOG_ERROR(LOG_CORE, "Array_Get_Ref %{public}zu Failed", i);
+            HILOG_ERROR(LOG_CORE, "get array %{public}zu failed", i);
             return false;
         }
-        AniArgsType objType = GetArgType(env, static_cast<ani_object>(arrayRef));
-        if (!IsValidParamType(objType)) {
-            continue;
+        if (GetArgType(env, static_cast<ani_object>(valueRef)) != arrayType) {
+            HILOG_ERROR(LOG_CORE, "element type in arrry not same");
+            return false;
         }
-        if (arrayType == AniArgsType::ANI_UNKNOWN) {
-            arrayType = objType;
-        }
-        AppendArray(env, valueRef, objType, paramArray);
+        AppendArray(env, valueRef, arrayType, paramArray);
     }
     return AddArrayParam(arrayType, key, paramArray, info);
 }
@@ -190,10 +202,6 @@ static bool ParseParamsInSysEventInfo(ani_env *env, ani_ref params, HiSysEventIn
     }
     std::map<std::string, ani_ref> paramsMap = HiSysEventAniUtil::ParseRecord(env, static_cast<ani_object>(params));
     for (const auto &param : paramsMap) {
-        if (!HiSysEventAniUtil::CheckKeyTypeString(param.first)) {
-            HILOG_WARN(LOG_CORE, "this param would be discarded because of invalid format of the key.");
-            continue;
-        }
         if (!AddParamsToEventInfo(env, param, eventInfo)) {
             return false;
         }
@@ -201,46 +209,44 @@ static bool ParseParamsInSysEventInfo(ani_env *env, ani_ref params, HiSysEventIn
     return true;
 }
 
-static bool ParseSysEventInfo(ani_env *env, ani_object info, HiSysEventInfo& eventInfo)
+static void ParseSysEventInfo(ani_env *env, ani_object info, HiSysEventInfo& eventInfo)
 {
     ani_ref domainRef {};
     if (ANI_OK != env->Object_GetPropertyByName_Ref(info, "domain", &domainRef)) {
-        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref domain Failed");
-        return false;
+        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref domain failed");
+        return;
     }
     eventInfo.domain = HiSysEventAniUtil::ParseStringValue(env, domainRef);
 
     ani_ref nameRef {};
     if (ANI_OK != env->Object_GetPropertyByName_Ref(info, "name", &nameRef)) {
-        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref name Failed");
-        return false;
+        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref name failed");
+        return;
     }
     eventInfo.name = HiSysEventAniUtil::ParseStringValue(env, nameRef);
 
     ani_ref eventTypeRef {};
     if (ANI_OK != env->Object_GetPropertyByName_Ref(info, "eventType", &eventTypeRef)) {
-        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref eventType Failed");
-        return false;
+        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref eventType failed");
+        return;
     }
     ani_enum_item eventTypeItem = static_cast<ani_enum_item>(eventTypeRef);
     int32_t eventTypeValue;
     if (ANI_OK != env->EnumItem_GetValue_Int(eventTypeItem, &eventTypeValue)) {
-        HILOG_ERROR(LOG_CORE, "EnumItem_GetValue_Int Failed");
-        return false;
+        HILOG_ERROR(LOG_CORE, "EnumItem_GetValue_Int failed");
+        return;
     }
     eventInfo.eventType = static_cast<HiSysEvent::EventType>(eventTypeValue);
 
     ani_ref paramsRef {};
     if (ANI_OK != env->Object_GetPropertyByName_Ref(info, "params", &paramsRef)) {
         HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref params failed");
-        return false;
+        return;
     }
     if (!ParseParamsInSysEventInfo(env, paramsRef, eventInfo)) {
         HILOG_ERROR(LOG_CORE, "ParseParamsInSysEventInfo params failed");
-        return false;
+        return;
     }
-
-    return true;
 }
 
 static void CheckThenWriteSysEvent(HiSysEventInfo iptEventInfo, JsCallerInfo iptJsCallerInfo, uint64_t &iptTimeStamp)
@@ -294,10 +300,7 @@ ani_object HiSysEventAni::Write(ani_env *env, [[maybe_unused]] ani_object object
     }
 
     HiSysEventInfo eventInfo;
-    if (!HiSysEventAniUtil::IsRefUndefined(env, static_cast<ani_ref>(info)) &&
-        !ParseSysEventInfo(env, info, eventInfo)) {
-        return HiSysEventAniUtil::WriteResult(env, {AniError::ERR_PARAM_CHECK, "Parameter error"});
-    }
+    ParseSysEventInfo(env, info, eventInfo);
 
     int32_t eventWroteResult =  HiSysEventAni::WriteInner(eventInfo);
     return HiSysEventAniUtil::WriteResult(env, HiSysEventAniUtil::GetErrorDetailByRet(eventWroteResult));
