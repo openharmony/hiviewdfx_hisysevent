@@ -55,6 +55,15 @@
           }
         },
         {
+          "name": "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_easy:libhisysevent_easy",
+          "header": {
+            "header_files": [
+              "hisysevent_easy.h"
+            ],
+            "header_base": "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_easy/include"
+          }
+        },
+        {
           "name": "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
           "header": {
             "header_files": [
