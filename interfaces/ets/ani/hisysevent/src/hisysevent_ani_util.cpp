@@ -30,7 +30,7 @@
 #define LOG_TAG "ANI_HISYSEVENT_UTIL"
 
 using namespace OHOS::HiviewDFX;
-const std::string INVALID_KEY_TYPE_ARR[] = {
+static const std::string INVALID_KEY_TYPE_ARR[] = {
     "[object Object]",
     "null",
     "()",
