@@ -93,7 +93,7 @@ public:
     static ani_object CreateBool(ani_env *env, bool boolValue);
     static void CreateHiSysEventInfoJsObject(ani_env *env, const std::string& jsonStr, ani_object& sysEventInfo);
     static void CreateJsSysEventInfoArray(ani_env *env, const std::vector<std::string>& originValues,
-        ani_array_ref& sysEventInfoJsArray);
+        ani_array& sysEventInfoJsArray);
     static void AppendInt32PropertyToJsObject(ani_env *env, const std::string& key, const int32_t& value,
         ani_object& jsObj);
     static void AppendStringPropertyToJsObject(ani_env *env, const std::string& key, const std::string& value,
