@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "napi_hisysevent_adapter.h"
 
 #include <cctype>
+#include <charconv>
 #include <memory>
 
 #include "def.h"
@@ -66,25 +67,25 @@ void Split(const std::string& origin, char delimiter, std::vector<std::string>& 
 void ParseCallerInfoFromStackTrace(const std::string& stackTrace, JsCallerInfo& callerInfo)
 {
     if (stackTrace.empty()) {
-        HILOG_ERROR(LOG_CORE, "js stack trace is invalid.");
+        HILOG_WARN(LOG_CORE, "js stack trace is invalid.");
         return;
     }
     std::vector<std::string> callInfos;
     Split(stackTrace, CALL_FUNC_INFO_DELIMITER, callInfos);
     if (callInfos.size() <= FUNC_NAME_INDEX) {
-        HILOG_ERROR(LOG_CORE, "js function name parsed failed.");
+        HILOG_WARN(LOG_CORE, "failed to parse js function name.");
         return;
     }
     callerInfo.first = callInfos[FUNC_NAME_INDEX];
     if (callInfos.size() <= LINE_INFO_INDEX) {
-        HILOG_ERROR(LOG_CORE, "js function line info parsed failed.");
+        HILOG_WARN(LOG_CORE, "failed to parse js function line info.");
         return;
     }
     std::string callInfo = callInfos[LINE_INFO_INDEX];
     std::vector<std::string> lineInfos;
     Split(callInfo, CALL_LINE_INFO_DELIMITER, lineInfos);
     if (lineInfos.size() <= LINE_INDEX) {
-        HILOG_ERROR(LOG_CORE, "js function line number parsed failed.");
+        HILOG_WARN(LOG_CORE, "failed to parse js function line number.");
         return;
     }
     if (callerInfo.first == "anonymous") {
@@ -92,14 +93,16 @@ void ParseCallerInfoFromStackTrace(const std::string& stackTrace, JsCallerInfo& 
         auto pos = fileName.find_last_of(PATH_DELIMITER);
         callerInfo.first = (pos == std::string::npos) ? fileName : fileName.substr(++pos);
     }
-    auto lineInfo = lineInfos[LINE_INDEX];
-    if (std::any_of(lineInfo.begin(), lineInfo.end(), [] (auto& c) {
-        return !isdigit(c);
-    })) {
+    auto lineNumInfo = lineInfos[LINE_INDEX];
+    int64_t lineNumParsed = DEFAULT_LINE_NUM;
+    auto lineNumParsedRet = std::from_chars(lineNumInfo.c_str(), lineNumInfo.c_str() + lineNumInfo.size(),
+        lineNumParsed);
+    if (lineNumParsedRet.ec != std::errc()) {
+        HILOG_WARN(LOG_CORE, "js function line number is invalid.");
         callerInfo.second = DEFAULT_LINE_NUM;
         return;
     }
-    callerInfo.second = static_cast<int64_t>(std::stoll(lineInfos[LINE_INDEX]));
+    callerInfo.second = lineNumParsed;
 }
 }
 
