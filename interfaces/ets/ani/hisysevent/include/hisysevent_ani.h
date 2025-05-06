@@ -55,10 +55,16 @@ enum AniArgsType {
 
 class HiSysEventAni {
 public:
-    static ani_object Write(ani_env *env, ani_object object, ani_object info);
-
+    static ani_object WriteSync(ani_env *env, ani_object info);
+    static void AddWatcher(ani_env *env, ani_object watcher);
+    static void RemoveWatcher(ani_env *env, ani_object watcher);
+    static void Query(ani_env *env, ani_object queryArg, ani_array rules, ani_object querier);
+    static ani_double ExportSysEvents(ani_env *env, ani_object queryArg, ani_array rules);
+    static ani_double Subscribe(ani_env *env, ani_array rules);
+    static void Unsubscribe(ani_env *env);
+    
 private:
-    static int32_t WriteInner(const HiSysEventInfo &eventInfo);
+    static int32_t WriteInner(ani_env *env, const HiSysEventInfo &eventInfo);
     static void AppendParams(HiSysEvent::EventBase &eventBase,
                              const std::unordered_map<std::string, Param> &params)
     {
@@ -109,5 +115,4 @@ private:
 };
 } // namespace HiviewDFX
 } // namespace OHOS
-
 #endif // HITRACE_METER_ANI_H
