@@ -56,6 +56,22 @@ constexpr char CONDITION_ATTR[] = "condition";
 constexpr char DOMAIN__KEY[] = "domain_";
 constexpr char NAME__KEY[] = "name_";
 constexpr char TYPE__KEY[] = "type_";
+constexpr char INVALID_DOMAIN_DES[] = "Invalid domain name. Possible causes are the specified event domain name does "
+    "not comply with the following rules: 1. Contains only digits, letters, and underscores (_); "
+    "2. Starts with a letter; "
+    "3. Is not empty and contains a maximum of 16 characters.";
+constexpr char INVALID_NAME_DES[] = "Invalid event name. Possible causes are the specified event name does not "
+    "comply with the following rules: 1. Contains only digits, letters, and underscores (_); "
+    "2. Starts with a letter; "
+    "3. Is not empty and contains a maximum of 32 characters.";
+constexpr char INVALID_PARAM_NAME_DES[] = "Invalid parameter name. Possible causes are the specified event parameter "
+    "name does not comply with the following rules: 1. Contains only digits, letters, and underscores (_); "
+    "2. Starts with a letter; "
+    "3. Is not empty and contains a maximum of 48 characters.";
+constexpr char INVALID_QUERY_RULE_DES[] = "Invalid query rule. Possible causes: "
+    "1. The event domain name in the query rule contains more than 16 characters or the event name contains more "
+    "than 32 characters; 2. The event domain name or event name in the query rule contains special characters; "
+    "3. The event domain name or event name in the query rule is empty.";
 using I64ParseResult = std::pair<bool, int64_t>;
 using U64ParseResult = std::pair<bool, uint64_t>;
 using ParsedItem = std::variant<uint64_t, int64_t, double>;
@@ -1023,11 +1039,11 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
             "Permission denied. An attempt was made to read sysevent forbidden"
             " by permission: ohos.permission.READ_DFX_SYSEVENT."}},
         // write refer
-        {ERR_DOMAIN_NAME_INVALID, {NapiError::ERR_INVALID_DOMAIN, "Invalid event domain"}},
-        {ERR_EVENT_NAME_INVALID, {NapiError::ERR_INVALID_EVENT_NAME, "Invalid event name"}},
+        {ERR_DOMAIN_NAME_INVALID, {NapiError::ERR_INVALID_DOMAIN, INVALID_DOMAIN_DES}},
+        {ERR_EVENT_NAME_INVALID, {NapiError::ERR_INVALID_EVENT_NAME, INVALID_NAME_DES}},
         {ERR_DOES_NOT_INIT, {NapiError::ERR_ENV_ABNORMAL, "Abnormal environment"}},
         {ERR_OVER_SIZE, {NapiError::ERR_CONTENT_OVER_LIMIT, "The event length exceeds the limit"}},
-        {ERR_KEY_NAME_INVALID, {NapiError::ERR_INVALID_PARAM_NAME, "Invalid event parameter"}},
+        {ERR_KEY_NAME_INVALID, {NapiError::ERR_INVALID_PARAM_NAME, INVALID_PARAM_NAME_DES}},
         {ERR_VALUE_LENGTH_TOO_LONG, {NapiError::ERR_STR_LEN_OVER_LIMIT,
             "The size of the event parameter of the string type exceeds the limit"}},
         {ERR_KEY_NUMBER_TOO_MUCH, {NapiError::ERR_PARAM_COUNT_OVER_LIMIT,
@@ -1056,11 +1072,11 @@ std::pair<int32_t, std::string> NapiHiSysEventUtil::GetErrorDetailByRet(napi_env
         {ERR_TOO_MANY_CONCURRENT_QUERIES, {NapiError::ERR_CONCURRENT_QUERY_COUNT_OVER_LIMIT,
             "The number of concurrent queries exceeds the limit"}},
         {ERR_QUERY_TOO_FREQUENTLY, {NapiError::ERR_QUERY_TOO_FREQUENTLY, "The query frequency exceeds the limit"}},
-        {NapiInnerError::ERR_INVALID_DOMAIN_IN_QUERY_RULE,
-            {NapiError::ERR_INVALID_QUERY_RULE, "Invalid query rule"}},
-        {ERR_QUERY_RULE_INVALID, {NapiError::ERR_INVALID_QUERY_RULE, "Invalid query rule"}},
-        {NapiInnerError::ERR_INVALID_EVENT_NAME_IN_QUERY_RULE,
-            {NapiError::ERR_INVALID_QUERY_RULE, "Invalid query rule"}},
+        {NapiInnerError::ERR_INVALID_DOMAIN_IN_QUERY_RULE, {NapiError::ERR_INVALID_QUERY_RULE,
+            INVALID_QUERY_RULE_DES}},
+        {ERR_QUERY_RULE_INVALID, {NapiError::ERR_INVALID_QUERY_RULE, INVALID_QUERY_RULE_DES}},
+        {NapiInnerError::ERR_INVALID_EVENT_NAME_IN_QUERY_RULE, {NapiError::ERR_INVALID_QUERY_RULE,
+            INVALID_QUERY_RULE_DES}},
         // export
         {ERR_EXPORT_FREQUENCY_OVER_LIMIT, {NapiError::ERR_QUERY_TOO_FREQUENTLY,
             "The query frequency exceeds the limit"}},
