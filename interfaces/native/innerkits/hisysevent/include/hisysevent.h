@@ -187,6 +187,7 @@ public:
         static constexpr char PIN_AUTH_SA[] = "PIN_AUTH_SA";
         static constexpr char POWER[] = "POWER";
         static constexpr char POWER_UE[] = "POWER_UE";
+        static constexpr char PRINT_PLUGIN_UE[] = "PRINT_PLUGIN_UE";
         static constexpr char PROFILER[] = "PROFILER";
         static constexpr char PUSH_MANAGER[] = "PUSH_MANAGER";
         static constexpr char RELIABILITY[] = "RELIABILITY";
