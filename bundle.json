@@ -33,7 +33,8 @@
         "safwk",
         "samgr",
         "storage_service",
-        "runtime_core"
+        "runtime_core",
+        "runtime_core:ani_helpers"
       ]
     },
     "build": {
