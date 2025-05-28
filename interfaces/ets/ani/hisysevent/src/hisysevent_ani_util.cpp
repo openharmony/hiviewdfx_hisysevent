@@ -28,7 +28,7 @@ using namespace OHOS::HiviewDFX;
 
 #undef LOG_TAG
 #define LOG_TAG "ANI_HISYSEVENT_UTIL"
-
+namespace {
 constexpr char DOMAIN__KEY[] = "domain_";
 constexpr char NAME__KEY[] = "name_";
 constexpr char TYPE__KEY[] = "type_";
@@ -38,6 +38,7 @@ const std::string INVALID_KEY_TYPE_ARR[] = {
     "()",
     ","
 };
+}
 
 static const std::map<EventTypeAni, int32_t> ANI_EVENTTYPE_INDEX_MAP = {
     {EventTypeAni::FAULT, 0},
@@ -566,7 +567,7 @@ static void AppendBaseInfo(ani_env *env, ani_object& sysEventInfo, const std::st
     }
 }
 
-bool CreateParamItemTypeValue(ani_env *env, Json::Value& jsonValue, ani_object& value)
+static bool CreateParamItemTypeValue(ani_env *env, Json::Value& jsonValue, ani_object& value)
 {
     if (jsonValue.isBool()) {
         value = HiSysEventAniUtil::CreateBool(env, jsonValue.asBool());

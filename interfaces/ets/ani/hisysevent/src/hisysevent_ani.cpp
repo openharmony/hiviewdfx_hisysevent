@@ -39,7 +39,7 @@ using namespace OHOS::HiviewDFX;
 
 #undef LOG_TAG
 #define LOG_TAG "ANI_HISYSEVENT"
-
+namespace {
 using ANI_LISTENER_PAIR = std::pair<pid_t, std::shared_ptr<AniHiSysEventListener>>;
 using ANI_QUERIER_PAIR = std::pair<pid_t, std::shared_ptr<AniHiSysEventQuerier>>;
 constexpr long long DEFAULT_TIME_STAMP = -1;
@@ -49,7 +49,6 @@ std::mutex g_listenerMapMutex;
 std::unordered_map<ani_ref, ANI_LISTENER_PAIR> listeners;
 std::mutex g_querierMapMutex;
 std::unordered_map<ani_ref, ANI_QUERIER_PAIR> queriers;
-namespace {
 constexpr int64_t DEFAULT_LINE_NUM = -1;
 constexpr int FUNC_NAME_INDEX = 1;
 constexpr int LINE_INFO_INDEX = 2;
