@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,6 +29,7 @@
 #include "hilog/log.h"
 
 #include "def.h"
+#include "event_socket_factory.h"
 #include "hisysevent.h"
 #include "hisysevent_base_manager.h"
 #include "hisysevent_manager.h"
@@ -37,6 +38,7 @@
 #include "hisysevent_listener.h"
 #include "ret_code.h"
 #include "rule_type.h"
+#include "securec.h"
 
 #ifndef SYS_EVENT_PARAMS
 #define SYS_EVENT_PARAMS(A) "key"#A, 0 + (A), "keyA"#A, 1 + (A), "keyB"#A, 2 + (A), "keyC"#A, 3 + (A), \
@@ -109,6 +111,24 @@ private:
     OnQueryCallback onQueryCallback;
     OnCompleteCallback onCompleteCallback;
 };
+
+void BuildRawData(RawData& data, const std::string& domain, const std::string& name, HiSysEvent::EventType type)
+{
+    struct Encoded::HiSysEventHeader header = {
+        {0}, {0}, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+    auto ret = memcpy_s(header.domain, MAX_DOMAIN_LENGTH, domain.c_str(), domain.length());
+    ASSERT_EQ(ret, EOK);
+    header.domain[domain.length()] = '\0';
+    ret = memcpy_s(header.name, MAX_EVENT_NAME_LENGTH, name.c_str(), name.length());
+    ASSERT_EQ(ret, EOK);
+    header.name[name.length()] = '\0';
+    header.type = type;
+    int32_t len = sizeof(struct Encoded::HiSysEventHeader) + sizeof(int32_t);
+    (void)data.Update(reinterpret_cast<uint8_t*>(&len), sizeof(int32_t), 0);
+    (void)data.Update(reinterpret_cast<uint8_t*>(&header), sizeof(struct Encoded::HiSysEventHeader),
+        sizeof(int32_t));
+}
 }
 
 static bool WrapSysEventWriteAssertion(int32_t ret, bool cond)
@@ -1515,5 +1535,155 @@ HWTEST_F(HiSysEventNativeTest, TestHiSysEventManagerQueryWithDefaultQueryArgumen
     queryRules.emplace_back(rule);
     auto ret = OHOS::HiviewDFX::HiSysEventManager::Query(args, queryRules, querier);
     ASSERT_EQ(ret, OHOS::HiviewDFX::IPC_CALL_SUCCEED);
+}
+
+/**
+ * @tc.name: TestEventSocketFactory1
+ * @tc.desc: Test apis of EventSocketFactory
+ * @tc.type: FUNC
+ * @tc.require: issueIC70PG
+ */
+HWTEST_F(HiSysEventNativeTest, TestEventSocketFactory1, TestSize.Level1)
+{
+    RawData data;
+    BuildRawData(data, "AAFWK", "APP_INPUT_BLOCK", HiSysEvent::EventType::FAULT);
+    auto socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "AAFWK", "BUSSINESS_THREAD_BLOCK_3S", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "AAFWK", "BUSSINESS_THREAD_BLOCK_6S", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "AAFWK", "LIFECYCLE_HALF_TIMEOUT", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "AAFWK", "LIFECYCLE_TIME_OUT", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "AAFWK", "THREAD_BLOCK_3S", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "AAFWK", "THREAD_BLOCK_6S", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "AAFWK", "EXCLUDED_NAME", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent");
+}
+
+/**
+ * @tc.name: TestEventSocketFactory2
+ * @tc.desc: Test apis of EventSocketFactory
+ * @tc.type: FUNC
+ * @tc.require: issueIC70PG
+ */
+HWTEST_F(HiSysEventNativeTest, TestEventSocketFactory2, TestSize.Level1)
+{
+    RawData data;
+    BuildRawData(data, "ACE", "UI_BLOCK_3S", HiSysEvent::EventType::FAULT);
+    auto socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "ACE", "UI_BLOCK_6S", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "ACE", "UI_BLOCK_RECOVERED", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "ACE", "EXCLUDED_NAME", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent");
+}
+
+/**
+ * @tc.name: TestEventSocketFactory3
+ * @tc.desc: Test apis of EventSocketFactory
+ * @tc.type: FUNC
+ * @tc.require: issueIC70PG
+ */
+HWTEST_F(HiSysEventNativeTest, TestEventSocketFactory3, TestSize.Level1)
+{
+    RawData data;
+    BuildRawData(data, "FRAMEWORK", "IPC_FULL", HiSysEvent::EventType::FAULT);
+    auto socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "FRAMEWORK", "SERVICE_BLOCK", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "FRAMEWORK", "SERVICE_TIMEOUT", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "FRAMEWORK", "SERVICE_WARNING", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "FRAMEWORK", "EXCLUDED_NAME", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent");
+}
+
+/**
+ * @tc.name: TestEventSocketFactory4
+ * @tc.desc: Test apis of EventSocketFactory
+ * @tc.type: FUNC
+ * @tc.require: issueIC70PG
+ */
+HWTEST_F(HiSysEventNativeTest, TestEventSocketFactory4, TestSize.Level1)
+{
+    RawData data;
+    BuildRawData(data, "RELIABILITY", "ANY_NAME", HiSysEvent::EventType::FAULT);
+    auto socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "RELIABILITY", "ANY_NAME", HiSysEvent::EventType::BEHAVIOR);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent");
+}
+
+/**
+ * @tc.name: TestEventSocketFactory5
+ * @tc.desc: Test apis of EventSocketFactory
+ * @tc.type: FUNC
+ * @tc.require: issueIC70PG
+ */
+HWTEST_F(HiSysEventNativeTest, TestEventSocketFactory5, TestSize.Level1)
+{
+    RawData data;
+    BuildRawData(data, "GRAPHIC", "NO_DRAW", HiSysEvent::EventType::FAULT);
+    auto socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "GRAPHIC", "EXCLUDED_NAME", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent");
+
+    BuildRawData(data, "MULTIMODALINPUT", "TARGET_POINTER_EVENT_FAILURE", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "MULTIMODALINPUT", "EXCLUDED_NAME", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent");
+
+    BuildRawData(data, "POWER", "SCREEN_ON_TIMEOUT", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "POWER", "EXCLUDED_NAME", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent");
+
+    BuildRawData(data, "WINDOWMANAGER", "NO_FOCUS_WINDOW", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "WINDOWMANAGER", "EXCLUDED_NAME", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent");
+
+    BuildRawData(data, "SCHEDULE_EXT", "SYSTEM_LOAD_LEVEL_CHANGED", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "SCHEDULE_EXT", "EXCLUDED_NAME", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent");
+
+    BuildRawData(data, "EXCLUDED_DOMAIN", "ANY_NAME", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent");
 }
 

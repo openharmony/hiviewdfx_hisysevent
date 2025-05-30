@@ -42,6 +42,7 @@
         "OHOS::HiviewDFX::Encoded::ParseTimeZone(long)";
         "OHOS::HiviewDFX::HiSysEvent::EventBase::AppendParam(std::__h::shared_ptr<OHOS::HiviewDFX::Encoded::EncodedParam>)";
         "OHOS::HiviewDFX::Encoded::EncodedParam::SetRawData(std::__h::shared_ptr<OHOS::HiviewDFX::Encoded::RawData>)";
+        "OHOS::HiviewDFX::EventSocketFactory::GetEventSocket(OHOS::HiviewDFX::Encoded::RawData&)";
     };
   extern "C" {
         "HiSysEvent_Write";

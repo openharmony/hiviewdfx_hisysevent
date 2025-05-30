@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,6 +27,7 @@
 #include <unistd.h>
 
 #include "def.h"
+#include "event_socket_factory.h"
 #include "hilog/log.h"
 
 #undef LOG_DOMAIN
@@ -38,17 +39,12 @@
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-struct sockaddr_un g_serverAddr = {
-    .sun_family = AF_UNIX,
-    .sun_path = "/dev/unix/socket/hisysevent",
-};
-
-void LogErrorInfo(const std::string& logFormatStr, bool isLogLevel)
+void LogErrorInfo(const std::string& logFormatStr, bool isDebugLevel)
 {
     const size_t buffSize { 256 };
     char errMsg[buffSize] { };
     strerror_r(errno, errMsg, buffSize);
-    if (isLogLevel) {
+    if (isDebugLevel) {
         HILOG_DEBUG(LOG_CORE, "%{public}s, errno=%{public}d, msg=%{public}s", logFormatStr.c_str(), errno, errMsg);
         return;
     }
@@ -95,17 +91,17 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
     InitRecvBuffer(socketId);
     auto sendRet = 0;
     auto retryTimes = RETRY_TIMES;
+    std::string errDes;
     do {
+        auto serverAddr = EventSocketFactory::GetEventSocket(rawData);
+        errDes = serverAddr.sun_path;
         sendRet = sendto(socketId, rawData.GetData(), rawData.GetDataLength(), 0,
-            reinterpret_cast<sockaddr*>(&g_serverAddr), sizeof(g_serverAddr));
+            reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
         retryTimes--;
     } while (sendRet < 0 && retryTimes > 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
     if (sendRet < 0) {
-        if (errno == EACCES) {
-            LogErrorInfo("sysevent write failed", true);
-        } else {
-            LogErrorInfo("sysevent write failed", false);
-        }
+        errDes.append(" write failed");
+        LogErrorInfo(errDes, errno == EACCES);
         close(socketId);
         return ERR_SEND_FAIL;
     }
