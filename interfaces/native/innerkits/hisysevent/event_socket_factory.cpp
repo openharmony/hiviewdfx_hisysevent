@@ -96,7 +96,7 @@ bool IsHigherPriorityEvent(const std::string& domain, const std::string& name, i
     }
 }
 
-void ParseDomainAndNameFromRawData(RawData& data, std::string& domain, std::string& name, int& type)
+void ParseEventInfo(RawData& data, std::string& domain, std::string& name, int& type)
 {
     if (size_t len = data.GetDataLength(); len < sizeof(int32_t) + sizeof(struct HiSysEventHeader)) {
         HILOG_WARN(LOG_CORE, "length[%{public}zu] of data is invalid", len);
@@ -114,8 +114,8 @@ EventSocket& EventSocketFactory::GetEventSocket(RawData& data)
 {
     std::string domain;
     std::string name;
-    int type;
-    ParseDomainAndNameFromRawData(data, domain, name, type);
+    int type = HiSysEvent::EventType::FAULT;
+    ParseEventInfo(data, domain, name, type);
     return IsHigherPriorityEvent(domain, name, type) ? higherPriorityAddr : normalAddr;
 }
 }
