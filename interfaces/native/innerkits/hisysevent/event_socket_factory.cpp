@@ -106,7 +106,7 @@ void ParseEventInfo(RawData& data, std::string& domain, std::string& name, int& 
     struct HiSysEventHeader header = *(reinterpret_cast<struct HiSysEventHeader*>(originalData + sizeof(int32_t)));
     domain = std::string(header.domain);
     name = std::string(header.name);
-    type = static_cast<int>(header.type);
+    type = static_cast<int>(header.type) + 1; // transform type to HiSysEvent::EventType
 }
 }
 
