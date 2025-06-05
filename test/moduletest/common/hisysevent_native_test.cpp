@@ -123,7 +123,7 @@ void BuildRawData(RawData& data, const std::string& domain, const std::string& n
     ret = memcpy_s(header.name, MAX_EVENT_NAME_LENGTH, name.c_str(), name.length());
     ASSERT_EQ(ret, EOK);
     header.name[name.length()] = '\0';
-    header.type = type;
+    header.type = type - 1; // 1 is offset
     int32_t len = sizeof(struct Encoded::HiSysEventHeader) + sizeof(int32_t);
     (void)data.Update(reinterpret_cast<uint8_t*>(&len), sizeof(int32_t), 0);
     (void)data.Update(reinterpret_cast<uint8_t*>(&header), sizeof(struct Encoded::HiSysEventHeader),
