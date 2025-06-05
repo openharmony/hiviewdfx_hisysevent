@@ -32,7 +32,8 @@
         "napi",
         "safwk",
         "samgr",
-        "storage_service"
+        "storage_service",
+        "runtime_core"
       ]
     },
     "build": {
@@ -41,7 +42,8 @@
         "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
         "//base/hiviewdfx/hisysevent/interfaces/js/kits:hisysevent_napi_ref",
         "//base/hiviewdfx/hisysevent/interfaces/rust/innerkits:hisysevent_rust",
-        "//base/hiviewdfx/hisysevent/frameworks/native:hisysevent"
+        "//base/hiviewdfx/hisysevent/frameworks/native:hisysevent",
+        "//base/hiviewdfx/hisysevent/interfaces/ets/ani:ani_hisysevent_package"
       ],
       "inner_kits": [
         {
