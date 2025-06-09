@@ -79,7 +79,6 @@ static int InitEventHeader(struct HiSysEventEasyHeader* header, const char* doma
     }
     header->type = eventType - 1; // only 2 bits to store event type
     header->timestamp = GetTimestamp();
-    tzset();
     header->timeZone = ParseTimeZone(timezone);
     header->pid = (uint32_t)getpid();
     header->tid = (uint32_t)gettid();
