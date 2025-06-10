@@ -61,7 +61,7 @@ ohos_shared_library("libhisysevent") {
   subsystem_name = "hiviewdfx"
 
   innerapi_tags = [
-    "chipsetsdk",
+    "chipsetsdk_sp",
     "platformsdk",
     "sasdk",
   ]
