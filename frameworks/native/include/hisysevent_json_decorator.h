@@ -17,7 +17,7 @@
 #define HISYSEVENT_JSON_DECORATOR_H
 
 #include "hisysevent_record.h"
-#include "json/json.h"
+#include "cJSON.h"
 
 #include <functional>
 #include <unordered_map>
@@ -30,29 +30,32 @@ enum Validity {
     KV_BOTH_VALID
 };
 
-using BaseInfoHandler = std::function<bool(const Json::Value&)>;
-using ExtensiveInfoHander = std::function<bool(const Json::Value&, const Json::Value&)>;
+using BaseInfoHandler = std::function<bool(cJSON*)>;
+using ExtensiveInfoHander = std::function<bool(cJSON*, cJSON*)>;
 using DecorateMarks = std::unordered_map<std::string, Validity>;
 
 class HiSysEventJsonDecorator {
 public:
     HiSysEventJsonDecorator();
+    ~HiSysEventJsonDecorator();
+
+public:
     std::string DecorateEventJsonStr(const HiSysEventRecord& record);
 
 private:
-    bool CheckAttrDecorationNeed(const Json::Value& eventJson, const std::string& key,
-        const Json::Value& standard);
-    Validity CheckAttrValidity(const Json::Value& eventJson, const std::string& key,
-        const Json::Value& standard);
-    Validity CheckLevelValidity(const Json::Value& baseInfo);
-    bool CheckEventDecorationNeed(const Json::Value& eventJson, BaseInfoHandler baseJsonInfoHandler,
+    bool CheckAttrDecorationNeed(cJSON* eventJson, const std::string& key,
+        cJSON* standard);
+    Validity CheckAttrValidity(cJSON* eventJson, const std::string& key,
+        cJSON* standard);
+    Validity CheckLevelValidity(cJSON* baseInfo);
+    bool CheckEventDecorationNeed(cJSON* eventJson, BaseInfoHandler baseJsonInfoHandler,
         ExtensiveInfoHander extensiveJsonInfoHandler);
     std::string Decorate(Validity validity, std::string& key, std::string& value);
     std::string DecorateJsonStr(const std::string& standard, DecorateMarks marks);
-    bool JudgeDataType(const std::string& dataType, const Json::Value& eventJson);
+    bool JudgeDataType(const std::string& dataType, cJSON* eventJson);
 
 private:
-    Json::Value jsonRoot_;
+    cJSON* jsonRoot_;
     DecorateMarks decoratedMarks_;
     bool isJsonRootValid_ = false;
 };
