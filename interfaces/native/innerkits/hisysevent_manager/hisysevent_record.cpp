@@ -316,9 +316,11 @@ bool HiSysEventRecord::IsArray(const JsonValue val, const TypeFilter filterFunc)
 void HiSysEventValue::ParseJsonStr(const std::string jsonStr)
 {
     jsonVal_ = cJSON_Parse(jsonStr.c_str());
-    if (jsonVal_ == nullptr || !cJSON_IsObject(jsonVal_)) {
-        HILOG_ERROR(LOG_CORE, "parse json file failed, please check the style of json string: %{public}s.",
-            jsonStr.c_str());
+    if (jsonVal_ == nullptr) {
+        return;
+    }
+    if (!cJSON_IsObject(jsonVal_)) {
+        needDeleteJsonVal = true;
         return;
     }
     hasInitialized_ = true;
@@ -335,6 +337,7 @@ HiSysEventValue::~HiSysEventValue()
     if (needDeleteJsonVal && jsonVal_ != nullptr) {
         cJSON_Delete(jsonVal_);
     }
+    jsonVal_ = nullptr;
 }
 
 void HiSysEventValue::GetParamNames(std::vector<std::string>& params) const
@@ -367,40 +370,9 @@ bool HiSysEventValue::IsMember(const std::string key) const
     return cJSON_HasObjectItem(jsonVal_, key.c_str());
 }
 
-bool HiSysEventValue::IsInt64() const
-{
-    return cJSON_IsNumber(jsonVal_);
-}
-
-bool HiSysEventValue::IsUInt64() const
-{
-    return cJSON_IsNumber(jsonVal_);
-}
-
-bool HiSysEventValue::IsDouble() const
-{
-    return cJSON_IsNumber(jsonVal_);
-}
-
 bool HiSysEventValue::IsString() const
 {
     return cJSON_IsString(jsonVal_);
-}
-
-bool HiSysEventValue::IsBool() const
-{
-    if (!hasInitialized_) {
-        return false;
-    }
-    return cJSON_IsBool(jsonVal_);
-}
-
-bool HiSysEventValue::IsNull() const
-{
-    if (!hasInitialized_) {
-        return false;
-    }
-    return cJSON_IsNull(jsonVal_);
 }
 
 bool HiSysEventValue::IsNumeric() const

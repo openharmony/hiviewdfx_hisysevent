@@ -158,7 +158,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest001, Test
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest002, TestSize.Level1)
 {
     usleep(USLEEP_SHORT_DURATION);
-    int64_t val = -18888888882321;
+    int64_t val = std::numeric_limits<int64_t>::max();
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         ASSERT_NE(sysEvent, nullptr);
         int64_t ret;
@@ -177,7 +177,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest002, Test
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest003, TestSize.Level1)
 {
     usleep(USLEEP_SHORT_DURATION);
-    uint64_t val = 18888888882326141;
+    uint64_t val = std::numeric_limits<uint64_t>::max();
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         ASSERT_NE(sysEvent, nullptr);
         uint64_t ret;

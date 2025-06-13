@@ -35,12 +35,7 @@ public:
     bool HasInitialized() const;
     bool IsArray() const;
     bool IsMember(const std::string key) const;
-    bool IsInt64() const;
-    bool IsUInt64() const;
-    bool IsDouble() const;
     bool IsString() const;
-    bool IsBool() const;
-    bool IsNull() const;
     bool IsNumeric() const;
     double AsDouble() const;
     int64_t AsInt64() const;

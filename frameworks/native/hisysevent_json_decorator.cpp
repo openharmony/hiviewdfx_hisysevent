@@ -53,20 +53,20 @@ const std::map<std::string, int> EVENT_TYPE_MAP = {{"FAULT", 1}, {"STATISTIC", 2
 
 int GetIntFromJson(cJSON* jsonObj, const std::string& key)
 {
-    cJSON* arrSizeItem = cJSON_GetObjectItemCaseSensitive(jsonObj, key.c_str());
-    if (!cJSON_IsNumber(arrSizeItem)) {
+    cJSON* intJson = cJSON_GetObjectItemCaseSensitive(jsonObj, key.c_str());
+    if (!cJSON_IsNumber(intJson)) {
         return 0;
     }
-    return static_cast<int>(cJSON_GetNumberValue(arrSizeItem));
+    return static_cast<int>(cJSON_GetNumberValue(intJson));
 }
 
 std::string GetStringFromJson(cJSON* jsonObj, const std::string& key)
 {
-    cJSON* typeItem = cJSON_GetObjectItemCaseSensitive(jsonObj, key.c_str());
-    if (!cJSON_IsString(typeItem)) {
+    cJSON* strJson = cJSON_GetObjectItemCaseSensitive(jsonObj, key.c_str());
+    if (!cJSON_IsString(strJson)) {
         return "";
     }
-    return std::string(cJSON_GetStringValue(typeItem));
+    return std::string(cJSON_GetStringValue(strJson));
 }
 }
 
@@ -191,9 +191,11 @@ std::string HiSysEventJsonDecorator::DecorateEventJsonStr(const HiSysEventRecord
     }
 
     cJSON* eventJson = cJSON_Parse(origin.c_str());
-    if (jsonRoot_ == nullptr || !cJSON_IsObject(jsonRoot_)) {
-        HILOG_ERROR(LOG_CORE, "parse json file failed, please check the style of json file: %{public}s.",
-            origin.c_str());
+    if (eventJson == nullptr) {
+        return origin;
+    }
+    if (!cJSON_IsObject(eventJson)) {
+        cJSON_Delete(eventJson);
         return origin;
     }
     auto needDecorate = CheckEventDecorationNeed(eventJson,

@@ -694,7 +694,7 @@ bool CreateParamItemTypeValue(const napi_env env, cJSON* jsonVal, napi_value& va
 
 void AppendArrayParams(const napi_env env, napi_value& params, const std::string& key, cJSON* jsonVal)
 {
-    size_t arraySize = static_cast<int>(cJSON_GetArraySize(jsonVal));
+    size_t arraySize = static_cast<size_t>(cJSON_GetArraySize(jsonVal));
     napi_value array = nullptr;
     napi_create_array_with_length(env, arraySize, &array);
     for (size_t index = 0; index < arraySize; ++index) {
@@ -772,9 +772,15 @@ void NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(const napi_env env, const 
     napi_value& sysEventInfo)
 {
     cJSON* jsonObj = cJSON_Parse(jsonStr.c_str());
-    if (jsonObj == nullptr || !cJSON_IsObject(jsonObj)) {
-        HILOG_ERROR(LOG_CORE, "parse event detail info failed, please check the style of json infomation: %{public}s",
+    if (jsonObj == nullptr) {
+        HILOG_ERROR(LOG_CORE, "failed to parse the json string: %{public}s", jsonStr.c_str());
+        return;
+    }
+
+    if (!cJSON_IsObject(jsonObj)) {
+        HILOG_ERROR(LOG_CORE, "failed to parse the json string, please check the content: %{public}s",
             jsonStr.c_str());
+        cJSON_Delete(jsonObj);
         return;
     }
 
