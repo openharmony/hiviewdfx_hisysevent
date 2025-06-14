@@ -201,7 +201,13 @@ int HiSysEventRecord::GetParamValue(const std::string& param, std::vector<int64_
         [&value] (JsonValue src) {
             int arraySize = src->Size();
             for (int i = 0; i < arraySize; i++) {
-                value.emplace_back(static_cast<int64_t>(cJSON_GetNumberValue(src->Index(i))));
+                auto item = src->Index(i);
+                if (cJSON_IsNumber(item)) {
+                    value.emplace_back(static_cast<int64_t>(cJSON_GetNumberValue(item)));
+                }
+                if (cJSON_IsBool(item)) {
+                    value.emplace_back(cJSON_IsTrue(item) ? 1 : 0);
+                }
             }
         });
 }
@@ -217,7 +223,13 @@ int HiSysEventRecord::GetParamValue(const std::string& param, std::vector<uint64
         [&value] (JsonValue src) {
             int arraySize = src->Size();
             for (int i = 0; i < arraySize; i++) {
-                value.emplace_back(static_cast<uint64_t>(cJSON_GetNumberValue(src->Index(i))));
+                auto item = src->Index(i);
+                if (cJSON_IsNumber(item)) {
+                    value.emplace_back(static_cast<uint64_t>(cJSON_GetNumberValue(item)));
+                }
+                if (cJSON_IsBool(item)) {
+                    value.emplace_back(cJSON_IsTrue(item) ? 1 : 0);
+                }
             }
         });
 }
@@ -284,22 +296,22 @@ int HiSysEventRecord::GetParamValue(const std::string& param, const TypeFilter f
 
 bool HiSysEventRecord::IsInt64ValueType(const JsonValue val) const
 {
-    return val->IsNumeric();
+    return val->IsInt64() || val->IsBool();
 }
 
 bool HiSysEventRecord::IsUInt64ValueType(const JsonValue val) const
 {
-    return val->IsNumeric();
+    return val->IsUInt64() || val->IsBool();
 }
 
 bool HiSysEventRecord::IsDoubleValueType(const JsonValue val) const
 {
-    return val->IsNumeric();
+    return val->IsDouble() || val->IsBool();
 }
 
 bool HiSysEventRecord::IsStringValueType(const JsonValue val) const
 {
-    return val->IsString();
+    return val->IsNull() || val->IsBool() || val->IsNumeric() || val->IsString();
 }
 
 bool HiSysEventRecord::IsArray(const JsonValue val, const TypeFilter filterFunc) const
@@ -370,9 +382,66 @@ bool HiSysEventValue::IsMember(const std::string key) const
     return cJSON_HasObjectItem(jsonVal_, key.c_str());
 }
 
+bool HiSysEventValue::IsInt64() const
+{
+    if (!hasInitialized_) {
+        return false;
+    }
+    if (cJSON_IsBool(jsonVal_)) {
+        return true;
+    }
+    if (cJSON_IsNumber(jsonVal_)) {
+        double num = cJSON_GetNumberValue(jsonVal_);
+        return (num <= std::numeric_limits<int64_t>::max()) && (num >= std::numeric_limits<int64_t>::lowest());
+    }
+    return false;
+}
+
+bool HiSysEventValue::IsUInt64() const
+{
+    if (!hasInitialized_) {
+        return false;
+    }
+    if (cJSON_IsBool(jsonVal_)) {
+        return true;
+    }
+    if (cJSON_IsNumber(jsonVal_)) {
+        double num = cJSON_GetNumberValue(jsonVal_);
+        return (num <= std::numeric_limits<uint64_t>::max()) && (num >= std::numeric_limits<uint64_t>::lowest());
+    }
+    return false;
+}
+
+bool HiSysEventValue::IsDouble() const
+{
+    if (!hasInitialized_) {
+        return false;
+    }
+    return cJSON_IsNumber(jsonVal_);
+}
+
 bool HiSysEventValue::IsString() const
 {
+    if (!hasInitialized_) {
+        return false;
+    }
     return cJSON_IsString(jsonVal_);
+}
+
+bool HiSysEventValue::IsBool() const
+{
+    if (!hasInitialized_) {
+        return false;
+    }
+    return cJSON_IsBool(jsonVal_);
+}
+
+bool HiSysEventValue::IsNull() const
+{
+    if (!hasInitialized_) {
+        return false;
+    }
+    return cJSON_IsNull(jsonVal_);
 }
 
 bool HiSysEventValue::IsNumeric() const

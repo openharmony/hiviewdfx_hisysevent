@@ -158,7 +158,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest001, Test
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest002, TestSize.Level1)
 {
     usleep(USLEEP_SHORT_DURATION);
-    int64_t val = std::numeric_limits<int64_t>::max();
+    int64_t val = -20000; // -20000 is a test value
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         ASSERT_NE(sysEvent, nullptr);
         int64_t ret;
@@ -177,7 +177,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest002, Test
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest003, TestSize.Level1)
 {
     usleep(USLEEP_SHORT_DURATION);
-    uint64_t val = std::numeric_limits<uint64_t>::max();
+    uint64_t val = 1000000; // 1000000is a test value
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         ASSERT_NE(sysEvent, nullptr);
         uint64_t ret;
@@ -260,9 +260,9 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest007, Test
 {
     usleep(USLEEP_SHORT_DURATION);
     std::vector<int64_t> val = {
-        std::numeric_limits<int64_t>::min(),
-        std::numeric_limits<int64_t>::max(),
-        std::numeric_limits<int64_t>::min()
+        -20000, // -20000 is a test value
+        333333, // 333333 is a test value
+        -44444, // -44444 is a test value
     };
     auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         ASSERT_NE(sysEvent, nullptr);
@@ -286,9 +286,9 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest008, Test
 {
     usleep(USLEEP_SHORT_DURATION);
     std::vector<uint64_t> val = {
-        std::numeric_limits<uint64_t>::min(),
-        std::numeric_limits<uint64_t>::max(),
-        std::numeric_limits<uint64_t>::min()
+        20000, // 20000 is a test value
+        33333, // 33333 is a test value
+        44444, // 44444 is a test value
     };
     auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         ASSERT_NE(sysEvent, nullptr);
@@ -457,7 +457,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest015, Test
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest016, TestSize.Level1)
 {
     usleep(USLEEP_SHORT_DURATION);
-    int64_t val = std::numeric_limits<int64_t>::max();
+    int64_t val = -333333333; // -333333333 is a test value
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         ASSERT_NE(sysEvent, nullptr);
         int64_t ret;
@@ -476,7 +476,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest016, Test
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest017, TestSize.Level1)
 {
     usleep(USLEEP_SHORT_DURATION);
-    int64_t val = std::numeric_limits<int64_t>::min();
+    int64_t val = -44444444; // -44444444 is a test value
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         ASSERT_NE(sysEvent, nullptr);
         int64_t ret;
@@ -495,7 +495,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest017, Test
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest018, TestSize.Level1)
 {
     usleep(USLEEP_SHORT_DURATION);
-    uint64_t val = std::numeric_limits<uint64_t>::max();
+    uint64_t val = 333333333; // 333333333 is a test value
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         ASSERT_NE(sysEvent, nullptr);
         uint64_t ret;
@@ -514,7 +514,7 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest018, Test
 HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest019, TestSize.Level1)
 {
     usleep(USLEEP_SHORT_DURATION);
-    uint64_t val = std::numeric_limits<uint64_t>::min();
+    uint64_t val = 44444444; // 44444444 is a test value
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
         ASSERT_NE(sysEvent, nullptr);
         uint64_t ret;

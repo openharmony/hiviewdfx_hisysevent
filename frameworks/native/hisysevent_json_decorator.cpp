@@ -246,10 +246,18 @@ bool HiSysEventJsonDecorator::JudgeDataType(const std::string &dataType, cJSON* 
         return cJSON_IsBool(eventJson);
     } else if ((dataType.compare("INT8") == 0) || (dataType.compare("INT16") == 0) ||
         (dataType.compare("INT32") == 0) || (dataType.compare("INT64") == 0)) {
-        return cJSON_IsNumber(eventJson);
+        if (!cJSON_IsNumber(eventJson)) {
+            return false;
+        }
+        double num = cJSON_GetNumberValue(eventJson);
+        return (num <= std::numeric_limits<int64_t>::max()) && (num >= std::numeric_limits<int64_t>::lowest());
     } else if ((dataType.compare("UINT8") == 0) || (dataType.compare("UINT16") == 0) ||
         (dataType.compare("UINT32") == 0) || (dataType.compare("UINT64") == 0)) {
-        return cJSON_IsNumber(eventJson);
+        if (!cJSON_IsNumber(eventJson)) {
+            return false;
+        }
+        double num = cJSON_GetNumberValue(eventJson);
+        return (num <= std::numeric_limits<uint64_t>::max()) && (num >= std::numeric_limits<uint64_t>::lowest());
     } else if ((dataType.compare("FLOAT") == 0) || (dataType.compare("DOUBLE") == 0)) {
         return cJSON_IsNumber(eventJson);
     } else if (dataType.compare("STRING") == 0) {
