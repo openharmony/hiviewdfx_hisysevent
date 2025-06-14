@@ -28,10 +28,10 @@ ohos_shared_library("hisysevent_ani") {
 
   external_deps = [
     "access_token:libtokenid_sdk",
+    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
-    "jsoncpp:jsoncpp",
     "runtime_core:ani",
   ]
 

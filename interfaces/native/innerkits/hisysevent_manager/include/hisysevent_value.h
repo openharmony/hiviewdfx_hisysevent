@@ -18,7 +18,7 @@
 
 #include <vector>
 
-#include "json/json.h"
+#include "cJSON.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -28,36 +28,31 @@ public:
     {
         ParseJsonStr(jsonStr);
     }
-    HiSysEventValue(Json::Value jsonVal): jsonVal_(jsonVal), hasInitialized_(true) {}
-    ~HiSysEventValue() {}
+    HiSysEventValue(cJSON* jsonVal): jsonVal_(jsonVal), hasInitialized_(true), needDeleteJsonVal(false) {}
+    ~HiSysEventValue();
 
 public:
     bool HasInitialized() const;
     bool IsArray() const;
     bool IsMember(const std::string key) const;
-    bool IsInt64() const;
-    bool IsUInt64() const;
-    bool IsDouble() const;
     bool IsString() const;
-    bool IsBool() const;
-    bool IsNull() const;
     bool IsNumeric() const;
     double AsDouble() const;
     int64_t AsInt64() const;
     uint64_t AsUInt64() const;
     int Size() const;
     std::string AsString() const;
-    Json::Value Index(const int index) const;
-    Json::Value GetParamValue(const std::string& key) const;
-    Json::ValueType Type() const;
+    cJSON* Index(const int index) const;
+    cJSON* GetParamValue(const std::string& key) const;
     void GetParamNames(std::vector<std::string>& params) const;
 
 private:
     void ParseJsonStr(const std::string jsonStr);
 
 private:
-    Json::Value jsonVal_;
+    cJSON* jsonVal_;
     bool hasInitialized_ = false;
+    bool needDeleteJsonVal = false;
 };
 }
 }
