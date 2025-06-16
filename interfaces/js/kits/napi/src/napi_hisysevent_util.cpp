@@ -648,7 +648,9 @@ void AppendBaseInfo(const napi_env env, napi_value& sysEventInfo, const std::str
         NapiHiSysEventUtil::AppendStringPropertyToJsObject(env, TranslateKeyToAttrName(key),
             std::string(cJSON_GetStringValue(jsonVal)), sysEventInfo);
     }
-    if (key == TYPE__KEY && cJSON_IsNumber(jsonVal)) {
+    if (key == TYPE__KEY && cJSON_IsNumber(jsonVal) &&
+        (cJSON_GetNumberValue(jsonVal) <= std::numeric_limits<int32_t>::max()) &&
+        (cJSON_GetNumberValue(jsonVal) >= std::numeric_limits<int32_t>::lowest())) {
         NapiHiSysEventUtil::AppendInt32PropertyToJsObject(env, TranslateKeyToAttrName(key),
             static_cast<int32_t>(cJSON_GetNumberValue(jsonVal)), sysEventInfo);
     }
@@ -681,8 +683,7 @@ bool CreateParamItemTypeValue(const napi_env env, cJSON* jsonVal, napi_value& va
     }
 
     if (cJSON_IsBool(jsonVal)) {
-        int numRet = static_cast<int>(cJSON_GetNumberValue(jsonVal));
-        CreateBoolValue(env, numRet != 0, value);
+        CreateBoolValue(env, cJSON_IsTrue(jsonVal), value);
         return true;
     }
     if (cJSON_IsNumber(jsonVal)) {
@@ -773,13 +774,9 @@ void NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(const napi_env env, const 
 {
     cJSON* jsonObj = cJSON_Parse(jsonStr.c_str());
     if (jsonObj == nullptr) {
-        HILOG_ERROR(LOG_CORE, "failed to parse the json string: %{public}s", jsonStr.c_str());
         return;
     }
-
     if (!cJSON_IsObject(jsonObj)) {
-        HILOG_ERROR(LOG_CORE, "failed to parse the json string, please check the content: %{public}s",
-            jsonStr.c_str());
         cJSON_Delete(jsonObj);
         return;
     }
