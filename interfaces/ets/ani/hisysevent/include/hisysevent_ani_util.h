@@ -34,6 +34,14 @@ constexpr char CLASS_NAME_RECORD[] = "Lescompat/Record;";
 constexpr char FUNC_NAME_GETLONG[] = "getLong";
 constexpr char FUNC_NAME_UNBOXED[] = "unboxed";
 constexpr char FUNC_NAME_NEXT[] = "next";
+constexpr char CLASS_NAME_STACKTRACE[] = "Lstd/core/StackTrace;";
+constexpr int64_t DEFAULT_LINE_NUM = -1;
+constexpr int FUNC_NAME_INDEX = 1;
+constexpr int LINE_INFO_INDEX = 2;
+constexpr int LINE_INDEX = 1;
+constexpr char CALL_FUNC_INFO_DELIMITER = ' ';
+constexpr char CALL_LINE_INFO_DELIMITER = ':';
+constexpr char PATH_DELIMITER = '/';
 
 class HiSysEventAniUtil {
 public:
@@ -46,6 +54,12 @@ public:
     static double ParseNumberValue(ani_env *env, ani_ref elementRef);
     static std::map<std::string, ani_ref> ParseRecord(ani_env *env, ani_ref recordRef);
     static std::string ParseStringValue(ani_env *env, ani_ref aniStrRef);
+    static int ParseIntValue(ani_env *env, ani_ref elementRef);
+    static void GetBooleans(ani_env *env, ani_ref arrayRef, std::vector<bool> &bools);
+    static void GetDoubles(ani_env *env, ani_ref arrayRef, std::vector<double> &doubles);
+    static void GetIntsToDoubles(ani_env *env, ani_ref arrayRef, std::vector<double> &doubles);
+    static void GetStrings(ani_env *env, ani_ref arrayRef, std::vector<std::string> &strs);
+    static void GetBigints(ani_env *env, ani_ref arrayRef, std::vector<int64_t> &bigints);
     static std::pair<int32_t, std::string> GetErrorDetailByRet(const int32_t retCode);
     static ani_object WriteResult(ani_env *env, std::pair<int32_t, std::string> result);
 };
