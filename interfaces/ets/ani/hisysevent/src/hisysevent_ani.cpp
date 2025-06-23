@@ -37,12 +37,12 @@ using namespace OHOS::HiviewDFX;
 #define LOG_TAG "ANI_HISYSEVENT"
 
 namespace {
-constexpr int32_t CALLERINFOINE = 10;
 constexpr char CLASS_NAME_HISYSEVENTANI[] = "L@ohos/hiSysEvent/HiSysEventAni;";
 
 const std::pair<const char*, AniArgsType> OBJECT_TYPE[] = {
     {CLASS_NAME_BOOLEAN, AniArgsType::ANI_BOOLEAN},
-    {CLASS_NAME_DOUBLE, AniArgsType::ANI_NUMBER},
+    {CLASS_NAME_INT, AniArgsType::ANI_INT},
+    {CLASS_NAME_DOUBLE, AniArgsType::ANI_DOUBLE},
     {CLASS_NAME_STRING, AniArgsType::ANI_STRING},
     {CLASS_NAME_BIGINT, AniArgsType::ANI_BIGINT},
 };
@@ -70,49 +70,6 @@ static AniArgsType GetArgType(ani_env *env, ani_object elementObj)
     return AniArgsType::ANI_UNKNOWN;
 }
 
-static void AppendArray(ani_env *env, ani_ref value, AniArgsType type, ParamArray& paramArray)
-{
-    switch (type) {
-        case AniArgsType::ANI_BOOLEAN:
-            paramArray.boolArray.emplace_back(HiSysEventAniUtil::ParseBoolValue(env, value));
-            break;
-        case AniArgsType::ANI_NUMBER:
-            paramArray.numberArray.emplace_back(HiSysEventAniUtil::ParseNumberValue(env, value));
-            break;
-        case AniArgsType::ANI_STRING:
-            paramArray.stringArray.emplace_back(HiSysEventAniUtil::ParseStringValue(env, value));
-            break;
-        case AniArgsType::ANI_BIGINT:
-            paramArray.bigintArray.emplace_back(HiSysEventAniUtil::ParseBigintValue(env, value));
-            break;
-        default:
-            HILOG_ERROR(LOG_CORE, "Unexpected type");
-            break;
-    }
-}
-
-static bool AddArrayParam(AniArgsType type, const std::string& key, ParamArray& paramArray, HiSysEventInfo& info)
-{
-    switch (type) {
-        case AniArgsType::ANI_BOOLEAN:
-            info.params[key] = paramArray.boolArray;
-            break;
-        case AniArgsType::ANI_NUMBER:
-            info.params[key] = paramArray.numberArray;
-            break;
-        case AniArgsType::ANI_STRING:
-            info.params[key] = paramArray.stringArray;
-            break;
-        case AniArgsType::ANI_BIGINT:
-            info.params[key] = paramArray.bigintArray;
-            break;
-        default:
-            HILOG_ERROR(LOG_CORE, "Unexpected type");
-            return false;
-    }
-    return true;
-}
-
 static bool IsValidParamType(AniArgsType type)
 {
     return (type > static_cast<int32_t>(AniArgsType::ANI_UNKNOWN) &&
@@ -137,24 +94,46 @@ static bool AddArrayParamToEventInfo(ani_env *env, const std::string& key, ani_r
         HILOG_ERROR(LOG_CORE, "get array length failed");
         return false;
     }
-    ParamArray paramArray;
     AniArgsType arrayType = GetArrayType(env, static_cast<ani_array_ref>(arrayRef));
     if (!IsValidParamType(arrayType)) {
         return false;
     }
-    for (ani_size i = 0; i < size; i++) {
-        ani_ref valueRef {};
-        if (ANI_OK != env->Array_Get_Ref(static_cast<ani_array_ref>(arrayRef), i, &valueRef)) {
-            HILOG_ERROR(LOG_CORE, "get array %{public}zu failed", i);
-            return false;
+    switch (arrayType) {
+        case AniArgsType::ANI_BOOLEAN: {
+            std::vector<bool> bools;
+            HiSysEventAniUtil::GetBooleans(env, arrayRef, bools);
+            info.params[key] = bools;
+            break;
         }
-        if (GetArgType(env, static_cast<ani_object>(valueRef)) != arrayType) {
-            HILOG_ERROR(LOG_CORE, "element type in arrry not same");
-            return false;
+        case AniArgsType::ANI_INT: {
+            std::vector<double> doubles;
+            HiSysEventAniUtil::GetIntsToDoubles(env, arrayRef, doubles);
+            info.params[key] = doubles;
+            break;
         }
-        AppendArray(env, valueRef, arrayType, paramArray);
+        case AniArgsType::ANI_DOUBLE: {
+            std::vector<double> doubles;
+            HiSysEventAniUtil::GetDoubles(env, arrayRef, doubles);
+            info.params[key] = doubles;
+            break;
+        }
+        case AniArgsType::ANI_STRING: {
+            std::vector<std::string> strs;
+            HiSysEventAniUtil::GetStrings(env, arrayRef, strs);
+            info.params[key] = strs;
+            break;
+        }
+        case AniArgsType::ANI_BIGINT:{
+            std::vector<int64_t> bigints;
+            HiSysEventAniUtil::GetBigints(env, arrayRef, bigints);
+            info.params[key] = bigints;
+            break;
+        }
+        default:
+            HILOG_ERROR(LOG_CORE, "Unexpected type");
+            return false;
     }
-    return AddArrayParam(arrayType, key, paramArray, info);
+    return true;
 }
 
 static bool AddParamToEventInfo(ani_env *env, const std::string& key, ani_ref value, HiSysEventInfo& info)
@@ -167,7 +146,10 @@ static bool AddParamToEventInfo(ani_env *env, const std::string& key, ani_ref va
         case AniArgsType::ANI_BOOLEAN:
             info.params[key] = HiSysEventAniUtil::ParseBoolValue(env, value);
             break;
-        case AniArgsType::ANI_NUMBER:
+        case AniArgsType::ANI_INT:
+            info.params[key] = static_cast<double>(HiSysEventAniUtil::ParseIntValue(env, value));
+            break;
+        case AniArgsType::ANI_DOUBLE:
             info.params[key] = HiSysEventAniUtil::ParseNumberValue(env, value);
             break;
         case AniArgsType::ANI_STRING:
@@ -266,9 +248,109 @@ static void CheckThenWriteSysEvent(HiSysEventInfo iptEventInfo, JsCallerInfo ipt
         eventInfo.name.c_str(), info);
 }
 
-int32_t HiSysEventAni::WriteInner(const HiSysEventInfo &eventInfo)
+static void Split(const std::string& origin, char delimiter, std::vector<std::string>& ret)
 {
-    JsCallerInfo jsCallerInfo("NotFoundCallerInfo", CALLERINFOINE);
+    std::string::size_type start = 0;
+    std::string::size_type end = origin.find(delimiter);
+    while (end != std::string::npos) {
+        if (end == start) {
+            start++;
+            end = origin.find(delimiter, start);
+            continue;
+        }
+        ret.emplace_back(origin.substr(start, end - start));
+        start = end + 1;
+        end = origin.find(delimiter, start);
+    }
+    if (start != origin.length()) {
+        ret.emplace_back(origin.substr(start));
+    }
+}
+
+static void ParseCallerInfoFromStackTrace(const std::string& stackTrace, JsCallerInfo& callerInfo)
+{
+    if (stackTrace.empty()) {
+        HILOG_ERROR(LOG_CORE, "js stack trace is invalid.");
+        return;
+    }
+    std::vector<std::string> callInfos;
+    Split(stackTrace, CALL_FUNC_INFO_DELIMITER, callInfos);
+    if (callInfos.size() <= FUNC_NAME_INDEX) {
+        HILOG_ERROR(LOG_CORE, "js function name parsed failed.");
+        return;
+    }
+    callerInfo.first = callInfos[FUNC_NAME_INDEX];
+    if (callInfos.size() <= LINE_INFO_INDEX) {
+        HILOG_ERROR(LOG_CORE, "js function line info parsed failed.");
+        return;
+    }
+    std::string callInfo = callInfos[LINE_INFO_INDEX];
+    std::vector<std::string> lineInfos;
+    Split(callInfo, CALL_LINE_INFO_DELIMITER, lineInfos);
+    if (lineInfos.size() <= LINE_INDEX) {
+        HILOG_ERROR(LOG_CORE, "js function line number parsed failed.");
+        return;
+    }
+    if (callerInfo.first == "anonymous") {
+        auto fileName = lineInfos[LINE_INDEX - 1];
+        auto pos = fileName.find_last_of(PATH_DELIMITER);
+        callerInfo.first = (pos == std::string::npos) ? fileName : fileName.substr(++pos);
+    }
+    auto lineInfo = lineInfos[LINE_INDEX];
+    if (std::any_of(lineInfo.begin(), lineInfo.end(), [] (auto& c) {
+        return !isdigit(c);
+    })) {
+        callerInfo.second = DEFAULT_LINE_NUM;
+        return;
+    }
+    callerInfo.second = static_cast<int64_t>(std::stoll(lineInfos[LINE_INDEX]));
+}
+
+static void GetStack(ani_env *env, std::string &stackTrace)
+{
+    ani_class stackTraceCls;
+    ani_status status = env->FindClass(CLASS_NAME_STACKTRACE, &stackTraceCls);
+    if (ANI_OK != status) {
+        HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_STACKTRACE);
+    }
+    ani_ref stackTraceElementArray;
+    status = env->Class_CallStaticMethodByName_Ref(stackTraceCls, "provisionStackTrace", nullptr,
+        &stackTraceElementArray);
+    if (ANI_OK != status) {
+        HILOG_ERROR(LOG_CORE, "call method provisionStackTrace failed");
+    }
+    ani_size length = 0;
+    status = env->Array_GetLength(static_cast<ani_array>(stackTraceElementArray), &length);
+    if (ANI_OK != status) {
+        HILOG_ERROR(LOG_CORE, "get length failed");
+    }
+    for (ani_size i = 0; i < length; i++) {
+        ani_ref stackTraceElementRef = nullptr;
+        status = env->Array_Get_Ref(static_cast<ani_array_ref>(stackTraceElementArray), i, &stackTraceElementRef);
+        if (ANI_OK != status) {
+            HILOG_ERROR(LOG_CORE, "get %{public}zu item from array failed", i);
+        }
+        ani_ref stackTraceStr;
+        status = env->Object_CallMethodByName_Ref(static_cast<ani_object>(stackTraceElementRef), "toString", nullptr,
+            &stackTraceStr);
+        if (ANI_OK != status) {
+            HILOG_ERROR(LOG_CORE, "call method toString failed");
+        }
+        stackTrace = HiSysEventAniUtil::ParseStringValue(env, stackTraceStr);
+    }
+}
+
+static void ParseCallerInfo(ani_env *env, JsCallerInfo& callerInfo)
+{
+    std::string stackTrace;
+    GetStack(env, stackTrace);
+    ParseCallerInfoFromStackTrace(stackTrace, callerInfo);
+}
+
+int32_t HiSysEventAni::WriteInner(ani_env *env, const HiSysEventInfo &eventInfo)
+{
+    JsCallerInfo jsCallerInfo;
+    ParseCallerInfo(env, jsCallerInfo);
     uint64_t timeStamp = WriteController::GetCurrentTimeMills();
     CheckThenWriteSysEvent(eventInfo, jsCallerInfo, timeStamp);
     if (!StringFilter::GetInstance().IsValidName(eventInfo.domain, MAX_DOMAIN_LENGTH)) {
@@ -302,7 +384,7 @@ ani_object HiSysEventAni::Write(ani_env *env, [[maybe_unused]] ani_object object
     HiSysEventInfo eventInfo;
     ParseSysEventInfo(env, info, eventInfo);
 
-    int32_t eventWroteResult =  HiSysEventAni::WriteInner(eventInfo);
+    int32_t eventWroteResult =  HiSysEventAni::WriteInner(env, eventInfo);
     return HiSysEventAniUtil::WriteResult(env, HiSysEventAniUtil::GetErrorDetailByRet(eventWroteResult));
 }
 

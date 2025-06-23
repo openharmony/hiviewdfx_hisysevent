@@ -19,8 +19,7 @@ class SysEventInfoAni implements hiSysEvent.SysEventInfo {
     domain: string = "";
     name: string = "";
     eventType: hiSysEvent.EventType = hiSysEvent.EventType.FAULT;
-    params?:
-        undefined | Record<string, number | string | boolean | bigint | (number | string | boolean | bigint)[]>;
+    params?: object;
 }
 
 class HiSysEventAni {
@@ -50,7 +49,7 @@ export default namespace hiSysEvent {
         domain: string;
         name: string;
         eventType: EventType;
-        params?: Record<string, number | string | boolean | bigint | (number | string | boolean | bigint)[]>;
+        params?: object;
      }
 
     export function write(info: SysEventInfo, callback: AsyncCallback<void>): void {
