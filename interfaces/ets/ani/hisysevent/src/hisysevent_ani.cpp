@@ -58,7 +58,8 @@ constexpr char CALL_LINE_INFO_DELIMITER = ':';
 constexpr char PATH_DELIMITER = '/';
 const std::pair<const char*, AniArgsType> OBJECT_TYPE[] = {
     {CLASS_NAME_BOOLEAN, AniArgsType::ANI_BOOLEAN},
-    {CLASS_NAME_DOUBLE, AniArgsType::ANI_NUMBER},
+    {CLASS_NAME_INT, AniArgsType::ANI_INT},
+    {CLASS_NAME_DOUBLE, AniArgsType::ANI_DOUBLE},
     {CLASS_NAME_STRING, AniArgsType::ANI_STRING},
     {CLASS_NAME_BIGINT, AniArgsType::ANI_BIGINT},
 };
@@ -86,49 +87,6 @@ static AniArgsType GetArgType(ani_env *env, ani_object elementObj)
     return AniArgsType::ANI_UNKNOWN;
 }
 
-static void AppendArray(ani_env *env, ani_ref value, AniArgsType type, ParamArray& paramArray)
-{
-    switch (type) {
-        case AniArgsType::ANI_BOOLEAN:
-            paramArray.boolArray.emplace_back(HiSysEventAniUtil::ParseBoolValue(env, value));
-            break;
-        case AniArgsType::ANI_NUMBER:
-            paramArray.numberArray.emplace_back(HiSysEventAniUtil::ParseNumberValue(env, value));
-            break;
-        case AniArgsType::ANI_STRING:
-            paramArray.stringArray.emplace_back(HiSysEventAniUtil::ParseStringValue(env, value));
-            break;
-        case AniArgsType::ANI_BIGINT:
-            paramArray.bigintArray.emplace_back(HiSysEventAniUtil::ParseBigintValue(env, value));
-            break;
-        default:
-            HILOG_ERROR(LOG_CORE, "Unexpected type");
-            break;
-    }
-}
-
-static bool AddArrayParam(AniArgsType type, const std::string& key, ParamArray& paramArray, HiSysEventInfo& info)
-{
-    switch (type) {
-        case AniArgsType::ANI_BOOLEAN:
-            info.params[key] = paramArray.boolArray;
-            break;
-        case AniArgsType::ANI_NUMBER:
-            info.params[key] = paramArray.numberArray;
-            break;
-        case AniArgsType::ANI_STRING:
-            info.params[key] = paramArray.stringArray;
-            break;
-        case AniArgsType::ANI_BIGINT:
-            info.params[key] = paramArray.bigintArray;
-            break;
-        default:
-            HILOG_ERROR(LOG_CORE, "Unexpected type");
-            return false;
-    }
-    return true;
-}
-
 static bool IsValidParamType(AniArgsType type)
 {
     return (type > static_cast<int32_t>(AniArgsType::ANI_UNKNOWN) &&
@@ -153,24 +111,46 @@ static bool AddArrayParamToEventInfo(ani_env *env, const std::string& key, ani_r
         HILOG_ERROR(LOG_CORE, "get array length failed");
         return false;
     }
-    ParamArray paramArray;
     AniArgsType arrayType = GetArrayType(env, static_cast<ani_array_ref>(arrayRef));
     if (!IsValidParamType(arrayType)) {
         return false;
     }
-    for (ani_size i = 0; i < size; i++) {
-        ani_ref valueRef {};
-        if (ANI_OK != env->Array_Get_Ref(static_cast<ani_array_ref>(arrayRef), i, &valueRef)) {
-            HILOG_ERROR(LOG_CORE, "get array %{public}zu failed", i);
-            return false;
+    switch (arrayType) {
+        case AniArgsType::ANI_BOOLEAN: {
+            std::vector<bool> bools;
+            HiSysEventAniUtil::GetBooleans(env, arrayRef, bools);
+            info.params[key] = bools;
+            break;
         }
-        if (GetArgType(env, static_cast<ani_object>(valueRef)) != arrayType) {
-            HILOG_ERROR(LOG_CORE, "element type in arrry not same");
-            return false;
+        case AniArgsType::ANI_INT: {
+            std::vector<double> doubles;
+            HiSysEventAniUtil::GetIntsToDoubles(env, arrayRef, doubles);
+            info.params[key] = doubles;
+            break;
         }
-        AppendArray(env, valueRef, arrayType, paramArray);
+        case AniArgsType::ANI_DOUBLE: {
+            std::vector<double> doubles;
+            HiSysEventAniUtil::GetDoubles(env, arrayRef, doubles);
+            info.params[key] = doubles;
+            break;
+        }
+        case AniArgsType::ANI_STRING: {
+            std::vector<std::string> strs;
+            HiSysEventAniUtil::GetStrings(env, arrayRef, strs);
+            info.params[key] = strs;
+            break;
+        }
+        case AniArgsType::ANI_BIGINT:{
+            std::vector<int64_t> bigints;
+            HiSysEventAniUtil::GetBigints(env, arrayRef, bigints);
+            info.params[key] = bigints;
+            break;
+        }
+        default:
+            HILOG_ERROR(LOG_CORE, "Unexpected type");
+            return false;
     }
-    return AddArrayParam(arrayType, key, paramArray, info);
+    return true;
 }
 
 static bool AddParamToEventInfo(ani_env *env, const std::string& key, ani_ref value, HiSysEventInfo& info)
@@ -183,7 +163,10 @@ static bool AddParamToEventInfo(ani_env *env, const std::string& key, ani_ref va
         case AniArgsType::ANI_BOOLEAN:
             info.params[key] = HiSysEventAniUtil::ParseBoolValue(env, value);
             break;
-        case AniArgsType::ANI_NUMBER:
+        case AniArgsType::ANI_INT:
+            info.params[key] = static_cast<double>(HiSysEventAniUtil::ParseIntValue(env, value));
+            break;
+        case AniArgsType::ANI_DOUBLE:
             info.params[key] = HiSysEventAniUtil::ParseNumberValue(env, value);
             break;
         case AniArgsType::ANI_STRING:
