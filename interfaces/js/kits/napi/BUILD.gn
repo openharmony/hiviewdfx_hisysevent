@@ -38,10 +38,10 @@ ohos_shared_library("hisysevent_napi") {
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
-    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
+    "jsoncpp:jsoncpp",
     "napi:ace_napi",
   ]
 

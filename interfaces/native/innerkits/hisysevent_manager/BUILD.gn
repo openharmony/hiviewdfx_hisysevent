@@ -63,10 +63,10 @@ ohos_shared_library("libhisyseventmanager") {
 
   external_deps = [
     "bounds_checking_function:libsec_shared",
-    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
+    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
   ]
 }
@@ -101,10 +101,10 @@ ohos_static_library("hisyseventmanager_static_lib_for_tdd") {
   ]
 
   external_deps = [
-    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
+    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
   ]
 }
