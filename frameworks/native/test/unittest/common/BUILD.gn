@@ -54,10 +54,10 @@ ohos_unittest("HiSysEventToolUnitTest") {
   ]
 
   external_deps = [
-    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
+    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
   ]
 }
@@ -78,10 +78,10 @@ ohos_unittest("HiSysEventCWrapperTest") {
   ]
 
   external_deps = [
-    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
+    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
   ]
 }

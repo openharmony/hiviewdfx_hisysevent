@@ -19,10 +19,10 @@
 #include <tuple>
 #include <variant>
 
-#include "cJSON.h"
 #include "def.h"
 #include "hilog/log.h"
 #include "ipc_skeleton.h"
+#include "json/json.h"
 #include "ret_code.h"
 #include "ret_def.h"
 #include "stringfilter.h"
@@ -638,21 +638,15 @@ std::string TranslateKeyToAttrName(const std::string& key)
     return "";
 }
 
-void AppendBaseInfo(const napi_env env, napi_value& sysEventInfo, const std::string& key, cJSON* jsonVal)
+void AppendBaseInfo(const napi_env env, napi_value& sysEventInfo, const std::string& key, Json::Value& value)
 {
-    if (jsonVal == nullptr) {
-        HILOG_WARN(LOG_CORE, "try to add invalid value for key %{public}s to base info", key.c_str());
-        return;
-    }
-    if ((key == DOMAIN__KEY || key == NAME__KEY) && cJSON_IsString(jsonVal)) {
+    if ((key == DOMAIN__KEY || key == NAME__KEY) && value.isString()) {
         NapiHiSysEventUtil::AppendStringPropertyToJsObject(env, TranslateKeyToAttrName(key),
-            std::string(cJSON_GetStringValue(jsonVal)), sysEventInfo);
+            value.asString(), sysEventInfo);
     }
-    if (key == TYPE__KEY && cJSON_IsNumber(jsonVal) &&
-        (cJSON_GetNumberValue(jsonVal) <= std::numeric_limits<int32_t>::max()) &&
-        (cJSON_GetNumberValue(jsonVal) >= std::numeric_limits<int32_t>::lowest())) {
+    if (key == TYPE__KEY && value.isInt()) {
         NapiHiSysEventUtil::AppendInt32PropertyToJsObject(env, TranslateKeyToAttrName(key),
-            static_cast<int32_t>(cJSON_GetNumberValue(jsonVal)), sysEventInfo);
+            static_cast<int32_t>(value.asInt()), sysEventInfo);
     }
 }
 
@@ -672,50 +666,72 @@ void CreateDoubleValue(const napi_env env, double value, napi_value& val)
     }
 }
 
-bool CreateParamItemTypeValue(const napi_env env, cJSON* jsonVal, napi_value& value)
+void CreateUint32Value(const napi_env env, uint32_t value, napi_value& val)
 {
-    if (cJSON_IsInvalid(jsonVal)) {
-        return false;
+    napi_status status = napi_create_uint32(env, value, &val);
+    if (status != napi_ok) {
+        HILOG_ERROR(LOG_CORE, "failed to get create napi value of uint32 type.");
     }
-    if (cJSON_IsString(jsonVal)) {
-        NapiHiSysEventUtil::CreateStringValue(env, std::string(cJSON_GetStringValue(jsonVal)), value);
-        return true;
-    }
+}
 
-    if (cJSON_IsBool(jsonVal)) {
-        CreateBoolValue(env, cJSON_IsTrue(jsonVal), value);
+bool CreateParamItemTypeValue(const napi_env env, Json::Value& jsonValue, napi_value& value)
+{
+    if (jsonValue.isBool()) {
+        CreateBoolValue(env, jsonValue.asBool(), value);
         return true;
     }
-    if (cJSON_IsNumber(jsonVal)) {
-        CreateDoubleValue(env, cJSON_GetNumberValue(jsonVal), value);
+    if (jsonValue.isInt()) {
+        NapiHiSysEventUtil::CreateInt32Value(env, static_cast<int32_t>(jsonValue.asInt()), value);
+        return true;
+    }
+    if (jsonValue.isUInt()) {
+        CreateUint32Value(env, static_cast<uint32_t>(jsonValue.asUInt()), value);
+        return true;
+    }
+#ifdef JSON_HAS_INT64
+    if (jsonValue.isInt64() && jsonValue.type() != Json::ValueType::uintValue) {
+        NapiHiSysEventUtil::CreateInt64Value(env, jsonValue.asInt64(), value);
+        return true;
+    }
+    if (jsonValue.isUInt64() && jsonValue.type() != Json::ValueType::intValue) {
+        NapiHiSysEventUtil::CreateUInt64Value(env, jsonValue.asUInt64(), value);
+        return true;
+    }
+#endif
+    if (jsonValue.isDouble()) {
+        CreateDoubleValue(env, jsonValue.asDouble(), value);
+        return true;
+    }
+    if (jsonValue.isString()) {
+        NapiHiSysEventUtil::CreateStringValue(env, jsonValue.asString(), value);
         return true;
     }
     return false;
 }
 
-void AppendArrayParams(const napi_env env, napi_value& params, const std::string& key, cJSON* jsonVal)
+void AppendArrayParams(const napi_env env, napi_value& params, const std::string& key, Json::Value& value)
 {
-    size_t arraySize = static_cast<size_t>(cJSON_GetArraySize(jsonVal));
+    size_t len = value.size();
     napi_value array = nullptr;
-    napi_create_array_with_length(env, arraySize, &array);
-    for (size_t index = 0; index < arraySize; ++index) {
+    napi_create_array_with_length(env, len, &array);
+    for (size_t i = 0; i < len; i++) {
         napi_value item;
-        if (!CreateParamItemTypeValue(env, cJSON_GetArrayItem(jsonVal, index), item)) {
+        if (!CreateParamItemTypeValue(env, value[static_cast<int>(i)], item)) {
             continue;
         }
-        napi_set_element(env, array, index, item);
+        napi_set_element(env, array, i, item);
     }
     SetNamedProperty(env, params, key, array);
 }
 
-void AppendParamsInfo(const napi_env env, napi_value& params, const std::string& key, cJSON* jsonVal)
+void AppendParamsInfo(const napi_env env, napi_value& params, const std::string& key, Json::Value& jsonValue)
 {
-    if (cJSON_IsArray(jsonVal)) {
-        AppendArrayParams(env, params, key, jsonVal);
+    if (jsonValue.isArray()) {
+        AppendArrayParams(env, params, key, jsonValue);
         return;
     }
     napi_value property = nullptr;
-    if (!CreateParamItemTypeValue(env, jsonVal, property)) {
+    if (!CreateParamItemTypeValue(env, jsonValue, property)) {
         return;
     }
     SetNamedProperty(env, params, key, property);
@@ -772,34 +788,38 @@ bool NapiHiSysEventUtil::HasStrParamLenOverLimit(HiSysEventInfo& info)
 void NapiHiSysEventUtil::CreateHiSysEventInfoJsObject(const napi_env env, const std::string& jsonStr,
     napi_value& sysEventInfo)
 {
-    cJSON* jsonObj = cJSON_Parse(jsonStr.c_str());
-    if (jsonObj == nullptr) {
+    Json::Value eventJson;
+#ifdef JSONCPP_VERSION_STRING
+    Json::CharReaderBuilder jsonRBuilder;
+    Json::CharReaderBuilder::strictMode(&jsonRBuilder.settings_);
+    std::unique_ptr<Json::CharReader> const reader(jsonRBuilder.newCharReader());
+    JSONCPP_STRING errs;
+    if (!reader->parse(jsonStr.data(), jsonStr.data() + jsonStr.size(), &eventJson, &errs)) {
+#else
+    Json::Reader reader(Json::Features::strictMode());
+    if (!reader.parse(jsonStr, eventJson)) {
+#endif
+        HILOG_ERROR(LOG_CORE, "parse event detail info failed, please check the style of json infomation: %{public}s",
+            jsonStr.c_str());
         return;
     }
-    if (!cJSON_IsObject(jsonObj)) {
-        cJSON_Delete(jsonObj);
+    if (!eventJson.isObject()) {
+        HILOG_ERROR(LOG_CORE, "event json parsed isn't a json object");
         return;
     }
-
     napi_create_object(env, &sysEventInfo);
     napi_value params = nullptr;
     napi_create_object(env, &params);
-
-    cJSON* item = nullptr;
-    cJSON_ArrayForEach(item, jsonObj) {
-        if (item == nullptr) {
-            continue;
-        }
-        std::string propertyName(item->string);
+    auto eventNameList = eventJson.getMemberNames();
+    for (auto it = eventNameList.cbegin(); it != eventNameList.cend(); it++) {
+        auto propertyName = *it;
         if (IsBaseInfoKey(propertyName)) {
-            AppendBaseInfo(env, sysEventInfo, propertyName, item);
+            AppendBaseInfo(env, sysEventInfo, propertyName, eventJson[propertyName]);
         } else {
-            AppendParamsInfo(env, params, propertyName, item);
+            AppendParamsInfo(env, params, propertyName, eventJson[propertyName]);
         }
     }
     SetNamedProperty(env, sysEventInfo, PARAMS_ATTR, params);
-
-    cJSON_Delete(jsonObj);
 }
 
 void NapiHiSysEventUtil::CreateJsSysEventInfoArray(const napi_env env, const std::vector<std::string>& originValues,
