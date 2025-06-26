@@ -55,11 +55,11 @@ public:
     static std::map<std::string, ani_ref> ParseRecord(ani_env *env, ani_ref recordRef);
     static std::string ParseStringValue(ani_env *env, ani_ref aniStrRef);
     static int ParseIntValue(ani_env *env, ani_ref elementRef);
-    static void GetBooleans(ani_env *env, ani_ref arrayRef, std::vector<bool> &bools);
-    static void GetDoubles(ani_env *env, ani_ref arrayRef, std::vector<double> &doubles);
-    static void GetIntsToDoubles(ani_env *env, ani_ref arrayRef, std::vector<double> &doubles);
-    static void GetStrings(ani_env *env, ani_ref arrayRef, std::vector<std::string> &strs);
-    static void GetBigints(ani_env *env, ani_ref arrayRef, std::vector<int64_t> &bigints);
+    static bool GetBooleans(ani_env *env, ani_ref arrayRef, std::vector<bool>& bools);
+    static bool GetDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles);
+    static bool GetIntsToDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles);
+    static bool GetStrings(ani_env *env, ani_ref arrayRef, std::vector<std::string>& strs);
+    static bool GetBigints(ani_env *env, ani_ref arrayRef, std::vector<int64_t>& bigints);
     static std::pair<int32_t, std::string> GetErrorDetailByRet(const int32_t retCode);
     static ani_object WriteResult(ani_env *env, std::pair<int32_t, std::string> result);
 };
