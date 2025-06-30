@@ -78,7 +78,7 @@ static int InitEventHeader(struct HiSysEventEasyHeader* header, const char* doma
         return ERR_MEM_OPT_FAILED;
     }
     header->type = eventType - 1; // only 2 bits to store event type
-    header->timestamp = GetTimestamp();
+    header->timestamp = (uint64_t)GetTimestamp();
     header->timeZone = ParseTimeZone(timezone);
     header->pid = (uint32_t)getpid();
     header->tid = (uint32_t)gettid();
