@@ -104,53 +104,64 @@ static AniArgsType GetArrayType(ani_env *env, ani_array arrayRef)
     return GetArgType(env, static_cast<ani_object>(valueRef));
 }
 
-static bool AddArrayParamToEventInfo(ani_env *env, const std::string& key, ani_ref arrayRef, HiSysEventInfo& info)
+static bool AddArrayParamToEventInfoExec(ani_env *env, const std::string& key, ani_ref arrayRef,
+    AniArgsType arrayType, HiSysEventInfo& info)
 {
-    ani_size size = 0;
-    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &size)) {
-        HILOG_ERROR(LOG_CORE, "get array length failed");
-        return false;
-    }
-    AniArgsType arrayType = GetArrayType(env, static_cast<ani_array>(arrayRef));
-    if (!IsValidParamType(arrayType)) {
-        return false;
-    }
     switch (arrayType) {
         case AniArgsType::ANI_BOOLEAN: {
             std::vector<bool> bools;
-            HiSysEventAniUtil::GetBooleans(env, arrayRef, bools);
-            info.params[key] = bools;
+            if (HiSysEventAniUtil::GetBooleans(env, arrayRef, bools)) {
+                info.params[key] = bools;
+                return true;
+            }
             break;
         }
         case AniArgsType::ANI_INT: {
             std::vector<double> doubles;
-            HiSysEventAniUtil::GetIntsToDoubles(env, arrayRef, doubles);
-            info.params[key] = doubles;
+            if (HiSysEventAniUtil::GetIntsToDoubles(env, arrayRef, doubles)) {
+                info.params[key] = doubles;
+                return true;
+            }
             break;
         }
         case AniArgsType::ANI_DOUBLE: {
             std::vector<double> doubles;
-            HiSysEventAniUtil::GetDoubles(env, arrayRef, doubles);
-            info.params[key] = doubles;
+            if (HiSysEventAniUtil::GetDoubles(env, arrayRef, doubles)) {
+                info.params[key] = doubles;
+                return true;
+            }
             break;
         }
         case AniArgsType::ANI_STRING: {
             std::vector<std::string> strs;
-            HiSysEventAniUtil::GetStrings(env, arrayRef, strs);
-            info.params[key] = strs;
+            if (HiSysEventAniUtil::GetStrings(env, arrayRef, strs)) {
+                info.params[key] = strs;
+                return true;
+            }
             break;
         }
         case AniArgsType::ANI_BIGINT:{
             std::vector<int64_t> bigints;
-            HiSysEventAniUtil::GetBigints(env, arrayRef, bigints);
-            info.params[key] = bigints;
+            if (HiSysEventAniUtil::GetBigints(env, arrayRef, bigints)) {
+                info.params[key] = bigints;
+                return true;
+            }
             break;
         }
         default:
             HILOG_ERROR(LOG_CORE, "Unexpected type");
             return false;
     }
-    return true;
+    return false;
+}
+
+static bool AddArrayParamToEventInfo(ani_env *env, const std::string& key, ani_ref arrayRef, HiSysEventInfo& info)
+{
+    AniArgsType arrayType = GetArrayType(env, static_cast<ani_array>(arrayRef));
+    if (!IsValidParamType(arrayType)) {
+        return false;
+    }
+    return AddArrayParamToEventInfoExec(env, key, arrayRef, arrayType, info);
 }
 
 static bool AddParamToEventInfo(ani_env *env, const std::string& key, ani_ref value, HiSysEventInfo& info)

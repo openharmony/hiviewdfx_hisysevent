@@ -135,18 +135,18 @@ int HiSysEventAniUtil::ParseIntValue(ani_env *env, ani_ref elementRef)
     ani_class cls {};
     if (ANI_OK != env->FindClass(CLASS_NAME_INT, &cls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_INT);
-        return static_cast<double>(intVal);
+        return static_cast<int>(intVal);
     }
     ani_method unboxedMethod {};
     if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_UNBOXED, ":I", &unboxedMethod)) {
         HILOG_ERROR(LOG_CORE, "find method %{public}s failed", FUNC_NAME_UNBOXED);
-        return static_cast<double>(intVal);
+        return static_cast<int>(intVal);
     }
     if (ANI_OK != env->Object_CallMethod_Int(static_cast<ani_object>(elementRef), unboxedMethod, &intVal)) {
         HILOG_ERROR(LOG_CORE, "call method %{public}s failed", FUNC_NAME_UNBOXED);
-        return static_cast<double>(intVal);
+        return static_cast<int>(intVal);
     }
-    return static_cast<double>(intVal);
+    return static_cast<int>(intVal);
 }
 
 double HiSysEventAniUtil::ParseNumberValue(ani_env *env, ani_ref elementRef)
@@ -786,87 +786,92 @@ void HiSysEventAniUtil::DetachAniEnv(ani_vm *vm)
     }
 }
 
-void HiSysEventAniUtil::GetBooleans(ani_env *env, ani_ref arrayRef, std::vector<bool>& bools)
+bool HiSysEventAniUtil::GetBooleans(ani_env *env, ani_ref arrayRef, std::vector<bool>& bools)
 {
     ani_size len = 0;
     if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
-        return;
+        return false;
     }
     for (ani_size i = 0; i < len; i++) {
         ani_ref element = nullptr;
         if (ANI_OK != env->Array_Get(static_cast<ani_array>(arrayRef), i, &element)) {
             HILOG_ERROR(LOG_CORE, "failed to get the element of array");
-            return;
+            return false;
         }
         bools.emplace_back(HiSysEventAniUtil::ParseBoolValue(env, element));
     }
+    return true;
 }
 
-void HiSysEventAniUtil::GetDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles)
+bool HiSysEventAniUtil::GetDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles)
 {
     ani_size len = 0;
     if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
-        return;
+        return false;
     }
     for (ani_size i = 0; i < len; i++) {
         ani_ref element = nullptr;
         if (ANI_OK != env->Array_Get(static_cast<ani_array>(arrayRef), i, &element)) {
             HILOG_ERROR(LOG_CORE, "failed to get the element of array");
-            return;
+            return false;
         }
         doubles.push_back(HiSysEventAniUtil::ParseNumberValue(env, element));
     }
+    return true;
 }
 
-void HiSysEventAniUtil::GetStrings(ani_env *env, ani_ref arrayRef, std::vector<std::string>& strs)
+bool HiSysEventAniUtil::GetStrings(ani_env *env, ani_ref arrayRef, std::vector<std::string>& strs)
 {
     ani_size len = 0;
     if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
-        return;
+        return false;
     }
     for (ani_size i = 0; i < len; i++) {
         ani_ref element = nullptr;
         if (ANI_OK != env->Array_Get(static_cast<ani_array>(arrayRef), i, &element)) {
             HILOG_ERROR(LOG_CORE, "failed to get the element of array");
-            return;
+            return false;
         }
         strs.push_back(HiSysEventAniUtil::ParseStringValue(env, element));
     }
+    return true;
 }
 
-void HiSysEventAniUtil::GetIntsToDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles)
+bool HiSysEventAniUtil::GetIntsToDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles)
 {
     ani_size len = 0;
     if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
-        return;
+        return false;
     }
     for (ani_size i = 0; i < len; i++) {
         ani_ref element = nullptr;
         if (ANI_OK != env->Array_Get(static_cast<ani_array>(arrayRef), i, &element)) {
             HILOG_ERROR(LOG_CORE, "failed to get the element of array");
-            return;
+            return false;
         }
         doubles.push_back(static_cast<double>(HiSysEventAniUtil::ParseIntValue(env, element)));
     }
+    return true;
 }
 
-void HiSysEventAniUtil::GetBigints(ani_env *env, ani_ref arrayRef, std::vector<int64_t>& bigints)
+bool HiSysEventAniUtil::GetBigints(ani_env *env, ani_ref arrayRef, std::vector<int64_t>& bigints)
 {
     ani_size len = 0;
     if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
-        return;
+        return false;
     }
     for (ani_size i = 0; i < len; i++) {
         ani_ref element = nullptr;
         if (ANI_OK != env->Array_Get(static_cast<ani_array>(arrayRef), i, &element)) {
             HILOG_ERROR(LOG_CORE, "failed to get the element of array");
-            return;
+        return false;
         }
         bigints.push_back(HiSysEventAniUtil::ParseBigintValue(env, element));
     }
+    return true;
 }
