@@ -35,22 +35,16 @@ using HiSysEventInfo = struct HiSysEventInfo {
 };
 using JsCallerInfo = std::pair<std::string, int64_t>;
 
-struct ParamArray {
-    std::vector<bool> boolArray;
-    std::vector<double> numberArray;
-    std::vector<std::string> stringArray;
-    std::vector<int64_t> bigintArray;
-};
-
 enum ParamType { BL = 0, DOU, I64, U64, STR, BOOL_ARR, DOUBLE_ARR, I64_ARR, U64_ARR, STR_ARR };
 
 enum AniArgsType {
     ANI_UNKNOWN = 0,
     ANI_BOOLEAN = 1,
-    ANI_NUMBER = 2,
-    ANI_STRING = 3,
-    ANI_BIGINT = 4,
-    ANI_UNDEFINED = 5,
+    ANI_INT = 2,
+    ANI_DOUBLE = 3,
+    ANI_STRING = 4,
+    ANI_BIGINT = 5,
+    ANI_UNDEFINED = 6,
 };
 
 class HiSysEventAni {
