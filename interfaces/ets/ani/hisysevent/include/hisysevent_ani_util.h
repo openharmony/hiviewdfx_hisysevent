@@ -76,6 +76,12 @@ public:
     static double ParseNumberValue(ani_env *env, ani_ref elementRef);
     static std::map<std::string, ani_ref> ParseRecord(ani_env *env, ani_ref recordRef);
     static std::string ParseStringValue(ani_env *env, ani_ref aniStrRef);
+    static int ParseIntValue(ani_env *env, ani_ref elementRef);
+    static bool GetBooleans(ani_env *env, ani_ref arrayRef, std::vector<bool>& bools);
+    static bool GetDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles);
+    static bool GetIntsToDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles);
+    static bool GetStrings(ani_env *env, ani_ref arrayRef, std::vector<std::string>& strs);
+    static bool GetBigints(ani_env *env, ani_ref arrayRef, std::vector<int64_t>& bigints);
     static ani_object WriteResult(ani_env *env, const std::pair<int32_t, std::string>& result);
     static ani_object CreateDoubleUint64(ani_env *env, uint64_t number);
     static ani_object CreateDoubleInt64(ani_env *env, int64_t number);
