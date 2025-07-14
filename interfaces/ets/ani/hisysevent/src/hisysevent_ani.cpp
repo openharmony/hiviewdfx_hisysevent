@@ -17,28 +17,45 @@
 #include <iostream>
 
 #include "hisysevent_ani.h"
-
+#include "ani_hisysevent_querier.h"
+#include "ani_hisysevent_listener.h"
+#include "ani_callback_context.h"
+#include "def.h"
+#include "hisysevent_base_manager.h"
+#include "hisysevent_rules.h"
 #include "hilog/log.h"
 #include "hilog/log_cpp.h"
 #include "hisysevent_ani_util.h"
-#include "write_controller.h"
-#include "stringfilter.h"
 #include "hisysevent.h"
 #include "ret_code.h"
 #include "ret_def.h"
+#include "rule_type.h"
 #include "write_controller.h"
+#include "stringfilter.h"
 
 using namespace OHOS::HiviewDFX;
-
 #undef LOG_DOMAIN
 #define LOG_DOMAIN 0xD002D08
 
 #undef LOG_TAG
 #define LOG_TAG "ANI_HISYSEVENT"
-
 namespace {
-constexpr char CLASS_NAME_HISYSEVENTANI[] = "L@ohos/hiSysEvent/HiSysEventAni;";
-
+using ANI_LISTENER_PAIR = std::pair<pid_t, std::shared_ptr<AniHiSysEventListener>>;
+using ANI_QUERIER_PAIR = std::pair<pid_t, std::shared_ptr<AniHiSysEventQuerier>>;
+constexpr long long DEFAULT_TIME_STAMP = -1;
+constexpr int DEFAULT_EVENT_COUNT = 1000;
+constexpr int TIME_STAMP_LENGTH = 13;
+std::mutex g_listenerMapMutex;
+std::unordered_map<ani_ref, ANI_LISTENER_PAIR> listeners;
+std::mutex g_querierMapMutex;
+std::unordered_map<ani_ref, ANI_QUERIER_PAIR> queriers;
+constexpr int64_t DEFAULT_LINE_NUM = -1;
+constexpr int FUNC_NAME_INDEX = 1;
+constexpr int LINE_INFO_INDEX = 2;
+constexpr int LINE_INDEX = 1;
+constexpr char CALL_FUNC_INFO_DELIMITER = ' ';
+constexpr char CALL_LINE_INFO_DELIMITER = ':';
+constexpr char PATH_DELIMITER = '/';
 const std::pair<const char*, AniArgsType> OBJECT_TYPE[] = {
     {CLASS_NAME_BOOLEAN, AniArgsType::ANI_BOOLEAN},
     {CLASS_NAME_INT, AniArgsType::ANI_INT},
@@ -60,7 +77,7 @@ static AniArgsType GetArgType(ani_env *env, ani_object elementObj)
         }
         ani_boolean isInstance = ANI_FALSE;
         if (ANI_OK != env->Object_InstanceOf(elementObj, cls, &isInstance)) {
-            HILOG_ERROR(LOG_CORE, "Object_InstanceOf %{public}s failed", objType.first);
+            HILOG_ERROR(LOG_CORE, "check instance failed for type '%{public}s'", objType.first);
             continue;
         }
         if (static_cast<bool>(isInstance)) {
@@ -76,64 +93,75 @@ static bool IsValidParamType(AniArgsType type)
             type < static_cast<int32_t>(AniArgsType::ANI_UNDEFINED));
 }
 
-static AniArgsType GetArrayType(ani_env *env, ani_array_ref arrayRef)
+static AniArgsType GetArrayType(ani_env *env, ani_array arrayRef)
 {
     ani_size index = 0;
     ani_ref valueRef {};
-    if (ANI_OK != env->Array_Get_Ref(static_cast<ani_array_ref>(arrayRef), index, &valueRef)) {
+    if (ANI_OK != env->Array_Get(arrayRef, index, &valueRef)) {
         HILOG_ERROR(LOG_CORE, "fail to get first element in array.");
         return AniArgsType::ANI_UNKNOWN;
     }
     return GetArgType(env, static_cast<ani_object>(valueRef));
 }
 
-static bool AddArrayParamToEventInfo(ani_env *env, const std::string& key, ani_ref arrayRef, HiSysEventInfo& info)
+static bool AddArrayParamToEventInfoExec(ani_env *env, const std::string& key, ani_ref arrayRef,
+    AniArgsType arrayType, HiSysEventInfo& info)
 {
-    ani_size size = 0;
-    if (ANI_OK != env->Array_GetLength(static_cast<ani_array_ref>(arrayRef), &size)) {
-        HILOG_ERROR(LOG_CORE, "get array length failed");
-        return false;
-    }
-    AniArgsType arrayType = GetArrayType(env, static_cast<ani_array_ref>(arrayRef));
-    if (!IsValidParamType(arrayType)) {
-        return false;
-    }
     switch (arrayType) {
         case AniArgsType::ANI_BOOLEAN: {
             std::vector<bool> bools;
-            HiSysEventAniUtil::GetBooleans(env, arrayRef, bools);
-            info.params[key] = bools;
+            if (HiSysEventAniUtil::GetBooleans(env, arrayRef, bools)) {
+                info.params[key] = bools;
+                return true;
+            }
             break;
         }
         case AniArgsType::ANI_INT: {
             std::vector<double> doubles;
-            HiSysEventAniUtil::GetIntsToDoubles(env, arrayRef, doubles);
-            info.params[key] = doubles;
+            if (HiSysEventAniUtil::GetIntsToDoubles(env, arrayRef, doubles)) {
+                info.params[key] = doubles;
+                return true;
+            }
             break;
         }
         case AniArgsType::ANI_DOUBLE: {
             std::vector<double> doubles;
-            HiSysEventAniUtil::GetDoubles(env, arrayRef, doubles);
-            info.params[key] = doubles;
+            if (HiSysEventAniUtil::GetDoubles(env, arrayRef, doubles)) {
+                info.params[key] = doubles;
+                return true;
+            }
             break;
         }
         case AniArgsType::ANI_STRING: {
             std::vector<std::string> strs;
-            HiSysEventAniUtil::GetStrings(env, arrayRef, strs);
-            info.params[key] = strs;
+            if (HiSysEventAniUtil::GetStrings(env, arrayRef, strs)) {
+                info.params[key] = strs;
+                return true;
+            }
             break;
         }
         case AniArgsType::ANI_BIGINT:{
             std::vector<int64_t> bigints;
-            HiSysEventAniUtil::GetBigints(env, arrayRef, bigints);
-            info.params[key] = bigints;
+            if (HiSysEventAniUtil::GetBigints(env, arrayRef, bigints)) {
+                info.params[key] = bigints;
+                return true;
+            }
             break;
         }
         default:
             HILOG_ERROR(LOG_CORE, "Unexpected type");
             return false;
     }
-    return true;
+    return false;
+}
+
+static bool AddArrayParamToEventInfo(ani_env *env, const std::string& key, ani_ref arrayRef, HiSysEventInfo& info)
+{
+    AniArgsType arrayType = GetArrayType(env, static_cast<ani_array>(arrayRef));
+    if (!IsValidParamType(arrayType)) {
+        return false;
+    }
+    return AddArrayParamToEventInfoExec(env, key, arrayRef, arrayType, info);
 }
 
 static bool AddParamToEventInfo(ani_env *env, const std::string& key, ani_ref value, HiSysEventInfo& info)
@@ -191,42 +219,213 @@ static bool ParseParamsInSysEventInfo(ani_env *env, ani_ref params, HiSysEventIn
     return true;
 }
 
+static ListenerRule ParseListenerRule(ani_env *env, const ani_object value)
+{
+    ani_ref domainRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(value, "domain", &domainRef)) {
+        HILOG_ERROR(LOG_CORE, "get property domain failed");
+        return ListenerRule("", RuleType::WHOLE_WORD);
+    }
+    std::string domain = HiSysEventAniUtil::ParseStringValue(env, domainRef);
+    ani_ref nameRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(value, "name", &nameRef)) {
+        HILOG_ERROR(LOG_CORE, "get property name failed");
+        return ListenerRule("", RuleType::WHOLE_WORD);
+    }
+    std::string name = HiSysEventAniUtil::ParseStringValue(env, nameRef);
+    ani_ref tagRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(value, "tag", &tagRef)) {
+        HILOG_ERROR(LOG_CORE, "get property tag failed");
+        return ListenerRule("", RuleType::WHOLE_WORD);
+    }
+    std::string tag = "";
+    if (!HiSysEventAniUtil::IsRefUndefined(env, tagRef)) {
+        tag = HiSysEventAniUtil::ParseStringValue(env, tagRef);
+    }
+    ani_ref ruleTypeRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(value, "ruleType", &ruleTypeRef)) {
+        HILOG_ERROR(LOG_CORE, "get property ruleType failed");
+        return ListenerRule("", RuleType::WHOLE_WORD);
+    }
+    ani_enum_item ruleTypeItem = static_cast<ani_enum_item>(ruleTypeRef);
+    int32_t ruleTypeValue;
+    if (ANI_OK != env->EnumItem_GetValue_Int(ruleTypeItem, &ruleTypeValue)) {
+        HILOG_ERROR(LOG_CORE, "get enum failed");
+        return ListenerRule("", RuleType::WHOLE_WORD);
+    }
+    int32_t ruleType = static_cast<RuleType>(ruleTypeValue);
+    return ListenerRule(domain, name, tag, RuleType(ruleType));
+}
+
+static void ParseWatcher(ani_env *env, ani_object watcher, std::vector<ListenerRule>& listenerRules)
+{
+    ani_ref rulesRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(watcher, "rules", &rulesRef)) {
+        HILOG_ERROR(LOG_CORE, "get property rules failed");
+        return;
+    }
+    ani_size size;
+    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(rulesRef), &size)) {
+        HILOG_ERROR(LOG_CORE, "get array failed");
+        return;
+    }
+    for (ani_size i = 0; i < size ; i++) {
+        ani_ref value;
+        auto status = env->Array_Get(static_cast<ani_array>(rulesRef), i, &value);
+        if (status != ANI_OK) {
+            HILOG_ERROR(LOG_CORE, "get %{public}zu item from array failed", i);
+            return;
+        }
+        listenerRules.emplace_back(ParseListenerRule(env, static_cast<ani_object>(value)));
+    }
+}
+
+static QueryRule ParseQueryRule(ani_env *env, const ani_object value)
+{
+    ani_ref namesRef {};
+    std::vector<std::string> names;
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(value, "names", &namesRef)) {
+        HILOG_ERROR(LOG_CORE, "get property names failed");
+        return QueryRule("", names);
+    }
+    ani_size size;
+    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(namesRef), &size)) {
+        HILOG_ERROR(LOG_CORE, "get array failed");
+        return QueryRule("", names);
+    }
+    for (ani_size i = 0; i < size ; i++) {
+        ani_ref value;
+        auto status = env->Array_Get(static_cast<ani_array>(namesRef), i, &value);
+        if (status != ANI_OK) {
+            return QueryRule("", names);
+        }
+        std::string result = HiSysEventAniUtil::ParseStringValue(env, value);
+        names.emplace_back(HiSysEventAniUtil::ParseStringValue(env, value));
+    }
+    ani_ref domainRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(value, "domain", &domainRef)) {
+        HILOG_ERROR(LOG_CORE, "get property domain failed");
+        return QueryRule("", names);
+    }
+    std::string domain = HiSysEventAniUtil::ParseStringValue(env, domainRef);
+    ani_ref conditionRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(value, "condition", &conditionRef)) {
+        HILOG_ERROR(LOG_CORE, "get property condition failed");
+    }
+    std::string condition = "";
+    if (!HiSysEventAniUtil::IsRefUndefined(env, conditionRef)) {
+        condition = HiSysEventAniUtil::ParseStringValue(env, conditionRef);
+    }
+    return QueryRule(domain, names, RuleType::WHOLE_WORD, 0, condition);
+}
+
+static bool IsQueryRuleValid(ani_env *env, const QueryRule& rule)
+{
+    auto domain = rule.GetDomain();
+    if (!StringFilter::GetInstance().IsValidName(domain, MAX_DOMAIN_LENGTH)) {
+        HiSysEventAniUtil::ThrowErrorByRet(env, AniInnerError::ERR_INVALID_DOMAIN_IN_QUERY_RULE);
+        return false;
+    }
+    auto names = rule.GetEventList();
+    if (std::any_of(names.begin(), names.end(), [] (auto& name) {
+        return !StringFilter::GetInstance().IsValidName(name, MAX_EVENT_NAME_LENGTH);
+    })) {
+        HiSysEventAniUtil::ThrowErrorByRet(env, AniInnerError::ERR_INVALID_EVENT_NAME_IN_QUERY_RULE);
+        return false;
+    }
+    return true;
+}
+
+static int32_t ParseQueryRules(ani_env *env, ani_array rulesAni, std::vector<QueryRule> &rules)
+{
+    ani_size size;
+    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(rulesAni), &size)) {
+        HILOG_ERROR(LOG_CORE, "get array failed");
+        return ERR_ANI_PARSED_FAILED;
+    }
+    for (ani_size i = 0; i < size ; i++) {
+        ani_ref value;
+        auto status = env->Array_Get(static_cast<ani_array>(rulesAni), i, &value);
+        if (status != ANI_OK) {
+            HILOG_ERROR(LOG_CORE, "get %{public}zu item from array failed", i);
+            return ERR_ANI_PARSED_FAILED;
+        }
+        auto queryRule = ParseQueryRule(env, static_cast<ani_object>(value));
+        if (IsQueryRuleValid(env, queryRule)) {
+            rules.emplace_back(queryRule);
+        } else {
+            return ERR_ANI_PARSED_FAILED;
+        }
+    }
+    return ANI_SUCCESS;
+}
+
+static void ParseQueryArg(ani_env *env, ani_object queryArgAni, QueryArg &queryArg)
+{
+    ani_double beginTimeRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Double(queryArgAni, "beginTime", &beginTimeRef)) {
+        HILOG_ERROR(LOG_CORE, "get property beginTime failed,");
+    }
+    queryArg.beginTime = static_cast<int64_t>(beginTimeRef);
+    ani_double endTimeRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Double(queryArgAni, "endTime", &endTimeRef)) {
+        HILOG_ERROR(LOG_CORE, "get property endTime failed");
+    }
+    queryArg.endTime = static_cast<int64_t>(endTimeRef);
+    ani_double maxEventsRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Double(queryArgAni, "maxEvents", &maxEventsRef)) {
+        HILOG_ERROR(LOG_CORE, "get property maxEvents failed");
+    }
+    queryArg.maxEvents = static_cast<int64_t>(maxEventsRef);
+    ani_ref fromSeqRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(queryArgAni, "fromSeq", &fromSeqRef)) {
+        HILOG_ERROR(LOG_CORE, "get property fromSeq failed");
+    }
+    if (!HiSysEventAniUtil::IsRefUndefined(env, fromSeqRef)) {
+        queryArg.fromSeq = HiSysEventAniUtil::ParseBigintValue(env, fromSeqRef);
+    }
+    ani_ref toSeqRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(queryArgAni, "toSeq", &toSeqRef)) {
+        HILOG_ERROR(LOG_CORE, "get property toSeq failed");
+    }
+    if (!HiSysEventAniUtil::IsRefUndefined(env, toSeqRef)) {
+        queryArg.toSeq = HiSysEventAniUtil::ParseBigintValue(env, toSeqRef);
+    }
+}
+
 static void ParseSysEventInfo(ani_env *env, ani_object info, HiSysEventInfo& eventInfo)
 {
     ani_ref domainRef {};
     if (ANI_OK != env->Object_GetPropertyByName_Ref(info, "domain", &domainRef)) {
-        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref domain failed");
+        HILOG_ERROR(LOG_CORE, "get property domain failed");
         return;
     }
     eventInfo.domain = HiSysEventAniUtil::ParseStringValue(env, domainRef);
-
     ani_ref nameRef {};
     if (ANI_OK != env->Object_GetPropertyByName_Ref(info, "name", &nameRef)) {
-        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref name failed");
+        HILOG_ERROR(LOG_CORE, "get property name failed");
         return;
     }
     eventInfo.name = HiSysEventAniUtil::ParseStringValue(env, nameRef);
-
     ani_ref eventTypeRef {};
     if (ANI_OK != env->Object_GetPropertyByName_Ref(info, "eventType", &eventTypeRef)) {
-        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref eventType failed");
+        HILOG_ERROR(LOG_CORE, "get property eventType failed");
         return;
     }
     ani_enum_item eventTypeItem = static_cast<ani_enum_item>(eventTypeRef);
     int32_t eventTypeValue;
     if (ANI_OK != env->EnumItem_GetValue_Int(eventTypeItem, &eventTypeValue)) {
-        HILOG_ERROR(LOG_CORE, "EnumItem_GetValue_Int failed");
+        HILOG_ERROR(LOG_CORE, "get enum failed");
         return;
     }
     eventInfo.eventType = static_cast<HiSysEvent::EventType>(eventTypeValue);
-
     ani_ref paramsRef {};
     if (ANI_OK != env->Object_GetPropertyByName_Ref(info, "params", &paramsRef)) {
-        HILOG_ERROR(LOG_CORE, "Object_GetPropertyByName_Ref params failed");
+        HILOG_ERROR(LOG_CORE, "get property params failed");
         return;
     }
     if (!ParseParamsInSysEventInfo(env, paramsRef, eventInfo)) {
-        HILOG_ERROR(LOG_CORE, "ParseParamsInSysEventInfo params failed");
+        HILOG_ERROR(LOG_CORE, "get property params failed");
         return;
     }
 }
@@ -326,7 +525,7 @@ static void GetStack(ani_env *env, std::string &stackTrace)
     }
     for (ani_size i = 0; i < length; i++) {
         ani_ref stackTraceElementRef = nullptr;
-        status = env->Array_Get_Ref(static_cast<ani_array_ref>(stackTraceElementArray), i, &stackTraceElementRef);
+        status = env->Array_Get(static_cast<ani_array>(stackTraceElementArray), i, &stackTraceElementRef);
         if (ANI_OK != status) {
             HILOG_ERROR(LOG_CORE, "get %{public}zu item from array failed", i);
         }
@@ -336,7 +535,7 @@ static void GetStack(ani_env *env, std::string &stackTrace)
         if (ANI_OK != status) {
             HILOG_ERROR(LOG_CORE, "call method toString failed");
         }
-        stackTrace = HiSysEventAniUtil::ParseStringValue(env, stackTraceStr);
+        stackTrace = HiSysEventAniUtil::AniStringToStdString(env, static_cast<ani_string>(stackTraceStr));
     }
 }
 
@@ -373,19 +572,174 @@ int32_t HiSysEventAni::WriteInner(ani_env *env, const HiSysEventInfo &eventInfo)
     return eventBase.GetRetCode();
 }
 
-ani_object HiSysEventAni::Write(ani_env *env, [[maybe_unused]] ani_object object, ani_object info)
+ani_object HiSysEventAni::WriteSync(ani_env *env, ani_object info)
 {
     if (!HiSysEventAniUtil::IsSystemAppCall()) {
         return HiSysEventAniUtil::WriteResult(env, {AniError::ERR_NON_SYS_APP_PERMISSION,
             "Permission denied. "
             "System api can be invoked only by system applications."});
     }
-
     HiSysEventInfo eventInfo;
     ParseSysEventInfo(env, info, eventInfo);
-
-    int32_t eventWroteResult =  HiSysEventAni::WriteInner(env, eventInfo);
+    int32_t eventWroteResult = HiSysEventAni::WriteInner(env, eventInfo);
     return HiSysEventAniUtil::WriteResult(env, HiSysEventAniUtil::GetErrorDetailByRet(eventWroteResult));
+}
+
+void HiSysEventAni::AddWatcher(ani_env *env, ani_object watcher)
+{
+    if (!HiSysEventAniUtil::IsSystemAppCall()) {
+        HiSysEventAniUtil::ThrowAniError(env, AniError::ERR_NON_SYS_APP_PERMISSION, "Permission denied. "
+            "System api can be invoked only by system applications.");
+        return;
+    }
+    ani_vm *vm = HiSysEventAniUtil::GetAniVm(env);
+    std::vector<ListenerRule> rules;
+    ParseWatcher(env, watcher, rules);
+    CallbackContextAni *callbackContextAni = new CallbackContextAni();
+    callbackContextAni->vm = vm;
+    callbackContextAni->threadId = getproctid();
+    ani_ref listenerRef;
+    env->GlobalReference_Create(static_cast<ani_ref>(watcher), &listenerRef);
+    callbackContextAni->ref = listenerRef;
+    std::shared_ptr<AniHiSysEventListener> listener = std::make_shared<AniHiSysEventListener>(callbackContextAni);
+    auto ret = HiSysEventBaseManager::AddListener(listener, rules);
+    if (ret != ANI_SUCCESS) {
+        HILOG_ERROR(LOG_CORE, "failed to add event listener, result code is %{public}d.", ret);
+        delete callbackContextAni;
+        HiSysEventAniUtil::ThrowErrorByRet(env, ret);
+        return;
+    }
+    std::lock_guard<std::mutex> lock(g_listenerMapMutex);
+    listeners[callbackContextAni->ref] = std::make_pair(callbackContextAni->threadId, listener);
+}
+
+void HiSysEventAni::RemoveWatcher(ani_env *env, ani_object watcher)
+{
+    if (!HiSysEventAniUtil::IsSystemAppCall()) {
+        HiSysEventAniUtil::ThrowAniError(env, AniError::ERR_NON_SYS_APP_PERMISSION, "Permission denied. "
+            "System api can be invoked only by system applications.");
+        return;
+    }
+    auto iter = HiSysEventAniUtil::CompareAndReturnCacheItem<AniHiSysEventListener>(env, watcher, listeners);
+    if (iter == listeners.end()) {
+        HILOG_ERROR(LOG_CORE, "listener not exist.");
+        HiSysEventAniUtil::ThrowErrorByRet(env, ERR_ANI_LISTENER_NOT_FOUND);
+        return;
+    }
+    if (auto ret = HiSysEventBaseManager::RemoveListener(iter->second.second);
+        ret != ANI_SUCCESS) {
+        HILOG_ERROR(LOG_CORE, "failed to remove event listener, result code is %{public}d.", ret);
+        HiSysEventAniUtil::ThrowErrorByRet(env, ret);
+        return;
+    }
+    std::lock_guard<std::mutex> lock(g_listenerMapMutex);
+    listeners.erase(iter);
+}
+
+void HiSysEventAni::Query(ani_env *env, ani_object queryArgAni, ani_array rulesAni, ani_object querierAni)
+{
+    if (!HiSysEventAniUtil::IsSystemAppCall()) {
+        HiSysEventAniUtil::ThrowAniError(env, AniError::ERR_NON_SYS_APP_PERMISSION, "Permission denied. "
+            "System api can be invoked only by system applications.");
+        return;
+    }
+    ani_vm *vm = HiSysEventAniUtil::GetAniVm(env);
+    QueryArg queryArg = { DEFAULT_TIME_STAMP, DEFAULT_TIME_STAMP, DEFAULT_EVENT_COUNT };
+    ParseQueryArg(env, queryArgAni, queryArg);
+    std::vector<QueryRule> rules;
+    auto result = ParseQueryRules(env, rulesAni, rules);
+    if (result != SUCCESS) {
+        HILOG_ERROR(LOG_CORE, "failed to parse query rules, result code is %{public}d.", result);
+        return;
+    }
+    CallbackContextAni *callbackContextAni = new CallbackContextAni();
+    callbackContextAni->vm = vm;
+    callbackContextAni->threadId = getproctid();
+    ani_ref querierRef;
+    env->GlobalReference_Create(static_cast<ani_ref>(querierAni), &querierRef);
+    callbackContextAni->ref = querierRef;
+    std::shared_ptr<AniHiSysEventQuerier> querier = std::make_shared<AniHiSysEventQuerier>(callbackContextAni,
+        [] (ani_vm *vm, ani_ref ref) {
+            ani_object querierObj = static_cast<ani_object>(ref);
+            std::lock_guard<std::mutex> lock(g_querierMapMutex);
+            ani_env *env = HiSysEventAniUtil::AttachAniEnv(vm);
+            auto iter = HiSysEventAniUtil::CompareAndReturnCacheItem<AniHiSysEventQuerier>(env, querierObj, queriers);
+            if (iter != queriers.end()) {
+                queriers.erase(iter);
+            }
+            HiSysEventAniUtil::DetachAniEnv(vm);
+        });
+    auto ret = HiSysEventBaseManager::Query(queryArg, rules, querier);
+    if (ret != ANI_SUCCESS) {
+        HILOG_ERROR(LOG_CORE, "failed to query hisysevent, result code is %{public}d.", ret);
+        HiSysEventAniUtil::ThrowErrorByRet(env, ret);
+        return;
+    }
+    std::lock_guard<std::mutex> lock(g_querierMapMutex);
+    queriers[callbackContextAni->ref] = std::make_pair(callbackContextAni->threadId, querier);
+}
+
+ani_double HiSysEventAni::ExportSysEvents(ani_env *env, ani_object queryArgAni, ani_array rulesAni)
+{
+    if (!HiSysEventAniUtil::IsSystemAppCall()) {
+        HiSysEventAniUtil::ThrowAniError(env, AniError::ERR_NON_SYS_APP_PERMISSION, "Permission denied. "
+            "System api can be invoked only by system applications.");
+        return static_cast<ani_double>(0);
+    }
+    QueryArg queryArg = { DEFAULT_TIME_STAMP, DEFAULT_TIME_STAMP, DEFAULT_EVENT_COUNT };
+    ParseQueryArg(env, queryArgAni, queryArg);
+    std::vector<QueryRule> rules;
+    auto result = ParseQueryRules(env, rulesAni, rules);
+    if (result != SUCCESS) {
+        HILOG_ERROR(LOG_CORE, "failed to parse query rules, result code is %{public}d.", result);
+        return static_cast<ani_double>(result);
+    }
+    auto ret = HiSysEventBaseManager::Export(queryArg, rules);
+    if (std::to_string(ret).length() < TIME_STAMP_LENGTH) {
+        HILOG_ERROR(LOG_CORE, "failed to export event");
+        int32_t retCode = static_cast<int32_t>(ret);
+        HiSysEventAniUtil::ThrowErrorByRet(env, retCode);
+        return static_cast<ani_double>(0);
+    }
+    return static_cast<ani_double>(ret);
+}
+
+ani_double HiSysEventAni::Subscribe(ani_env *env, ani_array rulesAni)
+{
+    if (!HiSysEventAniUtil::IsSystemAppCall()) {
+        HiSysEventAniUtil::ThrowAniError(env, AniError::ERR_NON_SYS_APP_PERMISSION, "Permission denied. "
+            "System api can be invoked only by system applications.");
+        return static_cast<ani_double>(0);
+    }
+    std::vector<QueryRule> rules;
+    auto result = ParseQueryRules(env, rulesAni, rules);
+    if (result != SUCCESS) {
+        HILOG_ERROR(LOG_CORE, "failed to parse query rules, result code is %{public}d.", result);
+        return static_cast<ani_double>(result);
+    }
+    auto ret = HiSysEventBaseManager::Subscribe(rules);
+    if (std::to_string(ret).length() < TIME_STAMP_LENGTH) {
+        HILOG_ERROR(LOG_CORE, "failed to subscribe event.");
+        int32_t retCode = static_cast<int32_t>(ret);
+        HiSysEventAniUtil::ThrowErrorByRet(env, retCode);
+        return static_cast<ani_double>(0);
+    }
+    return static_cast<ani_double>(ret);
+}
+
+void HiSysEventAni::Unsubscribe(ani_env *env)
+{
+    if (!HiSysEventAniUtil::IsSystemAppCall()) {
+        HiSysEventAniUtil::ThrowAniError(env, AniError::ERR_NON_SYS_APP_PERMISSION, "Permission denied. "
+            "System api can be invoked only by system applications.");
+        return;
+    }
+    auto ret = HiSysEventBaseManager::Unsubscribe();
+    if (ret != ANI_SUCCESS) {
+        HILOG_ERROR(LOG_CORE, "failed to unsubscribe, result code is %{public}d.", ret);
+        int32_t retCode = static_cast<int32_t>(ret);
+        HiSysEventAniUtil::ThrowErrorByRet(env, retCode);
+    }
 }
 
 ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
@@ -394,15 +748,21 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     if (ANI_OK != vm->GetEnv(ANI_VERSION_1, &env)) {
         return ANI_ERROR;
     }
-    ani_class cls {};
-    if (ANI_OK != env->FindClass(CLASS_NAME_HISYSEVENTANI, &cls)) {
-        return ANI_ERROR;
+    ani_namespace ns {};
+    if (ANI_OK != env->FindNamespace(CLASS_NAME_HISYSEVENTANI, &ns)) {
+        return ANI_INVALID_ARGS;
     }
     std::array methods = {
-        ani_native_function {"write", nullptr, reinterpret_cast<void *>(HiSysEventAni::Write) },
+        ani_native_function {"writeSync", nullptr, reinterpret_cast<void *>(HiSysEventAni::WriteSync) },
+        ani_native_function {"addWatcher", nullptr, reinterpret_cast<void *>(HiSysEventAni::AddWatcher) },
+        ani_native_function {"removeWatcher", nullptr, reinterpret_cast<void *>(HiSysEventAni::RemoveWatcher) },
+        ani_native_function {"query", nullptr, reinterpret_cast<void *>(HiSysEventAni::Query) },
+        ani_native_function {"exportSysEvents", nullptr, reinterpret_cast<void *>(HiSysEventAni::ExportSysEvents) },
+        ani_native_function {"subscribe", nullptr, reinterpret_cast<void *>(HiSysEventAni::Subscribe) },
+        ani_native_function {"unsubscribe", nullptr, reinterpret_cast<void *>(HiSysEventAni::Unsubscribe) },
     };
-    if (ANI_OK != env->Class_BindNativeMethods(cls, methods.data(), methods.size())) {
-        return ANI_ERROR;
+    if (ANI_OK != env->Namespace_BindNativeFunctions(ns, methods.data(), methods.size())) {
+        return ANI_INVALID_TYPE;
     };
     *result = ANI_VERSION_1;
     return ANI_OK;
