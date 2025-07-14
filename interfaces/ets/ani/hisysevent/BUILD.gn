@@ -17,6 +17,9 @@ import("//build/ohos.gni")
 ohos_shared_library("hisysevent_ani") {
   include_dirs = [ "./include/" ]
   sources = [
+    "./src/ani_callback_manager.cpp",
+    "./src/ani_hisysevent_listener.cpp",
+    "./src/ani_hisysevent_querier.cpp",
     "./src/hisysevent_ani.cpp",
     "./src/hisysevent_ani_util.cpp",
   ]
