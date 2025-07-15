@@ -14,6 +14,7 @@
  */
 
 #include <array>
+#include <charconv>
 #include <iostream>
 
 #include "hisysevent_ani.h"
@@ -307,14 +308,16 @@ static void ParseCallerInfoFromStackTrace(const std::string& stackTrace, JsCalle
         auto pos = fileName.find_last_of(PATH_DELIMITER);
         callerInfo.first = (pos == std::string::npos) ? fileName : fileName.substr(++pos);
     }
-    auto lineInfo = lineInfos[LINE_INDEX];
-    if (std::any_of(lineInfo.begin(), lineInfo.end(), [] (auto& c) {
-        return !isdigit(c);
-    })) {
+    auto lineNumInfo = lineInfos[LINE_INDEX];
+    int64_t lineNumParsed = DEFAULT_LINE_NUM;
+    auto lineNumParsedRet = std::from_chars(lineNumInfo.c_str(), lineNumInfo.c_str() + lineNumInfo.size(),
+        lineNumParsed);
+    if (lineNumParsedRet.ec != std::errc()) {
+        HILOG_WARN(LOG_CORE, "js function line number is invalid.");
         callerInfo.second = DEFAULT_LINE_NUM;
         return;
     }
-    callerInfo.second = static_cast<int64_t>(std::stoll(lineInfos[LINE_INDEX]));
+    callerInfo.second = lineNumParsed;
 }
 
 static void GetStack(ani_env *env, std::string &stackTrace)
