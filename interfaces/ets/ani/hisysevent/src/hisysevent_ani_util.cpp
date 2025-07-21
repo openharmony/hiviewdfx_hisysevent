@@ -315,7 +315,7 @@ ani_object HiSysEventAniUtil::WriteResult(ani_env *env, const std::pair<int32_t,
     if (ANI_OK != env->Class_FindMethod(cls, "<set>code", nullptr, &codeSetter)) {
         HILOG_ERROR(LOG_CORE, "find method <set>code failed");
     }
-    if (ANI_OK != env->Object_CallMethod_Void(resultObj, codeSetter, static_cast<ani_double>(result.first))) {
+    if (ANI_OK != env->Object_CallMethod_Void(resultObj, codeSetter, static_cast<ani_int>(result.first))) {
         HILOG_ERROR(LOG_CORE, "call method <set>code failed");
         return resultObj;
     }
@@ -501,7 +501,7 @@ void HiSysEventAniUtil::ThrowAniError(ani_env *env, int32_t code, const std::str
         HILOG_ERROR(LOG_CORE, "create object %{public}s failed", CLASS_NAME_BUSINESSERROR);
         return;
     }
-    if (ANI_OK != env->Object_SetPropertyByName_Double(error, "code", static_cast<ani_double>(code))) {
+    if (ANI_OK != env->Object_SetPropertyByName_Int(error, "code", static_cast<ani_int>(code))) {
         HILOG_ERROR(LOG_CORE, "set property BusinessError.code failed");
         return;
     }
