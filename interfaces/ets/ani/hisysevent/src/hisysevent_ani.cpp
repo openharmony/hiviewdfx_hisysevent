@@ -362,18 +362,18 @@ static int32_t ParseQueryRules(ani_env *env, ani_array rulesAni, std::vector<Que
 
 static void ParseQueryArg(ani_env *env, ani_object queryArgAni, QueryArg &queryArg)
 {
-    ani_double beginTimeRef {};
-    if (ANI_OK != env->Object_GetPropertyByName_Double(queryArgAni, "beginTime", &beginTimeRef)) {
+    ani_long beginTimeRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Long(queryArgAni, "beginTime", &beginTimeRef)) {
         HILOG_ERROR(LOG_CORE, "get property beginTime failed,");
     }
     queryArg.beginTime = static_cast<int64_t>(beginTimeRef);
-    ani_double endTimeRef {};
-    if (ANI_OK != env->Object_GetPropertyByName_Double(queryArgAni, "endTime", &endTimeRef)) {
+    ani_long endTimeRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Long(queryArgAni, "endTime", &endTimeRef)) {
         HILOG_ERROR(LOG_CORE, "get property endTime failed");
     }
     queryArg.endTime = static_cast<int64_t>(endTimeRef);
-    ani_double maxEventsRef {};
-    if (ANI_OK != env->Object_GetPropertyByName_Double(queryArgAni, "maxEvents", &maxEventsRef)) {
+    ani_long maxEventsRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Long(queryArgAni, "maxEvents", &maxEventsRef)) {
         HILOG_ERROR(LOG_CORE, "get property maxEvents failed");
     }
     queryArg.maxEvents = static_cast<int64_t>(maxEventsRef);

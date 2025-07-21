@@ -30,15 +30,15 @@ class WatcherAni implements hiSysEvent.Watcher {
 
 class QuerierAni implements hiSysEvent.Querier {
     onQuery: (infos: hiSysEvent.SysEventInfo[]) => void = (infos: hiSysEvent.SysEventInfo[]) => {};
-    onComplete: (reason: number, total: number) => void = (reason: number, total: number) => {};
+    onComplete: (reason: int, total: int) => void = (reason: int, total: int) => {};
 }
 
 class QueryArgAni implements hiSysEvent.QueryArg {
-    beginTime: number = 0;
-    endTime: number = 0;
-    maxEvents: number = 0;
-    fromSeq?: number | undefined;
-    toSeq?: number | undefined;
+    beginTime: long = 0;
+    endTime: long = 0;
+    maxEvents: long = 0;
+    fromSeq?: long | undefined;
+    toSeq?: long | undefined;
 }
 
 class QueryRuleAni implements hiSysEvent.QueryRule {
@@ -48,12 +48,12 @@ class QueryRuleAni implements hiSysEvent.QueryRule {
 }
 
 interface Result {
-    code: number;
+    code: int;
     message: string;
 }
 
 class ResultInner implements Result {
-    code: number = 0;
+    code: int = 0;
     message: string = "";
 }
 
@@ -99,24 +99,24 @@ export default namespace hiSysEvent {
     }
 
     export interface QueryArg {
-        beginTime: number;
-        endTime: number;
-        maxEvents: number;
-        fromSeq?: number;
-        toSeq?: number;
+        beginTime: long;
+        endTime: long;
+        maxEvents: long;
+        fromSeq?: long;
+        toSeq?: long;
     }
 
     export interface Querier {
         onQuery: (infos: SysEventInfo[]) => void;
-        onComplete: (reason: number, total: number) => void;
+        onComplete: (reason: int, total: int) => void;
     }
 
     native function writeSync(info: SysEventInfo): Result;
     export native function addWatcher(watcher: Watcher): void;
     export native function removeWatcher(watcher: Watcher): void;
     export native function query(queryArg: QueryArg, rules: QueryRule[], querier: Querier): void;
-    export native function exportSysEvents(queryArg: QueryArg, rules: QueryRule[]): number;
-    export native function subscribe(rules: QueryRule[]): number;
+    export native function exportSysEvents(queryArg: QueryArg, rules: QueryRule[]): long;
+    export native function subscribe(rules: QueryRule[]): long;
     export native function unsubscribe(): void;
 
     export function write(info: SysEventInfo, callback: AsyncCallback<void>): void {
