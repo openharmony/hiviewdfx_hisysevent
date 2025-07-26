@@ -19,32 +19,54 @@
 #include <ani.h>
 #include <map>
 #include <string>
+#include <memory>
+#include <sys/syscall.h>
+#include <vector>
+#include <unistd.h>
+#include <unordered_map>
+#include "hilog/log.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-constexpr char CLASS_NAME_RESULTINNER[] = "L@ohos/hiSysEvent/ResultInner;";
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002D08
+
+#undef LOG_TAG
+#define LOG_TAG "ANI_HISYSEVENT_UTIL"
+
+enum EventTypeAni : int32_t {
+    FAULT = 1,
+    STATISTIC = 2,
+    SECURITY = 3,
+    BEHAVIOR = 4
+};
+
 constexpr char CLASS_NAME_INT[] = "Lstd/core/Int;";
 constexpr char CLASS_NAME_BOOLEAN[] = "Lstd/core/Boolean;";
 constexpr char CLASS_NAME_DOUBLE[] = "Lstd/core/Double;";
+constexpr char CLASS_NAME_STACKTRACE[] = "Lstd/core/StackTrace;";
 constexpr char CLASS_NAME_STRING[] = "Lstd/core/String;";
 constexpr char CLASS_NAME_BIGINT[] = "Lescompat/BigInt;";
 constexpr char CLASS_NAME_ARRAY[] = "Lescompat/Array;";
+constexpr char CLASS_NAME_SYSEVENTINFOANI[] = "L@ohos/hiSysEvent/SysEventInfoAni;";
+constexpr char ENUM_NAME_EVENT_TYPE[] = "L@ohos/hiSysEvent/hiSysEvent/EventType;";
+constexpr char CLASS_NAME_HISYSEVENTANI[] = "L@ohos/hiSysEvent/hiSysEvent;";
+constexpr char CLASS_NAME_RESULTINNER[] = "L@ohos/hiSysEvent/ResultInner;";
+constexpr char CLASS_NAME_WATCHERANI[] = "L@ohos/hiSysEvent/WatcherAni;";
+constexpr char CLASS_NAME_QUERIERANI[] = "L@ohos/hiSysEvent/QuerierAni;";
+constexpr char CLASS_NAME_BUSINESSERROR[] = "L@ohos/base/BusinessError;";
 constexpr char CLASS_NAME_ITERATOR[] = "Lescompat/Iterator;";
 constexpr char CLASS_NAME_RECORD[] = "Lescompat/Record;";
+constexpr char EVENT_TYPE_ATTR[] = "eventType";
 constexpr char FUNC_NAME_GETLONG[] = "getLong";
 constexpr char FUNC_NAME_UNBOXED[] = "unboxed";
 constexpr char FUNC_NAME_NEXT[] = "next";
-constexpr char CLASS_NAME_STACKTRACE[] = "Lstd/core/StackTrace;";
-constexpr int64_t DEFAULT_LINE_NUM = -1;
-constexpr int FUNC_NAME_INDEX = 1;
-constexpr int LINE_INFO_INDEX = 2;
-constexpr int LINE_INDEX = 1;
-constexpr char CALL_FUNC_INFO_DELIMITER = ' ';
-constexpr char CALL_LINE_INFO_DELIMITER = ':';
-constexpr char PATH_DELIMITER = '/';
+constexpr char DOMAIN_ATTR[] = "domain";
+constexpr char NAME_ATTR[] = "name";
 
 class HiSysEventAniUtil {
 public:
+    static std::string AniStringToStdString(ani_env *env, ani_string aniStr);
     static bool CheckKeyTypeString(const std::string &str);
     static bool IsArray(ani_env *env, ani_object object);
     static bool IsRefUndefined(ani_env *env, ani_ref ref);
@@ -60,10 +82,58 @@ public:
     static bool GetIntsToDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles);
     static bool GetStrings(ani_env *env, ani_ref arrayRef, std::vector<std::string>& strs);
     static bool GetBigints(ani_env *env, ani_ref arrayRef, std::vector<int64_t>& bigints);
+    static ani_object WriteResult(ani_env *env, const std::pair<int32_t, std::string>& result);
+    static ani_object CreateDoubleUint64(ani_env *env, uint64_t number);
+    static ani_object CreateDoubleInt64(ani_env *env, int64_t number);
+    static ani_object CreateDoubleUint32(ani_env *env, uint32_t number);
+    static ani_object CreateDoubleInt32(ani_env *env, int number);
+    static ani_enum_item ToAniEnum(ani_env *env, EventTypeAni value);
+    static ani_object CreateStringValue(ani_env *env, const std::string& value);
+    static ani_object CreateDouble(ani_env *env, double number);
+    static ani_object CreateBool(ani_env *env, bool boolValue);
+    static void CreateHiSysEventInfoJsObject(ani_env *env, const std::string& jsonStr, ani_object& sysEventInfo);
+    static void CreateJsSysEventInfoArray(ani_env *env, const std::vector<std::string>& originValues,
+        ani_array_ref& sysEventInfoJsArray);
+    static void AppendInt32PropertyToJsObject(ani_env *env, const std::string& key, const int32_t& value,
+        ani_object& jsObj);
+    static void AppendStringPropertyToJsObject(ani_env *env, const std::string& key, const std::string& value,
+        ani_object& jsObj);
+
+public:
     static std::pair<int32_t, std::string> GetErrorDetailByRet(const int32_t retCode);
-    static ani_object WriteResult(ani_env *env, std::pair<int32_t, std::string> result);
+    static void ThrowAniError(ani_env *env, int32_t code, const std::string &message);
+    static void ThrowErrorByRet(ani_env *env, const int32_t retCode);
+
+public:
+    static ani_vm* GetAniVm(ani_env *env);
+    static ani_env* GetAniEnv(ani_vm *vm);
+    static ani_env* AttachAniEnv(ani_vm *vm);
+    static void DetachAniEnv(ani_vm *vm);
+
+public:
+    template<typename T>
+    static typename std::unordered_map<ani_ref, std::pair<pid_t, std::shared_ptr<T>>>::iterator
+    CompareAndReturnCacheItem(ani_env *env, ani_object& standard,
+        std::unordered_map<ani_ref, std::pair<pid_t, std::shared_ptr<T>>>& resources)
+    {
+        auto iter = resources.begin();
+        for (; iter != resources.end(); iter++) {
+            if (iter->second.first != getproctid()) {
+                continue;
+            }
+            ani_ref val = iter->first;
+            ani_boolean isEquals;
+            ani_status ret = env->Reference_StrictEquals(standard, static_cast<ani_object>(val), &isEquals);
+            if (ret != ANI_OK) {
+                continue;
+            }
+            if (isEquals) {
+                break;
+            }
+        }
+        return iter;
+    }
 };
 } // namespace HiviewDFX
 } // namespace OHOS
-
 #endif // HISYSEVENT_ANI_UTILS_H

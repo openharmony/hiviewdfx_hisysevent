@@ -70,3 +70,4 @@ static constexpr int32_t ERR_ANI_LISTENER_NOT_FOUND = -107;
 } // namespace OHOS
 
 #endif // ANI_HISYSEVENT_RET_DEF_H
+

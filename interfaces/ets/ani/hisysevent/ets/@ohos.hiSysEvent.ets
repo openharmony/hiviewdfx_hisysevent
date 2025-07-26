@@ -22,8 +22,29 @@ class SysEventInfoAni implements hiSysEvent.SysEventInfo {
     params?: object;
 }
 
-class HiSysEventAni {
-    native static write(info: hiSysEvent.SysEventInfo): Result;
+class WatcherAni implements hiSysEvent.Watcher {
+    rules: hiSysEvent.WatchRule[] = [];
+    onEvent: (info: hiSysEvent.SysEventInfo) => void = (info: hiSysEvent.SysEventInfo) => {};
+    onServiceDied: () => void = () => {};
+}
+
+class QuerierAni implements hiSysEvent.Querier {
+    onQuery: (infos: hiSysEvent.SysEventInfo[]) => void = (infos: hiSysEvent.SysEventInfo[]) => {};
+    onComplete: (reason: number, total: number) => void = (reason: number, total: number) => {};
+}
+
+class QueryArgAni implements hiSysEvent.QueryArg {
+    beginTime: number = 0;
+    endTime: number = 0;
+    maxEvents: number = 0;
+    fromSeq?: number | undefined;
+    toSeq?: number | undefined;
+}
+
+class QueryRuleAni implements hiSysEvent.QueryRule {
+    domain: string = "";
+    names: string[] = [];
+    condition?: string | undefined;
 }
 
 interface Result {
@@ -52,8 +73,54 @@ export default namespace hiSysEvent {
         params?: object;
      }
 
+    export interface Watcher {
+        rules: WatchRule[];
+        onEvent: (info: SysEventInfo) => void;
+        onServiceDied: () => void;
+    }
+
+    export interface WatchRule {
+        domain: string;
+        name: string;
+        tag?: string;
+        ruleType: RuleType;
+    }
+
+    export enum RuleType {
+        WHOLE_WORD = 1,
+        PREFIX = 2,
+        REGULAR = 3
+    }
+
+    export interface QueryRule {
+      domain: string;
+      names: string[];
+      condition?: string;
+    }
+
+    export interface QueryArg {
+        beginTime: number;
+        endTime: number;
+        maxEvents: number;
+        fromSeq?: number;
+        toSeq?: number;
+    }
+
+    export interface Querier {
+        onQuery: (infos: SysEventInfo[]) => void;
+        onComplete: (reason: number, total: number) => void;
+    }
+
+    native function writeSync(info: SysEventInfo): Result;
+    export native function addWatcher(watcher: Watcher): void;
+    export native function removeWatcher(watcher: Watcher): void;
+    export native function query(queryArg: QueryArg, rules: QueryRule[], querier: Querier): void;
+    export native function exportSysEvents(queryArg: QueryArg, rules: QueryRule[]): number;
+    export native function subscribe(rules: QueryRule[]): number;
+    export native function unsubscribe(): void;
+
     export function write(info: SysEventInfo, callback: AsyncCallback<void>): void {
-        let cb = (): Result => { return HiSysEventAni.write(info) }
+        let cb = (): Result => { return writeSync(info) }
         taskpool.execute(cb).then((ret: NullishType): void => {
             let retError = new BusinessError<void>();
             let writeResult: Result = ret as Result;
@@ -65,7 +132,7 @@ export default namespace hiSysEvent {
 
     export function write(info: SysEventInfo): Promise<void> {
         return new Promise<void>((resolve: (v: undefined) => void, reject: (e: BusinessError<void>) => void): void => {
-            let cb = (): Result => { return HiSysEventAni.write(info) }
+            let cb = (): Result => { return writeSync(info) }
             taskpool.execute(cb).then((ret: NullishType): void => {
                 let retError = new BusinessError<void>();
                 let writeResult: Result = ret as Result;
