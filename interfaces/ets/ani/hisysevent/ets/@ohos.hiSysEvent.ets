@@ -19,7 +19,7 @@ class SysEventInfoAni implements hiSysEvent.SysEventInfo {
     domain: string = "";
     name: string = "";
     eventType: hiSysEvent.EventType = hiSysEvent.EventType.FAULT;
-    params?: object;
+    params?: Record<string, boolean | int | double | string | bigint | boolean[] | int[] | double[] | string[] | bigint[]>;
 }
 
 class WatcherAni implements hiSysEvent.Watcher {
@@ -70,7 +70,7 @@ export default namespace hiSysEvent {
         domain: string;
         name: string;
         eventType: EventType;
-        params?: object;
+        params?: Record<string, boolean | int | double | string | bigint | boolean[] | int[] | double[] | string[] | bigint[]>;
      }
 
     export interface Watcher {
