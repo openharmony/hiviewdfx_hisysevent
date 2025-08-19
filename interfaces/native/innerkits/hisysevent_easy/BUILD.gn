@@ -40,6 +40,8 @@ ohos_static_library("libhisysevent_easy") {
     "hisysevent_easy.c",
   ]
 
+  external_deps = [ "bounds_checking_function:libsec_shared" ]
+
   part_name = "hisysevent"
 
   subsystem_name = "hiviewdfx"
