@@ -34,9 +34,10 @@ extern "C" {
 static const char CUSTOMIZED_PARAM_KEY[] = "DATA";
 static const int SEC_2_MILLIS = 1000;
 static const int MILLS_2_NANOS = 1000000;
-static const char PROC_SELF_STATUS_PATH[] = "proc/self/status";
+static const char PROC_SELF_STATUS_PATH[] = "/proc/self/status";
 static const size_t LINE_BUF_SIZE = 1024;
 static const char PID_STR_NAME[] = "Pid:";
+static const uint32_t INVALID_PID = 0;
 
 static int64_t GetTimestamp()
 {
@@ -84,30 +85,30 @@ static pid_t GetRealPid(void)
     }
 
     char buf[LINE_BUF_SIZE];
-    int i = 0;
-    char b = 0;
+    int pos = 0;
+    char curChar = 0;
     while (1) {
-        ssize_t nRead = TEMP_FAILURE_RETRY(read(fd, &b, sizeof(char)));
-        if (nRead <= 0 || b == '\0') {
+        ssize_t readCnt = TEMP_FAILURE_RETRY(read(fd, &curChar, sizeof(char)));
+        if (readCnt <= 0 || curChar == '\0') {
             break;
         }
-        if (b == '\n' || i == LINE_BUF_SIZE) {
+        if (curChar == '\n' || pos == LINE_BUF_SIZE) {
             if (strncmp(buf, PID_STR_NAME, strlen(PID_STR_NAME)) == 0) {
                 (void)sscanf_s(buf, "%*[^0-9]%d", &pid);
                 break;
             }
-            i = 0;
+            pos = 0;
             (void)memset_s(buf, sizeof(buf), '\0', sizeof(buf));
             continue;
         }
-        buf[i] = b;
-        ++i;
+        buf[pos] = curChar;
+        ++pos;
     }
     close(fd);
     return pid;
 }
 
-static uint32_t pid = 0;
+static uint32_t pid = INVALID_PID;
 
 static int InitEventHeader(struct HiSysEventEasyHeader* header, const char* domain, const char* name,
     const uint8_t eventType)
@@ -119,9 +120,9 @@ static int InitEventHeader(struct HiSysEventEasyHeader* header, const char* doma
     header->type = eventType - 1; // only 2 bits to store event type
     header->timestamp = (uint64_t)GetTimestamp();
     header->timeZone = ParseTimeZone(timezone);
-    if (pid == 0) {
+    if (pid == INVALID_PID) {
         pid = (uint32_t)GetRealPid();
-        header->pid = pid;
+        header->pid = (pid != INVALID_PID) ? pid : (uint32_t)getpid();
     } else {
         header->pid = pid;
     }
