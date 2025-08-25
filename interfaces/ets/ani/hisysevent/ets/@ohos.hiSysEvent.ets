@@ -58,7 +58,7 @@ class ResultInner implements Result {
 }
 
 export default namespace hiSysEvent {
-    loadLibrary("hisysevent_ani");
+    loadLibraryWithPermissionCheck("hisysevent_ani", "@ohos.hiSysEvent");
     export enum EventType {
         FAULT = 1,
         STATISTIC = 2,
