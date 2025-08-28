@@ -37,7 +37,8 @@ static const int MILLS_2_NANOS = 1000000;
 static const char PROC_SELF_STATUS_PATH[] = "/proc/self/status";
 static const size_t LINE_BUF_SIZE = 1024;
 static const char PID_STR_NAME[] = "Pid:";
-static const uint32_t INVALID_PID = 0;
+static const int INVALID_PID = 0;
+static const int ARGS_CNT_ONE = 1;
 
 static int64_t GetTimestamp()
 {
@@ -76,9 +77,16 @@ static int CheckEventType(uint8_t eventType)
     return SUCCESS;
 }
 
-static pid_t GetRealPid(void)
+static void ReadPidFromFormatStr(const char* buf, int* pid)
 {
-    pid_t pid = 0;
+    if (buf == NULL || sscanf_s(buf, "%*[^0-9]%d", pid) != ARGS_CNT_ONE) {
+        *pid = INVALID_PID;
+    }
+}
+
+static int GetRealPid(void)
+{
+    int pid = INVALID_PID;
     int fd = TEMP_FAILURE_RETRY(open(PROC_SELF_STATUS_PATH, O_RDONLY));
     if (fd < 0) {
         return pid;
@@ -94,7 +102,7 @@ static pid_t GetRealPid(void)
         }
         if (curChar == '\n' || pos == LINE_BUF_SIZE) {
             if (strncmp(buf, PID_STR_NAME, strlen(PID_STR_NAME)) == 0) {
-                (void)sscanf_s(buf, "%*[^0-9]%d", &pid);
+                ReadPidFromFormatStr(buf, &pid);
                 break;
             }
             pos = 0;
@@ -108,7 +116,7 @@ static pid_t GetRealPid(void)
     return pid;
 }
 
-static uint32_t pid = INVALID_PID;
+static int gPid = INVALID_PID;
 
 static int InitEventHeader(struct HiSysEventEasyHeader* header, const char* domain, const char* name,
     const uint8_t eventType)
@@ -120,11 +128,11 @@ static int InitEventHeader(struct HiSysEventEasyHeader* header, const char* doma
     header->type = eventType - 1; // only 2 bits to store event type
     header->timestamp = (uint64_t)GetTimestamp();
     header->timeZone = ParseTimeZone(timezone);
-    if (pid == INVALID_PID) {
-        pid = (uint32_t)GetRealPid();
-        header->pid = (pid != INVALID_PID) ? pid : (uint32_t)getpid();
+    if (gPid == INVALID_PID) {
+        gPid = GetRealPid();
+        header->pid = (uint32_t)((gPid != INVALID_PID) ? gPid : getpid());
     } else {
-        header->pid = pid;
+        header->pid = gPid;
     }
     header->tid = (uint32_t)gettid();
     header->uid = (uint32_t)getuid();
