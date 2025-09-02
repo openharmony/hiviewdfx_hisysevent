@@ -37,6 +37,7 @@ ohos_shared_library("hisysevent_ani") {
     "ipc:ipc_single",
     "jsoncpp:jsoncpp",
     "runtime_core:ani",
+    "runtime_core:ani_helpers",
   ]
 
   subsystem_name = "hiviewdfx"

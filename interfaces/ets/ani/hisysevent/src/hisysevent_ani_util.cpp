@@ -21,8 +21,10 @@
 #include "ret_def.h"
 #include "json/json.h"
 #include "tokenid_kit.h"
+#include <ani_signature_builder.h>
 
 using namespace OHOS::HiviewDFX;
+using namespace arkts::ani_signature;
 #undef LOG_DOMAIN
 #define LOG_DOMAIN 0xD002D08
 
@@ -312,22 +314,24 @@ ani_object HiSysEventAniUtil::WriteResult(ani_env *env, const std::pair<int32_t,
         return resultObj;
     }
     ani_method codeSetter {};
-    if (ANI_OK != env->Class_FindMethod(cls, "<set>code", nullptr, &codeSetter)) {
-        HILOG_ERROR(LOG_CORE, "find method <set>code failed");
+    const char *codeSetterName = Builder::BuildSetterName("code").c_str();
+    if (ANI_OK != env->Class_FindMethod(cls, codeSetterName, nullptr, &codeSetter)) {
+        HILOG_ERROR(LOG_CORE, "find method %{public}s failed", codeSetterName);
     }
     if (ANI_OK != env->Object_CallMethod_Void(resultObj, codeSetter, static_cast<ani_int>(result.first))) {
-        HILOG_ERROR(LOG_CORE, "call method <set>code failed");
+        HILOG_ERROR(LOG_CORE, "call method %{public}s failed", codeSetterName);
         return resultObj;
     }
     ani_method messageSetter {};
-    if (ANI_OK != env->Class_FindMethod(cls, "<set>message", nullptr, &messageSetter)) {
-        HILOG_ERROR(LOG_CORE, "find method <set>message failed");
+    const char *messageSetterName = Builder::BuildSetterName("message").c_str();
+    if (ANI_OK != env->Class_FindMethod(cls, messageSetterName, nullptr, &messageSetter)) {
+        HILOG_ERROR(LOG_CORE, "find method %{public}s failed", messageSetterName);
     }
     std::string message = result.second;
     ani_string message_string{};
     env->String_NewUTF8(message.c_str(), message.size(), &message_string);
     if (ANI_OK != env->Object_CallMethod_Void(resultObj, messageSetter, message_string)) {
-        HILOG_ERROR(LOG_CORE, "call method <set>message failed");
+        HILOG_ERROR(LOG_CORE, "call method %{public}s failed", messageSetterName);
         return resultObj;
     }
     return resultObj;
