@@ -93,6 +93,7 @@ static int GetRealPid(void)
     }
 
     char buf[LINE_BUF_SIZE];
+    (void)memset_s(buf, sizeof(buf), 0, sizeof(buf));
     int pos = 0;
     char curChar = 0;
     while (1) {
@@ -106,7 +107,7 @@ static int GetRealPid(void)
                 break;
             }
             pos = 0;
-            (void)memset_s(buf, sizeof(buf), '\0', sizeof(buf));
+            (void)memset_s(buf, sizeof(buf), 0, sizeof(buf));
             continue;
         }
         buf[pos] = curChar;
