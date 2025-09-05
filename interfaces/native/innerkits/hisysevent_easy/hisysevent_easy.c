@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 
 #include "hisysevent_easy.h"
 
+#include <fcntl.h>
+#include <securec.h>
 #include <stddef.h>
 #include <string.h>
 #include <time.h>
@@ -32,6 +34,11 @@ extern "C" {
 static const char CUSTOMIZED_PARAM_KEY[] = "DATA";
 static const int SEC_2_MILLIS = 1000;
 static const int MILLS_2_NANOS = 1000000;
+static const char PROC_SELF_STATUS_PATH[] = "/proc/self/status";
+static const size_t LINE_BUF_SIZE = 1024;
+static const char PID_STR_NAME[] = "Pid:";
+static const int INVALID_PID = 0;
+static const int ARGS_CNT_ONE = 1;
 
 static int64_t GetTimestamp()
 {
@@ -70,6 +77,48 @@ static int CheckEventType(uint8_t eventType)
     return SUCCESS;
 }
 
+static void ReadPidFromFormatStr(const char* buf, int* pid)
+{
+    if (buf == NULL || sscanf_s(buf, "%*[^0-9]%d", pid) != ARGS_CNT_ONE) {
+        *pid = INVALID_PID;
+    }
+}
+
+static int GetRealPid(void)
+{
+    int pid = INVALID_PID;
+    int fd = TEMP_FAILURE_RETRY(open(PROC_SELF_STATUS_PATH, O_RDONLY));
+    if (fd < 0) {
+        return pid;
+    }
+
+    char buf[LINE_BUF_SIZE];
+    (void)memset_s(buf, sizeof(buf), '\0', sizeof(buf));
+    int pos = 0;
+    char curChar = 0;
+    while (1) {
+        ssize_t readCnt = TEMP_FAILURE_RETRY(read(fd, &curChar, sizeof(char)));
+        if (readCnt <= 0 || curChar == '\0') {
+            break;
+        }
+        if (curChar == '\n' || pos == LINE_BUF_SIZE) {
+            if (strncmp(buf, PID_STR_NAME, strlen(PID_STR_NAME)) == 0) {
+                ReadPidFromFormatStr(buf, &pid);
+                break;
+            }
+            pos = 0;
+            (void)memset_s(buf, sizeof(buf), '\0', sizeof(buf));
+            continue;
+        }
+        buf[pos] = curChar;
+        ++pos;
+    }
+    close(fd);
+    return pid;
+}
+
+static int gPid = INVALID_PID;
+
 static int InitEventHeader(struct HiSysEventEasyHeader* header, const char* domain, const char* name,
     const uint8_t eventType)
 {
@@ -80,7 +129,12 @@ static int InitEventHeader(struct HiSysEventEasyHeader* header, const char* doma
     header->type = eventType - 1; // only 2 bits to store event type
     header->timestamp = (uint64_t)GetTimestamp();
     header->timeZone = ParseTimeZone(timezone);
-    header->pid = (uint32_t)getpid();
+    if (gPid == INVALID_PID) {
+        gPid = GetRealPid();
+        header->pid = (uint32_t)((gPid != INVALID_PID) ? gPid : getpid());
+    } else {
+        header->pid = gPid;
+    }
     header->tid = (uint32_t)gettid();
     header->uid = (uint32_t)getuid();
     header->isTraceOpened = 0; // no need to allocate memory for trace info.
