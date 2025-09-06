@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,14 +43,14 @@ HiSysEvent::EventBase::EventBase(const std::string& domain, const std::string& e
 {
     retCode_ = 0;
     // append domain to header
-    auto ret = memcpy_s(header_.domain, MAX_DOMAIN_LENGTH, domain.c_str(), domain.length());
+    auto ret = memcpy_s(header_.domain, MAX_DOMAIN_LENGTH + 1, domain.c_str(), domain.length());
     if (ret != EOK) {
         SetRetCode(ERR_RAW_DATA_WROTE_EXCEPTION);
         return;
     }
     header_.domain[domain.length()] = '\0';
     // append name to header
-    ret = memcpy_s(header_.name, MAX_EVENT_NAME_LENGTH, eventName.c_str(), eventName.length());
+    ret = memcpy_s(header_.name, MAX_EVENT_NAME_LENGTH + 1, eventName.c_str(), eventName.length());
     if (ret != EOK) {
         SetRetCode(ERR_RAW_DATA_WROTE_EXCEPTION);
         return;

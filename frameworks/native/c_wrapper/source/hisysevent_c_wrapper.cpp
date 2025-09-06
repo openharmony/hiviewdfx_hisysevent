@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,7 +52,7 @@ static void SplitStringToArray(const char src[], unsigned int srcMaxLen, char de
         sliceEnd = static_cast<int>(curPos) - 1;
         cpyLen = sliceEnd - sliceBegin + 1;
         if ((cpyLen <= 0) || (cpyLen > MAX_LENGTH_OF_EVENT_NAME) ||
-            (memcpy_s(dest[destItemIndex], cpyLen, src + sliceBegin, cpyLen) != EOK)) {
+            (memcpy_s(dest[destItemIndex], MAX_LENGTH_OF_EVENT_NAME, src + sliceBegin, cpyLen) != EOK)) {
             // If the length of the string to be copied is invalid or memory copy failed, skip this step.
             sliceBegin = static_cast<int>(curPos + 1);
             ++curPos;
@@ -70,7 +70,7 @@ static void SplitStringToArray(const char src[], unsigned int srcMaxLen, char de
     }
     cpyLen = sliceEnd - sliceBegin + 1;
     if ((cpyLen <= 0) || (cpyLen > MAX_LENGTH_OF_EVENT_NAME) || (destItemIndex >= destSize) ||
-        (memcpy_s(dest[destItemIndex], cpyLen, src + sliceBegin, cpyLen) != EOK)) {
+        (memcpy_s(dest[destItemIndex], MAX_LENGTH_OF_EVENT_NAME, src + sliceBegin, cpyLen) != EOK)) {
         return;
     }
 }

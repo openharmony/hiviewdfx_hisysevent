@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -102,21 +102,17 @@ HWTEST_F(HiSysEventEncodedTest, RawDatabaseDefTest001, TestSize.Level1)
  */
 HWTEST_F(HiSysEventEncodedTest, RawDataTest001, TestSize.Level1)
 {
-    Encoded::RawData rawData1(nullptr, 0);
+    Encoded::RawData rawData1;
     ASSERT_TRUE(rawData1.IsEmpty());
-    Encoded::RawData rawData2 = rawData1;
-    ASSERT_TRUE(rawData2.IsEmpty());
     uint64_t val = 2323232; // 2323232 is a random test numeber
     std::shared_ptr<EncodedParam> param = std::make_shared<UnsignedVarintEncodedParam<uint64_t>>("KEY1", val);
-    auto rawData3 = std::make_shared<Encoded::RawData>(nullptr, 0);
-    param->SetRawData(rawData3);
+    auto rawData2 = std::make_shared<Encoded::RawData>();
+    param->SetRawData(rawData2);
     auto appendRawData = param->GetRawData();
     rawData1 = *appendRawData;
     ASSERT_TRUE(!rawData1.IsEmpty());
     Encoded::RawData rawData4 = rawData1;
     ASSERT_EQ(rawData1.GetDataLength(), rawData4.GetDataLength());
-    Encoded::RawData rawData5(appendRawData->GetData(), appendRawData->GetDataLength());
-    ASSERT_EQ(appendRawData->GetDataLength(), rawData5.GetDataLength());
 }
 
 /**

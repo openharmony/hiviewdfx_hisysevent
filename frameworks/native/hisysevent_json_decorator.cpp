@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -81,12 +81,15 @@ bool HiSysEventJsonDecorator::CheckAttrDecorationNeed(const Json::Value& eventJs
 Validity HiSysEventJsonDecorator::CheckAttrValidity(const Json::Value& eventJson, const std::string& key,
     const Json::Value& standard)
 {
-    if (!standard.isMember(key)) {
+    if (!standard.isObject() || !standard.isMember(key) || !standard[key].isObject()
+        || !standard[key].isMember(TYPE) || !standard[key][TYPE].isString()) {
         return Validity::KEY_INVALID;
     }
     bool ret = false;
+
     if (standard[key].isMember(ARRY_SIZE)) {
-        if (!eventJson[key].isArray() || eventJson[key].size() > standard[key][ARRY_SIZE].asUInt()) {
+        if (!eventJson[key].isArray() || !standard[key][ARRY_SIZE].isUInt()
+            || eventJson[key].size() > standard[key][ARRY_SIZE].asUInt()) {
             return Validity::VALUE_INVALID;
         }
         ret = JudgeDataType(standard[key][TYPE].asString(), eventJson[key][0]);
@@ -98,7 +101,7 @@ Validity HiSysEventJsonDecorator::CheckAttrValidity(const Json::Value& eventJson
 
 Validity HiSysEventJsonDecorator::CheckLevelValidity(const Json::Value& baseInfo)
 {
-    if (!baseInfo.isMember(LEVEL)) {
+    if (!baseInfo.isObject() || !baseInfo.isMember(LEVEL) || !baseInfo[LEVEL].isString()) {
         HILOG_ERROR(LOG_CORE, "level not defined in __BASE");
         return Validity::KEY_INVALID;
     }
@@ -117,8 +120,16 @@ bool HiSysEventJsonDecorator::CheckEventDecorationNeed(const Json::Value& eventJ
     if (!isJsonRootValid_ || !jsonRoot_.isObject() || !eventJson.isObject()) {
         return true;
     }
-    std::string domain = eventJson[INNER_BUILD_KEYS[DOMAIN_INDEX]].asString();
-    std::string name = eventJson[INNER_BUILD_KEYS[NAME_INDEX]].asString();
+    std::string domain;
+    auto eventDomainJson = eventJson[INNER_BUILD_KEYS[DOMAIN_INDEX]];
+    if (eventDomainJson.isString()) {
+        domain = eventDomainJson.asString();
+    }
+    std::string name;
+    auto eventNameJson = eventJson[INNER_BUILD_KEYS[NAME_INDEX]];
+    if (eventNameJson.isString()) {
+        name = eventNameJson.asString();
+    }
     if (!jsonRoot_.isMember(domain)) {
         return true;
     }
