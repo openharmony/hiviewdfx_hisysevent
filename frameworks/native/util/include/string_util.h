@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,6 @@ int CopyCString(char* dst, const std::string& src, size_t len);
 int CreateCString(char** dst, const std::string& src, size_t len = 1024); // default maxLen is 1024
 int ConvertCString(const std::string& str, char** sp, size_t len = 8 * 1024); // default maxLen is 8*1024
 int ConvertCStringVec(const std::vector<std::string>& vec, char*** strs, size_t& len);
-void MemsetSafe(void* dest, size_t destSize);
 
 template <typename T> void DeletePointer(T** p)
 {

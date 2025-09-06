@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,6 +40,7 @@
 #include "query_argument.h"
 #include "query_sys_event_callback_stub.h"
 #include "ret_code.h"
+#include "securec.h"
 #include "string_ex.h"
 #include "string_util.h"
 #include "sys_event_service_proxy.h"
@@ -281,7 +282,7 @@ HWTEST_F(HiSysEventAdapterNativeTest, CStringUtilTest, TestSize.Level1)
     ASSERT_EQ(ret, 0);
     ASSERT_EQ(len, 2); // 2 is a expected length
     char dest4[3] = {'0', '1', '2'};
-    StringUtil::MemsetSafe(reinterpret_cast<void*>(dest4), 3); // 3 is a test length
+    (void)memset_s(reinterpret_cast<void*>(dest4), 3, 0, 3); // 3 is a test length
     ASSERT_EQ(dest4[0], 0);
     ASSERT_EQ(dest4[1], 0); // 1 is a test index
     ASSERT_EQ(dest4[2], 0); // 2 is a test index

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "hilog/log.h"
 #include "hisysevent_record_c.h"
+#include "securec.h"
 #include "string_util.h"
 
 #undef LOG_DOMAIN
@@ -63,7 +64,7 @@ int HiSysEventRecordConvertor::ConvertJsonStr(const HiSysEventRecordCls& recordO
 
 void HiSysEventRecordConvertor::InitRecord(HiSysEventRecordC& record)
 {
-    OHOS::HiviewDFX::StringUtil::MemsetSafe(&record, sizeof(HiSysEventRecordC));
+    (void)memset_s(&record, sizeof(HiSysEventRecordC), 0, sizeof(HiSysEventRecordC));
 }
 
 void HiSysEventRecordConvertor::DeleteRecord(HiSysEventRecordC& record)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -41,30 +41,6 @@ RawData::RawData()
     }
     capacity_ = EXPAND_BUF_SIZE;
     len_ = 0;
-}
-
-RawData::RawData(uint8_t* data, size_t dataLen)
-{
-    if (data == nullptr || dataLen == 0) {
-        data_ = new(std::nothrow) uint8_t[EXPAND_BUF_SIZE];
-        if (data_ == nullptr) {
-            return;
-        }
-        capacity_ = EXPAND_BUF_SIZE;
-        len_ = 0;
-        return;
-    }
-    data_ = new(std::nothrow) uint8_t[dataLen];
-    if (data_ == nullptr) {
-        return;
-    }
-    auto ret = memcpy_s(data_, dataLen, data, dataLen);
-    if (ret != EOK) {
-        HILOG_ERROR(LOG_CORE, "Failed to copy RawData in constructor, ret is %{public}d.", ret);
-        return;
-    }
-    capacity_ = dataLen;
-    len_ = dataLen;
 }
 
 RawData::RawData(const RawData& data)
@@ -150,27 +126,30 @@ bool RawData::Update(uint8_t* data, size_t len, size_t pos)
             "len_ is %{public}zu", len, pos, len_);
         return false;
     }
+    if (data_ == nullptr) {
+        HILOG_ERROR(LOG_CORE, "Try to update an invalid raw data");
+        return false;
+    }
     auto ret = EOK;
     if ((pos + len) > capacity_) {
         size_t expandedSize = (len > EXPAND_BUF_SIZE) ? len : EXPAND_BUF_SIZE;
-        uint8_t* resizedData = new(std::nothrow) uint8_t[capacity_ + expandedSize];
+        size_t expandedCapacity = capacity_ + expandedSize;
+        uint8_t* resizedData = new(std::nothrow) uint8_t[expandedCapacity];
         if (resizedData == nullptr) {
             return false;
         }
-        ret = memcpy_s(resizedData, len_, data_, len_);
+        ret = memcpy_s(resizedData, expandedCapacity, data_, len_);
         if (ret != EOK) {
             HILOG_ERROR(LOG_CORE, "Failed to expand capacity of raw data, ret is %{public}d.", ret);
             delete[] resizedData;
             return false;
         }
         capacity_ += expandedSize;
-        if (data_ != nullptr) {
-            delete[] data_;
-        }
+        delete[] data_;
         data_ = resizedData;
     }
     // append new data
-    ret = memcpy_s(data_ + pos, len, data, len);
+    ret = memcpy_s(data_ + pos, capacity_ - pos, data, len);
     if (ret != EOK) {
         HILOG_ERROR(LOG_CORE, "Failed to append new data, ret is %{public}d.", ret);
         return false;
