@@ -133,7 +133,7 @@ static int InitEventHeader(struct HiSysEventEasyHeader* header, const char* doma
         gPid = GetRealPid();
         header->pid = (uint32_t)((gPid != INVALID_PID) ? gPid : getpid());
     } else {
-        header->pid = gPid;
+        header->pid = (uint32_t)gPid;
     }
     header->tid = (uint32_t)gettid();
     header->uid = (uint32_t)getuid();
