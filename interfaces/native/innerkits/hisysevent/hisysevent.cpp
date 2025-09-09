@@ -42,20 +42,24 @@ HiSysEvent::EventBase::EventBase(const std::string& domain, const std::string& e
     uint64_t timeStamp)
 {
     retCode_ = 0;
+    if (!StringFilter::GetInstance().IsValidName(domain, MAX_DOMAIN_LENGTH)) {
+        SetRetCode(ERR_DOMAIN_NAME_INVALID);
+        return;
+    }
+    if (!StringFilter::GetInstance().IsValidName(eventName, MAX_EVENT_NAME_LENGTH)) {
+        SetRetCode(ERR_EVENT_NAME_INVALID);
+        return;
+    }
     // append domain to header
-    auto ret = memcpy_s(header_.domain, MAX_DOMAIN_LENGTH + 1, domain.c_str(), domain.length());
-    if (ret != EOK) {
+    if (memcpy_s(header_.domain, MAX_DOMAIN_LENGTH + 1, domain.c_str(), domain.length()) != EOK) {
         SetRetCode(ERR_RAW_DATA_WROTE_EXCEPTION);
         return;
     }
-    header_.domain[domain.length()] = '\0';
     // append name to header
-    ret = memcpy_s(header_.name, MAX_EVENT_NAME_LENGTH + 1, eventName.c_str(), eventName.length());
-    if (ret != EOK) {
+    if (memcpy_s(header_.name, MAX_EVENT_NAME_LENGTH + 1, eventName.c_str(), eventName.length()) != EOK) {
         SetRetCode(ERR_RAW_DATA_WROTE_EXCEPTION);
         return;
     }
-    header_.name[eventName.length()] = '\0';
     // append event type to header
     header_.type = static_cast<uint8_t>(type - 1);
     // append timestamp to header
