@@ -337,13 +337,11 @@ private:
     static int InnerWrite(const std::string& domain, const std::string& eventName,
         int type, uint64_t timeStamp, Types... keyValues)
     {
-        if (!StringFilter::GetInstance().IsValidName(domain, MAX_DOMAIN_LENGTH)) {
-            return ExplainThenReturnRetCode(ERR_DOMAIN_NAME_INVALID);
-        }
-        if (!StringFilter::GetInstance().IsValidName(eventName, MAX_EVENT_NAME_LENGTH)) {
-            return ExplainThenReturnRetCode(ERR_EVENT_NAME_INVALID);
-        }
         EventBase eventBase(domain, eventName, type, timeStamp);
+        if (IsError(eventBase)) {
+            return ExplainThenReturnRetCode(eventBase.GetRetCode());
+        }
+
         WritebaseInfo(eventBase);
         if (IsError(eventBase)) {
             return ExplainThenReturnRetCode(eventBase.GetRetCode());
