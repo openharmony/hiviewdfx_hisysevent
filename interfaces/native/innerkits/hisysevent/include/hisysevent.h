@@ -231,6 +231,7 @@ public:
         static constexpr char USERIAM_PIN_HDF[] = "USERIAM_PIN_HDF";
         static constexpr char UWB[] = "UWB";
         static constexpr char VIR_SERVICE[] = "VIR_SERVICE";
+        static constexpr char VM_SERVICE_UE[] = "VM_SERVICE_UE";
         static constexpr char VM_SERVICE[] = "VM_SERVICE";
         static constexpr char WATCH_SENSORHUB[] = "WATCH_SENSORHUB";
         static constexpr char WAUDIO_STEREO[] = "WAUDIO_STEREO";
