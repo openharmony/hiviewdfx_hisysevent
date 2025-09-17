@@ -48,12 +48,12 @@ class QueryRuleAni implements hiSysEvent.QueryRule {
 }
 
 interface Result {
-    code: number;
+    code: int;
     message: string;
 }
 
 class ResultInner implements Result {
-    code: number = 0;
+    code: int = 0;
     message: string = "";
 }
 
@@ -124,7 +124,7 @@ export default namespace hiSysEvent {
         taskpool.execute(cb).then((ret: NullishType): void => {
             let retError = new BusinessError<void>();
             let writeResult: Result = ret as Result;
-            retError.code = writeResult.code as number;
+            retError.code = writeResult.code;
             retError.message = writeResult.message as string;
             callback(retError, undefined);
         });
@@ -139,7 +139,7 @@ export default namespace hiSysEvent {
                 if (writeResult.code === 0) {
                     resolve(undefined);
                 } else {
-                    retError.code = writeResult.code as number;
+                    retError.code = writeResult.code;
                     retError.message = writeResult.message as string;
                     reject(retError)
                 }
