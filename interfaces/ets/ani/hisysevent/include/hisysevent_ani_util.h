@@ -41,22 +41,22 @@ enum EventTypeAni : int32_t {
     BEHAVIOR = 4
 };
 
-constexpr char CLASS_NAME_INT[] = "Lstd/core/Int;";
-constexpr char CLASS_NAME_BOOLEAN[] = "Lstd/core/Boolean;";
-constexpr char CLASS_NAME_DOUBLE[] = "Lstd/core/Double;";
-constexpr char CLASS_NAME_STACKTRACE[] = "Lstd/core/StackTrace;";
-constexpr char CLASS_NAME_STRING[] = "Lstd/core/String;";
-constexpr char CLASS_NAME_BIGINT[] = "Lescompat/BigInt;";
-constexpr char CLASS_NAME_ARRAY[] = "Lescompat/Array;";
-constexpr char CLASS_NAME_SYSEVENTINFOANI[] = "L@ohos/hiSysEvent/SysEventInfoAni;";
-constexpr char ENUM_NAME_EVENT_TYPE[] = "L@ohos/hiSysEvent/hiSysEvent/EventType;";
-constexpr char CLASS_NAME_HISYSEVENTANI[] = "L@ohos/hiSysEvent/hiSysEvent;";
-constexpr char CLASS_NAME_RESULTINNER[] = "L@ohos/hiSysEvent/ResultInner;";
-constexpr char CLASS_NAME_WATCHERANI[] = "L@ohos/hiSysEvent/WatcherAni;";
-constexpr char CLASS_NAME_QUERIERANI[] = "L@ohos/hiSysEvent/QuerierAni;";
-constexpr char CLASS_NAME_BUSINESSERROR[] = "L@ohos/base/BusinessError;";
-constexpr char CLASS_NAME_ITERATOR[] = "Lescompat/Iterator;";
-constexpr char CLASS_NAME_RECORD[] = "Lescompat/Record;";
+constexpr char CLASS_NAME_INT[] = "std.core.Int";
+constexpr char CLASS_NAME_BOOLEAN[] = "std.core.Boolean";
+constexpr char CLASS_NAME_DOUBLE[] = "std.core.Double";
+constexpr char CLASS_NAME_STACKTRACE[] = "std.core.StackTrace";
+constexpr char CLASS_NAME_STRING[] = "std.core.String";
+constexpr char CLASS_NAME_BIGINT[] = "escompat.BigInt";
+constexpr char CLASS_NAME_ARRAY[] = "escompat.Array";
+constexpr char CLASS_NAME_SYSEVENTINFOANI[] = "@ohos.hiSysEvent.SysEventInfoAni";
+constexpr char ENUM_NAME_EVENT_TYPE[] = "@ohos.hiSysEvent.hiSysEvent.EventType";
+constexpr char CLASS_NAME_HISYSEVENTANI[] = "@ohos.hiSysEvent.hiSysEvent";
+constexpr char CLASS_NAME_RESULTINNER[] = "@ohos.hiSysEvent.ResultInner";
+constexpr char CLASS_NAME_WATCHERANI[] = "@ohos.hiSysEvent.WatcherAni";
+constexpr char CLASS_NAME_QUERIERANI[] = "@ohos.hiSysEvent.QuerierAni";
+constexpr char CLASS_NAME_BUSINESSERROR[] = "@ohos.base.BusinessError";
+constexpr char CLASS_NAME_ITERATOR[] = "escompat.Iterator";
+constexpr char CLASS_NAME_RECORD[] = "escompat.Record";
 constexpr char EVENT_TYPE_ATTR[] = "eventType";
 constexpr char FUNC_NAME_GETLONG[] = "getLong";
 constexpr char FUNC_NAME_UNBOXED[] = "unboxed";
@@ -93,7 +93,7 @@ public:
     static ani_object CreateBool(ani_env *env, bool boolValue);
     static void CreateHiSysEventInfoJsObject(ani_env *env, const std::string& jsonStr, ani_object& sysEventInfo);
     static void CreateJsSysEventInfoArray(ani_env *env, const std::vector<std::string>& originValues,
-        ani_array_ref& sysEventInfoJsArray);
+        ani_array& sysEventInfoJsArray);
     static void AppendInt32PropertyToJsObject(ani_env *env, const std::string& key, const int32_t& value,
         ani_object& jsObj);
     static void AppendStringPropertyToJsObject(ani_env *env, const std::string& key, const std::string& value,

@@ -98,7 +98,7 @@ int64_t HiSysEventAniUtil::ParseBigintValue(ani_env *env, ani_ref elementRef)
         return static_cast<int64_t>(longNum);
     }
     ani_method getLongMethod {};
-    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_GETLONG, ":J", &getLongMethod)) {
+    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_GETLONG, ":l", &getLongMethod)) {
         HILOG_ERROR(LOG_CORE, "find method %{public}s failed", FUNC_NAME_GETLONG);
         return static_cast<int64_t>(longNum);
     }
@@ -118,7 +118,7 @@ bool HiSysEventAniUtil::ParseBoolValue(ani_env *env, ani_ref elementRef)
         return false;
     }
     ani_method unboxedMethod {};
-    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_UNBOXED, ":Z", &unboxedMethod)) {
+    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_UNBOXED, ":z", &unboxedMethod)) {
         HILOG_ERROR(LOG_CORE, "find method %{public}s failed", FUNC_NAME_UNBOXED);
         return false;
     }
@@ -138,7 +138,7 @@ int HiSysEventAniUtil::ParseIntValue(ani_env *env, ani_ref elementRef)
         return static_cast<int>(intVal);
     }
     ani_method unboxedMethod {};
-    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_UNBOXED, ":I", &unboxedMethod)) {
+    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_UNBOXED, ":i", &unboxedMethod)) {
         HILOG_ERROR(LOG_CORE, "find method %{public}s failed", FUNC_NAME_UNBOXED);
         return static_cast<int>(intVal);
     }
@@ -158,7 +158,7 @@ double HiSysEventAniUtil::ParseNumberValue(ani_env *env, ani_ref elementRef)
         return static_cast<double>(doubleVal);
     }
     ani_method unboxedMethod {};
-    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_UNBOXED, ":D", &unboxedMethod)) {
+    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_UNBOXED, ":d", &unboxedMethod)) {
         HILOG_ERROR(LOG_CORE, "find method %{public}s failed", FUNC_NAME_UNBOXED);
         return static_cast<double>(doubleVal);
     }
@@ -174,7 +174,7 @@ std::map<std::string, ani_ref> HiSysEventAniUtil::ParseRecord(ani_env *env, ani_
     std::map<std::string, ani_ref> recordResult = {};
     ani_ref keys {};
     if (ANI_OK != env->Object_CallMethodByName_Ref(static_cast<ani_object>(recordRef), "keys",
-        ":Lescompat/IterableIterator;", &keys)) {
+        ":C{escompat.IterableIterator}", &keys)) {
         HILOG_ERROR(LOG_CORE, "call method keys failed.");
         return recordResult;
     }
@@ -315,7 +315,7 @@ ani_object HiSysEventAniUtil::WriteResult(ani_env *env, const std::pair<int32_t,
     if (ANI_OK != env->Class_FindMethod(cls, "<set>code", nullptr, &codeSetter)) {
         HILOG_ERROR(LOG_CORE, "find method <set>code failed");
     }
-    if (ANI_OK != env->Object_CallMethod_Void(resultObj, codeSetter, static_cast<ani_double>(result.first))) {
+    if (ANI_OK != env->Object_CallMethod_Void(resultObj, codeSetter, static_cast<ani_int>(result.first))) {
         HILOG_ERROR(LOG_CORE, "call method <set>code failed");
         return resultObj;
     }
@@ -342,7 +342,7 @@ ani_object HiSysEventAniUtil::CreateDoubleInt64(ani_env *env, int64_t number)
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "D:V", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
@@ -362,7 +362,7 @@ ani_object HiSysEventAniUtil::CreateDouble(ani_env *env, double number)
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "D:V", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
@@ -382,7 +382,7 @@ ani_object HiSysEventAniUtil::CreateBool(ani_env *env, bool boolValue)
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "D:V", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
@@ -402,7 +402,7 @@ ani_object HiSysEventAniUtil::CreateDoubleUint64(ani_env *env, uint64_t number)
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "D:V", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
@@ -422,7 +422,7 @@ ani_object HiSysEventAniUtil::CreateDoubleInt32(ani_env *env, int32_t number)
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "D:V", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
@@ -463,7 +463,7 @@ ani_object HiSysEventAniUtil::CreateDoubleUint32(ani_env *env, uint32_t number)
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "D:V", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
@@ -492,7 +492,7 @@ void HiSysEventAniUtil::ThrowAniError(ani_env *env, int32_t code, const std::str
         return;
     }
     ani_method ctor {};
-    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", ":V", &ctor)) {
+    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", ":", &ctor)) {
         HILOG_ERROR(LOG_CORE, "find method BusinessError constructor failed");
         return;
     }
@@ -501,7 +501,7 @@ void HiSysEventAniUtil::ThrowAniError(ani_env *env, int32_t code, const std::str
         HILOG_ERROR(LOG_CORE, "create object %{public}s failed", CLASS_NAME_BUSINESSERROR);
         return;
     }
-    if (ANI_OK != env->Object_SetPropertyByName_Double(error, "code", static_cast<ani_double>(code))) {
+    if (ANI_OK != env->Object_SetPropertyByName_Int(error, "code", static_cast<ani_int>(code))) {
         HILOG_ERROR(LOG_CORE, "set property BusinessError.code failed");
         return;
     }
@@ -625,14 +625,14 @@ static bool CreateParamItemTypeValue(ani_env *env, Json::Value& jsonValue, ani_o
 static void AppendArrayParams(ani_env *env, ani_object& sysEventInfo, std::string& key, Json::Value& value)
 {
     size_t len = value.size();
-    ani_array_ref array = nullptr;
+    ani_array array = nullptr;
     ani_class cls;
     if (ANI_OK != env->FindClass(CLASS_NAME_SYSEVENTINFOANI, &cls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_SYSEVENTINFOANI);
         return;
     }
     ani_ref initial_array = nullptr;
-    if (ANI_OK != env->Array_New_Ref(cls, len, initial_array, &array)) {
+    if (ANI_OK != env->Array_New(len, initial_array, &array)) {
         HILOG_ERROR(LOG_CORE, "create %{public}s array failed", CLASS_NAME_SYSEVENTINFOANI);
         return;
     }
@@ -641,7 +641,7 @@ static void AppendArrayParams(ani_env *env, ani_object& sysEventInfo, std::strin
         if (!CreateParamItemTypeValue(env, value[static_cast<int>(i)], item)) {
             continue;
         }
-        if (ANI_OK != env->Array_Set_Ref(array, i, static_cast<ani_ref>(item))) {
+        if (ANI_OK != env->Array_Set(array, i, static_cast<ani_ref>(item))) {
             HILOG_ERROR(LOG_CORE, "set %{public}zu item failed", i);
             return;
         }
@@ -672,7 +672,7 @@ static bool IsBaseInfoKey(std::string& propertyName)
 }
 
 void HiSysEventAniUtil::CreateJsSysEventInfoArray(ani_env *env, const std::vector<std::string>& originValues,
-    ani_array_ref& sysEventInfoJsArray)
+    ani_array& sysEventInfoJsArray)
 {
     auto len = originValues.size();
     ani_class cls;
@@ -692,7 +692,7 @@ void HiSysEventAniUtil::CreateJsSysEventInfoArray(ani_env *env, const std::vecto
             return;
         }
         CreateHiSysEventInfoJsObject(env, originValues[i], sysEventInfo);
-        ani_status ret = env->Array_Set_Ref(sysEventInfoJsArray, i, static_cast<ani_ref>(sysEventInfo));
+        ani_status ret = env->Array_Set(sysEventInfoJsArray, i, static_cast<ani_ref>(sysEventInfo));
         if (ret != ANI_OK) {
             HILOG_DEBUG(LOG_CORE, "set %{public}zu sysEventInfo failed", i);
         }
@@ -789,13 +789,13 @@ void HiSysEventAniUtil::DetachAniEnv(ani_vm *vm)
 bool HiSysEventAniUtil::GetBooleans(ani_env *env, ani_ref arrayRef, std::vector<bool>& bools)
 {
     ani_size len = 0;
-    if (ANI_OK != env->Array_GetLength(static_cast<ani_array_ref>(arrayRef), &len)) {
+    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
         return false;
     }
     for (ani_size i = 0; i < len; i++) {
         ani_ref element = nullptr;
-        if (ANI_OK != env->Array_Get_Ref(static_cast<ani_array_ref>(arrayRef), i, &element)) {
+        if (ANI_OK != env->Array_Get(static_cast<ani_array>(arrayRef), i, &element)) {
             HILOG_ERROR(LOG_CORE, "failed to get the element of array");
             return false;
         }
@@ -807,13 +807,13 @@ bool HiSysEventAniUtil::GetBooleans(ani_env *env, ani_ref arrayRef, std::vector<
 bool HiSysEventAniUtil::GetDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles)
 {
     ani_size len = 0;
-    if (ANI_OK != env->Array_GetLength(static_cast<ani_array_ref>(arrayRef), &len)) {
+    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
         return false;
     }
     for (ani_size i = 0; i < len; i++) {
         ani_ref element = nullptr;
-        if (ANI_OK != env->Array_Get_Ref(static_cast<ani_array_ref>(arrayRef), i, &element)) {
+        if (ANI_OK != env->Array_Get(static_cast<ani_array>(arrayRef), i, &element)) {
             HILOG_ERROR(LOG_CORE, "failed to get the element of array");
             return false;
         }
@@ -825,13 +825,13 @@ bool HiSysEventAniUtil::GetDoubles(ani_env *env, ani_ref arrayRef, std::vector<d
 bool HiSysEventAniUtil::GetStrings(ani_env *env, ani_ref arrayRef, std::vector<std::string>& strs)
 {
     ani_size len = 0;
-    if (ANI_OK != env->Array_GetLength(static_cast<ani_array_ref>(arrayRef), &len)) {
+    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
         return false;
     }
     for (ani_size i = 0; i < len; i++) {
         ani_ref element = nullptr;
-        if (ANI_OK != env->Array_Get_Ref(static_cast<ani_array_ref>(arrayRef), i, &element)) {
+        if (ANI_OK != env->Array_Get(static_cast<ani_array>(arrayRef), i, &element)) {
             HILOG_ERROR(LOG_CORE, "failed to get the element of array");
             return false;
         }
@@ -843,13 +843,13 @@ bool HiSysEventAniUtil::GetStrings(ani_env *env, ani_ref arrayRef, std::vector<s
 bool HiSysEventAniUtil::GetIntsToDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles)
 {
     ani_size len = 0;
-    if (ANI_OK != env->Array_GetLength(static_cast<ani_array_ref>(arrayRef), &len)) {
+    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
         return false;
     }
     for (ani_size i = 0; i < len; i++) {
         ani_ref element = nullptr;
-        if (ANI_OK != env->Array_Get_Ref(static_cast<ani_array_ref>(arrayRef), i, &element)) {
+        if (ANI_OK != env->Array_Get(static_cast<ani_array>(arrayRef), i, &element)) {
             HILOG_ERROR(LOG_CORE, "failed to get the element of array");
             return false;
         }
@@ -861,13 +861,13 @@ bool HiSysEventAniUtil::GetIntsToDoubles(ani_env *env, ani_ref arrayRef, std::ve
 bool HiSysEventAniUtil::GetBigints(ani_env *env, ani_ref arrayRef, std::vector<int64_t>& bigints)
 {
     ani_size len = 0;
-    if (ANI_OK != env->Array_GetLength(static_cast<ani_array_ref>(arrayRef), &len)) {
+    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
         return false;
     }
     for (ani_size i = 0; i < len; i++) {
         ani_ref element = nullptr;
-        if (ANI_OK != env->Array_Get_Ref(static_cast<ani_array_ref>(arrayRef), i, &element)) {
+        if (ANI_OK != env->Array_Get(static_cast<ani_array>(arrayRef), i, &element)) {
             HILOG_ERROR(LOG_CORE, "failed to get the element of array");
             return false;
         }

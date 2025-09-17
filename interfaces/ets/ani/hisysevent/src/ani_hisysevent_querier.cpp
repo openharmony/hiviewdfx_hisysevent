@@ -60,13 +60,13 @@ void AniHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvents,
     aniCallbackManager->Add(callbackContextAni,
         [this, sysEvents, seq] (ani_vm *vm, ani_ref ref, pid_t threadId) {
             ani_env *env = HiSysEventAniUtil::AttachAniEnv(vm);
-            ani_array_ref sysEventInfoJsArray = nullptr;
+            ani_array sysEventInfoJsArray = nullptr;
             ani_class cls {};
             if (ANI_OK != env->FindClass(CLASS_NAME_SYSEVENTINFOANI, &cls)) {
                 HILOG_ERROR(LOG_CORE, "find Class %{public}s failed", CLASS_NAME_SYSEVENTINFOANI);
                 return;
             }
-            if (ANI_OK != env->Array_New_Ref(cls, sysEvents.size(), nullptr, &sysEventInfoJsArray)) {
+            if (ANI_OK != env->Array_New(sysEvents.size(), nullptr, &sysEventInfoJsArray)) {
                 HILOG_ERROR(LOG_CORE, "create object %{public}s failed", CLASS_NAME_SYSEVENTINFOANI);
                 return;
             }
