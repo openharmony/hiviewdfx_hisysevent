@@ -93,12 +93,12 @@ static bool IsValidParamType(AniArgsType type)
             type < static_cast<int32_t>(AniArgsType::ANI_UNDEFINED));
 }
 
-static AniArgsType GetArrayType(ani_env *env, ani_array_ref arrayRef)
+static AniArgsType GetArrayType(ani_env *env, ani_array arrayRef)
 {
     ani_size index = 0;
     ani_ref valueRef {};
-    if (ANI_OK != env->Array_Get_Ref(static_cast<ani_array_ref>(arrayRef), index, &valueRef)) {
-        HILOG_ERROR(LOG_CORE, "get first element in array failed.");
+    if (ANI_OK != env->Array_Get(arrayRef, index, &valueRef)) {
+        HILOG_ERROR(LOG_CORE, "fail to get first element in array.");
         return AniArgsType::ANI_UNKNOWN;
     }
     return GetArgType(env, static_cast<ani_object>(valueRef));
@@ -157,7 +157,7 @@ static bool AddArrayParamToEventInfoExec(ani_env *env, const std::string& key, a
 
 static bool AddArrayParamToEventInfo(ani_env *env, const std::string& key, ani_ref arrayRef, HiSysEventInfo& info)
 {
-    AniArgsType arrayType = GetArrayType(env, static_cast<ani_array_ref>(arrayRef));
+    AniArgsType arrayType = GetArrayType(env, static_cast<ani_array>(arrayRef));
     if (!IsValidParamType(arrayType)) {
         return false;
     }
@@ -265,13 +265,13 @@ static void ParseWatcher(ani_env *env, ani_object watcher, std::vector<ListenerR
         return;
     }
     ani_size size;
-    if (ANI_OK != env->Array_GetLength(static_cast<ani_array_ref>(rulesRef), &size)) {
+    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(rulesRef), &size)) {
         HILOG_ERROR(LOG_CORE, "get array failed");
         return;
     }
     for (ani_size i = 0; i < size ; i++) {
         ani_ref value;
-        auto status = env->Array_Get_Ref(static_cast<ani_array_ref>(rulesRef), i, &value);
+        auto status = env->Array_Get(static_cast<ani_array>(rulesRef), i, &value);
         if (status != ANI_OK) {
             HILOG_ERROR(LOG_CORE, "get %{public}zu item from array failed", i);
             return;
@@ -289,13 +289,13 @@ static QueryRule ParseQueryRule(ani_env *env, const ani_object value)
         return QueryRule("", names);
     }
     ani_size size;
-    if (ANI_OK != env->Array_GetLength(static_cast<ani_array_ref>(namesRef), &size)) {
+    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(namesRef), &size)) {
         HILOG_ERROR(LOG_CORE, "get array failed");
         return QueryRule("", names);
     }
     for (ani_size i = 0; i < size ; i++) {
         ani_ref value;
-        auto status = env->Array_Get_Ref(static_cast<ani_array_ref>(namesRef), i, &value);
+        auto status = env->Array_Get(static_cast<ani_array>(namesRef), i, &value);
         if (status != ANI_OK) {
             return QueryRule("", names);
         }
@@ -339,13 +339,13 @@ static bool IsQueryRuleValid(ani_env *env, const QueryRule& rule)
 static int32_t ParseQueryRules(ani_env *env, ani_array rulesAni, std::vector<QueryRule> &rules)
 {
     ani_size size;
-    if (ANI_OK != env->Array_GetLength(static_cast<ani_array_ref>(rulesAni), &size)) {
+    if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(rulesAni), &size)) {
         HILOG_ERROR(LOG_CORE, "get array failed");
         return ERR_ANI_PARSED_FAILED;
     }
     for (ani_size i = 0; i < size ; i++) {
         ani_ref value;
-        auto status = env->Array_Get_Ref(static_cast<ani_array_ref>(rulesAni), i, &value);
+        auto status = env->Array_Get(static_cast<ani_array>(rulesAni), i, &value);
         if (status != ANI_OK) {
             HILOG_ERROR(LOG_CORE, "get %{public}zu item from array failed", i);
             return ERR_ANI_PARSED_FAILED;
@@ -362,18 +362,18 @@ static int32_t ParseQueryRules(ani_env *env, ani_array rulesAni, std::vector<Que
 
 static void ParseQueryArg(ani_env *env, ani_object queryArgAni, QueryArg &queryArg)
 {
-    ani_double beginTimeRef {};
-    if (ANI_OK != env->Object_GetPropertyByName_Double(queryArgAni, "beginTime", &beginTimeRef)) {
+    ani_long beginTimeRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Long(queryArgAni, "beginTime", &beginTimeRef)) {
         HILOG_ERROR(LOG_CORE, "get property beginTime failed,");
     }
     queryArg.beginTime = static_cast<int64_t>(beginTimeRef);
-    ani_double endTimeRef {};
-    if (ANI_OK != env->Object_GetPropertyByName_Double(queryArgAni, "endTime", &endTimeRef)) {
+    ani_long endTimeRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Long(queryArgAni, "endTime", &endTimeRef)) {
         HILOG_ERROR(LOG_CORE, "get property endTime failed");
     }
     queryArg.endTime = static_cast<int64_t>(endTimeRef);
-    ani_double maxEventsRef {};
-    if (ANI_OK != env->Object_GetPropertyByName_Double(queryArgAni, "maxEvents", &maxEventsRef)) {
+    ani_long maxEventsRef {};
+    if (ANI_OK != env->Object_GetPropertyByName_Long(queryArgAni, "maxEvents", &maxEventsRef)) {
         HILOG_ERROR(LOG_CORE, "get property maxEvents failed");
     }
     queryArg.maxEvents = static_cast<int64_t>(maxEventsRef);
@@ -525,7 +525,7 @@ static void GetStack(ani_env *env, std::string &stackTrace)
     }
     for (ani_size i = 0; i < length; i++) {
         ani_ref stackTraceElementRef = nullptr;
-        status = env->Array_Get_Ref(static_cast<ani_array_ref>(stackTraceElementArray), i, &stackTraceElementRef);
+        status = env->Array_Get(static_cast<ani_array>(stackTraceElementArray), i, &stackTraceElementRef);
         if (ANI_OK != status) {
             HILOG_ERROR(LOG_CORE, "get %{public}zu item from array failed", i);
         }

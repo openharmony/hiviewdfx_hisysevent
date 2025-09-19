@@ -19,7 +19,7 @@ class SysEventInfoAni implements hiSysEvent.SysEventInfo {
     domain: string = "";
     name: string = "";
     eventType: hiSysEvent.EventType = hiSysEvent.EventType.FAULT;
-    params?: object;
+    params?: Record<string, boolean | int | double | string | bigint | boolean[] | int[] | double[] | string[] | bigint[]> | null | undefined;
 }
 
 class WatcherAni implements hiSysEvent.Watcher {
@@ -30,21 +30,21 @@ class WatcherAni implements hiSysEvent.Watcher {
 
 class QuerierAni implements hiSysEvent.Querier {
     onQuery: (infos: hiSysEvent.SysEventInfo[]) => void = (infos: hiSysEvent.SysEventInfo[]) => {};
-    onComplete: (reason: number, total: number) => void = (reason: number, total: number) => {};
+    onComplete: (reason: int, total: int) => void = (reason: int, total: int) => {};
 }
 
 class QueryArgAni implements hiSysEvent.QueryArg {
-    beginTime: number = 0;
-    endTime: number = 0;
-    maxEvents: number = 0;
-    fromSeq?: number | undefined;
-    toSeq?: number | undefined;
+    beginTime: long = 0;
+    endTime: long = 0;
+    maxEvents: long = 0;
+    fromSeq?: long | null | undefined;
+    toSeq?: long | null | undefined;
 }
 
 class QueryRuleAni implements hiSysEvent.QueryRule {
     domain: string = "";
     names: string[] = [];
-    condition?: string | undefined;
+    condition?: string | null | undefined;
 }
 
 interface Result {
@@ -70,7 +70,7 @@ export default namespace hiSysEvent {
         domain: string;
         name: string;
         eventType: EventType;
-        params?: object;
+        params?: Record<string, boolean | int | double | string | bigint | boolean[] | int[] | double[] | string[] | bigint[]> | null | undefined;
      }
 
     export interface Watcher {
@@ -82,7 +82,7 @@ export default namespace hiSysEvent {
     export interface WatchRule {
         domain: string;
         name: string;
-        tag?: string;
+        tag?: string | null | undefined;
         ruleType: RuleType;
     }
 
@@ -95,28 +95,28 @@ export default namespace hiSysEvent {
     export interface QueryRule {
       domain: string;
       names: string[];
-      condition?: string;
+      condition?: string | null | undefined;
     }
 
     export interface QueryArg {
-        beginTime: number;
-        endTime: number;
-        maxEvents: number;
-        fromSeq?: number;
-        toSeq?: number;
+        beginTime: long;
+        endTime: long;
+        maxEvents: long;
+        fromSeq?: long | null | undefined;
+        toSeq?: long | null | undefined;
     }
 
     export interface Querier {
         onQuery: (infos: SysEventInfo[]) => void;
-        onComplete: (reason: number, total: number) => void;
+        onComplete: (reason: int, total: int) => void;
     }
 
     native function writeSync(info: SysEventInfo): Result;
     export native function addWatcher(watcher: Watcher): void;
     export native function removeWatcher(watcher: Watcher): void;
     export native function query(queryArg: QueryArg, rules: QueryRule[], querier: Querier): void;
-    export native function exportSysEvents(queryArg: QueryArg, rules: QueryRule[]): number;
-    export native function subscribe(rules: QueryRule[]): number;
+    export native function exportSysEvents(queryArg: QueryArg, rules: QueryRule[]): long;
+    export native function subscribe(rules: QueryRule[]): long;
     export native function unsubscribe(): void;
 
     export function write(info: SysEventInfo, callback: AsyncCallback<void>): void {
