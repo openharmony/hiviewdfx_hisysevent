@@ -176,7 +176,7 @@ std::map<std::string, ani_ref> HiSysEventAniUtil::ParseRecord(ani_env *env, ani_
     std::map<std::string, ani_ref> recordResult = {};
     ani_ref keys {};
     if (ANI_OK != env->Object_CallMethodByName_Ref(static_cast<ani_object>(recordRef), "keys",
-        ":C{escompat.IterableIterator}", &keys)) {
+        ":C{std.core.IterableIterator}", &keys)) {
         HILOG_ERROR(LOG_CORE, "call method keys failed.");
         return recordResult;
     }
