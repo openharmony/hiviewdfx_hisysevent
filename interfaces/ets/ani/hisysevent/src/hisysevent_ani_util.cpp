@@ -772,8 +772,8 @@ ani_env* HiSysEventAniUtil::AttachAniEnv(ani_vm *vm)
 {
     ani_env *workerEnv = nullptr;
     ani_options aniArgs {0, nullptr};
-    if (ANI_OK != vm->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &workerEnv)) {
-        HILOG_ERROR(LOG_CORE, "get attach env failed");
+    if (ani_status ret = vm->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &workerEnv); ret != ANI_OK) {
+        HILOG_ERROR(LOG_CORE, "get attach env failed, attach ret is %{public}d", static_cast<int>(ret));
         return nullptr;
     }
     return workerEnv;
