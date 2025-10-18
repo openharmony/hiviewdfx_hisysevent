@@ -59,6 +59,9 @@ void AniHiSysEventListener::OnEvent(const std::string& domain, const std::string
     aniCallbackManager->Add(callbackContextAni,
         [this, domain, eventName, eventType, eventDetail] (ani_vm *vm, ani_ref ref, pid_t threadId) {
             ani_env *env = HiSysEventAniUtil::AttachAniEnv(vm);
+            if (env == nullptr) {
+                return;
+            }
             ani_object sysEventInfo = nullptr;
             ani_class cls {};
             if (ANI_OK != env->FindClass(CLASS_NAME_SYSEVENTINFOANI, &cls)) {
@@ -101,6 +104,9 @@ void AniHiSysEventListener::OnServiceDied()
     aniCallbackManager->Add(callbackContextAni,
         [this] (ani_vm *vm, ani_ref ref, pid_t threadId) {
             ani_env *env = HiSysEventAniUtil::AttachAniEnv(vm);
+            if (env == nullptr) {
+                return;
+            }
             ani_class watcherCls {};
             if (ANI_OK != env->FindClass(CLASS_NAME_WATCHERANI, &watcherCls)) {
                 return;

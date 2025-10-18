@@ -60,6 +60,9 @@ void AniHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvents,
     aniCallbackManager->Add(callbackContextAni,
         [this, sysEvents, seq] (ani_vm *vm, ani_ref ref, pid_t threadId) {
             ani_env *env = HiSysEventAniUtil::AttachAniEnv(vm);
+            if (env == nullptr) {
+                return;
+            }
             ani_array sysEventInfoJsArray = nullptr;
             ani_class cls {};
             if (ANI_OK != env->FindClass(CLASS_NAME_SYSEVENTINFOANI, &cls)) {
@@ -96,6 +99,9 @@ void AniHiSysEventQuerier::OnComplete(int32_t reason, int32_t total, int64_t seq
     aniCallbackManager->Add(callbackContextAni,
         [this, reason, total, seq] (ani_vm *vm, ani_ref ref, pid_t threadId) {
             ani_env *env = HiSysEventAniUtil::AttachAniEnv(vm);
+            if (env == nullptr) {
+                return;
+            }
             ani_object reasonJsParam = nullptr;
             reasonJsParam = HiSysEventAniUtil::CreateDoubleInt32(env, reason);
             ani_object totalJsParam = nullptr;
