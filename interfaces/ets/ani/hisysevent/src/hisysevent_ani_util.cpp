@@ -38,6 +38,7 @@ const std::string INVALID_KEY_TYPE_ARR[] = {
     "()",
     ","
 };
+constexpr char CONSTRUCTOR_NAME[] = "<ctor>";
 }
 
 static const std::map<EventTypeAni, int32_t> ANI_EVENTTYPE_INDEX_MAP = {
@@ -62,6 +63,11 @@ bool HiSysEventAniUtil::CheckKeyTypeString(const std::string& str)
 bool HiSysEventAniUtil::IsArray(ani_env *env, ani_object object)
 {
     ani_boolean IsArray = ANI_FALSE;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return IsArray;
+    }
+
     ani_class cls {};
     if (ANI_OK != env->FindClass(CLASS_NAME_ARRAY, &cls)) {
         return false;
@@ -79,6 +85,11 @@ bool HiSysEventAniUtil::IsArray(ani_env *env, ani_object object)
 bool HiSysEventAniUtil::IsRefUndefined(ani_env *env, ani_ref ref)
 {
     ani_boolean isUndefined = ANI_FALSE;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return isUndefined;
+    }
+
     env->Reference_IsUndefined(ref, &isUndefined);
     return isUndefined;
 }
@@ -92,6 +103,11 @@ bool HiSysEventAniUtil::IsSystemAppCall()
 int64_t HiSysEventAniUtil::ParseBigintValue(ani_env *env, ani_ref elementRef)
 {
     ani_long longNum = 0;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return longNum;
+    }
+
     ani_class cls {};
     if (ANI_OK != env->FindClass(CLASS_NAME_BIGINT, &cls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_BIGINT);
@@ -112,6 +128,11 @@ int64_t HiSysEventAniUtil::ParseBigintValue(ani_env *env, ani_ref elementRef)
 bool HiSysEventAniUtil::ParseBoolValue(ani_env *env, ani_ref elementRef)
 {
     ani_boolean booleanVal = ANI_FALSE;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return booleanVal;
+    }
+
     ani_class cls {};
     if (ANI_OK != env->FindClass(CLASS_NAME_BOOLEAN, &cls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_BOOLEAN);
@@ -132,6 +153,11 @@ bool HiSysEventAniUtil::ParseBoolValue(ani_env *env, ani_ref elementRef)
 int HiSysEventAniUtil::ParseIntValue(ani_env *env, ani_ref elementRef)
 {
     ani_int intVal = 0;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return intVal;
+    }
+
     ani_class cls {};
     if (ANI_OK != env->FindClass(CLASS_NAME_INT, &cls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_INT);
@@ -152,6 +178,11 @@ int HiSysEventAniUtil::ParseIntValue(ani_env *env, ani_ref elementRef)
 double HiSysEventAniUtil::ParseNumberValue(ani_env *env, ani_ref elementRef)
 {
     ani_double doubleVal = 0;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return doubleVal;
+    }
+
     ani_class cls {};
     if (ANI_OK != env->FindClass(CLASS_NAME_DOUBLE, &cls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_DOUBLE);
@@ -172,6 +203,11 @@ double HiSysEventAniUtil::ParseNumberValue(ani_env *env, ani_ref elementRef)
 std::map<std::string, ani_ref> HiSysEventAniUtil::ParseRecord(ani_env *env, ani_ref recordRef)
 {
     std::map<std::string, ani_ref> recordResult = {};
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return recordResult;
+    }
+
     ani_ref keys {};
     if (ANI_OK != env->Object_CallMethodByName_Ref(static_cast<ani_object>(recordRef), "keys",
         ":C{std.core.IterableIterator}", &keys)) {
@@ -215,6 +251,11 @@ std::map<std::string, ani_ref> HiSysEventAniUtil::ParseRecord(ani_env *env, ani_
 
 std::string HiSysEventAniUtil::ParseStringValue(ani_env *env, ani_ref aniStrRef)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return "";
+    }
+
     ani_size strSize = 0;
     if (ANI_OK != env->String_GetUTF8Size(static_cast<ani_string>(aniStrRef), &strSize)) {
         HILOG_ERROR(LOG_CORE, "get string length failed");
@@ -297,13 +338,18 @@ std::pair<int32_t, std::string> HiSysEventAniUtil::GetErrorDetailByRet(const int
 ani_object HiSysEventAniUtil::WriteResult(ani_env *env, const std::pair<int32_t, std::string>& result)
 {
     ani_object resultObj {};
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return resultObj;
+    }
+
     ani_class cls {};
     if (ANI_OK != env->FindClass(CLASS_NAME_RESULTINNER, &cls)) {
         HILOG_ERROR(LOG_CORE, "find Class %{public}s failed", CLASS_NAME_RESULTINNER);
         return resultObj;
     }
     ani_method ctor {};
-    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor)) {
+    if (ANI_OK != env->Class_FindMethod(cls, CONSTRUCTOR_NAME, nullptr, &ctor)) {
         HILOG_ERROR(LOG_CORE, "get method %{public}s <ctor> failed", CLASS_NAME_RESULTINNER);
         return resultObj;
     }
@@ -336,13 +382,18 @@ ani_object HiSysEventAniUtil::WriteResult(ani_env *env, const std::pair<int32_t,
 ani_object HiSysEventAniUtil::CreateDoubleInt64(ani_env *env, int64_t number)
 {
     ani_object personInfoObj = nullptr;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return personInfoObj;
+    }
+
     ani_class personCls;
     if (ANI_OK != env->FindClass(CLASS_NAME_DOUBLE, &personCls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_DOUBLE);
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, CONSTRUCTOR_NAME, "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
@@ -356,13 +407,18 @@ ani_object HiSysEventAniUtil::CreateDoubleInt64(ani_env *env, int64_t number)
 ani_object HiSysEventAniUtil::CreateDouble(ani_env *env, double number)
 {
     ani_object personInfoObj = nullptr;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return personInfoObj;
+    }
+
     ani_class personCls;
     if (ANI_OK != env->FindClass(CLASS_NAME_DOUBLE, &personCls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_DOUBLE);
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, CONSTRUCTOR_NAME, "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
@@ -376,18 +432,23 @@ ani_object HiSysEventAniUtil::CreateDouble(ani_env *env, double number)
 ani_object HiSysEventAniUtil::CreateBool(ani_env *env, bool boolValue)
 {
     ani_object personInfoObj = nullptr;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return personInfoObj;
+    }
+
     ani_class personCls;
     if (ANI_OK != env->FindClass(CLASS_NAME_BOOLEAN, &personCls)) {
-        HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_DOUBLE);
+        HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_BOOLEAN);
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, CONSTRUCTOR_NAME, "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
     if (ANI_OK != env->Object_New(personCls, personInfoCtor, &personInfoObj, static_cast<ani_boolean>(boolValue))) {
-        HILOG_ERROR(LOG_CORE, "create object %{public}s failed", CLASS_NAME_DOUBLE);
+        HILOG_ERROR(LOG_CORE, "create object %{public}s failed", CLASS_NAME_BOOLEAN);
         return personInfoObj;
     }
     return personInfoObj;
@@ -396,13 +457,18 @@ ani_object HiSysEventAniUtil::CreateBool(ani_env *env, bool boolValue)
 ani_object HiSysEventAniUtil::CreateDoubleUint64(ani_env *env, uint64_t number)
 {
     ani_object personInfoObj = nullptr;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return personInfoObj;
+    }
+
     ani_class personCls;
     if (ANI_OK != env->FindClass(CLASS_NAME_DOUBLE, &personCls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_DOUBLE);
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, CONSTRUCTOR_NAME, "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
@@ -416,13 +482,18 @@ ani_object HiSysEventAniUtil::CreateDoubleUint64(ani_env *env, uint64_t number)
 ani_object HiSysEventAniUtil::CreateDoubleInt32(ani_env *env, int32_t number)
 {
     ani_object personInfoObj = nullptr;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return personInfoObj;
+    }
+
     ani_class personCls;
     if (ANI_OK != env->FindClass(CLASS_NAME_DOUBLE, &personCls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_DOUBLE);
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, CONSTRUCTOR_NAME, "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
@@ -436,6 +507,11 @@ ani_object HiSysEventAniUtil::CreateDoubleInt32(ani_env *env, int32_t number)
 ani_enum_item HiSysEventAniUtil::ToAniEnum(ani_env *env, EventTypeAni value)
 {
     ani_enum_item aniEnumItem {};
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return aniEnumItem;
+    }
+
     auto it = ANI_EVENTTYPE_INDEX_MAP.find(value);
     if (it == ANI_EVENTTYPE_INDEX_MAP.end()) {
         HILOG_ERROR(LOG_CORE, "find enum %{public}d failed", value);
@@ -457,13 +533,18 @@ ani_enum_item HiSysEventAniUtil::ToAniEnum(ani_env *env, EventTypeAni value)
 ani_object HiSysEventAniUtil::CreateDoubleUint32(ani_env *env, uint32_t number)
 {
     ani_object personInfoObj = nullptr;
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return personInfoObj;
+    }
+
     ani_class personCls;
     if (ANI_OK != env->FindClass(CLASS_NAME_DOUBLE, &personCls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_DOUBLE);
         return personInfoObj;
     }
     ani_method personInfoCtor;
-    if (ANI_OK != env->Class_FindMethod(personCls, "<ctor>", "d:", &personInfoCtor)) {
+    if (ANI_OK != env->Class_FindMethod(personCls, CONSTRUCTOR_NAME, "d:", &personInfoCtor)) {
         HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
         return personInfoObj;
     }
@@ -477,6 +558,11 @@ ani_object HiSysEventAniUtil::CreateDoubleUint32(ani_env *env, uint32_t number)
 ani_object HiSysEventAniUtil::CreateStringValue(ani_env *env, const std::string& value)
 {
     ani_string valueStr {};
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return static_cast<ani_object>(valueStr);
+    }
+
     if (ANI_OK != env->String_NewUTF8(value.c_str(), value.size(), &valueStr)) {
         HILOG_ERROR(LOG_CORE, "create new value string failed");
         return static_cast<ani_object>(valueStr);
@@ -486,13 +572,18 @@ ani_object HiSysEventAniUtil::CreateStringValue(ani_env *env, const std::string&
 
 void HiSysEventAniUtil::ThrowAniError(ani_env *env, int32_t code, const std::string &message)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return;
+    }
+
     ani_class cls {};
     if (ANI_OK != env->FindClass(CLASS_NAME_BUSINESSERROR, &cls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_BUSINESSERROR);
         return;
     }
     ani_method ctor {};
-    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", ":", &ctor)) {
+    if (ANI_OK != env->Class_FindMethod(cls, CONSTRUCTOR_NAME, ":", &ctor)) {
         HILOG_ERROR(LOG_CORE, "find method BusinessError constructor failed");
         return;
     }
@@ -542,6 +633,11 @@ static std::string TranslateKeyToAttrName(const std::string& key)
 void HiSysEventAniUtil::AppendInt32PropertyToJsObject(ani_env *env, const std::string& key, const int32_t& value,
     ani_object& sysEventInfo)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return;
+    }
+
     ani_class cls;
     if (ANI_OK != env->FindClass(CLASS_NAME_SYSEVENTINFOANI, &cls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_SYSEVENTINFOANI);
@@ -556,6 +652,11 @@ void HiSysEventAniUtil::AppendInt32PropertyToJsObject(ani_env *env, const std::s
 void HiSysEventAniUtil::AppendStringPropertyToJsObject(ani_env *env, const std::string& key, const std::string& value,
     ani_object& sysEventInfo)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return;
+    }
+
     ani_class cls;
     if (ANI_OK != env->FindClass(CLASS_NAME_SYSEVENTINFOANI, &cls)) {
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_SYSEVENTINFOANI);
@@ -624,6 +725,11 @@ static bool CreateParamItemTypeValue(ani_env *env, Json::Value& jsonValue, ani_o
 
 static void AppendArrayParams(ani_env *env, ani_object& sysEventInfo, std::string& key, Json::Value& value)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return;
+    }
+
     size_t len = value.size();
     ani_array array = nullptr;
     ani_class cls;
@@ -631,8 +737,11 @@ static void AppendArrayParams(ani_env *env, ani_object& sysEventInfo, std::strin
         HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_SYSEVENTINFOANI);
         return;
     }
-    ani_ref initial_array = nullptr;
-    if (ANI_OK != env->Array_New(len, initial_array, &array)) {
+    ani_ref initialArrayRef = nullptr;
+    if (len > 0) {
+        initialArrayRef = HiSysEventAniUtil::GetAniUndefined(env);
+    }
+    if (ANI_OK != env->Array_New(len, initialArrayRef, &array)) {
         HILOG_ERROR(LOG_CORE, "create %{public}s array failed", CLASS_NAME_SYSEVENTINFOANI);
         return;
     }
@@ -653,6 +762,11 @@ static void AppendArrayParams(ani_env *env, ani_object& sysEventInfo, std::strin
 
 static void AppendParamsInfo(ani_env *env, ani_object& sysEventInfo, std::string& key, Json::Value& jsonValue)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return;
+    }
+
     if (jsonValue.isArray()) {
         AppendArrayParams(env, sysEventInfo, key, jsonValue);
         return;
@@ -674,6 +788,11 @@ static bool IsBaseInfoKey(std::string& propertyName)
 void HiSysEventAniUtil::CreateJsSysEventInfoArray(ani_env *env, const std::vector<std::string>& originValues,
     ani_array& sysEventInfoJsArray)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return;
+    }
+
     auto len = originValues.size();
     ani_class cls;
     if (ANI_OK != env->FindClass(CLASS_NAME_SYSEVENTINFOANI, &cls)) {
@@ -682,7 +801,7 @@ void HiSysEventAniUtil::CreateJsSysEventInfoArray(ani_env *env, const std::vecto
     }
     ani_object sysEventInfo = nullptr;
     ani_method ctor {};
-    if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor)) {
+    if (ANI_OK != env->Class_FindMethod(cls, CONSTRUCTOR_NAME, nullptr, &ctor)) {
         HILOG_ERROR(LOG_CORE, "get method %{public}s <ctor> failed", CLASS_NAME_SYSEVENTINFOANI);
         return;
     }
@@ -701,6 +820,11 @@ void HiSysEventAniUtil::CreateJsSysEventInfoArray(ani_env *env, const std::vecto
 
 void HiSysEventAniUtil::CreateHiSysEventInfoJsObject(ani_env *env, const std::string& jsonStr, ani_object& sysEventInfo)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return;
+    }
+
     Json::Value eventJson;
 #ifdef JSONCPP_VERSION_STRING
     Json::CharReaderBuilder jsonRBuilder;
@@ -737,6 +861,11 @@ void HiSysEventAniUtil::CreateHiSysEventInfoJsObject(ani_env *env, const std::st
 
 std::string HiSysEventAniUtil::AniStringToStdString(ani_env *env, ani_string aniStr)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return "";
+    }
+
     ani_size strSize;
     env->String_GetUTF8Size(aniStr, &strSize);
     std::vector<char> buffer(strSize + 1);
@@ -750,6 +879,11 @@ std::string HiSysEventAniUtil::AniStringToStdString(ani_env *env, ani_string ani
 
 ani_vm* HiSysEventAniUtil::GetAniVm(ani_env *env)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return nullptr;
+    }
+
     ani_vm *vm = nullptr;
     if (ANI_OK != env->GetVM(&vm)) {
         HILOG_ERROR(LOG_CORE, "get vm failed");
@@ -760,6 +894,11 @@ ani_vm* HiSysEventAniUtil::GetAniVm(ani_env *env)
 
 ani_env* HiSysEventAniUtil::GetAniEnv(ani_vm *vm)
 {
+    if (vm == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid vm");
+        return nullptr;
+    }
+
     ani_env *env = nullptr;
     if (ANI_OK != vm->GetEnv(ANI_VERSION_1, &env)) {
         HILOG_ERROR(LOG_CORE, "get env failed");
@@ -770,6 +909,11 @@ ani_env* HiSysEventAniUtil::GetAniEnv(ani_vm *vm)
 
 ani_env* HiSysEventAniUtil::AttachAniEnv(ani_vm *vm)
 {
+    if (vm == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid vm");
+        return nullptr;
+    }
+
     ani_env *workerEnv = nullptr;
     ani_options aniArgs {0, nullptr};
     if (ani_status ret = vm->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &workerEnv); ret != ANI_OK) {
@@ -781,6 +925,11 @@ ani_env* HiSysEventAniUtil::AttachAniEnv(ani_vm *vm)
 
 void HiSysEventAniUtil::DetachAniEnv(ani_vm *vm)
 {
+    if (vm == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid vm");
+        return;
+    }
+
     if (ANI_OK != vm->DetachCurrentThread()) {
         HILOG_ERROR(LOG_CORE, "detach env failed");
     }
@@ -788,6 +937,11 @@ void HiSysEventAniUtil::DetachAniEnv(ani_vm *vm)
 
 bool HiSysEventAniUtil::GetBooleans(ani_env *env, ani_ref arrayRef, std::vector<bool>& bools)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return false;
+    }
+
     ani_size len = 0;
     if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
@@ -806,6 +960,11 @@ bool HiSysEventAniUtil::GetBooleans(ani_env *env, ani_ref arrayRef, std::vector<
 
 bool HiSysEventAniUtil::GetDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return false;
+    }
+
     ani_size len = 0;
     if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
@@ -824,6 +983,11 @@ bool HiSysEventAniUtil::GetDoubles(ani_env *env, ani_ref arrayRef, std::vector<d
 
 bool HiSysEventAniUtil::GetStrings(ani_env *env, ani_ref arrayRef, std::vector<std::string>& strs)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return false;
+    }
+
     ani_size len = 0;
     if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
@@ -842,6 +1006,11 @@ bool HiSysEventAniUtil::GetStrings(ani_env *env, ani_ref arrayRef, std::vector<s
 
 bool HiSysEventAniUtil::GetIntsToDoubles(ani_env *env, ani_ref arrayRef, std::vector<double>& doubles)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return false;
+    }
+
     ani_size len = 0;
     if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
@@ -860,6 +1029,11 @@ bool HiSysEventAniUtil::GetIntsToDoubles(ani_env *env, ani_ref arrayRef, std::ve
 
 bool HiSysEventAniUtil::GetBigints(ani_env *env, ani_ref arrayRef, std::vector<int64_t>& bigints)
 {
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return false;
+    }
+
     ani_size len = 0;
     if (ANI_OK != env->Array_GetLength(static_cast<ani_array>(arrayRef), &len)) {
         HILOG_ERROR(LOG_CORE, "failed to get the length of array");
@@ -874,4 +1048,42 @@ bool HiSysEventAniUtil::GetBigints(ani_env *env, ani_ref arrayRef, std::vector<i
         bigints.push_back(HiSysEventAniUtil::ParseBigintValue(env, element));
     }
     return true;
+}
+
+ani_object HiSysEventAniUtil::CreateAniInt(ani_env *env, int intValue)
+{
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return nullptr;
+    }
+    ani_object personInfoObj = nullptr;
+    ani_class personCls;
+    if (ANI_OK != env->FindClass(CLASS_NAME_INT, &personCls)) {
+        HILOG_ERROR(LOG_CORE, "find class %{public}s failed", CLASS_NAME_INT);
+        return personInfoObj;
+    }
+    ani_method personInfoCtor;
+    if (ANI_OK != env->Class_FindMethod(personCls, CONSTRUCTOR_NAME, "i:", &personInfoCtor)) {
+        HILOG_ERROR(LOG_CORE, "find method <ctor> failed");
+        return personInfoObj;
+    }
+    if (ANI_OK != env->Object_New(personCls, personInfoCtor, &personInfoObj, static_cast<ani_int>(intValue))) {
+        HILOG_ERROR(LOG_CORE, "create object %{public}s failed", CLASS_NAME_DOUBLE);
+        return personInfoObj;
+    }
+    return personInfoObj;
+}
+
+ani_ref HiSysEventAniUtil::GetAniUndefined(ani_env *env)
+{
+    if (env == nullptr) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return nullptr;
+    }
+    ani_ref undefinedRef {};
+    if (ANI_OK != env->GetUndefined(&undefinedRef)) {
+        HILOG_ERROR(LOG_CORE, "invalid env");
+        return undefinedRef;
+    }
+    return undefinedRef;
 }
