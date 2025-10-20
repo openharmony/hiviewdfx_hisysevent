@@ -98,6 +98,8 @@ public:
         ani_object& jsObj);
     static void AppendStringPropertyToJsObject(ani_env *env, const std::string& key, const std::string& value,
         ani_object& jsObj);
+    static ani_object CreateAniInt(ani_env *env, int intValue);
+    static ani_ref GetAniUndefined(ani_env *env);
 
 public:
     static std::pair<int32_t, std::string> GetErrorDetailByRet(const int32_t retCode);

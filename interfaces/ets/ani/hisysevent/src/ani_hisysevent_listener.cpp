@@ -65,34 +65,40 @@ void AniHiSysEventListener::OnEvent(const std::string& domain, const std::string
             ani_object sysEventInfo = nullptr;
             ani_class cls {};
             if (ANI_OK != env->FindClass(CLASS_NAME_SYSEVENTINFOANI, &cls)) {
-                HILOG_ERROR(LOG_CORE, "find Class %{public}s failed", CLASS_NAME_SYSEVENTINFOANI);
+                HILOG_ERROR(LOG_CORE, "failed to find Class %{public}s", CLASS_NAME_SYSEVENTINFOANI);
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             ani_method ctor {};
             if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor)) {
-                HILOG_ERROR(LOG_CORE, "get method %{public}s <ctor> failed", CLASS_NAME_SYSEVENTINFOANI);
+                HILOG_ERROR(LOG_CORE, "failed to get method %{public}s constructor", CLASS_NAME_SYSEVENTINFOANI);
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             if (ANI_OK != env->Object_New(cls, ctor, &sysEventInfo)) {
-                HILOG_ERROR(LOG_CORE, "create object %{public}s failed", CLASS_NAME_SYSEVENTINFOANI);
+                HILOG_ERROR(LOG_CORE, "failed to create object %{public}s", CLASS_NAME_SYSEVENTINFOANI);
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             HiSysEventAniUtil::CreateHiSysEventInfoJsObject(env, eventDetail, sysEventInfo);
             ani_ref argv[ON_EVENT_PARAM_COUNT] = {sysEventInfo};
             ani_class watcherCls {};
             if (ANI_OK != env->FindClass(CLASS_NAME_WATCHERANI, &watcherCls)) {
-                HILOG_ERROR(LOG_CORE, "find class failed.");
+                HILOG_ERROR(LOG_CORE, "failed to find class %{public}s", CLASS_NAME_WATCHERANI);
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             ani_ref onEvent {};
             if (ANI_OK != env->Object_GetPropertyByName_Ref(static_cast<ani_object>(ref), "onEvent", &onEvent)) {
-                HILOG_ERROR(LOG_CORE, "get Object_GetPropertyByName_Ref failed.");
+                HILOG_ERROR(LOG_CORE, "failed to get onEvent function property");
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             ani_ref result = nullptr;
             if (ANI_OK != env->FunctionalObject_Call(static_cast<ani_fn_object>(onEvent), ON_EVENT_PARAM_COUNT,
                 argv, &result)) {
-                HILOG_ERROR(LOG_CORE, "get FunctionalObject_Call onEvent failed.");
+                HILOG_ERROR(LOG_CORE, "failed to call onEvent function");
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             HiSysEventAniUtil::DetachAniEnv(vm);
@@ -109,17 +115,22 @@ void AniHiSysEventListener::OnServiceDied()
             }
             ani_class watcherCls {};
             if (ANI_OK != env->FindClass(CLASS_NAME_WATCHERANI, &watcherCls)) {
+                HILOG_ERROR(LOG_CORE, "failed to find class %{public}s", CLASS_NAME_WATCHERANI);
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             ani_ref onServiceDied {};
             if (ANI_OK != env->Object_GetPropertyByName_Ref(static_cast<ani_object>(ref), "onServiceDied",
                 &onServiceDied)) {
+                HILOG_ERROR(LOG_CORE, "failed to get onServiceDied function property");
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             ani_ref result = nullptr;
             ani_ref argv[] = {};
             if (ANI_OK != env->FunctionalObject_Call(static_cast<ani_fn_object>(onServiceDied), 1, argv, &result)) {
-                HILOG_ERROR(LOG_CORE, "get FunctionalObject_Call onServiceDied failed.");
+                HILOG_ERROR(LOG_CORE, "failed to call onServiceDied function");
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             HiSysEventAniUtil::DetachAniEnv(vm);

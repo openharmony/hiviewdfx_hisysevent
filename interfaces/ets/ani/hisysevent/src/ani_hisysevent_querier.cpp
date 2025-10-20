@@ -26,7 +26,7 @@ namespace HiviewDFX {
 
 namespace {
 constexpr size_t ON_QUERY_PARAM_COUNT = 1;
-constexpr size_t ON_QUERY_COMPLTE_COUNT = 3;
+constexpr size_t ON_COMPLTE_PARAM_COUNT = 2;
 }
 
 AniHiSysEventQuerier::AniHiSysEventQuerier(CallbackContextAni *context, ON_COMPLETE_FUNC handler)
@@ -66,28 +66,35 @@ void AniHiSysEventQuerier::OnQuery(const std::vector<std::string>& sysEvents,
             ani_array sysEventInfoJsArray = nullptr;
             ani_class cls {};
             if (ANI_OK != env->FindClass(CLASS_NAME_SYSEVENTINFOANI, &cls)) {
-                HILOG_ERROR(LOG_CORE, "find Class %{public}s failed", CLASS_NAME_SYSEVENTINFOANI);
+                HILOG_ERROR(LOG_CORE, "failed to find Class %{public}s", CLASS_NAME_SYSEVENTINFOANI);
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
-            if (ANI_OK != env->Array_New(sysEvents.size(), nullptr, &sysEventInfoJsArray)) {
-                HILOG_ERROR(LOG_CORE, "create object %{public}s failed", CLASS_NAME_SYSEVENTINFOANI);
+            ani_ref initialArrayRef = HiSysEventAniUtil::GetAniUndefined(env);
+            if (ANI_OK != env->Array_New(sysEvents.size(), initialArrayRef, &sysEventInfoJsArray)) {
+                HILOG_ERROR(LOG_CORE, "failed to create object %{public}s", CLASS_NAME_SYSEVENTINFOANI);
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             HiSysEventAniUtil::CreateJsSysEventInfoArray(env, sysEvents, sysEventInfoJsArray);
             ani_ref argv[ON_QUERY_PARAM_COUNT] = {sysEventInfoJsArray};
             ani_class querierCls {};
             if (ANI_OK != env->FindClass(CLASS_NAME_QUERIERANI, &querierCls)) {
+                HILOG_ERROR(LOG_CORE, "failed to find class %{public}s", CLASS_NAME_QUERIERANI);
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             ani_ref onQuery {};
             if (ANI_OK != env->Object_GetPropertyByName_Ref(static_cast<ani_object>(ref), "onQuery", &onQuery)) {
-                HILOG_ERROR(LOG_CORE, "get onQuery failed.");
+                HILOG_ERROR(LOG_CORE, "failed to get onQuery function property");
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             ani_ref result = nullptr;
             if (ANI_OK != env->FunctionalObject_Call(static_cast<ani_fn_object>(onQuery), ON_QUERY_PARAM_COUNT,
                 argv, &result)) {
-                HILOG_ERROR(LOG_CORE, "failed to call OnQuery function.");
+                HILOG_ERROR(LOG_CORE, "failed to call onQuery function");
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             HiSysEventAniUtil::DetachAniEnv(vm);
@@ -103,25 +110,27 @@ void AniHiSysEventQuerier::OnComplete(int32_t reason, int32_t total, int64_t seq
                 return;
             }
             ani_object reasonJsParam = nullptr;
-            reasonJsParam = HiSysEventAniUtil::CreateDoubleInt32(env, reason);
+            reasonJsParam = HiSysEventAniUtil::CreateAniInt(env, reason);
             ani_object totalJsParam = nullptr;
-            totalJsParam = HiSysEventAniUtil::CreateDoubleInt32(env, total);
-            ani_object seqJsParm = nullptr;
-            seqJsParm = HiSysEventAniUtil::CreateDoubleInt64(env, seq);
-            ani_ref argv[ON_QUERY_COMPLTE_COUNT] = {reasonJsParam, totalJsParam, seqJsParm};
+            totalJsParam = HiSysEventAniUtil::CreateAniInt(env, total);
+            ani_ref argv[ON_COMPLTE_PARAM_COUNT] = {reasonJsParam, totalJsParam};
             ani_class querierCls {};
             if (ANI_OK != env->FindClass(CLASS_NAME_QUERIERANI, &querierCls)) {
+                HILOG_ERROR(LOG_CORE, "failed to find class %{public}s", CLASS_NAME_QUERIERANI);
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             ani_ref onComplete {};
             if (ANI_OK != env->Object_GetPropertyByName_Ref(static_cast<ani_object>(ref), "onComplete", &onComplete)) {
-                HILOG_ERROR(LOG_CORE, "get onQuery failed.");
+                HILOG_ERROR(LOG_CORE, "failed to get onComplete function property");
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             ani_ref result = nullptr;
-            if (ANI_OK != env->FunctionalObject_Call(static_cast<ani_fn_object>(onComplete), ON_QUERY_COMPLTE_COUNT,
+            if (ANI_OK != env->FunctionalObject_Call(static_cast<ani_fn_object>(onComplete), ON_COMPLTE_PARAM_COUNT,
                 argv, &result)) {
-                HILOG_ERROR(LOG_CORE, "failed to call OnComplete function.");
+                HILOG_ERROR(LOG_CORE, "failed to call onComplete function");
+                HiSysEventAniUtil::DetachAniEnv(vm);
                 return;
             }
             HiSysEventAniUtil::DetachAniEnv(vm);
