@@ -592,8 +592,8 @@ void HiSysEventAniUtil::ThrowAniError(ani_env *env, int32_t code, const std::str
         HILOG_ERROR(LOG_CORE, "create object %{public}s failed", CLASS_NAME_BUSINESSERROR);
         return;
     }
-    if (ANI_OK != env->Object_SetPropertyByName_Int(error, "code", static_cast<ani_int>(code))) {
-        HILOG_ERROR(LOG_CORE, "set property BusinessError.code failed");
+    if (ANI_OK != env->Object_SetPropertyByName_Int(error, "code_", static_cast<ani_int>(code))) {
+        HILOG_ERROR(LOG_CORE, "set property BusinessError.code_ failed");
         return;
     }
     ani_string messageRef {};
