@@ -80,12 +80,17 @@ std::string StringFilter::EscapeToRaw(const std::string &text)
 {
     std::string rawText = "";
     for (auto c : text) {
-        unsigned int ic = static_cast<unsigned int>(c);
-        if (ic < CHAR_RANGE && charTab_[ic][1]) {
+        int ic = static_cast<int>(c);
+        if (ic >= 0 && ic < CHAR_RANGE && charTab_[ic][1]) {
             rawText.append(charTab_[ic]);
-        } else {
-            rawText.push_back(c);
+            continue;
         }
+        if ((ic == 0x7F) || (ic >= 0x00 && ic <= 0x1F)) {
+            // ignore control character which is not supported with JSON
+            // 0x7F == DEL, [0x00, 0x1F] == [END, Unit Separator]
+            continue;
+        }
+        rawText.push_back(c);
     }
     return rawText;
 }

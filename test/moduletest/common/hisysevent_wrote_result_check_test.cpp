@@ -65,7 +65,7 @@ constexpr int USLEEP_LONG_DURATION = 5000000;
 
 class Watcher : public HiSysEventListener {
 public:
-    explicit Watcher(std::function<bool(std::shared_ptr<HiSysEventRecord>)> assertFunc)
+    explicit Watcher(std::function<void(std::shared_ptr<HiSysEventRecord>)> assertFunc)
     {
         assertFunc_ = assertFunc;
     }
@@ -77,7 +77,7 @@ public:
         if (sysEvent == nullptr || assertFunc_ == nullptr) {
             return;
         }
-        ASSERT_TRUE(assertFunc_(sysEvent));
+        assertFunc_(sysEvent);
     }
 
     void OnServiceDied() final
@@ -86,7 +86,7 @@ public:
     }
 
 private:
-    std::function<bool(std::shared_ptr<HiSysEventRecord>)> assertFunc_;
+    std::function<void(std::shared_ptr<HiSysEventRecord>)> assertFunc_;
 };
 
 template<typename T>
@@ -142,12 +142,10 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest001, Test
     usleep(USLEEP_SHORT_DURATION);
     bool val = true;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         int64_t ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return ret == static_cast<int>(val);
+        ASSERT_EQ(ret, static_cast<int>(val));
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -163,12 +161,10 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest002, Test
     usleep(USLEEP_SHORT_DURATION);
     int64_t val = -18888888882321;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         int64_t ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return ret == val;
+        ASSERT_EQ(ret, val);
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -184,12 +180,10 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest003, Test
     usleep(USLEEP_SHORT_DURATION);
     uint64_t val = 18888888882326141;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         uint64_t ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return ret == val;
+        ASSERT_EQ(ret, val);
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -205,11 +199,9 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest004, Test
     usleep(USLEEP_SHORT_DURATION);
     double val = 30949.374;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         std::string eventJsonStr = sysEvent->AsJson();
-        return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":30949.4,");
+        ASSERT_TRUE(IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":30949.4,"));
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -225,12 +217,10 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest005, Test
     usleep(USLEEP_SHORT_DURATION);
     std::string val = "value";
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         std::string ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return ret == val;
+        ASSERT_EQ(ret, val);
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -250,13 +240,11 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest006, Test
         true
     };
     auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         std::vector<int64_t> ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return (ret.size() == ARRAY_TOTAL_CNT) && (val[FIRST_ITEM_INDEX] == ret[FIRST_ITEM_INDEX]) &&
-            (val[SECOND_ITEM_INDEX] == ret[SECOND_ITEM_INDEX]) && (val[THIRD_ITEM_INDEX] == ret[THIRD_ITEM_INDEX]);
+        ASSERT_TRUE((ret.size() == ARRAY_TOTAL_CNT) && (val[FIRST_ITEM_INDEX] == ret[FIRST_ITEM_INDEX]) &&
+            (val[SECOND_ITEM_INDEX] == ret[SECOND_ITEM_INDEX]) && (val[THIRD_ITEM_INDEX] == ret[THIRD_ITEM_INDEX]));
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -276,13 +264,11 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest007, Test
         -3333333333333333333,
     };
     auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         std::vector<int64_t> ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return (ret.size() == ARRAY_TOTAL_CNT) && (val[FIRST_ITEM_INDEX] == ret[FIRST_ITEM_INDEX]) &&
-            (val[SECOND_ITEM_INDEX] == ret[SECOND_ITEM_INDEX]) && (val[THIRD_ITEM_INDEX] == ret[THIRD_ITEM_INDEX]);
+        ASSERT_TRUE((ret.size() == ARRAY_TOTAL_CNT) && (val[FIRST_ITEM_INDEX] == ret[FIRST_ITEM_INDEX]) &&
+            (val[SECOND_ITEM_INDEX] == ret[SECOND_ITEM_INDEX]) && (val[THIRD_ITEM_INDEX] == ret[THIRD_ITEM_INDEX]));
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -302,13 +288,11 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest008, Test
         3333333333333333333,
     };
     auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         std::vector<uint64_t> ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return (ret.size() == ARRAY_TOTAL_CNT) && (val[FIRST_ITEM_INDEX] == ret[FIRST_ITEM_INDEX]) &&
-            (val[SECOND_ITEM_INDEX] == ret[SECOND_ITEM_INDEX]) && (val[THIRD_ITEM_INDEX] == ret[THIRD_ITEM_INDEX]);
+        ASSERT_TRUE((ret.size() == ARRAY_TOTAL_CNT) && (val[FIRST_ITEM_INDEX] == ret[FIRST_ITEM_INDEX]) &&
+            (val[SECOND_ITEM_INDEX] == ret[SECOND_ITEM_INDEX]) && (val[THIRD_ITEM_INDEX] == ret[THIRD_ITEM_INDEX]));
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -328,11 +312,9 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest009, Test
         100.374,
     };
     auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         std::string eventJsonStr = sysEvent->AsJson();
-        return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":[1.5,2.5,100.374],");
+        ASSERT_TRUE(IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":[1.5,2.5,100.374],"));
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -352,13 +334,11 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest010, Test
         "value3\n\r",
     };
     auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         std::vector<std::string> ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return (ret.size() == ARRAY_TOTAL_CNT) && (ret[FIRST_ITEM_INDEX] == "value1\n\r") &&
-            (ret[SECOND_ITEM_INDEX] == "value2\n\r") && (ret[THIRD_ITEM_INDEX] == "value3\n\r");
+        ASSERT_TRUE((ret.size() == ARRAY_TOTAL_CNT) && (ret[FIRST_ITEM_INDEX] == "value1\n\r") &&
+            (ret[SECOND_ITEM_INDEX] == "value2\n\r") && (ret[THIRD_ITEM_INDEX] == "value3\n\r"));
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -374,11 +354,9 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest011, Test
     usleep(USLEEP_SHORT_DURATION);
     float val = 230.47;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         std::string eventJsonStr = sysEvent->AsJson();
-        return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":230.47,");
+        ASSERT_TRUE(IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":230.47,"));
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -399,11 +377,9 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest012, Test
         4,
     };
     auto watcher = std::make_shared<Watcher>([&val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         std::string eventJsonStr = sysEvent->AsJson();
-        return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":[1.1,2.2,3.5,4],");
+        ASSERT_TRUE(IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":[1.1,2.2,3.5,4],"));
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -421,10 +397,9 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest013, Test
     std::string val = "with valid hitracechain";
     auto traceId = HiTraceChain::Begin("TestCase1", HITRACE_FLAG_INCLUDE_ASYNC | HITRACE_FLAG_DONOT_CREATE_SPAN);
     auto watcher = std::make_shared<Watcher>([&val, &traceId] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
-        return (traceId.GetFlags() == sysEvent->GetTraceFlag()) && (traceId.GetChainId() == sysEvent->GetTraceId());
+        ASSERT_NE(sysEvent, nullptr);
+        ASSERT_TRUE((traceId.GetFlags() == sysEvent->GetTraceFlag())
+            && (traceId.GetChainId() == sysEvent->GetTraceId()));
     });
     WriteAndWatchEvent(watcher, val);
     HiTraceChain::End(traceId);
@@ -442,11 +417,9 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest014, Test
     usleep(USLEEP_SHORT_DURATION);
     double val = -3.5;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         std::string eventJsonStr = sysEvent->AsJson();
-        return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":-3.5,");
+        ASSERT_TRUE(IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":-3.5,"));
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -462,11 +435,9 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest015, Test
     usleep(USLEEP_SHORT_DURATION);
     std::vector<float> val;
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         std::string eventJsonStr = sysEvent->AsJson();
-        return IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":[],");
+        ASSERT_TRUE(IsContains(eventJsonStr, "\"" + std::string(PARAM_KEY) + "\":[],"));
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -482,12 +453,10 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest016, Test
     usleep(USLEEP_SHORT_DURATION);
     int64_t val = std::numeric_limits<int64_t>::max();
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         int64_t ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return ret == val;
+        ASSERT_EQ(ret, val);
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -503,12 +472,10 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest017, Test
     usleep(USLEEP_SHORT_DURATION);
     int64_t val = std::numeric_limits<int64_t>::min();
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         int64_t ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return ret == val;
+        ASSERT_EQ(ret, val);
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -524,12 +491,10 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest018, Test
     usleep(USLEEP_SHORT_DURATION);
     uint64_t val = std::numeric_limits<uint64_t>::max();
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         uint64_t ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return ret == val;
+        ASSERT_EQ(ret, val);
     });
     WriteAndWatchEvent(watcher, val);
 }
@@ -545,12 +510,95 @@ HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest019, Test
     usleep(USLEEP_SHORT_DURATION);
     uint64_t val = std::numeric_limits<uint64_t>::min();
     auto watcher = std::make_shared<Watcher>([val] (std::shared_ptr<HiSysEventRecord> sysEvent) {
-        if (sysEvent == nullptr) {
-            return false;
-        }
+        ASSERT_NE(sysEvent, nullptr);
         uint64_t ret;
         sysEvent->GetParamValue(PARAM_KEY, ret);
-        return ret == val;
+        ASSERT_EQ(ret, val);
+    });
+    WriteAndWatchEvent(watcher, val);
+}
+
+/**
+ * @tc.name: HiSysEventWroteResultCheckTest020
+ * @tc.desc: Write sysevent with +inf
+ * @tc.type: FUNC
+ * @tc.require: issue3004
+ */
+HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest020, TestSize.Level1)
+{
+    usleep(USLEEP_SHORT_DURATION);
+    double val = std::numeric_limits<double>::infinity();
+    auto watcher = std::make_shared<Watcher>([] (std::shared_ptr<HiSysEventRecord> sysEvent) {
+        ASSERT_NE(sysEvent, nullptr);
+        double ret;
+        sysEvent->GetParamValue(PARAM_KEY, ret);
+        ASSERT_LT(std::fabs(ret - 0.0), std::numeric_limits<double>::epsilon());
+    });
+    WriteAndWatchEvent(watcher, val);
+}
+
+/**
+ * @tc.name: HiSysEventWroteResultCheckTest021
+ * @tc.desc: Write sysevent with -inf
+ * @tc.type: FUNC
+ * @tc.require: issue3004
+ */
+HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest021, TestSize.Level1)
+{
+    usleep(USLEEP_SHORT_DURATION);
+    double val = -std::numeric_limits<double>::infinity();
+    auto watcher = std::make_shared<Watcher>([] (std::shared_ptr<HiSysEventRecord> sysEvent) {
+        ASSERT_NE(sysEvent, nullptr);
+        double ret;
+        sysEvent->GetParamValue(PARAM_KEY, ret);
+        ASSERT_LT(std::fabs(ret - 0.0), std::numeric_limits<double>::epsilon());
+    });
+    WriteAndWatchEvent(watcher, val);
+}
+
+/**
+ * @tc.name: HiSysEventWroteResultCheckTest022
+ * @tc.desc: Write sysevent with nan
+ * @tc.type: FUNC
+ * @tc.require: issue3004
+ */
+HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest022, TestSize.Level1)
+{
+    usleep(USLEEP_SHORT_DURATION);
+    double val = 0.0 / 0.0; // build nan
+    auto watcher = std::make_shared<Watcher>([] (std::shared_ptr<HiSysEventRecord> sysEvent) {
+        ASSERT_NE(sysEvent, nullptr);
+        double ret;
+        sysEvent->GetParamValue(PARAM_KEY, ret);
+        ASSERT_LT(std::fabs(ret - 0.0), std::numeric_limits<double>::epsilon());
+    });
+    WriteAndWatchEvent(watcher, val);
+}
+
+/**
+ * @tc.name: HiSysEventWroteResultCheckTest023
+ * @tc.desc: Write sysevent with unescaped backslash/double quotes/line end
+ * @tc.type: FUNC
+ * @tc.require: issue3004
+ */
+HWTEST_F(HiSysEventWroteResultCheckTest, HiSysEventWroteResultCheckTest023, TestSize.Level1)
+{
+    usleep(USLEEP_SHORT_DURATION);
+    std::string val = "\"\\0\\123";
+    auto watcher = std::make_shared<Watcher>([] (std::shared_ptr<HiSysEventRecord> sysEvent) {
+        ASSERT_NE(sysEvent, nullptr);
+        std::string ret;
+        sysEvent->GetParamValue(PARAM_KEY, ret);
+        ASSERT_EQ(ret, "\"\\0\\123");
+    });
+    WriteAndWatchEvent(watcher, val);
+    size_t buildStrLen = 156;
+    val = std::string("\"\0\\123\b\f\n\r\t!开源OSos■☺﹁︾¿⑰●⒙Ⅶ❻ζΠǔㄠㄉ槑の灬夊ɑːtきヌㅘ㉯㈙Що┘┼╣╡┇※∷♊♋〓◕㊣→↘￢✌✌❧ღ", buildStrLen);
+    watcher = std::make_shared<Watcher>([] (std::shared_ptr<HiSysEventRecord> sysEvent) {
+        ASSERT_NE(sysEvent, nullptr);
+        std::string ret;
+        sysEvent->GetParamValue(PARAM_KEY, ret);
+        ASSERT_EQ(ret, "\"\\123\b\f\n\r\t!开源OSos■☺﹁︾¿⑰●⒙Ⅶ❻ζΠǔㄠㄉ槑の灬夊ɑːtきヌㅘ㉯㈙Що┘┼╣╡┇※∷♊♋〓◕㊣→↘￢✌✌❧ღ");
     });
     WriteAndWatchEvent(watcher, val);
 }
