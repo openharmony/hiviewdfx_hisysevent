@@ -202,7 +202,7 @@ class FloatingNumberEncodedParam : public EncodedParam {
 public:
     FloatingNumberEncodedParam(const std::string& key, T val): EncodedParam(key)
     {
-        val_ = val;
+        val_ = std::isfinite(val) ? val : 0.0;
     }
 
     virtual bool EncodeValueType() override
@@ -244,7 +244,11 @@ public:
             if (index > MAX_ARRAY_SIZE) {
                 break;
             }
-            vals_.emplace_back(*item);
+            if (std::isfinite(*item)) {
+                vals_.emplace_back(*item);
+            } else {
+                vals_.emplace_back(0.0);
+            }
         }
     }
 
