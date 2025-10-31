@@ -89,6 +89,7 @@ public:
         static constexpr char APPSPAWN[] = "APPSPAWN";
         static constexpr char ARKTS_RUNTIME[] = "ARKTS_RUNTIME";
         static constexpr char ARKTS_TASKPOOL[] = "ARKTS_TASKPOOL";
+        static constexpr char ARKWEB_UE[] = "ARKWEB_UE";
         static constexpr char AUDIO[] = "AUDIO";
         static constexpr char AV_SESSION[] = "AV_SESSION";
         static constexpr char AV_CODEC[] = "AV_CODEC";
