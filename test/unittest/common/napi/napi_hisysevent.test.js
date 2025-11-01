@@ -70,6 +70,12 @@ describe('hiSysEventJsUnitTest', function () {
 
   const QUERY_2_ITEMS = 2
 
+  const FIRST_ITEM_INDEX = 0
+
+  const SECOND_ITEM_INDEX = 1
+
+  const THRID_ITEM_INDEX = 2
+
   const defaultEventInfo = {
     PID: DEFAULT_ID,
     UID: DEFAULT_ID,
@@ -195,6 +201,13 @@ describe('hiSysEventJsUnitTest', function () {
       errCallback(err)
       done()
     }
+  }
+
+  function BuildQueryCondition(testId)
+  {
+    return '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":'
+      + String(testId) + '},{"param":"UID","op":"=","value":'
+      + String(testId) + '}]}}'
   }
 
   /**
@@ -853,7 +866,7 @@ describe('hiSysEventJsUnitTest', function () {
   })
 
   /**
-   * @tc.desc: Test write with integer number
+   * @tc.desc: Test query with undefined as beginTime
    * @tc.level: Level 0
    * @tc.name: hiSysEventJsUnitTest024
    * @tc.number: hiSysEventJsUnitTest024
@@ -861,216 +874,6 @@ describe('hiSysEventJsUnitTest', function () {
    * @tc.size: MediumTest
    */
   it('hiSysEventJsUnitTest024', 0, async function (done) {
-    const FIRST_INT_VAL = 1
-    const SECOND_INT_VAL = -1
-    const THIRD_INT_VAL = 123456789
-    const FORTH_INT_VAL = -123456789
-    const TEST_PID_UID = 2222222
-    writeCustomizedSysEvent({
-      PID: TEST_PID_UID,
-      UID: TEST_PID_UID,
-      FIRST_INT_VAL, SECOND_INT_VAL, THIRD_INT_VAL, FORTH_INT_VAL,
-    })
-    setTimeout(() => {
-      querySysEvent(queryArgWithOneCnt,
-        [{
-          domain: "RELIABILITY",
-          names: ["STACK"],
-          condition: '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":2222222},' +
-            '{"param":"UID","op":"=","value":2222222}]}}'
-        }], (infos) => {
-          expect(infos.length >= 0).assertTrue()
-          expect(GetParam(infos[0], "FIRST_INT_VAL")).assertEqual(FIRST_INT_VAL)
-          expect(GetParam(infos[0], "SECOND_INT_VAL")).assertEqual(SECOND_INT_VAL)
-          expect(GetParam(infos[0], "THIRD_INT_VAL")).assertEqual(THIRD_INT_VAL)
-          expect(GetParam(infos[0], "FORTH_INT_VAL")).assertEqual(FORTH_INT_VAL)
-        }, (reason, total) => {
-          expect(total == QUERY_1_ITEM).assertTrue()
-        }, (err) => {
-          expect(false).assertTrue()
-        }, done)
-    }, DELAY_1500_MS)
-  })
-
-  /**
-   * @tc.desc: Test write with big integer number
-   * @tc.level: Level 0
-   * @tc.name: hiSysEventJsUnitTest025
-   * @tc.number: hiSysEventJsUnitTest025
-   * @tc.type: Function
-   * @tc.size: MediumTest
-   */
-  it('hiSysEventJsUnitTest025', 0, async function (done) {
-    const FIRST_BIG_INT_VAL = 1n
-    const SECOND_BIG_INT_VAL = -1n
-    const THIRD_BIG_INT_VAL = 123456789n
-    const FORTH_BIG_INT_VAL = -123456789n
-    const TEST_PID_UID = 3333333
-    writeCustomizedSysEvent({
-      PID: TEST_PID_UID,
-      UID: TEST_PID_UID,
-      FIRST_BIG_INT_VAL, SECOND_BIG_INT_VAL, THIRD_BIG_INT_VAL, FORTH_BIG_INT_VAL,
-    })
-    setTimeout(() => {
-      querySysEvent(queryArgWithOneCnt,
-        [{
-          domain: "RELIABILITY",
-          names: ["STACK"],
-          condition: '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":3333333},' +
-            '{"param":"UID","op":"=","value":3333333}]}}'
-        }], (infos) => {
-          expect(infos.length >= 0).assertTrue()
-          expect(BigInt(GetParam(infos[0], "FIRST_BIG_INT_VAL"))).assertEqual(FIRST_BIG_INT_VAL)
-          expect(BigInt(GetParam(infos[0], "SECOND_BIG_INT_VAL"))).assertEqual(SECOND_BIG_INT_VAL)
-          expect(BigInt(GetParam(infos[0], "THIRD_BIG_INT_VAL"))).assertEqual(THIRD_BIG_INT_VAL)
-          expect(BigInt(GetParam(infos[0], "FORTH_BIG_INT_VAL"))).assertEqual(FORTH_BIG_INT_VAL)
-        }, (reason, total) => {
-          expect(total == QUERY_1_ITEM).assertTrue()
-        }, (err) => {
-          expect(false).assertTrue()
-        }, done)
-    }, DELAY_1500_MS)
-  })
-
-  /**
-   * @tc.desc: Test write with max or min big integer number
-   * @tc.level: Level 0
-   * @tc.name: hiSysEventJsUnitTest026
-   * @tc.number: hiSysEventJsUnitTest026
-   * @tc.type: Function
-   * @tc.size: MediumTest
-   */
-  it('hiSysEventJsUnitTest026', 0, async function (done) {
-    const UINT64_MAX = 18446744073709551615n
-    const INT64_MAX = 9223372036854775807n
-    const INT64_MIN = -9223372036854775808n
-    const TEST_PID_UID = 4444444
-    writeCustomizedSysEvent({
-      PID: TEST_PID_UID,
-      UID: TEST_PID_UID,
-      UINT64_MAX, INT64_MAX, INT64_MIN,
-    })
-    setTimeout(() => {
-      querySysEvent(queryArgWithOneCnt,
-        [{
-          domain: "RELIABILITY",
-          names: ["STACK"],
-          condition: '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":4444444},' +
-            '{"param":"UID","op":"=","value":4444444}]}}'
-        }], (infos) => {
-          expect(infos.length >= 0).assertTrue()
-          expect(GetParam(infos[0], "UINT64_MAX")).assertEqual(UINT64_MAX)
-          expect(GetParam(infos[0], "INT64_MAX")).assertEqual(INT64_MAX)
-          expect(GetParam(infos[0], "INT64_MIN")).assertEqual(INT64_MIN)
-        }, (reason, total) => {
-          expect(total == QUERY_1_ITEM).assertTrue()
-        }, (err) => {
-          expect(false).assertTrue()
-        }, done)
-    }, DELAY_1500_MS)
-  })
-
-  /**
-   * @tc.desc: Test write with big integer number array
-   * @tc.level: Level 0
-   * @tc.name: hiSysEventJsUnitTest027
-   * @tc.number: hiSysEventJsUnitTest027
-   * @tc.type: Function
-   * @tc.size: MediumTest
-   */
-  it('hiSysEventJsUnitTest027', 0, async function (done) {
-    const FIRST_BIG_INT_ARR = [4n, 5n, 6n]
-    const SECOND_BIG_INT_ARR = [-4n, -5n, -6n]
-    const THIRD_BIG_INT_ARR = [123456789n, -2232333n, 2222223344n]
-    const FORTH_BIG_INT_ARR = [-123456789n, -2232333n, -2222223344n]
-    const TEST_PID_UID = 55555555
-    writeCustomizedSysEvent({
-      PID: TEST_PID_UID,
-      UID: TEST_PID_UID,
-      FIRST_BIG_INT_ARR, SECOND_BIG_INT_ARR, THIRD_BIG_INT_ARR, FORTH_BIG_INT_ARR,
-    })
-    setTimeout(() => {
-      querySysEvent(queryArgWithOneCnt,
-        [{
-          domain: "RELIABILITY",
-          names: ["STACK"],
-          condition: '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":55555555},' +
-            '{"param":"UID","op":"=","value":55555555}]}}'
-        }], (infos) => {
-          expect(infos.length >= 0).assertTrue()
-          const SEC_INDEX = 1
-          const THIRD_INDEX = 2
-          expect(BigInt(GetArrayIemParamByIndex(
-            infos[0], "FIRST_BIG_INT_ARR", SEC_INDEX))).assertEqual(FIRST_BIG_INT_ARR[SEC_INDEX])
-          expect(BigInt(GetArrayIemParamByIndex(
-            infos[0], "SECOND_BIG_INT_ARR", THIRD_INDEX))).assertEqual(SECOND_BIG_INT_ARR[THIRD_INDEX])
-          expect(BigInt(GetArrayIemParamByIndex(
-            infos[0], "THIRD_BIG_INT_ARR", SEC_INDEX))).assertEqual(THIRD_BIG_INT_ARR[SEC_INDEX])
-          expect(BigInt(GetArrayIemParamByIndex(
-            infos[0], "FORTH_BIG_INT_ARR", THIRD_INDEX))).assertEqual(FORTH_BIG_INT_ARR[THIRD_INDEX])
-        }, (reason, total) => {
-          expect(total == QUERY_1_ITEM).assertTrue()
-        }, (err) => {
-          expect(false).assertTrue()
-        }, done)
-    }, DELAY_1500_MS)
-  })
-
-  /**
-   * @tc.desc: Test write with integer number array
-   * @tc.level: Level 0
-   * @tc.name: hiSysEventJsUnitTest028
-   * @tc.number: hiSysEventJsUnitTest028
-   * @tc.type: Function
-   * @tc.size: MediumTest
-   */
-    it('hiSysEventJsUnitTest028', 0, async function (done) {
-      const FIRST_INT_ARR = [1, 2, 3]
-      const SECOND_INT_ARR = [-1, -2, -3]
-      const THIRD_INT_ARR = [123456789, -2232333, 2222223344]
-      const FORTH_INT_ARR = [-123456, 222333, -222222]
-      const TEST_PID_UID = 66666666
-      writeCustomizedSysEvent({
-        PID: TEST_PID_UID,
-        UID: TEST_PID_UID,
-        FIRST_INT_ARR, SECOND_INT_ARR, THIRD_INT_ARR, FORTH_INT_ARR,
-      })
-      setTimeout(() => {
-        querySysEvent(queryArgWithOneCnt,
-          [{
-            domain: "RELIABILITY",
-            names: ["STACK"],
-            condition: '{"version":"V1","condition":{"and":[{"param":"PID","op":"=","value":66666666},' +
-              '{"param":"UID","op":"=","value":66666666}]}}'
-          }], (infos) => {
-            expect(infos.length >= 0).assertTrue()
-            const SEC_INDEX = 1
-            const THIRD_INDEX = 2
-            expect(GetArrayIemParamByIndex(
-              infos[0], "FIRST_INT_ARR", SEC_INDEX)).assertEqual(FIRST_INT_ARR[SEC_INDEX])
-            expect(GetArrayIemParamByIndex(
-              infos[0], "SECOND_INT_ARR", THIRD_INDEX)).assertEqual(SECOND_INT_ARR[THIRD_INDEX])
-            expect(GetArrayIemParamByIndex(
-              infos[0], "THIRD_INT_ARR", SEC_INDEX)).assertEqual(THIRD_INT_ARR[SEC_INDEX])
-            expect(GetArrayIemParamByIndex(
-              infos[0], "FORTH_INT_ARR", THIRD_INDEX)).assertEqual(FORTH_INT_ARR[THIRD_INDEX])
-          }, (reason, total) => {
-            expect(total == QUERY_1_ITEM).assertTrue()
-          }, (err) => {
-            expect(false).assertTrue()
-          }, done)
-      }, DELAY_1500_MS)
-    })
-
-  /**
-   * @tc.desc: Test query with undefined as beginTime
-   * @tc.level: Level 0
-   * @tc.name: hiSysEventJsUnitTest029
-   * @tc.number: hiSysEventJsUnitTest029
-   * @tc.type: Function
-   * @tc.size: MediumTest
-   */
-  it('hiSysEventJsUnitTest029', 0, async function (done) {
     querySysEvent({
       beginTime: undefined,
       endTime: DEFAULT_QUERY_TIME,
@@ -1090,12 +893,12 @@ describe('hiSysEventJsUnitTest', function () {
   /**
    * @tc.desc: Test query with null as endTime
    * @tc.level: Level 0
-   * @tc.name: hiSysEventJsUnitTest030
-   * @tc.number: hiSysEventJsUnitTest030
+   * @tc.name: hiSysEventJsUnitTest025
+   * @tc.number: hiSysEventJsUnitTest025
    * @tc.type: Function
    * @tc.size: MediumTest
    */
-  it('hiSysEventJsUnitTest030', 0, async function (done) {
+  it('hiSysEventJsUnitTest025', 0, async function (done) {
     querySysEvent({
       beginTime: DEFAULT_QUERY_TIME,
       endTime: null,
@@ -1115,12 +918,12 @@ describe('hiSysEventJsUnitTest', function () {
   /**
    * @tc.desc: Test query with undefined as querier
    * @tc.level: Level 0
-   * @tc.name: hiSysEventJsUnitTest031
-   * @tc.number: hiSysEventJsUnitTest031
+   * @tc.name: hiSysEventJsUnitTest026
+   * @tc.number: hiSysEventJsUnitTest026
    * @tc.type: Function
    * @tc.size: MediumTest
    */
-  it('hiSysEventJsUnitTest031', 0, async function (done) {
+  it('hiSysEventJsUnitTest026', 0, async function (done) {
     try {
       hiSysEvent.query(queryArgWithOneCnt, [{
         domain: "HUKS",
@@ -1135,12 +938,12 @@ describe('hiSysEventJsUnitTest', function () {
   /**
    * @tc.desc: Test query with null as querier
    * @tc.level: Level 0
-   * @tc.name: hiSysEventJsUnitTest032
-   * @tc.number: hiSysEventJsUnitTest032
+   * @tc.name: hiSysEventJsUnitTest027
+   * @tc.number: hiSysEventJsUnitTest027
    * @tc.type: Function
    * @tc.size: MediumTest
    */
-  it('hiSysEventJsUnitTest032', 0, async function (done) {
+  it('hiSysEventJsUnitTest027', 0, async function (done) {
     try {
       hiSysEvent.query(queryArgWithOneCnt, [{
         domain: "SAMGR",
@@ -1150,5 +953,266 @@ describe('hiSysEventJsUnitTest', function () {
       expect(err.code == PARAM_CHECK_ERR).assertTrue()
       done()
     }
+  })
+
+  /**
+   * @tc.desc: Test write with integer number
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest028
+   * @tc.number: hiSysEventJsUnitTest028
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+  it('hiSysEventJsUnitTest028', 0, async function (done) {
+    const POS_INT_NUM = 2232333
+    const NEG_INT_NUM = -2232333
+    const ZERO_INT_NUM = 0
+    const TEST_PID_UID = 282828
+    writeCustomizedSysEvent({
+      PID: TEST_PID_UID,
+      UID: TEST_PID_UID,
+      POS_INT_NUM, NEG_INT_NUM, ZERO_INT_NUM,
+    })
+    setTimeout(() => {
+      querySysEvent(queryArgWithOneCnt,
+        [{
+          domain: "RELIABILITY",
+          names: ["STACK"],
+          condition: BuildQueryCondition(TEST_PID_UID),
+        }], (infos) => {
+          expect(infos.length >= 0).assertTrue()
+          expect(GetParam(infos[0], "POS_INT_NUM")).assertEqual(POS_INT_NUM)
+          expect(GetParam(infos[0], "NEG_INT_NUM")).assertEqual(NEG_INT_NUM)
+          expect(GetParam(infos[0], "ZERO_INT_NUM")).assertEqual(ZERO_INT_NUM)
+        }, (reason, total) => {
+          expect(total == QUERY_1_ITEM).assertTrue()
+        }, (err) => {
+          expect(false).assertTrue()
+        }, done)
+    }, DELAY_1500_MS)
+  })
+
+  /**
+   * @tc.desc: Test write with integer number array
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest029
+   * @tc.number: hiSysEventJsUnitTest029
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+    it('hiSysEventJsUnitTest029', 0, async function (done) {
+      const INT_NUM_ARR = [2232333, -2232333, 0]
+      const TEST_PID_UID = 292929
+      writeCustomizedSysEvent({
+        PID: TEST_PID_UID,
+        UID: TEST_PID_UID,
+        INT_NUM_ARR,
+      })
+      setTimeout(() => {
+        querySysEvent(queryArgWithOneCnt,
+          [{
+            domain: "RELIABILITY",
+            names: ["STACK"],
+            condition: BuildQueryCondition(TEST_PID_UID),
+          }], (infos) => {
+            expect(infos.length >= 0).assertTrue()
+            const SEC_INDEX = 1
+            const THIRD_INDEX = 2
+            expect(GetArrayIemParamByIndex(
+              infos[0], "INT_NUM_ARR", FIRST_ITEM_INDEX)).assertEqual(INT_NUM_ARR[FIRST_ITEM_INDEX])
+            expect(GetArrayIemParamByIndex(
+              infos[0], "INT_NUM_ARR", SECOND_ITEM_INDEX)).assertEqual(INT_NUM_ARR[SECOND_ITEM_INDEX])
+            expect(GetArrayIemParamByIndex(
+              infos[0], "INT_NUM_ARR", THRID_ITEM_INDEX)).assertEqual(INT_NUM_ARR[THRID_ITEM_INDEX])
+          }, (reason, total) => {
+            expect(total == QUERY_1_ITEM).assertTrue()
+          }, (err) => {
+            expect(false).assertTrue()
+          }, done)
+      }, DELAY_1500_MS)
+    })
+
+  /**
+   * @tc.desc: Test write with signed big number
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest030
+   * @tc.number: hiSysEventJsUnitTest030
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+  it('hiSysEventJsUnitTest030', 0, async function (done) {
+    const MAX_UINT_BIG_NUM = 18446744073709551615n
+    const MAX_INT_BIG_NUM = 9223372036854775807n
+    const MIN_INT_BIG_NUM = -9223372036854775808n
+    const TEST_PID_UID = 303030
+    writeCustomizedSysEvent({
+      PID: TEST_PID_UID,
+      UID: TEST_PID_UID,
+      MAX_UINT_BIG_NUM, MAX_INT_BIG_NUM, MIN_INT_BIG_NUM,
+    })
+    setTimeout(() => {
+      querySysEvent(queryArgWithOneCnt,
+        [{
+          domain: "RELIABILITY",
+          names: ["STACK"],
+          condition: BuildQueryCondition(TEST_PID_UID),
+        }], (infos) => {
+          expect(infos.length >= 0).assertTrue()
+          expect(BigInt(GetParam(infos[0], "MAX_UINT_BIG_NUM"))).assertEqual(MAX_UINT_BIG_NUM)
+          expect(BigInt(GetParam(infos[0], "MAX_INT_BIG_NUM"))).assertEqual(MAX_INT_BIG_NUM)
+          expect(BigInt(GetParam(infos[0], "MIN_INT_BIG_NUM"))).assertEqual(MIN_INT_BIG_NUM)
+        }, (reason, total) => {
+          expect(total == QUERY_1_ITEM).assertTrue()
+        }, (err) => {
+          expect(false).assertTrue()
+        }, done)
+    }, DELAY_1500_MS)
+  })
+
+  /**
+   * @tc.desc: Test write with signed big number array
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest031
+   * @tc.number: hiSysEventJsUnitTest031
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+  it('hiSysEventJsUnitTest031', 0, async function (done) {
+    const SIGNED_BIG_NUM_ARR = [9223372036854775807n, -9223372036854775808n]
+    const TEST_PID_UID = 313131
+    writeCustomizedSysEvent({
+      PID: TEST_PID_UID,
+      UID: TEST_PID_UID,
+      SIGNED_BIG_NUM_ARR,
+    })
+    setTimeout(() => {
+      querySysEvent(queryArgWithOneCnt,
+        [{
+          domain: "RELIABILITY",
+          names: ["STACK"],
+          condition: BuildQueryCondition(TEST_PID_UID),
+        }], (infos) => {
+          expect(infos.length >= 0).assertTrue()
+          expect(BigInt(GetArrayIemParamByIndex(
+            infos[0], "SIGNED_BIG_NUM_ARR", FIRST_ITEM_INDEX))).assertEqual(SIGNED_BIG_NUM_ARR[FIRST_ITEM_INDEX])
+          expect(BigInt(GetArrayIemParamByIndex(
+            infos[0], "SIGNED_BIG_NUM_ARR", SECOND_ITEM_INDEX))).assertEqual(SIGNED_BIG_NUM_ARR[SECOND_ITEM_INDEX])
+        }, (reason, total) => {
+          expect(total == QUERY_1_ITEM).assertTrue()
+        }, (err) => {
+          expect(false).assertTrue()
+        }, done)
+    }, DELAY_1500_MS)
+  })
+
+  /**
+   * @tc.desc: Test write with unsigned big number array
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest032
+   * @tc.number: hiSysEventJsUnitTest032
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+  it('hiSysEventJsUnitTest032', 0, async function (done) {
+    const UNSIGNED_BIG_NUM_ARR = [18446744073709551615n, 0n]
+    const TEST_PID_UID = 323232
+    writeCustomizedSysEvent({
+      PID: TEST_PID_UID,
+      UID: TEST_PID_UID,
+      UNSIGNED_BIG_NUM_ARR,
+    })
+    setTimeout(() => {
+      querySysEvent(queryArgWithOneCnt,
+        [{
+          domain: "RELIABILITY",
+          names: ["STACK"],
+          condition: BuildQueryCondition(TEST_PID_UID),
+        }], (infos) => {
+          expect(infos.length >= 0).assertTrue()
+          expect(BigInt(GetArrayIemParamByIndex(
+            infos[0], "UNSIGNED_BIG_NUM_ARR", FIRST_ITEM_INDEX))).assertEqual(UNSIGNED_BIG_NUM_ARR[FIRST_ITEM_INDEX])
+          expect(BigInt(GetArrayIemParamByIndex(
+            infos[0], "UNSIGNED_BIG_NUM_ARR", SECOND_ITEM_INDEX))).assertEqual(UNSIGNED_BIG_NUM_ARR[SECOND_ITEM_INDEX])
+        }, (reason, total) => {
+          expect(total == QUERY_1_ITEM).assertTrue()
+        }, (err) => {
+          expect(false).assertTrue()
+        }, done)
+    }, DELAY_1500_MS)
+  })
+
+  /**
+   * @tc.desc: Test write with floating number
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest033
+   * @tc.number: hiSysEventJsUnitTest033
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+  it('hiSysEventJsUnitTest033', 0, async function (done) {
+    const POS_FLOATING_NUM = 12345.0
+    const NEG_FLOATING_NUM = -12345.0
+    const ZERO_FLOATING_NUM = 0.0
+    const TEST_PID_UID = 333333
+    writeCustomizedSysEvent({
+      PID: TEST_PID_UID,
+      UID: TEST_PID_UID,
+      POS_FLOATING_NUM, NEG_FLOATING_NUM, ZERO_FLOATING_NUM,
+    })
+    setTimeout(() => {
+      querySysEvent(queryArgWithOneCnt,
+        [{
+          domain: "RELIABILITY",
+          names: ["STACK"],
+          condition: BuildQueryCondition(TEST_PID_UID),
+        }], (infos) => {
+          expect(infos.length >= 0).assertTrue()
+          expect(GetParam(infos[0], "POS_FLOATING_NUM")).assertEqual(POS_FLOATING_NUM)
+          expect(GetParam(infos[0], "NEG_FLOATING_NUM")).assertEqual(NEG_FLOATING_NUM)
+          expect(GetParam(infos[0], "ZERO_FLOATING_NUM")).assertEqual(ZERO_FLOATING_NUM)
+        }, (reason, total) => {
+          expect(total == QUERY_1_ITEM).assertTrue()
+        }, (err) => {
+          expect(false).assertTrue()
+        }, done)
+    }, DELAY_1500_MS)
+  })
+
+  /**
+   * @tc.desc: Test write with floating number array
+   * @tc.level: Level 0
+   * @tc.name: hiSysEventJsUnitTest034
+   * @tc.number: hiSysEventJsUnitTest034
+   * @tc.type: Function
+   * @tc.size: MediumTest
+   */
+  it('hiSysEventJsUnitTest034', 0, async function (done) {
+    const FLOAT_NUM_ARR = [12345.0, -12345.0, 0.0]
+    const TEST_PID_UID = 343434
+    writeCustomizedSysEvent({
+      PID: TEST_PID_UID,
+      UID: TEST_PID_UID,
+      FLOAT_NUM_ARR,
+    })
+    setTimeout(() => {
+      querySysEvent(queryArgWithOneCnt,
+        [{
+          domain: "RELIABILITY",
+          names: ["STACK"],
+          condition: BuildQueryCondition(TEST_PID_UID),
+        }], (infos) => {
+          expect(infos.length >= 0).assertTrue()
+          expect(GetArrayIemParamByIndex(
+            infos[0], "FLOAT_NUM_ARR", FIRST_ITEM_INDEX)).assertEqual(FLOAT_NUM_ARR[FIRST_ITEM_INDEX])
+          expect(GetArrayIemParamByIndex(
+            infos[0], "FLOAT_NUM_ARR", SECOND_ITEM_INDEX)).assertEqual(FLOAT_NUM_ARR[SECOND_ITEM_INDEX])
+          expect(GetArrayIemParamByIndex(
+            infos[0], "FLOAT_NUM_ARR", THRID_ITEM_INDEX)).assertEqual(FLOAT_NUM_ARR[THRID_ITEM_INDEX])
+        }, (reason, total) => {
+          expect(total == QUERY_1_ITEM).assertTrue()
+        }, (err) => {
+          expect(false).assertTrue()
+        }, done)
+    }, DELAY_1500_MS)
   })
 });
