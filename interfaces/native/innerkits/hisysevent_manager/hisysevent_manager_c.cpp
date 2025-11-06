@@ -73,6 +73,7 @@ int HiSysEventAddWatcher(HiSysEventWatcher& watcher, HiSysEventWatchRule rules[]
     if (ret != IPC_CALL_SUCCEED) {
         return ret;
     }
+    std::lock_guard<std::mutex> lock(g_mapMutex);
     watchers[std::make_pair(watcher.OnEvent, watcher.OnServiceDied)] = listenerC;
     return ret;
 }
@@ -80,12 +81,12 @@ int HiSysEventAddWatcher(HiSysEventWatcher& watcher, HiSysEventWatchRule rules[]
 int HiSysEventRemoveWatcher(HiSysEventWatcher& watcher)
 {
     auto watcherKey = std::make_pair(watcher.OnEvent, watcher.OnServiceDied);
+    std::lock_guard<std::mutex> lock(g_mapMutex);
     auto watcherIter = watchers.find(watcherKey);
     if (watcherIter == watchers.end()) {
         return ERR_LISTENER_NOT_EXIST;
     }
     auto ret = HiSysEventBaseManager::RemoveListener(watcherIter->second);
-    std::lock_guard<std::mutex> lock(g_mapMutex);
     if (ret == IPC_CALL_SUCCEED) {
         watchers.erase(watcherIter->first);
     }

@@ -24,7 +24,7 @@ namespace OHOS {
 namespace HiviewDFX {
 using CALLBACK_FUNC = std::function<void(ani_vm*, ani_ref, pid_t threadId)>;
 using RELEASE_FUNC = std::function<void(ani_vm*, pid_t threadId)>;
-using CallbackContextAni = struct CallbackContextAni {
+struct CallbackContextAni {
     ani_vm *vm = nullptr;
     ani_ref ref = nullptr;
     CALLBACK_FUNC callback;

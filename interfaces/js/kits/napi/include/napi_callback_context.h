@@ -26,7 +26,7 @@ namespace OHOS {
 namespace HiviewDFX {
 using CALLBACK_FUNC = std::function<void(const napi_env, const napi_ref, pid_t threadId)>;
 using RELEASE_FUNC = std::function<void(pid_t threadId)>;
-using CallbackContext = struct CallbackContext {
+struct CallbackContext {
     napi_env env = nullptr;
     napi_ref ref = nullptr;
     CALLBACK_FUNC callback;
