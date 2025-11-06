@@ -121,10 +121,10 @@ void Transport::AddFailedData(RawData& rawData)
 
 void Transport::RetrySendFailedData()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (retryDataList_.empty()) {
         return;
     }
-    std::lock_guard<std::mutex> lock(mutex_);
     while (!retryDataList_.empty()) {
         auto rawData = retryDataList_.front();
         if (SendToHiSysEventDataSource(rawData) != SUCCESS) {

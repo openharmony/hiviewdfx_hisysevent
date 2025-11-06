@@ -37,14 +37,14 @@ using Param = std::variant<bool, double, int64_t, uint64_t, std::string,
     std::vector<bool>, std::vector<double>, std::vector<int64_t>, std::vector<uint64_t>,
     std::vector<std::string>>;
 
-using HiSysEventInfo = struct HiSysEventInfo {
+struct HiSysEventInfo {
     std::string domain;
     std::string name;
     HiSysEvent::EventType eventType;
     std::unordered_map<std::string, Param> params;
 };
 
-using HiSysEventAsyncContext = struct HiSysEventAsyncContext {
+struct HiSysEventAsyncContext {
     napi_env env;
     napi_async_work asyncWork;
     napi_deferred deferred;
