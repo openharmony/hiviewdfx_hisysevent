@@ -209,6 +209,7 @@ public:
         static constexpr char SEC_COMPONENT[] = "SEC_COMPONENT";
         static constexpr char SELECTIONFWK[] = "SELECTIONFWK";
         static constexpr char SENSOR[] = "SENSOR";
+        static constexpr char SETTINGS_APP[] = "SETTINGS_APP_UE";
         static constexpr char SOURCE_CODE_TRANSFORMER[] = "SRCTRANSFORMER";
         static constexpr char STARTUP[] = "STARTUP";
         static constexpr char STATS[] = "STATS";
