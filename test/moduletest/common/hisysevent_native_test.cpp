@@ -1558,7 +1558,7 @@ HWTEST_F(HiSysEventNativeTest, TestEventSocketFactory1, TestSize.Level1)
     BuildRawData(data, "AAFWK", "LIFECYCLE_HALF_TIMEOUT", HiSysEvent::EventType::FAULT);
     socketAddr = EventSocketFactory::GetEventSocket(data);
     ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
-    BuildRawData(data, "AAFWK", "LIFECYCLE_TIME_OUT", HiSysEvent::EventType::FAULT);
+    BuildRawData(data, "AAFWK", "LIFECYCLE_TIMEOUT", HiSysEvent::EventType::FAULT);
     socketAddr = EventSocketFactory::GetEventSocket(data);
     ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
     BuildRawData(data, "AAFWK", "THREAD_BLOCK_3S", HiSysEvent::EventType::FAULT);
@@ -1606,6 +1606,9 @@ HWTEST_F(HiSysEventNativeTest, TestEventSocketFactory3, TestSize.Level1)
     RawData data;
     BuildRawData(data, "FRAMEWORK", "IPC_FULL", HiSysEvent::EventType::FAULT);
     auto socketAddr = EventSocketFactory::GetEventSocket(data);
+    ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
+    BuildRawData(data, "FRAMEWORK", "IPC_FULL_WARNING", HiSysEvent::EventType::FAULT);
+    socketAddr = EventSocketFactory::GetEventSocket(data);
     ASSERT_EQ(std::string(socketAddr.sun_path), "/dev/unix/socket/hisysevent_fast");
     BuildRawData(data, "FRAMEWORK", "SERVICE_BLOCK", HiSysEvent::EventType::FAULT);
     socketAddr = EventSocketFactory::GetEventSocket(data);
