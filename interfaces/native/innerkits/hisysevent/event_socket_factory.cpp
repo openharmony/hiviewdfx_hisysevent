@@ -53,7 +53,7 @@ bool IsHigherPriorityAafwkEvent(const std::string& name)
 {
     static std::list<std::string> events {
         "APP_INPUT_BLOCK", "BUSSINESS_THREAD_BLOCK_3S", "BUSSINESS_THREAD_BLOCK_6S",
-        "LIFECYCLE_HALF_TIMEOUT", "LIFECYCLE_TIME_OUT", "THREAD_BLOCK_3S", "THREAD_BLOCK_6S" };
+        "LIFECYCLE_HALF_TIMEOUT", "LIFECYCLE_TIMEOUT", "THREAD_BLOCK_3S", "THREAD_BLOCK_6S" };
     return IsHigherPriorityEventName(events, name);
 }
 
@@ -67,7 +67,7 @@ bool IsHigerPriorityAceEvent(const std::string& name)
 bool IsHigerPriorityFrameworkEvent(const std::string& name)
 {
     static std::list<std::string> events {
-        "IPC_FULL", "SERVICE_BLOCK", "SERVICE_TIMEOUT", "SERVICE_WARNING" };
+        "IPC_FULL", "IPC_FULL_WARNING", "SERVICE_BLOCK", "SERVICE_TIMEOUT", "SERVICE_WARNING" };
     return IsHigherPriorityEventName(events, name);
 }
 
