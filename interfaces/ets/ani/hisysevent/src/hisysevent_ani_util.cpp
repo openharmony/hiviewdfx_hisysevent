@@ -139,12 +139,12 @@ bool HiSysEventAniUtil::ParseBoolValue(ani_env *env, ani_ref elementRef)
         return false;
     }
     ani_method unboxedMethod {};
-    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_UNBOXED, ":z", &unboxedMethod)) {
-        HILOG_ERROR(LOG_CORE, "find method %{public}s failed", FUNC_NAME_UNBOXED);
+    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_TOBOOLEAN, ":z", &unboxedMethod)) {
+        HILOG_ERROR(LOG_CORE, "find method %{public}s failed", FUNC_NAME_TOBOOLEAN);
         return false;
     }
     if (ANI_OK != env->Object_CallMethod_Boolean(static_cast<ani_object>(elementRef), unboxedMethod, &booleanVal)) {
-        HILOG_ERROR(LOG_CORE, "call method %{public}s failed", FUNC_NAME_UNBOXED);
+        HILOG_ERROR(LOG_CORE, "call method %{public}s failed", FUNC_NAME_TOBOOLEAN);
         return false;
     }
     return static_cast<bool>(booleanVal);
@@ -164,12 +164,12 @@ int HiSysEventAniUtil::ParseIntValue(ani_env *env, ani_ref elementRef)
         return static_cast<int>(intVal);
     }
     ani_method unboxedMethod {};
-    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_UNBOXED, ":i", &unboxedMethod)) {
-        HILOG_ERROR(LOG_CORE, "find method %{public}s failed", FUNC_NAME_UNBOXED);
+    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_TOINT, ":i", &unboxedMethod)) {
+        HILOG_ERROR(LOG_CORE, "find method %{public}s failed", FUNC_NAME_TOINT);
         return static_cast<int>(intVal);
     }
     if (ANI_OK != env->Object_CallMethod_Int(static_cast<ani_object>(elementRef), unboxedMethod, &intVal)) {
-        HILOG_ERROR(LOG_CORE, "call method %{public}s failed", FUNC_NAME_UNBOXED);
+        HILOG_ERROR(LOG_CORE, "call method %{public}s failed", FUNC_NAME_TOINT);
         return static_cast<int>(intVal);
     }
     return static_cast<int>(intVal);
@@ -189,12 +189,12 @@ double HiSysEventAniUtil::ParseNumberValue(ani_env *env, ani_ref elementRef)
         return static_cast<double>(doubleVal);
     }
     ani_method unboxedMethod {};
-    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_UNBOXED, ":d", &unboxedMethod)) {
-        HILOG_ERROR(LOG_CORE, "find method %{public}s failed", FUNC_NAME_UNBOXED);
+    if (ANI_OK != env->Class_FindMethod(cls, FUNC_NAME_TODOUBLE, ":d", &unboxedMethod)) {
+        HILOG_ERROR(LOG_CORE, "find method %{public}s failed", FUNC_NAME_TODOUBLE);
         return static_cast<double>(doubleVal);
     }
     if (ANI_OK != env->Object_CallMethod_Double(static_cast<ani_object>(elementRef), unboxedMethod, &doubleVal)) {
-        HILOG_ERROR(LOG_CORE, "call method %{public}s failed", FUNC_NAME_UNBOXED);
+        HILOG_ERROR(LOG_CORE, "call method %{public}s failed", FUNC_NAME_TODOUBLE);
         return static_cast<double>(doubleVal);
     }
     return static_cast<double>(doubleVal);

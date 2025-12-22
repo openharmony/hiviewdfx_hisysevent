@@ -121,7 +121,7 @@ export default namespace hiSysEvent {
 
     export function write(info: SysEventInfo, callback: AsyncCallback<void>): void {
         let cb = (): Result => { return writeSync(info) }
-        taskpool.execute(cb).then((ret: NullishType): void => {
+        taskpool.execute(cb).then((ret: Any): void => {
             let retError = new BusinessError<void>();
             let writeResult: Result = ret as Result;
             retError.code = writeResult.code;
@@ -133,7 +133,7 @@ export default namespace hiSysEvent {
     export function write(info: SysEventInfo): Promise<void> {
         return new Promise<void>((resolve: (v: undefined) => void, reject: (e: BusinessError<void>) => void): void => {
             let cb = (): Result => { return writeSync(info) }
-            taskpool.execute(cb).then((ret: NullishType): void => {
+            taskpool.execute(cb).then((ret: Any): void => {
                 let retError = new BusinessError<void>();
                 let writeResult: Result = ret as Result;
                 if (writeResult.code === 0) {
