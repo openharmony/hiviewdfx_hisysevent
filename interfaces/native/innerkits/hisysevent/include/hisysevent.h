@@ -148,6 +148,7 @@ public:
         static constexpr char FILEMANAGEMENT[] = "FILEMANAGEMENT";
         static constexpr char FFRT[] = "FFRT";
         static constexpr char FOLDSTATE_UE[] = "FOLDSTATE_UE";
+        static constexpr char FORM_FWK_UE[] = "FORM_FWK_UE";
         static constexpr char FORM_MANAGER[] = "FORM_MANAGER";
         static constexpr char FP_SETTINGS[] = "FP_SETTINGS";
         static constexpr char FRAMEWORK[] = "FRAMEWORK";
