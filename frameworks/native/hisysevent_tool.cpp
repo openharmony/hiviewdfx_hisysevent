@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 
 #include "hisysevent_tool.h"
 
+#include <charconv>
+#include <fstream>
 #include <getopt.h>
 #include <iomanip>
 #include <iostream>
@@ -34,11 +36,35 @@ using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-constexpr char ARG_SELECTION[] = "vrc:o:n:t:lS:s:E:e:m:hg:";
 constexpr uint32_t INVALID_EVENT_TYPE = 0;
 constexpr int INVALID_ARG_OPT = -1;
 constexpr long long DEFAULT_TIME_STAMP = -1;
 constexpr long long SECONDS_2_MILLS = 1000;
+
+template<typename T>
+void ParseNumFromStr(const std::string& numStr, T& num)
+{
+    auto ret = std::from_chars(numStr.c_str(), numStr.c_str() + numStr.size(), num);
+    if (ret.ec != std::errc()) {
+        num = 0;
+    }
+}
+
+bool IsSupportEventCheck()
+{
+    std::ifstream file;
+    file.open("/data/system/hiview/unzip_configs/sys_event_def/hisysevent.def");
+    return file.is_open();
+}
+
+std::string GetArgSelection()
+{
+    std::string argSelection = "rc:o:n:t:lS:s:E:e:m:hg:";
+    if (IsSupportEventCheck()) {
+        argSelection.push_back('v');
+    }
+    return argSelection;
+}
 
 RuleType GetRuleTypeFromArg(const string& fromArgs)
 {
@@ -102,40 +128,6 @@ std::string GetErrorDescription(int32_t errCode)
         "unknown error." : errMap.at(errCode);
 }
 
-void InitOptHandlers(std::map<int, OptHandler>& optHandlers)
-{
-    std::map<int, OptHandler> tmpHandlers = {
-        {'v', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.checkValidEvent = true;
-        }}, {'r', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.real = true;
-        }}, {'c', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.ruleType = GetRuleTypeFromArg(optarg);
-        }}, {'o', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.domain = optarg;
-        }}, {'n', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.eventName = optarg;
-        }}, {'t', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.tag = optarg;
-        }}, {'l', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.history = true;
-        }}, {'s', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.beginTime = strtoll(optarg, nullptr, 0);
-        }}, {'S', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.beginTime = ParseTimeStampFromArgs(std::string(optarg));
-        }}, {'e', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.endTime = strtoll(optarg, nullptr, 0);
-        }}, {'E', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.endTime = ParseTimeStampFromArgs(std::string(optarg));
-        }}, {'m', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.maxEvents = strtol(optarg, nullptr, 0);
-        }}, {'g', [] (struct ArgStuct& cmdArg, const char* optarg) {
-            cmdArg.eventType = GetEventTypeFromArg(optarg);
-        }},
-    };
-    optHandlers.insert(tmpHandlers.begin(), tmpHandlers.end());
-}
-
 bool IsValidRegex(const std::string& regStr)
 {
     if (regStr.length() > 32) { // 32 is the length limit of regex
@@ -151,11 +143,47 @@ bool IsValidRegex(const std::string& regStr)
 }
 }
 
-HiSysEventTool::HiSysEventTool(bool autoExit) : clientCmdArg {
-    false, false, "", "", "", RuleType::WHOLE_WORD,
-    false, -1, -1, 10000, 0}, autoExit(autoExit)
+HiSysEventTool::HiSysEventTool(bool autoExit)
 {
-    InitOptHandlers(optHandlers);
+    autoExit_ = autoExit;
+    isSupportEventCheck_ = IsSupportEventCheck();
+    InitOptHandlers();
+}
+
+void HiSysEventTool::InitOptHandlers()
+{
+    optHandlers_ = {
+        {'r', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            cmdArg.real = true;
+        }}, {'c', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            cmdArg.ruleType = GetRuleTypeFromArg(optarg);
+        }}, {'o', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            cmdArg.domain = optarg;
+        }}, {'n', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            cmdArg.eventName = optarg;
+        }}, {'t', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            cmdArg.tag = optarg;
+        }}, {'l', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            cmdArg.history = true;
+        }}, {'s', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            ParseNumFromStr(optarg, cmdArg.beginTime);
+        }}, {'S', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            cmdArg.beginTime = ParseTimeStampFromArgs(std::string(optarg));
+        }}, {'e', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            ParseNumFromStr(optarg, cmdArg.endTime);
+        }}, {'E', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            cmdArg.endTime = ParseTimeStampFromArgs(std::string(optarg));
+        }}, {'m', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            ParseNumFromStr(optarg, cmdArg.maxEvents);
+        }}, {'g', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            cmdArg.eventType = GetEventTypeFromArg(optarg);
+        }},
+    };
+    if (isSupportEventCheck_) {
+        optHandlers_.insert({'v', [] (struct ArgStuct& cmdArg, const char* optarg) {
+            cmdArg.checkValidEvent = true;
+        }});
+    }
 }
 
 bool HiSysEventTool::ParseCmdLine(int argc, char** argv)
@@ -164,28 +192,28 @@ bool HiSysEventTool::ParseCmdLine(int argc, char** argv)
         return false;
     }
     if (argc > 1) {
-        HandleInput(argc, argv, ARG_SELECTION);
+        HandleInput(argc, argv, GetArgSelection().c_str());
     }
     return CheckCmdLine();
 }
 
 bool HiSysEventTool::CheckCmdLine()
 {
-    if (!clientCmdArg.real && !clientCmdArg.history) {
+    if (!clientCmdArg_.real && !clientCmdArg_.history) {
         return false;
     }
 
-    if (clientCmdArg.real && clientCmdArg.history) {
+    if (clientCmdArg_.real && clientCmdArg_.history) {
         cout << "canot read both read && history hisysevent" << endl;
         return false;
     }
 
-    if (clientCmdArg.history) {
-        auto timestampValidCheck = clientCmdArg.endTime > 0
-            && clientCmdArg.beginTime > clientCmdArg.endTime;
+    if (clientCmdArg_.history) {
+        auto timestampValidCheck = clientCmdArg_.endTime > 0
+            && clientCmdArg_.beginTime > clientCmdArg_.endTime;
         if (timestampValidCheck) {
             cout << "invalid time startTime must less than endTime(";
-            cout << clientCmdArg.beginTime << " > " << clientCmdArg.endTime << ")." << endl;
+            cout << clientCmdArg_.beginTime << " > " << clientCmdArg_.endTime << ")." << endl;
             return false;
         }
     }
@@ -198,19 +226,23 @@ void HiSysEventTool::HandleInput(int argc, char** argv, const char* selection)
     while ((opt = getopt(argc, argv, selection)) != INVALID_ARG_OPT) {
         if (opt == 'h') {
             DoCmdHelp();
-            if (autoExit) {
+            if (autoExit_) {
                 _exit(0);
             }
         }
-        if (optHandlers.find(opt) != optHandlers.end()) {
-            optHandlers.at(opt)(clientCmdArg, optarg);
+        if (optHandlers_.find(opt) != optHandlers_.end()) {
+            optHandlers_.at(opt)(clientCmdArg_, optarg);
         }
     }
 }
 
 void HiSysEventTool::DoCmdHelp()
 {
-    cout << "hisysevent [[-v] -r [-c [WHOLE_WORD|PREFIX|REGULAR] -t <tag> "
+    cout << "hisysevent [";
+    if (isSupportEventCheck_) {
+        cout << "[-v] ";
+    }
+    cout << "-r [-c [WHOLE_WORD|PREFIX|REGULAR] -t <tag> "
         << "| -c [WHOLE_WORD|PREFIX|REGULAR] -o <domain> -n <eventName> "
         << "| -g [FAULT|STATISTIC|SECURITY|BEHAVIOR]] "
         << "| -l [[-s <begin time> -e <end time> | -S <formatted begin time> -E <formatted end time>] "
@@ -232,25 +264,27 @@ void HiSysEventTool::DoCmdHelp()
         << ", get history hisysevent log with domain and event name." << endl;
     cout << "-l -g [FAULT|STATISTIC|SECURITY|BEHAVIOR] -m <max hisysevent count>"
         << ", get history hisysevent log with event type." << endl;
-    cout << "-v,    open valid event checking mode." << endl;
+    if (isSupportEventCheck_) {
+        cout << "-v,    open valid event checking mode." << endl;
+    }
     cout << "-h,    help manual." << endl;
 }
 
 bool HiSysEventTool::DoAction()
 {
-    if (clientCmdArg.ruleType == RuleType::REGULAR && (!IsValidRegex(clientCmdArg.domain)
-        || !IsValidRegex(clientCmdArg.eventName) || !IsValidRegex(clientCmdArg.tag))) {
+    if (clientCmdArg_.ruleType == RuleType::REGULAR && (!IsValidRegex(clientCmdArg_.domain)
+        || !IsValidRegex(clientCmdArg_.eventName) || !IsValidRegex(clientCmdArg_.tag))) {
         cout << "invalid regex" << endl;
         return false;
     }
-    if (clientCmdArg.real) {
-        auto toolListener = std::make_shared<HiSysEventToolListener>(clientCmdArg.checkValidEvent);
+    if (clientCmdArg_.real) {
+        auto toolListener = std::make_shared<HiSysEventToolListener>(clientCmdArg_.checkValidEvent);
         if (toolListener == nullptr) {
             return false;
         }
         std::vector<ListenerRule> sysRules;
-        ListenerRule listenerRule(clientCmdArg.domain, clientCmdArg.eventName,
-            clientCmdArg.tag, clientCmdArg.ruleType, clientCmdArg.eventType);
+        ListenerRule listenerRule(clientCmdArg_.domain, clientCmdArg_.eventName,
+            clientCmdArg_.tag, clientCmdArg_.ruleType, clientCmdArg_.eventType);
         sysRules.emplace_back(listenerRule);
         auto retCode = HiSysEventManager::AddListener(toolListener, sysRules);
         if (retCode != IPC_CALL_SUCCEED) {
@@ -259,21 +293,21 @@ bool HiSysEventTool::DoAction()
         return true;
     }
 
-    if (clientCmdArg.history) {
-        auto queryCallBack = std::make_shared<HiSysEventToolQuery>(clientCmdArg.checkValidEvent, autoExit);
+    if (clientCmdArg_.history) {
+        auto queryCallBack = std::make_shared<HiSysEventToolQuery>(clientCmdArg_.checkValidEvent, autoExit_);
         if (queryCallBack == nullptr) {
             return false;
         }
-        struct QueryArg args(clientCmdArg.beginTime, clientCmdArg.endTime, clientCmdArg.maxEvents);
+        struct QueryArg args(clientCmdArg_.beginTime, clientCmdArg_.endTime, clientCmdArg_.maxEvents);
         std::vector<QueryRule> queryRules;
-        if (clientCmdArg.ruleType != RuleType::WHOLE_WORD) {
+        if (clientCmdArg_.ruleType != RuleType::WHOLE_WORD) {
             cout << "only \"-c WHOLE_WORD\" supported with \"hisysevent -l\" cmd." << endl;
             return false;
         }
-        if (!clientCmdArg.domain.empty() || !clientCmdArg.eventName.empty() ||
-            clientCmdArg.eventType != INVALID_EVENT_TYPE) {
-            QueryRule rule(clientCmdArg.domain, { clientCmdArg.eventName },
-                clientCmdArg.ruleType, clientCmdArg.eventType);
+        if (!clientCmdArg_.domain.empty() || !clientCmdArg_.eventName.empty() ||
+            clientCmdArg_.eventType != INVALID_EVENT_TYPE) {
+            QueryRule rule(clientCmdArg_.domain, { clientCmdArg_.eventName },
+                clientCmdArg_.ruleType, clientCmdArg_.eventType);
             queryRules.push_back(rule);
         }
         auto retCode = HiSysEventManager::Query(args, queryRules, queryCallBack);
@@ -287,13 +321,13 @@ bool HiSysEventTool::DoAction()
 
 void HiSysEventTool::WaitClient()
 {
-    unique_lock<mutex> lock(mutexClient);
-    condvClient.wait(lock);
+    unique_lock<mutex> lock(mutexClient_);
+    condvClient_.wait(lock);
 }
 
 void HiSysEventTool::NotifyClient()
 {
-    condvClient.notify_one();
+    condvClient_.notify_one();
 }
 } // namespace HiviewDFX
 } // namespace OHOS
