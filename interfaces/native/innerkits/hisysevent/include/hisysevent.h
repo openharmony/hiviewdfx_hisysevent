@@ -160,6 +160,7 @@ public:
         static constexpr char HDF_USB[] = "HDF_USB";
         static constexpr char HIDUMPER[] = "HIDUMPER";
         static constexpr char HIVIEWDFX[] = "HIVIEWDFX";
+        static constexpr char HM_KERNEL[] = "HM_KERNEL";
         static constexpr char HUKS[] = "HUKS";
         static constexpr char IAWARE[] = "IAWARE";
         static constexpr char IFAA[] = "IFAA";
