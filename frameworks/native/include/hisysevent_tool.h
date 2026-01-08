@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,17 +26,17 @@
 namespace OHOS {
 namespace HiviewDFX {
 struct ArgStuct {
-    bool real;
-    bool checkValidEvent;
+    bool real = false;
+    bool checkValidEvent = false;
+    bool history = false;
+    RuleType ruleType = RuleType::WHOLE_WORD;
+    int maxEvents = 10000; // 10000 is the default query count
+    uint32_t eventType = 0;
+    long long beginTime = -1; // -1 is the default begin timestamp
+    long long endTime = -1; // -1 is the default end timestamp
     std::string domain;
     std::string eventName;
     std::string tag;
-    RuleType ruleType;
-    bool history;
-    long long beginTime;
-    long long endTime;
-    int maxEvents;
-    uint32_t eventType;
 };
 
 using OptHandler = std::function<void(struct ArgStuct&, const char*)>;
@@ -49,6 +49,7 @@ public:
 public:
     void DoCmdHelp();
     bool DoAction();
+    void InitOptHandlers();
     void NotifyClient();
     bool ParseCmdLine(int argc, char** argv);
     void WaitClient();
@@ -58,11 +59,12 @@ private:
     void HandleInput(int argc, char** argv, const char* selection);
 
 private:
-    struct ArgStuct clientCmdArg;
-    bool autoExit = true;
-    std::condition_variable condvClient;
-    std::mutex mutexClient;
-    std::map<int, OptHandler> optHandlers;
+    struct ArgStuct clientCmdArg_;
+    bool autoExit_ = true;
+    std::condition_variable condvClient_;
+    std::mutex mutexClient_;
+    std::map<int, OptHandler> optHandlers_;
+    bool isSupportEventCheck_ = false;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
