@@ -28,15 +28,15 @@ namespace HiviewDFX {
 struct ArgStuct {
     bool real = false;
     bool checkValidEvent = false;
+    bool history = false;
+    RuleType ruleType = RuleType::WHOLE_WORD;
+    int maxEvents = 10000; // 10000 is the default query count
+    uint32_t eventType = 0;
+    long long beginTime = -1; // -1 is the default begin timestamp
+    long long endTime = -1; // -1 is the default end timestamp
     std::string domain;
     std::string eventName;
     std::string tag;
-    RuleType ruleType = RuleType::WHOLE_WORD;
-    bool history = false;
-    long long beginTime = -1; // -1 is the default begin timestamp
-    long long endTime = -1; // -1 is the default end timestamp
-    int maxEvents = 10000; // 10000 is the default query count
-    uint32_t eventType = 0;
 };
 
 using OptHandler = std::function<void(struct ArgStuct&, const char*)>;

@@ -50,20 +50,11 @@ void ParseNumFromStr(const std::string& numStr, T& num)
     }
 }
 
-bool IsSupportEventCheck()
+inline bool IsSupportEventCheck()
 {
     std::ifstream file;
     file.open("/data/system/hiview/unzip_configs/sys_event_def/hisysevent.def");
     return file.is_open();
-}
-
-std::string GetArgSelection()
-{
-    std::string argSelection = "rc:o:n:t:lS:s:E:e:m:hg:";
-    if (IsSupportEventCheck()) {
-        argSelection.push_back('v');
-    }
-    return argSelection;
 }
 
 RuleType GetRuleTypeFromArg(const string& fromArgs)
@@ -191,8 +182,13 @@ bool HiSysEventTool::ParseCmdLine(int argc, char** argv)
     if (argv == nullptr) {
         return false;
     }
-    if (argc > 1) {
-        HandleInput(argc, argv, GetArgSelection().c_str());
+    if (argc <= 1) {
+        return CheckCmdLine();
+    }
+    if (isSupportEventCheck_) {
+        HandleInput(argc, argv, "vrc:o:n:t:lS:s:E:e:m:hg:");
+    } else {
+        HandleInput(argc, argv, "rc:o:n:t:lS:s:E:e:m:hg:");
     }
     return CheckCmdLine();
 }
