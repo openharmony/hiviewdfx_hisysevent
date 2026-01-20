@@ -318,11 +318,14 @@ bool HiSysEventTool::DoAction()
 void HiSysEventTool::WaitClient()
 {
     unique_lock<mutex> lock(mutexClient_);
-    condvClient_.wait(lock);
+    while (isCondNeedWait_) {
+        condvClient_.wait(lock);
+    }
 }
 
 void HiSysEventTool::NotifyClient()
 {
+    isCondNeedWait_ = false;
     condvClient_.notify_one();
 }
 } // namespace HiviewDFX
