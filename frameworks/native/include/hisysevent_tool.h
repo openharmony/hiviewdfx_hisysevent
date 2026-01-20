@@ -61,6 +61,7 @@ private:
 private:
     struct ArgStuct clientCmdArg_;
     bool autoExit_ = true;
+    bool isCondNeedWait_ = true;
     std::condition_variable condvClient_;
     std::mutex mutexClient_;
     std::map<int, OptHandler> optHandlers_;
