@@ -173,8 +173,12 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
         NapiHiSysEventUtil::ThrowParamMandatoryError(env, "watcher");
         return nullptr;
     }
-    auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventListener>(env,
-        params[REMOVE_LISTENER_LISTENER_PARAM_INDEX], listeners);
+    std::unordered_map<napi_ref, std::pair<pid_t, std::shared_ptr<NapiHiSysEventListener>>>::iterator iter;
+    {
+        std::lock_guard<std::mutex> lock(g_listenerMapMutex);
+        iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventListener>(env,
+            params[REMOVE_LISTENER_LISTENER_PARAM_INDEX], listeners);
+    }
     if (iter == listeners.end()) {
         HILOG_ERROR(LOG_CORE, "listener not exist.");
         NapiHiSysEventUtil::ThrowErrorByRet(env, ERR_NAPI_LISTENER_NOT_FOUND);
@@ -237,8 +241,8 @@ static napi_value Query(napi_env env, napi_callback_info info)
         [] (const napi_env env, const napi_ref ref) {
             napi_value querier = nullptr;
             napi_get_reference_value(env, ref, &querier);
-            auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventQuerier>(env, querier, queriers);
             std::lock_guard<std::mutex> lock(g_querierMapMutex);
+            auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventQuerier>(env, querier, queriers);
             if (iter != queriers.end()) {
                 queriers.erase(iter->first);
             }
