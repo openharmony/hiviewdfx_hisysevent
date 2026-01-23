@@ -13,6 +13,10 @@
 
 import("//build/ohos.gni")
 
+declare_args() {
+  hisysevent_feature_support_usr_symlink = false
+}
+
 group("hisyseventcat_package") {
   # root of all the hiview dependencies
   deps = [ ":hisysevent" ]
@@ -51,6 +55,12 @@ ohos_executable("hisysevent") {
     "json_flatten_parser.cpp",
     "main.cpp",
   ]
+
+  if (hisysevent_feature_support_usr_symlink) {
+    symlink_target_name = [
+      "../usr/bin/hisysevent",
+    ]
+  }
 
   part_name = "hisysevent"
   subsystem_name = "hiviewdfx"
