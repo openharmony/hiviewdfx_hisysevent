@@ -115,9 +115,13 @@ int HiSysEventRemoveWatcher(HiSysEventRustWatcherC* watcher)
         return ERR_LISTENER_NOT_EXIST;
     }
     auto watcherKey = std::make_pair(watcher->onEventRustCb, watcher->onServiceDiedRustCb);
-    auto watcherIter = g_baseWatchers.find(watcherKey);
-    if (watcherIter == g_baseWatchers.end()) {
-        return ERR_LISTENER_NOT_EXIST;
+    std::map<std::pair<OnRustCb, OnRustCb>, std::shared_ptr<HiSysEventBaseListener>>::iterator watcherIter;
+    {
+        std::lock_guard<std::mutex> lock(g_baseWatchersMutex);
+        watcherIter = g_baseWatchers.find(watcherKey);
+        if (watcherIter == g_baseWatchers.end()) {
+            return ERR_LISTENER_NOT_EXIST;
+        }
     }
     auto ret = HiSysEventBaseManager::RemoveListener(watcherIter->second);
     if (ret != IPC_CALL_SUCCEED) {
@@ -136,9 +140,13 @@ void HiSysEventRecycleWatcher(HiSysEventRustWatcherC* watcher)
         return;
     }
     auto watcherKey = std::make_pair(watcher->onEventRustCb, watcher->onServiceDiedRustCb);
-    auto watcherIter = g_watchers.find(watcherKey);
-    if (watcherIter == g_watchers.end()) {
-        return;
+    std::map<std::pair<OnRustCb, OnRustCb>, std::shared_ptr<HiSysEventRustListener>>::iterator watcherIter;
+    {
+        std::lock_guard<std::mutex> lock(g_watchersMutex);
+        watcherIter = g_watchers.find(watcherKey);
+        if (watcherIter == g_watchers.end()) {
+            return;
+        }
     }
     auto listener = watcherIter->second;
     if (listener != nullptr) {
@@ -156,9 +164,13 @@ void HiSysEventRecycleQuerier(HiSysEventRustQuerierC* querier)
         return;
     }
     auto querierKey = std::make_pair(querier->onQueryRustCb, querier->onCompleteRustCb);
-    auto querierIter = g_queriers.find(querierKey);
-    if (querierIter == g_queriers.end()) {
-        return;
+    std::map<std::pair<OnRustCb, OnRustCb>, std::shared_ptr<HiSysEventRustQuerier>>::iterator querierIter;
+    {
+        std::lock_guard<std::mutex> lock(g_queriersMutex);
+        querierIter = g_queriers.find(querierKey);
+        if (querierIter == g_queriers.end()) {
+            return;
+        }
     }
     auto callback = querierIter->second;
     if (callback != nullptr) {

@@ -620,7 +620,11 @@ void HiSysEventAni::RemoveWatcher(ani_env *env, ani_object watcher)
             "System api can be invoked only by system applications.");
         return;
     }
-    auto iter = HiSysEventAniUtil::CompareAndReturnCacheItem<AniHiSysEventListener>(env, watcher, listeners);
+    std::unordered_map<ani_ref, std::pair<pid_t, std::shared_ptr<AniHiSysEventListener>>>::iterator iter;
+    {
+        std::lock_guard<std::mutex> lock(g_listenerMapMutex);
+        iter = HiSysEventAniUtil::CompareAndReturnCacheItem<AniHiSysEventListener>(env, watcher, listeners);
+    }
     if (iter == listeners.end()) {
         HILOG_ERROR(LOG_CORE, "listener not exist.");
         HiSysEventAniUtil::ThrowErrorByRet(env, ERR_ANI_LISTENER_NOT_FOUND);
