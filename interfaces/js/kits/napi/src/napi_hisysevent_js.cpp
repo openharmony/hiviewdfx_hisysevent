@@ -174,17 +174,19 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::unordered_map<napi_ref, std::pair<pid_t, std::shared_ptr<NapiHiSysEventListener>>>::iterator iter;
+    std::shared_ptr<NapiHiSysEventListener> listenerPtr = nullptr;
     {
         std::lock_guard<std::mutex> lock(g_listenerMapMutex);
         iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventListener>(env,
             params[REMOVE_LISTENER_LISTENER_PARAM_INDEX], listeners);
+        if (iter == listeners.end()) {
+            HILOG_ERROR(LOG_CORE, "listener not exist.");
+            NapiHiSysEventUtil::ThrowErrorByRet(env, ERR_NAPI_LISTENER_NOT_FOUND);
+            return nullptr;
+        }
+        listenerPtr = iter->second.second;
     }
-    if (iter == listeners.end()) {
-        HILOG_ERROR(LOG_CORE, "listener not exist.");
-        NapiHiSysEventUtil::ThrowErrorByRet(env, ERR_NAPI_LISTENER_NOT_FOUND);
-        return nullptr;
-    }
-    if (auto ret = HiSysEventBaseManager::RemoveListener(iter->second.second);
+    if (auto ret = HiSysEventBaseManager::RemoveListener(listenerPtr);
         ret != NAPI_SUCCESS) {
         HILOG_ERROR(LOG_CORE, "failed to remove event listener, result code is %{public}d.", ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
