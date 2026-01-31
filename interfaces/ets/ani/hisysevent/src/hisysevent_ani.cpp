@@ -632,8 +632,7 @@ void HiSysEventAni::RemoveWatcher(ani_env *env, ani_object watcher)
         }
         listenerPtr = iter->second.second;
     }
-    if (auto ret = HiSysEventBaseManager::RemoveListener(listenerPtr);
-        ret != ANI_SUCCESS) {
+    if (auto ret = HiSysEventBaseManager::RemoveListener(listenerPtr); ret != ANI_SUCCESS) {
         HILOG_ERROR(LOG_CORE, "failed to remove event listener, result code is %{public}d.", ret);
         HiSysEventAniUtil::ThrowErrorByRet(env, ret);
         return;

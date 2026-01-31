@@ -186,8 +186,7 @@ static napi_value RemoveWatcher(napi_env env, napi_callback_info info)
         }
         listenerPtr = iter->second.second;
     }
-    if (auto ret = HiSysEventBaseManager::RemoveListener(listenerPtr);
-        ret != NAPI_SUCCESS) {
+    if (auto ret = HiSysEventBaseManager::RemoveListener(listenerPtr); ret != NAPI_SUCCESS) {
         HILOG_ERROR(LOG_CORE, "failed to remove event listener, result code is %{public}d.", ret);
         NapiHiSysEventUtil::ThrowErrorByRet(env, ret);
         return nullptr;
