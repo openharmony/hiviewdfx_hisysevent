@@ -519,13 +519,14 @@ static void GetStack(ani_env *env, std::string &stackTrace)
         HILOG_ERROR(LOG_CORE, "call method provisionStackTrace failed");
     }
     ani_size length = 0;
-    status = env->Array_GetLength(static_cast<ani_array>(stackTraceElementArray), &length);
+    status = env->FixedArray_GetLength(static_cast<ani_fixedarray>(stackTraceElementArray), &length);
     if (ANI_OK != status) {
         HILOG_ERROR(LOG_CORE, "get length failed");
     }
     for (ani_size i = 0; i < length; i++) {
         ani_ref stackTraceElementRef = nullptr;
-        status = env->Array_Get(static_cast<ani_array>(stackTraceElementArray), i, &stackTraceElementRef);
+        status = env->FixedArray_Get_Ref(static_cast<ani_fixedarray_ref>(stackTraceElementArray), i,
+            &stackTraceElementRef);
         if (ANI_OK != status) {
             HILOG_ERROR(LOG_CORE, "get %{public}zu item from array failed", i);
         }
@@ -621,17 +622,18 @@ void HiSysEventAni::RemoveWatcher(ani_env *env, ani_object watcher)
         return;
     }
     std::unordered_map<ani_ref, std::pair<pid_t, std::shared_ptr<AniHiSysEventListener>>>::iterator iter;
+    std::shared_ptr<AniHiSysEventListener> listenerPtr = nullptr;
     {
         std::lock_guard<std::mutex> lock(g_listenerMapMutex);
         iter = HiSysEventAniUtil::CompareAndReturnCacheItem<AniHiSysEventListener>(env, watcher, listeners);
+        if (iter == listeners.end()) {
+            HILOG_ERROR(LOG_CORE, "listener not exist.");
+            HiSysEventAniUtil::ThrowErrorByRet(env, ERR_ANI_LISTENER_NOT_FOUND);
+            return;
+        }
+        listenerPtr = iter->second.second;
     }
-    if (iter == listeners.end()) {
-        HILOG_ERROR(LOG_CORE, "listener not exist.");
-        HiSysEventAniUtil::ThrowErrorByRet(env, ERR_ANI_LISTENER_NOT_FOUND);
-        return;
-    }
-    if (auto ret = HiSysEventBaseManager::RemoveListener(iter->second.second);
-        ret != ANI_SUCCESS) {
+    if (auto ret = HiSysEventBaseManager::RemoveListener(listenerPtr); ret != ANI_SUCCESS) {
         HILOG_ERROR(LOG_CORE, "failed to remove event listener, result code is %{public}d.", ret);
         HiSysEventAniUtil::ThrowErrorByRet(env, ret);
         return;
