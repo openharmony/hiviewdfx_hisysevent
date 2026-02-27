@@ -116,6 +116,7 @@ public:
         static constexpr char CODE_SIGN[] = "CODE_SIGN";
         static constexpr char COMMONEVENT[] = "COMMONEVENT";
         static constexpr char COMMUNICATION[] = "COMMUNICATION";
+        static constexpr char COMPANION_AUTH[] = "COMPANION_AUTH";
         static constexpr char CONTAINER[] = "CONTAINER";
         static constexpr char CONTAINER_COMM[] = "CONTAINER_COMM";
         static constexpr char CUSTOMIZATION_CONFIG[] = "CUST_CONFIG";
