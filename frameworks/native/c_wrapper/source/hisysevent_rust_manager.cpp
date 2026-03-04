@@ -115,21 +115,24 @@ int HiSysEventRemoveWatcher(HiSysEventRustWatcherC* watcher)
         return ERR_LISTENER_NOT_EXIST;
     }
     auto watcherKey = std::make_pair(watcher->onEventRustCb, watcher->onServiceDiedRustCb);
-    std::map<std::pair<OnRustCb, OnRustCb>, std::shared_ptr<HiSysEventBaseListener>>::iterator watcherIter;
+    std::pair<OnRustCb, OnRustCb> callbackKey;
+    std::shared_ptr<HiSysEventBaseListener> callbackPtr = nullptr;
     {
         std::lock_guard<std::mutex> lock(g_baseWatchersMutex);
-        watcherIter = g_baseWatchers.find(watcherKey);
+        auto watcherIter = g_baseWatchers.find(watcherKey);
         if (watcherIter == g_baseWatchers.end()) {
             return ERR_LISTENER_NOT_EXIST;
         }
+        callbackKey = watcherIter->first;
+        callbackPtr = watcherIter->second;
     }
-    auto ret = HiSysEventBaseManager::RemoveListener(watcherIter->second);
+    auto ret = HiSysEventBaseManager::RemoveListener(callbackPtr);
     if (ret != IPC_CALL_SUCCEED) {
         return ret;
     }
     {
         std::lock_guard<std::mutex> lock(g_baseWatchersMutex);
-        g_baseWatchers.erase(watcherIter->first);
+        g_baseWatchers.erase(callbackKey);
     }
     return ret;
 }
@@ -140,22 +143,23 @@ void HiSysEventRecycleWatcher(HiSysEventRustWatcherC* watcher)
         return;
     }
     auto watcherKey = std::make_pair(watcher->onEventRustCb, watcher->onServiceDiedRustCb);
-    std::map<std::pair<OnRustCb, OnRustCb>, std::shared_ptr<HiSysEventRustListener>>::iterator watcherIter;
-    std::shared_ptr<HiSysEventRustListener> listenerPtr = nullptr;
+    std::pair<OnRustCb, OnRustCb> callbackKey;
+    std::shared_ptr<HiSysEventRustListener> callbackPtr = nullptr;
     {
         std::lock_guard<std::mutex> lock(g_watchersMutex);
-        watcherIter = g_watchers.find(watcherKey);
+        auto watcherIter = g_watchers.find(watcherKey);
         if (watcherIter == g_watchers.end()) {
             return;
         }
-        listenerPtr = watcherIter->second;
+        callbackKey = watcherIter->first;
+        callbackPtr = watcherIter->second;
     }
-    if (listenerPtr != nullptr) {
-        listenerPtr->RecycleWatcher(watcher);
+    if (callbackPtr != nullptr) {
+        callbackPtr->RecycleWatcher(watcher);
     }
     {
         std::lock_guard<std::mutex> lock(g_watchersMutex);
-        g_watchers.erase(watcherIter->first);
+        g_watchers.erase(callbackKey);
     }
 }
 
@@ -165,22 +169,23 @@ void HiSysEventRecycleQuerier(HiSysEventRustQuerierC* querier)
         return;
     }
     auto querierKey = std::make_pair(querier->onQueryRustCb, querier->onCompleteRustCb);
-    std::map<std::pair<OnRustCb, OnRustCb>, std::shared_ptr<HiSysEventRustQuerier>>::iterator querierIter;
-    std::shared_ptr<HiSysEventRustQuerier> querierPtr = nullptr;
+    std::pair<OnRustCb, OnRustCb> callbackKey;
+    std::shared_ptr<HiSysEventRustQuerier> callbackPtr = nullptr;
     {
         std::lock_guard<std::mutex> lock(g_queriersMutex);
-        querierIter = g_queriers.find(querierKey);
+        auto querierIter = g_queriers.find(querierKey);
         if (querierIter == g_queriers.end()) {
             return;
         }
-        querierPtr = querierIter->second;
+        callbackKey = querierIter->first;
+        callbackPtr = querierIter->second;
     }
-    if (querierPtr != nullptr) {
-        querierPtr->RecycleQuerier(querier);
+    if (callbackPtr != nullptr) {
+        callbackPtr->RecycleQuerier(querier);
     }
     {
         std::lock_guard<std::mutex> lock(g_queriersMutex);
-        g_queriers.erase(querierIter->first);
+        g_queriers.erase(callbackKey);
     }
 }
 }
