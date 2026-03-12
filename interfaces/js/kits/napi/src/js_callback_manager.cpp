@@ -42,14 +42,14 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
     uv_loop_t* loop = nullptr;
     napi_get_uv_event_loop(context->env, &loop);
     if (loop == nullptr) {
-        HILOG_DEBUG(LOG_CORE, "failed to get uv_loop.");
+        HILOG_ERROR(LOG_CORE, "failed to get uv_loop.");
         return;
     }
     context->callback = std::get<CALLBACK_FUNC_INDEX>(current);
     context->release = std::get<RELEASE_FUNC_INDEX>(current);
     uv_work_t* work = new(std::nothrow) uv_work_t();
     if (work == nullptr) {
-        HILOG_DEBUG(LOG_CORE, "uv_work new failed, no memory left.");
+        HILOG_ERROR(LOG_CORE, "uv_work new failed, no memory left.");
         return;
     }
     work->data = reinterpret_cast<void*>(context);
@@ -61,18 +61,20 @@ void RunCallback(CallbackContext* context, std::tuple<CallbackContext*, CALLBACK
         },
         [] (uv_work_t* work, int status) {
             if (work == nullptr || work->data == nullptr) {
+                HILOG_ERROR(LOG_CORE, "uv work is invalid.");
                 DeleteWork(work);
                 return;
             }
             CallbackContext* context = reinterpret_cast<CallbackContext*>(work->data);
             if (context == nullptr || context->env == nullptr) {
+                HILOG_ERROR(LOG_CORE, "napi environment is invalid.");
                 DeleteWork(work);
                 return;
             }
             napi_handle_scope scope = nullptr;
             napi_open_handle_scope(context->env, &scope);
             if (scope == nullptr) {
-                HILOG_DEBUG(LOG_CORE, "napi scope is null.");
+                HILOG_ERROR(LOG_CORE, "napi scope is null.");
                 DeleteWork(work);
                 return;
             }

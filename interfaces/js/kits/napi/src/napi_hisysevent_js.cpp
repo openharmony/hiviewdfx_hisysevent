@@ -63,6 +63,24 @@ std::mutex g_listenerMapMutex;
 std::unordered_map<napi_ref, NAPI_LISTENER_PAIR> listeners;
 std::mutex g_querierMapMutex;
 std::unordered_map<napi_ref, NAPI_QUERIER_PAIR> queriers;
+
+void ReleaseQuerier(const napi_env env, const napi_ref ref)
+{
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        HILOG_ERROR(LOG_CORE, "napi scope is null.");
+        return;
+    }
+    napi_value querier = nullptr;
+    napi_get_reference_value(env, ref, &querier);
+    std::lock_guard<std::mutex> lock(g_querierMapMutex);
+    auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventQuerier>(env, querier, queriers);
+    napi_close_handle_scope(env, scope);
+    if (iter != queriers.end()) {
+        queriers.erase(iter->first);
+    }
+}
 }
 
 static napi_value Write(napi_env env, napi_callback_info info)
@@ -239,15 +257,7 @@ static napi_value Query(napi_env env, napi_callback_info info)
     callbackContext->threadId = getproctid();
     napi_create_reference(env, params[QUERY_QUERIER_PARAM_INDEX], 1, &callbackContext->ref);
     std::shared_ptr<NapiHiSysEventQuerier> querier = std::make_shared<NapiHiSysEventQuerier>(callbackContext,
-        [] (const napi_env env, const napi_ref ref) {
-            napi_value querier = nullptr;
-            napi_get_reference_value(env, ref, &querier);
-            std::lock_guard<std::mutex> lock(g_querierMapMutex);
-            auto iter = NapiHiSysEventUtil::CompareAndReturnCacheItem<NapiHiSysEventQuerier>(env, querier, queriers);
-            if (iter != queriers.end()) {
-                queriers.erase(iter->first);
-            }
-        });
+        ReleaseQuerier);
     auto ret = HiSysEventBaseManager::Query(queryArg, rules, querier);
     if (ret != NAPI_SUCCESS) {
         HILOG_ERROR(LOG_CORE, "failed to query hisysevent, result code is %{public}d.", ret);
