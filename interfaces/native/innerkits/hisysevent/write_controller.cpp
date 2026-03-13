@@ -95,6 +95,9 @@ public:
     void Put(uint64_t key, struct EventWroteRecord record)
     {
         std::lock_guard<std::mutex> lock(mutex_);
+        if (capacity_ == 0) {
+            return;
+        }
         if (key2Index_.count(key) > 0) {
             key2Index_[key].record = record;
             Modify(key);
