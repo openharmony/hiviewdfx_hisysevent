@@ -84,6 +84,7 @@ public:
         static constexpr char ACCESSIBILITY_UE[] = "ACCESSIBILITY_UE";
         static constexpr char ACCOUNT[] = "ACCOUNT";
         static constexpr char ACE[] = "ACE";
+        static constexpr char ACE_UE[] = "ACE_UE";
         static constexpr char AI[] = "AI";
         static constexpr char APPEXECFWK[] = "APPEXECFWK";
         static constexpr char APPSPAWN[] = "APPSPAWN";
