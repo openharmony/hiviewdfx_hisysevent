@@ -95,10 +95,9 @@ ohos_moduletest("HiSysEventCTest") {
 
   configs = [ ":hisysevent_native_test_config" ]
 
-  external_deps = [
-    "hilog:libhilog",
-    "hisysevent:libhisysevent",
-  ]
+  deps = [ "../../../interfaces/native/innerkits/hisysevent:hisysevent_static_lib_for_tdd" ]
+
+  external_deps = [ "hilog:libhilog" ]
 
   if (build_public_version) {
     external_deps += [ "bounds_checking_function:libsec_shared" ]

@@ -28,6 +28,7 @@
         "access_token",
         "bounds_checking_function",
         "c_utils",
+        "ets_frontend",
         "hilog",
         "hitrace",
         "ipc",
