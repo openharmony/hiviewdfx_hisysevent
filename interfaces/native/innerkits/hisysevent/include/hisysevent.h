@@ -205,6 +205,7 @@ public:
         static constexpr char RSS[] = "RSS";
         static constexpr char SAMGR[] = "SAMGR";
         static constexpr char SANDBOX_MANAGER[] = "SANDBOX_MANAGER";
+        static constexpr char SCREEN_CHANGE_UE[] = "SCREEN_CHANGE_UE";
         static constexpr char SE_BASE_SERVICES[] = "SE_BASE_SERVICES";
         static constexpr char SECURE_ELEMENT[] = "SECURE_ELEMENT";
         static constexpr char SECURITY_AUDIT[] = "SECURITY_AUDIT";
