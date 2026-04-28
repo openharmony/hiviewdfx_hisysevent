@@ -42,6 +42,12 @@ namespace HiviewDFX {
 #define DOMAIN_MASKS ""
 #endif
 
+#if defined(__GNUC__) && __GNUC__ >= 4
+    #define HISYSEVENT_HIDDEN __attribute__((visibility("hidden")))
+#else
+    #define HISYSEVENT_HIDDEN
+#endif
+
 static constexpr char DOMAIN_MASKS_DEF[] = DOMAIN_MASKS;
 
 // split domain masks by '|', then compare with str
@@ -157,7 +163,7 @@ public:
         static constexpr char GLOBAL_I18N[] = "GLOBAL_I18N";
         static constexpr char GLOBAL_RESMGR[] = "GLOBAL_RESMGR";
         static constexpr char GLOBAL[] = "GLOBAL";
-        static constexpr char GRAPHIC[] = "GRAPHIC";
+        HISYSEVENT_HIDDEN static constexpr char GRAPHIC[] = "GRAPHIC";
         static constexpr char GRAPHICS_GAME[] = "GRAPHICS_GAME";
         static constexpr char HDF_USB[] = "HDF_USB";
         static constexpr char HIDUMPER[] = "HIDUMPER";
@@ -248,7 +254,7 @@ public:
         static constexpr char WEARABLE_HARDWARE[] = "WEARABLEHW";
         static constexpr char WEARABLE[] = "WEARABLE";
         static constexpr char WEBVIEW[] = "WEBVIEW";
-        static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
+        HISYSEVENT_HIDDEN static constexpr char WINDOW_MANAGER[] = "WINDOWMANAGER";
         static constexpr char WORK_SCHEDULER[] = "WORKSCHEDULER";
         static constexpr char OTHERS[] = "OTHERS";
     };
