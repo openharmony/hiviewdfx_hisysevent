@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,9 @@
  */
 
 #include "hisysevent_ani_util.h"
+
+#include <cinttypes>
+
 #include "def.h"
 #include "hilog/log_cpp.h"
 #include "ipc_skeleton.h"
@@ -96,8 +99,12 @@ bool HiSysEventAniUtil::IsRefUndefined(ani_env *env, ani_ref ref)
 
 bool HiSysEventAniUtil::IsSystemAppCall()
 {
-    uint64_t tokenId = OHOS::IPCSkeleton::GetCallingFullTokenID();
-    return OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(tokenId);
+    uint64_t tokenId = OHOS::IPCSkeleton::GetSelfTokenID();
+    bool ret = OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(tokenId);
+    if (!ret) {
+        HILOG_WARN(LOG_CORE, "hap is not system app, token id %{public}" PRIu64, tokenId);
+    }
+    return ret;
 }
 
 int64_t HiSysEventAniUtil::ParseBigintValue(ani_env *env, ani_ref elementRef)

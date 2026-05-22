@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1104,8 +1104,12 @@ void NapiHiSysEventUtil::ThrowErrorByRet(napi_env env, const int32_t retCode)
 
 bool NapiHiSysEventUtil::IsSystemAppCall()
 {
-    uint64_t tokenId = IPCSkeleton::GetCallingFullTokenID();
-    return Security::AccessToken::AccessTokenKit::IsSystemAppByFullTokenID(tokenId);
+    uint64_t tokenId = IPCSkeleton::GetSelfTokenID();
+    bool ret = Security::AccessToken::AccessTokenKit::IsSystemAppByFullTokenID(tokenId);
+    if (!ret) {
+        HILOG_WARN(LOG_CORE, "hap is not system app, token id %{public}" PRIu64, tokenId);
+    }
+    return ret;
 }
 
 bool NapiHiSysEventUtil::IsNullOrUndefined(napi_env env, const napi_value& val)
