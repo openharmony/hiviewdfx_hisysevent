@@ -379,6 +379,11 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCQueryTest001, TestSize.Level3)
 
     auto res = OH_HiSysEvent_Query(&arg, rules, sizeof(rules) / sizeof(HiSysEventQueryRule), &callback);
     ASSERT_EQ(res, 0);
+    res = OH_HiSysEvent_Query(&arg, rules, 101, &callback); // max cnt is 100
+    ASSERT_EQ(res, ERR_TOO_MANY_QUERY_RULES);
+    res = OH_HiSysEvent_Query(&arg, nullptr, 1, &callback);
+    ASSERT_EQ(res, ERR_INVALID_RULES);
+
     HILOG_INFO(LOG_CORE, "HiSysEventMgrCQueryTest001 end");
 }
 
@@ -1187,6 +1192,11 @@ HWTEST_F(HiSysEventManagerCTest, HiSysEventMgrCWatcherTest001, TestSize.Level0)
     ASSERT_EQ(ret, ERR_LISTENER_NOT_EXIST);
 
     // normal function test
+    ret = OH_HiSysEvent_Add_Watcher(&watcher, rules, 21); // max cnt is 20
+    ASSERT_EQ(ret, ERR_TOO_MANY_WATCH_RULES);
+    ret = OH_HiSysEvent_Add_Watcher(&watcher, nullptr, 1);
+    ASSERT_EQ(ret, ERR_INVALID_RULES);
+
     ret = OH_HiSysEvent_Add_Watcher(&watcher, rules, sizeof(rules) / sizeof(HiSysEventWatchRule));
     ASSERT_EQ(ret, 0);
     ret = OH_HiSysEvent_Write("HIVIEWDFX", "PLUGIN_LOAD", HISYSEVENT_BEHAVIOR, nullptr, 0);

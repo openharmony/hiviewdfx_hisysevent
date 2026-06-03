@@ -36,6 +36,9 @@ using OHOS::HiviewDFX::HiSysEventBaseListener;
 using OHOS::HiviewDFX::IPC_CALL_SUCCEED;
 using OHOS::HiviewDFX::ERR_LISTENER_NOT_EXIST;
 using OHOS::HiviewDFX::RuleType;
+using OHOS::HiviewDFX::ERR_TOO_MANY_QUERY_RULES;
+using OHOS::HiviewDFX::ERR_TOO_MANY_WATCH_RULES;
+using OHOS::HiviewDFX::ERR_INVALID_RULES;
 
 static std::map<std::pair<OnEventFunc, OnServiceDiedFunc>, std::shared_ptr<HiSysEventBaseListener>> watchers;
 std::mutex g_mapMutex;
@@ -43,6 +46,12 @@ std::mutex g_mapMutex;
 int HiSysEventQuery(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], size_t ruleSize,
     HiSysEventQueryCallback& callback)
 {
+    if (ruleSize > 100) {
+        return ERR_TOO_MANY_QUERY_RULES;
+    }
+    if (ruleSize > 0 && rules == nullptr) {
+        return ERR_INVALID_RULES;
+    }
     std::vector<QueryRuleCls> queryRules;
     for (size_t i = 0; i < ruleSize; ++i) {
         if (strlen(rules[i].domain) == 0 || rules[i].eventListSize == 0) {
@@ -62,6 +71,12 @@ int HiSysEventQuery(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], 
 
 int HiSysEventAddWatcher(HiSysEventWatcher& watcher, HiSysEventWatchRule rules[], size_t ruleSize)
 {
+    if (ruleSize > 20) {
+        return ERR_TOO_MANY_WATCH_RULES;
+    }
+    if (ruleSize > 0 && rules == nullptr) {
+        return ERR_INVALID_RULES;
+    }
     std::vector<ListenerRuleCls> listenerRules;
     for (size_t i = 0; i < ruleSize; ++i) {
         listenerRules.emplace_back(rules[i].domain, rules[i].name, rules[i].tag, RuleType(rules[i].ruleType),

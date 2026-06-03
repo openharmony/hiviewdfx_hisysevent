@@ -52,6 +52,9 @@ static constexpr int32_t ERR_REMOVE_SUBSCRIBE = -34;
 /* for c interface */
 static constexpr int32_t ERR_QUERY_ARG_NULL = -35;
 static constexpr int32_t ERR_QUERY_CALLBACK_NULL = -36;
+
+/* for invalid rule */
+static constexpr int32_t ERR_INVALID_RULES = -37;
 } // namespace HiviewDFX
 } // namespace OHOS
 
