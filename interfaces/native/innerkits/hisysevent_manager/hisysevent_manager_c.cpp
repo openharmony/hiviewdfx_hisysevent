@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,10 +43,13 @@ using OHOS::HiviewDFX::ERR_INVALID_RULES;
 static std::map<std::pair<OnEventFunc, OnServiceDiedFunc>, std::shared_ptr<HiSysEventBaseListener>> watchers;
 std::mutex g_mapMutex;
 
+static constexpr size_t MAX_QUERY_RULE_CNT = 100;
+static constexpr size_t MAX_WATCH_RULE_CNT = 20;
+
 int HiSysEventQuery(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], size_t ruleSize,
     HiSysEventQueryCallback& callback)
 {
-    if (ruleSize > 100) {
+    if (ruleSize > MAX_QUERY_RULE_CNT) {
         return ERR_TOO_MANY_QUERY_RULES;
     }
     if (ruleSize > 0 && rules == nullptr) {
@@ -71,7 +74,7 @@ int HiSysEventQuery(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], 
 
 int HiSysEventAddWatcher(HiSysEventWatcher& watcher, HiSysEventWatchRule rules[], size_t ruleSize)
 {
-    if (ruleSize > 20) {
+    if (ruleSize > MAX_WATCH_RULE_CNT) {
         return ERR_TOO_MANY_WATCH_RULES;
     }
     if (ruleSize > 0 && rules == nullptr) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,8 +52,6 @@ static constexpr int32_t ERR_REMOVE_SUBSCRIBE = -34;
 /* for c interface */
 static constexpr int32_t ERR_QUERY_ARG_NULL = -35;
 static constexpr int32_t ERR_QUERY_CALLBACK_NULL = -36;
-
-/* for invalid rule */
 static constexpr int32_t ERR_INVALID_RULES = -37;
 } // namespace HiviewDFX
 } // namespace OHOS
