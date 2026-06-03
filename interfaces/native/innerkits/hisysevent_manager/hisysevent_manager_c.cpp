@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,13 +36,25 @@ using OHOS::HiviewDFX::HiSysEventBaseListener;
 using OHOS::HiviewDFX::IPC_CALL_SUCCEED;
 using OHOS::HiviewDFX::ERR_LISTENER_NOT_EXIST;
 using OHOS::HiviewDFX::RuleType;
+using OHOS::HiviewDFX::ERR_TOO_MANY_QUERY_RULES;
+using OHOS::HiviewDFX::ERR_TOO_MANY_WATCH_RULES;
+using OHOS::HiviewDFX::ERR_INVALID_RULES;
 
 static std::map<std::pair<OnEventFunc, OnServiceDiedFunc>, std::shared_ptr<HiSysEventBaseListener>> watchers;
 std::mutex g_mapMutex;
 
+static constexpr size_t MAX_QUERY_RULE_CNT = 100;
+static constexpr size_t MAX_WATCH_RULE_CNT = 20;
+
 int HiSysEventQuery(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], size_t ruleSize,
     HiSysEventQueryCallback& callback)
 {
+    if (ruleSize > MAX_QUERY_RULE_CNT) {
+        return ERR_TOO_MANY_QUERY_RULES;
+    }
+    if (ruleSize > 0 && rules == nullptr) {
+        return ERR_INVALID_RULES;
+    }
     std::vector<QueryRuleCls> queryRules;
     for (size_t i = 0; i < ruleSize; ++i) {
         if (strlen(rules[i].domain) == 0 || rules[i].eventListSize == 0) {
@@ -62,6 +74,12 @@ int HiSysEventQuery(const HiSysEventQueryArg& arg, HiSysEventQueryRule rules[], 
 
 int HiSysEventAddWatcher(HiSysEventWatcher& watcher, HiSysEventWatchRule rules[], size_t ruleSize)
 {
+    if (ruleSize > MAX_WATCH_RULE_CNT) {
+        return ERR_TOO_MANY_WATCH_RULES;
+    }
+    if (ruleSize > 0 && rules == nullptr) {
+        return ERR_INVALID_RULES;
+    }
     std::vector<ListenerRuleCls> listenerRules;
     for (size_t i = 0; i < ruleSize; ++i) {
         listenerRules.emplace_back(rules[i].domain, rules[i].name, rules[i].tag, RuleType(rules[i].ruleType),
