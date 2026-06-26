@@ -42,7 +42,9 @@ ohos_shared_library("hisysevent_napi") {
     "hilog:libhilog",
     "ipc:ipc_single",
     "jsoncpp:jsoncpp",
+    "libuv:uv",
     "napi:ace_napi",
+    "node:node_header_notice",
   ]
 
   relative_install_dir = "module"
