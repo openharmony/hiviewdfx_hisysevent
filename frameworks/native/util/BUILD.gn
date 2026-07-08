@@ -19,14 +19,6 @@ config("hisysevent_util_config") {
 }
 
 ohos_source_set("hisysevent_util") {
-  branch_protector_ret = "pac_ret"
-  sanitize = {
-    cfi = true
-    cfi_cross_dso = true
-    cfi_vcall_icall_only = true
-    debug = false
-  }
-
   cflags_cc = [ "-Os" ]
 
   public_configs = [ ":hisysevent_util_config" ]

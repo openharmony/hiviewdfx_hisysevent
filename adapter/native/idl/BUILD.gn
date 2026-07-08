@@ -40,14 +40,6 @@ idl_gen_interface("sys_event_interface") {
 }
 
 ohos_source_set("sys_event_impl_client") {
-  branch_protector_ret = "pac_ret"
-  sanitize = {
-    cfi = true
-    cfi_cross_dso = true
-    cfi_vcall_icall_only = true
-    debug = false
-  }
-
   cflags_cc = [ "-Os" ]
 
   include_dirs = [ "include" ]
