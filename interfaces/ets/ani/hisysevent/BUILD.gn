@@ -15,6 +15,8 @@ import("//build/config/components/ets_frontend/ets2abc_config.gni")
 import("//build/ohos.gni")
 
 ohos_shared_library("hisysevent_ani") {
+  branch_protector_ret = "pac_ret"
+
   cflags_cc = [ "-Os" ]
 
   shlib_type = "ani"

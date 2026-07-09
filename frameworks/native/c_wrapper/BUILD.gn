@@ -14,6 +14,8 @@
 import("//build/ohos.gni")
 
 ohos_shared_library("hisysevent_c_wrapper") {
+  branch_protector_ret = "pac_ret"
+
   cflags_cc = [ "-Os" ]
 
   include_dirs = [
