@@ -23,6 +23,8 @@ group("hisyseventcat_package") {
 }
 
 ohos_executable("hisysevent") {
+  branch_protector_ret = "pac_ret"
+
   cflags_cc = [ "-Os" ]
 
   install_enable = true
