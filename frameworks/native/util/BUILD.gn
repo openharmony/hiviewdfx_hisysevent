@@ -19,6 +19,8 @@ config("hisysevent_util_config") {
 }
 
 ohos_source_set("hisysevent_util") {
+  branch_protector_ret = "pac_ret"
+
   cflags_cc = [ "-Os" ]
 
   public_configs = [ ":hisysevent_util_config" ]
