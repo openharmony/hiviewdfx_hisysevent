@@ -525,7 +525,7 @@ static void GetStack(ani_env *env, std::string &stackTrace)
     }
     for (ani_size i = 0; i < length; i++) {
         ani_ref stackTraceElementRef = nullptr;
-        status = env->FixedArray_Get_Ref(static_cast<ani_fixedarray_ref>(stackTraceElementArray), i,
+        status = env->FixedArray_Get(static_cast<ani_fixedarray>(stackTraceElementArray), i,
             &stackTraceElementRef);
         if (ANI_OK != status) {
             HILOG_ERROR(LOG_CORE, "get %{public}zu item from array failed", i);
