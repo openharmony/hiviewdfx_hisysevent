@@ -67,6 +67,9 @@ int GetParamValues(const HiSysEventRecordC& record, const char* name, T** value,
     for (size_t i = 0; i < len; i++) {
         data[i] = dataVec[i];
     }
+    if (value == nullptr) {
+        return ERR_NULL;
+    }
     *value = data;
     return 0;
 }
