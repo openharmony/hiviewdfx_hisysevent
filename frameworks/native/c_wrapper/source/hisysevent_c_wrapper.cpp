@@ -25,7 +25,7 @@ extern "C" {
 
 static void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSysEventParam dest[], unsigned int size)
 {
-    if (src == nullptr || size <= 0) {
+    if (src == nullptr || size == 0) {
         return;
     }
     for (size_t i = 0; i < size; i++) {
