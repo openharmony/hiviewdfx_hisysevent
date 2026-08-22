@@ -23,8 +23,11 @@
 extern "C" {
 #endif
 
-static inline void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSysEventParam dest[], unsigned int size)
+static void ConvertParamWrapper(const HiSysEventParamWrapper src[], HiSysEventParam dest[], unsigned int size)
 {
+    if (src == nullptr || size == 0) {
+        return;
+    }
     for (size_t i = 0; i < size; i++) {
         HiSysEventParamWrapper wrapper = src[i];
         for (size_t j = 0; j < MAX_LENGTH_OF_PARAM_NAME && wrapper.paramName[j] != '\0'; j++) {

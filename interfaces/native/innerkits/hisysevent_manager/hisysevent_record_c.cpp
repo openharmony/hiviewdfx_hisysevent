@@ -48,7 +48,7 @@ int GetParamValue(const HiSysEventRecordC& record, const char* name, char** valu
 template <typename T>
 int GetParamValues(const HiSysEventRecordC& record, const char* name, T** value, size_t& len)
 {
-    if (record.jsonStr == nullptr || name == nullptr) {
+    if (record.jsonStr == nullptr || name == nullptr || value == nullptr) {
         return ERR_NULL;
     }
     HiSysEventRecordCls recordObj(record.jsonStr);
