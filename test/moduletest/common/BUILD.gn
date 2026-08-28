@@ -59,6 +59,12 @@ ohos_moduletest("HiSysEventAdapterNativeTest") {
     ]
     cflags_cc = [ "-D__HIVIEW_HAVE_HITRACE__" ]
   }
+
+  if (build_public_version) {
+    external_deps += [ "bounds_checking_function:libsec_shared" ]
+  } else {
+    external_deps += [ "bounds_checking_function:libsec_static" ]
+  }
 }
 
 ohos_moduletest("HiSysEventNativeTest") {
@@ -85,6 +91,12 @@ ohos_moduletest("HiSysEventNativeTest") {
       "hilog:libhilog",
     ]
     cflags_cc = [ "-D__HIVIEW_HAVE_HITRACE__" ]
+  }
+
+  if (build_public_version) {
+    external_deps += [ "bounds_checking_function:libsec_shared" ]
+  } else {
+    external_deps += [ "bounds_checking_function:libsec_static" ]
   }
 }
 
