@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include "hisysevent_ani.h"
+#include "parse_hisys_int.h"
 #include "ani_hisysevent_querier.h"
 #include "ani_hisysevent_listener.h"
 #include "ani_callback_context.h"
@@ -496,13 +497,12 @@ static void ParseCallerInfoFromStackTrace(const std::string& stackTrace, JsCalle
         callerInfo.first = (pos == std::string::npos) ? fileName : fileName.substr(++pos);
     }
     auto lineInfo = lineInfos[LINE_INDEX];
-    if (std::any_of(lineInfo.begin(), lineInfo.end(), [] (auto& c) {
-        return !isdigit(c);
-    })) {
+    int64_t line = 0;
+    if (!ParseHisysInt64(lineInfo, line)) {
         callerInfo.second = DEFAULT_LINE_NUM;
         return;
     }
-    callerInfo.second = static_cast<int64_t>(std::stoll(lineInfos[LINE_INDEX]));
+    callerInfo.second = line;
 }
 
 static void GetStack(ani_env *env, std::string &stackTrace)
