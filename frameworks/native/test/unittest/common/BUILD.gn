@@ -54,6 +54,7 @@ ohos_unittest("HiSysEventToolUnitTest") {
   ]
 
   external_deps = [
+    "bounds_checking_function:libsec_shared",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
@@ -78,6 +79,7 @@ ohos_unittest("HiSysEventCWrapperTest") {
   ]
 
   external_deps = [
+    "bounds_checking_function:libsec_shared",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
