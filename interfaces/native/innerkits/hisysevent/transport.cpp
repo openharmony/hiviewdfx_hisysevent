@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include <cerrno>
 #include <cstddef>
+#include <cstdio>
 #include <iosfwd>
 #include <list>
 #include <mutex>
@@ -88,6 +89,8 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
         LogErrorInfo("create hisysevent client socket failed", true);
         return ERR_DOES_NOT_INIT;
     }
+    uint64_t fdsanTag = fdsan_create_owner_tag(FDSAN_OWNER_TYPE_DEFAULT, LOG_DOMAIN);
+    fdsan_exchange_owner_tag(socketId, 0, fdsanTag);
     InitRecvBuffer(socketId);
     auto sendRet = 0;
     auto retryTimes = RETRY_TIMES;
@@ -102,10 +105,10 @@ int Transport::SendToHiSysEventDataSource(RawData& rawData)
     if (sendRet < 0) {
         errDes.append(" write failed");
         LogErrorInfo(errDes, errno == EACCES);
-        close(socketId);
+        fdsan_close_with_tag(socketId, fdsanTag);
         return ERR_SEND_FAIL;
     }
-    close(socketId);
+    fdsan_close_with_tag(socketId, fdsanTag);
     HILOG_DEBUG(LOG_CORE, "hisysevent send data successful");
     return SUCCESS;
 }
